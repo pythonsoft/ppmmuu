@@ -19,7 +19,7 @@ function getEntries() {
 let config = {};
 
 config.server = {
-  entry: './src/app.js',
+  entry: './src/server/app.js',
   output: {
     path: path.join(__dirname, 'build'),
     filename: 'server.js',
