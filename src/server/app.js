@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const del = require('del');
 const mongodb = require('mongodb');
-const config = require('./config');
+const config = require("./config");
 let swaggerJSDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 let i18nMiddleware = require('./middleware/i18n');
@@ -35,7 +35,7 @@ const runBackEndServer = function() {
 
 const runServer = function() {
   app.listen('8000', function() {
-    var routersPath = path.join(__dirname, './fe/routers');
+    var routersPath = path.join(__dirname, '../fe/routers');
     // var feRoutes = {};
     // fs.readdirSync(routersPath).forEach(file => {
     //   if (fs.statSync(path.join(routersPath, file)).isDirectory()) {
@@ -68,7 +68,6 @@ const runServer = function() {
 };
 
 if(process.env.NODE_ENV === 'development') {
-  console.log("hhhhhh");
 
   del.sync(path.resolve('build'));
 
@@ -102,8 +101,6 @@ if(process.env.NODE_ENV === 'development') {
       ],
     };
     let swaggerSpec = swaggerJSDoc(swaggerOptions);
-
-    console.log(swaggerSpec);
 
 // set swagger-ui-express
     let showExplorer = true;

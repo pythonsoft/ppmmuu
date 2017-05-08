@@ -6,7 +6,7 @@ const fs = require('fs');
 const vm = require('vm');
 
 let config = {};
-const configPath = path.join(__dirname, 'config_master.js');
+const configPath = path.join(__dirname, './config_master.js');
 
 config.mongodb = {
   url: 'mongodb://10.0.15.70:27017/ump_v1',
@@ -20,7 +20,6 @@ config.port = process.env.NODE_ENV === 'development' ? 8080 : 8080;
 
 let readConfig = function(p) {
   const sandbox = {
-    require: require,
     path: path,
     config: config,
     __dirname: __dirname,
@@ -37,9 +36,7 @@ if(fs.existsSync(configPath)) {
 
 }else {
   if (process.env.NODE_ENV == 'development') { //本地开发环境
-
-    let testConfigPath = './config_master.js';
-    readConfig(testConfigPath);
+    readConfig(path.join(__dirname, './config_master.js'));
     config.host = "localhost:8000";
     config.domain = 'http://' + config.host;
 
