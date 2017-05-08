@@ -3,6 +3,7 @@
  */
 var express = require('express');
 var router = express.Router();
+const Utils = require('../../common/utils');
 
 /**
  * apiName: getUserDetail
@@ -30,7 +31,7 @@ var router = express.Router();
  *         description: user
  */
 router.get('/detail', (req, res) => {
-  return res.json({'status': 0, data: {user: "fffa"}});
+  return res.json(Utils.result('0', {user: "test"}));
 });
 
 module.exports = router;
