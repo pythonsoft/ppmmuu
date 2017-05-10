@@ -53,8 +53,13 @@ gulp.task('rev', function() {
     .pipe(gulp.dest(path.join(buildPath,'views')));
 });
 
+gulp.task('config', function() {
+  return gulp.src(['./src/server/config_master.js'])
+    .pipe(gulp.dest(buildPath));
+});
+
 gulp.task('default', [
-  'rev'
+  'rev', 'config'
 ]);
 
 if(process.env.NODE_ENV === 'development') {

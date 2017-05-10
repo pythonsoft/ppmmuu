@@ -110,7 +110,10 @@ Utils.analysisNetworkInterfaces = function () {
   return ips;
 };
 
-Utils.result = function(code, data, message){
+Utils.result = function(code, data, message=null){
+  if(code === '0'){
+    message = 'ok';
+  }
   return { status: code, data: data, statusInfo: { message: message}};
 }
 

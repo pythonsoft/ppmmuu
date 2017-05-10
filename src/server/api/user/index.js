@@ -3,8 +3,12 @@
  */
 var express = require('express');
 var router = express.Router();
+const Utils = require('../../common/utils');
 
 /**
+ * apiName: getUserDetail
+ * apiFuncType: get
+ * apiFuncUrl: /api/user/detail
  * @swagger
  * /user/detail:
  *   get:
@@ -27,8 +31,7 @@ var router = express.Router();
  *         description: user
  */
 router.get('/detail', (req, res) => {
-  console.log("enter");
-  return res.json({'status': 0, data: {user: "fffa"}});
+  return res.json(Utils.result('0', {user: "test"}));
 });
 
 module.exports = router;
