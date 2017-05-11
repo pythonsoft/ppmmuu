@@ -9,4 +9,4 @@ npm-debug.log
 
 /src/server/apiPath.js
 
-/src/fe/api/
+/src/fe/lib/api/
