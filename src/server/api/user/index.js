@@ -43,7 +43,7 @@ router.get('/detail', isLogin.middleware, (req, res) => {
  * apiFuncType: post
  * apiFuncUrl: /api/user/login
  * @swagger
- * /log/test/:
+ * /user/login/:
  *   post:
  *     description: login
  *     tags:
