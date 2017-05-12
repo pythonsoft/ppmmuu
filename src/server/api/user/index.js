@@ -67,7 +67,7 @@ router.get('/detail', isLogin.middleware, (req, res) => {
  *               type: string
  *     responses:
  *       200:
- *         description: log
+ *         description: user
  *         schema:
  *           type: object
  *           properties:
@@ -85,7 +85,6 @@ router.get('/detail', isLogin.middleware, (req, res) => {
  *                  type: string
  *
  */
-
 router.post('/login', (req, res)=> {
   let username = req.body.username || '';
   let password = req.body.password || '';
