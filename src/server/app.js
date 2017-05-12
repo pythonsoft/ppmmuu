@@ -21,18 +21,6 @@ app.set('views', path.resolve('build', 'views'));
 app.set('view engine', 'pug');
 app.use(i18nMiddleware);
 
-const runBackEndServer = function() {
-  mongodb.MongoClient.connect(config.mongodb.url, function(err, db) {
-    if(err) {
-      console.log(err);
-      return false;
-    }
-
-    config.mongodb.dbInstance = db;
-    require('./apiPath.js')(app);
-  });
-};
-
 const runServer = function() {
   app.listen('8000', function() {
     var routersPath = path.join(__dirname, '../fe/routers');
@@ -57,7 +45,8 @@ const runServer = function() {
       }
     })
 
-    runBackEndServer();
+    require('./apiPath.js')(app);
+    require('./mongodbScript/init');
 
     app.get('/api/test', (req, res) => {
       res.end('api test');

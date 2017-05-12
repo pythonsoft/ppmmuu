@@ -1,0 +1,10 @@
+{
+  "usernameOrPasswordIsWrong": {
+    "code": "-1001",
+    "message": "username or password is wrong"
+  },
+  "userInfoFindWrong": {
+    "code": "-1002",
+    "message": "find userInfo system wrong"
+  }
+}

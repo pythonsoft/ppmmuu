@@ -15,6 +15,10 @@ const DB = require('../../common/db');
  *         type: string
  *       status:
  *         type: string
+ *       password:
+ *         type: string
+ *       createdAt:
+ *         type: Date
  */
 class UserInfo extends DB {
   constructor() {
@@ -22,6 +26,8 @@ class UserInfo extends DB {
     this.doc = {
       _id: '',
       name: '',
+      password: '',
+      createdAt: '',
       status: 0
     };
   }
