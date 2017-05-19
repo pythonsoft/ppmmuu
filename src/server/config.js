@@ -4,6 +4,7 @@
 const path = require('path');
 const fs = require('fs');
 const vm = require('vm');
+const mongodb = require('mongodb');
 
 let config = {};
 const configPath = path.join(__dirname, './config_master.js');
@@ -17,6 +18,16 @@ config.KEY = 'secret';
 config.cookieExpires = 1000 * 60 * 60 * 24 * 7;
 
 config.port = process.env.NODE_ENV === 'development' ? 8080 : 8080;
+
+if(!config.mongodb.dbInstance){
+  mongodb.MongoClient.connect(config.mongodb.url, function(err, db) {
+    if (err) {
+      console.log(err);
+      return false;
+    }
+    config.mongodb.dbInstance = db;
+  })
+}
 
 let readConfig = function(p) {
   const sandbox = {

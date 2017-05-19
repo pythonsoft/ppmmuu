@@ -3,7 +3,7 @@
  */
 const utils = require('../common/utils');
 const token = require('../common/token');
-const config =  require('../../config');
+const config =  require('../config');
 const UserInfo = require('../api/user/userInfo');
 const userInfo = new UserInfo();
 
@@ -11,7 +11,7 @@ let Login = {};
 
 Login.isLogin = function(req) {
   const query = utils.trim(req.query);
-  const ticket = query['ticket'] || (req.cookies['ticket'] || '');
+  const ticket = query['ticket'] || (req.cookies['ticket'] || req.header('token'));
 
   if(!ticket) {
     return false;
@@ -28,8 +28,6 @@ Login.isLogin = function(req) {
 
 Login.middleware = function(req, res, next) {
   const decodeTicket = Login.isLogin(req);
-
-  console.log('fe ==>', decodeTicket);
 
   if(decodeTicket) {
     const now = new Date().getTime();

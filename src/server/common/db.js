@@ -1,7 +1,7 @@
 /**
  * Created by chaoningx on 2017/2/27.
  */
-const config = require('../../config');
+const config = require('../config');
 const utils = require('../common/utils');
 
 class DB {

@@ -117,4 +117,8 @@ Utils.result = function(code, data, message=null){
   return { status: code, data: data, statusInfo: { message: message}};
 }
 
+Utils.err = function(code, message){
+  return {code: code, message: message};
+}
+
 module.exports = Utils;

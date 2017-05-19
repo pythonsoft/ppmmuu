@@ -1,6 +1,7 @@
 let i18n = require('i18next');
 let i18nMiddleware = require('i18next-express-middleware');
 let i18nFsBackend = require('i18next-node-fs-backend');
+const path = require('path');
 
 i18n
 .use(i18nMiddleware.LanguageDetector)
@@ -9,7 +10,7 @@ i18n
   preload: ['en', 'zh'],
   fallbackLng: 'en',
   backend: {
-    loadPath: '../../i18n/{{lng}}/{{ns}}.json',
+    loadPath: path.join(__dirname, '../../i18n/{{lng}}/{{ns}}.json'),
   },
   ns: ['translation'],
   fallbackNS: 'translation',
