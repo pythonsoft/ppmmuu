@@ -52,9 +52,9 @@ var generateFeApiFuncFile = function(){
     if (stats.isDirectory()){
       var indexFile = path.join(fullname, 'index.js');
       var codeStr = fs.readFileSync(indexFile, 'utf8');
-      var funcNameArr = getArrByPattern(codeStr, /apiName: (.*)/g);
-      var funcTypeArr = getArrByPattern(codeStr, /apiFuncType: (.*)/g);
-      var funcUrlArr = getArrByPattern(codeStr, /apiFuncUrl: (.*)/g);
+      var funcNameArr = getArrByPattern(codeStr, /@apiName: (.*)/g);
+      var funcTypeArr = getArrByPattern(codeStr, /@apiFuncType: (.*)/g);
+      var funcUrlArr = getArrByPattern(codeStr, /@apiFuncUrl: (.*)/g);
 
       if(funcNameArr.length != funcTypeArr.length || funcNameArr.length != funcUrlArr.length){
         throw new Error("funcNameArr cannot match funcTypeArr length or funcUrlArr length");

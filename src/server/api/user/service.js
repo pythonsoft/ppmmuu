@@ -18,7 +18,9 @@ service.login = function(req, username, password, cb){
     }
 
     if(doc){
-      return cb && cb(null, doc._id);
+      const expires = Date.now() + config.cookieExpires;
+      var token = Token.create(doc._id, expires, config.KEY);
+      return cb && cb(null, token);
     }else{
       return cb && cb(Utils.err(req.t('usernameOrPasswordIsWrong.code'), req.t('usernameOrPasswordIsWrong.message')))
     }

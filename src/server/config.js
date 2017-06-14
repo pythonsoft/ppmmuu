@@ -10,7 +10,7 @@ let config = {};
 const configPath = path.join(__dirname, './config_master.js');
 
 config.mongodb = {
-  url: 'mongodb://10.0.15.70:27017/ump_v1',
+  url: 'mongodb://10.0.15.62:27017/ump_v1',
   dbInstance: null
 };
 

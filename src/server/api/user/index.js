@@ -9,9 +9,9 @@ const Token = require('../../common/token');
 const service = require('./service');
 
 /**
- * apiName: getUserDetail
- * apiFuncType: get
- * apiFuncUrl: /api/user/detail
+ * @apiName: getUserDetail
+ * @apiFuncType: get
+ * @apiFuncUrl: /api/user/detail
  * @swagger
  * /user/detail:
  *   get:
@@ -39,9 +39,9 @@ router.get('/detail', isLogin.middleware, (req, res) => {
 
 
 /**
- * apiName: postUserLogin
- * apiFuncType: post
- * apiFuncUrl: /api/user/login
+ * @apiName: postUserLogin
+ * @apiFuncType: post
+ * @apiFuncUrl: /api/user/login
  * @swagger
  * /user/login/:
  *   post:
@@ -89,11 +89,11 @@ router.post('/login', (req, res)=> {
   let username = req.body.username || '';
   let password = req.body.password || '';
 
-  service.login(req, username, password, function(err, result){
+
+  service.login(req, username, password, function(err, token){
     if(err){
       return res.json(Utils.result(err.code, {}, err.message));
     }
-    var token = service.setCookie(res, result)
     return res.json(Utils.result('0', {token: token}));
   })
 });

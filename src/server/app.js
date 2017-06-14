@@ -22,7 +22,7 @@ app.set('view engine', 'pug');
 app.use(i18nMiddleware);
 
 const runServer = function() {
-  app.listen('8000', function() {
+  app.listen(config.port, function() {
     var routersPath = path.join(__dirname, '../fe/routers');
     // var feRoutes = {};
     // fs.readdirSync(routersPath).forEach(file => {
@@ -52,7 +52,7 @@ const runServer = function() {
       res.end('api test');
     });
 
-    console.log('Listening on port ' + '8000' + '...');
+    console.log('Listening on port ' + config.port + '...');
   });
 };
 

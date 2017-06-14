@@ -54,6 +54,7 @@
     "webpack-hot-middleware": "^2.18.0"
   },
   "dependencies": {
+    "chokidar": "^1.7.0",
     "i18next": "^8.1.0",
     "i18next-express-middleware": "^1.0.5",
     "i18next-node-fs-backend": "^1.0.0",

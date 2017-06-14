@@ -28,6 +28,7 @@ class UserInfo extends DB {
       name: '',
       password: '',
       createdAt: '',
+      token: '',
       status: 0
     };
   }
