@@ -88,8 +88,6 @@ router.get('/detail', isLogin.middleware, (req, res) => {
 router.post('/login', (req, res)=> {
   let username = req.body.username || '';
   let password = req.body.password || '';
-
-
   service.login(req, username, password, function(err, token){
     if(err){
       return res.json(Utils.result(err.code, {}, err.message));

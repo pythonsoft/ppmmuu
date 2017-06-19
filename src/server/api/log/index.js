@@ -54,7 +54,7 @@ const Utils = require('../../common/utils');
  */
 
 router.post('/test', (req, res)=> {
-  console.log(req.body);
+  console.log("hello fafa");
   return res.json(Utils.result('0', {log: "test"}));
 });
 

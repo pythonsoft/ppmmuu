@@ -5,6 +5,7 @@ const path = require('path');
 const fs = require('fs');
 const vm = require('vm');
 const mongodb = require('mongodb');
+const redis = require('redis');
 
 let config = {};
 const configPath = path.join(__dirname, './config_master.js');
@@ -13,21 +14,40 @@ config.mongodb = {
   url: 'mongodb://10.0.15.62:27017/ump_v1',
   dbInstance: null
 };
+let redis_config = {
+  "host": "",
+  "port": 6379
+};
+let redisClient = redis.createClient(redis_config);
+redisClient.on("error", function(err){
+  console.log("Redis Error: " + err);
+})
+
+redisClient.on("ready", function(){
+  console.log("Redis Connect Success!");
+})
+
+redisClient.set("test", "value", function(err, res){
+
+});
+redisClient.get("test", function(err, res){
+  console.log(res);
+})
+config.redisClient = redisClient;
 
 config.KEY = 'secret';
 config.cookieExpires = 1000 * 60 * 60 * 24 * 7;
 
 config.port = process.env.NODE_ENV === 'development' ? 8080 : 8080;
 
-if(!config.mongodb.dbInstance){
-  mongodb.MongoClient.connect(config.mongodb.url, function(err, db) {
-    if (err) {
-      console.log(err);
-      return false;
-    }
-    config.mongodb.dbInstance = db;
-  })
-}
+mongodb.MongoClient.connect(config.mongodb.url, function(err, db) {
+  if (err) {
+    console.log(err);
+    return false;
+  }
+  console.log("mongodb connect Success!");
+  config.mongodb.dbInstance = db;
+})
 
 let readConfig = function(p) {
   const sandbox = {
@@ -48,7 +68,7 @@ if(fs.existsSync(configPath)) {
 }else {
   if (process.env.NODE_ENV == 'development') { //本地开发环境
     readConfig(path.join(__dirname, './config_master.js'));
-    config.host = "localhost:8000";
+    config.host = "localhost:" + config.port;
     config.domain = 'http://' + config.host;
 
   }else {

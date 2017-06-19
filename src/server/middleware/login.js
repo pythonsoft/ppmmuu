@@ -44,7 +44,7 @@ Login.middleware = function(req, res, next) {
       }else {
         req.body = {};
       }
-
+      
       userInfo.collection.findOne({
         _id: req.ex.UserId
       }, { password: 0 }, function(err, doc) {
@@ -58,7 +58,7 @@ Login.middleware = function(req, res, next) {
           res.clearCookie('ticket');
           res.redirect('/login');
         }else {
-          req.ex.accountInfo = doc;
+          req.ex.userInfo = doc;
           next();
         }
 

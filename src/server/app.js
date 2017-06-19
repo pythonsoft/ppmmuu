@@ -82,6 +82,7 @@ if(process.env.NODE_ENV === 'development') {
         },
         host: config.host,
         basePath: '/api',
+
       },
       //TODO: import apis as below
       apis: [

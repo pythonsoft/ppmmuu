@@ -19,7 +19,7 @@ function getEntries() {
 let config = {};
 
 config.server = {
-  entry: ['webpack/hot/dev-server', 'webpack-dev-server/client?http://localhost:8080', './src/server/app.js'],
+  entry: ['webpack/hot/dev-server', 'webpack-dev-server/client?http://localhost:8090', './src/server/app.js'],
   output: {
     path: path.join(__dirname, 'build'),
     filename: 'server.js',
@@ -41,7 +41,10 @@ config.server = {
   },
   devtool: 'source-map',
   module: {
-  }
+  },
+  plugins: [
+    new webpack.HotModuleReplacementPlugin()
+  ]
 };
 config.fe = {
   entry: getEntries(),
