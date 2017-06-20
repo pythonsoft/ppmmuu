@@ -12,6 +12,8 @@ const UserInfo = require("../user/userInfo");
 const roleInfo = new RoleInfo();
 const permissionInfo = new PermissionInfo();
 const userInfo = new UserInfo();
+const config = require("../../config");
+const redisClient = config.redisClient;
 
 router.use(isLogin.middleware);
 router.use(isLogin.hasAccessMiddleware);
@@ -37,13 +39,15 @@ router.use(isLogin.hasAccessMiddleware);
  *         name: page
  *         description:
  *         required: false
- *         type: string
+ *         type: integer
+ *         example: 1
  *         collectionFormat: csv
  *       - in: path
  *         name: pageSize
  *         description:
  *         required: false
- *         type: string
+ *         type: integer
+ *         example: 999
  *         collectionFormat: csv
  *     responses:
  *       200:
@@ -86,6 +90,7 @@ router.get('/list', (req, res)=> {
  *         description:
  *         required: true
  *         type: string
+ *         example: "1c6ad690-5583-11e7-b784-69097aa4b384"
  *         collectionFormat: csv
  *     responses:
  *       200:
@@ -135,10 +140,10 @@ router.get('/getDetail', (req, res)=> {
  *           properties:
  *             name:
  *               type: string
- *               description: example value "admin"
+ *               example: admin
  *             permissions:
- *               type: Array
- *               description: example value "/api/role/add,/api/role/update,/api/role/list"
+ *               type: string
+ *               example: "/api/role/list,/api/role/getDetail"
  *     responses:
  *       200:
  *         description: RoleInfo
@@ -215,13 +220,17 @@ router.post('/add', (req, res)=> {
  *           required:
  *            - name
  *            - permissions
+ *            - _id
  *           properties:
  *             name:
  *               type: string
- *               description: example value "admin"
+ *               example: admin
  *             permissions:
- *               type: Array
- *               description: example value "/api/role/add,/api/role/update,/api/role/list"
+ *               type: string
+ *               example: "/api/role/list,/api/role/getDetail,/api/role/delete,/api/role/listPermissions"
+ *             _id:
+ *               type: string
+ *               example: "1c6ad690-5583-11e7-b784-69097aa4b384"
  *     responses:
  *       200:
  *         description: RoleInfo
@@ -259,7 +268,7 @@ router.post('/update', (req, res)=> {
 
   info.name = name;
   info.permissions = permissions.split(",");
-  roleInfo.collection.findOneAndUpdate({ _id: _id}, { $set: info }, function(err, r){
+  roleInfo.collection.findOneAndUpdate({ _id: _id}, { $set: info }, {returnOriginal: false}, function(err, r){
     if(err){
       return res.json(Result.FAIL('-1', [], err.message));
     }
@@ -295,6 +304,7 @@ router.post('/update', (req, res)=> {
  *           properties:
  *             _ids:
  *               type: string
+ *               example: 1c6ad690-5583-11e7-b784-69097aa4b384
  *     responses:
  *       200:
  *         description: RoleInfo
@@ -319,8 +329,9 @@ router.post('/delete', (req, res)=> {
     return res.json(Result.FAIL(req.t('deleteRoleNoIds.code'), {}, req.t('deleteRoleNoIds.message')));
   }
 
+  _ids = _ids.split(",");
 
-  roleInfo.collection.remove({ _id: _id}, function(err, r){
+  roleInfo.collection.remove({ _id: {$in: _ids}}, function(err, r){
     if(err){
       return res.json(Result.FAIL('-1', [], err.message));
     }
@@ -349,13 +360,15 @@ router.post('/delete', (req, res)=> {
  *         name: page
  *         description:
  *         required: false
- *         type: string
+ *         type: integer
+ *         example: 1
  *         collectionFormat: csv
  *       - in: path
  *         name: pageSize
  *         description:
  *         required: false
- *         type: string
+ *         type: integer
+ *         example: 15
  *         collectionFormat: csv
  *     responses:
  *       200:
@@ -367,7 +380,7 @@ router.get('/listPermission', (req, res)=> {
 
   page = page * 1;
   pageSize = pageSize * 1;
-  permissionInfo.collection.pagination({}, page, pageSize, function(err, docs){
+  permissionInfo.pagination({}, page, pageSize, function(err, docs){
     if(err){
       return res.json(Result.FAIL('-1', [], err.message));
     }
@@ -389,7 +402,7 @@ router.get('/listPermission', (req, res)=> {
  *     version: 1.0.0
  *     tags:
  *       - v1
- *       - UserInfo
+ *       - RoleInfo
  *     consumes:
  *       - application/json
  *     parameters:
@@ -404,10 +417,10 @@ router.get('/listPermission', (req, res)=> {
  *           properties:
  *             roles:
  *               type: string
- *               description: example value "admin,guest,support"
+ *               example: admin,guest,support
  *             userIds:
  *               type: string
- *               description: example value "1313,121,12312"
+ *               example: xuyawen@phoenixtv.com,131@qq.com
  *     responses:
  *       200:
  *         description: UserInfo
@@ -425,7 +438,7 @@ router.get('/listPermission', (req, res)=> {
  *                  type: string
  *
  */
-router.post('/assignToUser', (req, res)=> {
+router.post('/assignRoleToUser', (req, res)=> {
   let roles = req.body.roles || '';
   let userIds = req.body.userIds || '';
 
@@ -433,11 +446,13 @@ router.post('/assignToUser', (req, res)=> {
     return res.json(Result.FAIL(req.t('assignRoleNoUserIds.code'), {}, req.t('assignRoleNoUserIds.message')));
   }
 
+  userIds = userIds.split(",");
   roles = roles.split(",");
   userInfo.collection.update({ _id: {$in: userIds}}, {$set: { roles: roles}}, { multi: true}, function(err){
     if(err){
       return res.json(Result.FAIL('-1', [], err.message));
     }
+    redisClient.del(userIds);
     return res.json(Result.SUCCESS({}));
   });
 });

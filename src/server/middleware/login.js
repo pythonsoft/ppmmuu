@@ -61,6 +61,7 @@ Login.getUserInfo = function(req, cb){
             }
             info.permissions = permissions;
             redisClient.set(userId, JSON.stringify(info));
+            redisClient.EXPIRE(userId, config.redisExpires);
             return cb && cb(null, info);
           })
         }

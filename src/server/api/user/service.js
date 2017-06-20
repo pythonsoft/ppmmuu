@@ -8,7 +8,7 @@ const Token = require('../../common/token');
 const config = require('../../config');
 let service = {};
 
-service.login = function(req, username, password, cb){
+service.login = function(req, res, username, password, cb){
   let cipherPassword = Utils.cipher(password, config.KEY);
   let query = {
     name: username,
@@ -27,6 +27,10 @@ service.login = function(req, username, password, cb){
     if(doc){
       const expires = Date.now() + config.cookieExpires;
       var token = Token.create(doc._id, expires, config.KEY);
+      res.cookie('ticket', token, {
+        expires: new Date(expires),
+        httpOnly: true
+      });
       return cb && cb(null, token);
     }else{
       return cb && cb(Utils.err(req.t('usernameOrPasswordIsWrong.code'), req.t('usernameOrPasswordIsWrong.message')))

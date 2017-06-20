@@ -14,7 +14,7 @@ service.getPermissions = function(query, cb){
     }
     let permissions = [];
     docs.forEach(function(item){
-      permissions = permissions.concat(item);
+      permissions = permissions.concat(item.permissions);
     })
     return cb && cb(null, permissions);
   })
