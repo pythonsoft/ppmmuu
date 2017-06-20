@@ -27,11 +27,12 @@ redisClient.on("ready", function(){
   console.log("Redis Connect Success!");
 })
 
-redisClient.set("test", "value", function(err, res){
+redisClient.set("asaf", JSON.stringify({a:1, b:2}), function(err, res){
 
 });
-redisClient.get("test", function(err, res){
-  console.log(res);
+redisClient.get("asaf", function(err, res){
+  res = JSON.parse(res);
+  console.log(res.a);
 })
 config.redisClient = redisClient;
 

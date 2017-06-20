@@ -38,5 +38,13 @@
   "assignRoleNoUserIds": {
     "code": "-2008",
     "message": "assign role parameter userIds required"
+  },
+  "loginCannotFindUser": {
+    "code": "-3001",
+    "message": "login cannot find user"
+  },
+  "noAccess": {
+    "code": "-4001",
+    "message": "no access to this api"
   }
 }

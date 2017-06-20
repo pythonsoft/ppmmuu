@@ -13,7 +13,8 @@ const roleInfo = new RoleInfo();
 const permissionInfo = new PermissionInfo();
 const userInfo = new UserInfo();
 
-//router.use(isLogin.middleware);
+router.use(isLogin.middleware);
+router.use(isLogin.hasAccessMiddleware);
 
 /**
  * @permissionName: 角色列表

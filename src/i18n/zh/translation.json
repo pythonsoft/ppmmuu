@@ -38,5 +38,13 @@
   "assignRoleNoUserIds": {
     "code": "-2008",
     "message": "分配角色需要参数userIds"
+  },
+  "loginCannotFindUser": {
+    "code": "-3001",
+    "message": "登录时找不到用户"
+  },
+  "noAccess": {
+    "code": "-4001",
+    "message": "无权访问此接口"
   }
 }

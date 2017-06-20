@@ -10,9 +10,16 @@ let service = {};
 
 service.login = function(req, username, password, cb){
   let cipherPassword = Utils.cipher(password, config.KEY);
-  userInfo.collection.findOne({
-    name: username, password: cipherPassword
-  }, { fields: { _id: 1 } }, function(err, doc) {
+  let query = {
+    name: username,
+    password: cipherPassword
+  }
+
+  if(Utils.checkEmail(username)){
+    query._id = username;
+  }
+
+  userInfo.collection.findOne(query, { fields: { _id: 1 } }, function(err, doc) {
     if(err){
       return cb && cb(Utils.err(req.t('userInfoFindWrong.code'), req.t('userInfoFindWrong.message')));
     }
