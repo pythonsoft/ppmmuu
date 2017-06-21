@@ -186,7 +186,7 @@ router.post('/add', (req, res)=> {
       return res.json(Result.FAIL(req.t('addRoleNameIsExist.code'), {}, req.t('addRoleNameIsExist.message')));
     }
 
-    roleInfo.collection.insertOne(roleInfo.assign(info), function(err) {
+    roleInfo.collection.insertOne(roleInfo.assign(info), function(err, r) {
       if(err){
         return res.json(Result.FAIL(-1, {}, err.message));
       }
@@ -259,21 +259,29 @@ router.post('/update', (req, res)=> {
   }
 
   if(!name){
-    return res.json(Result.FAIL(req.t('addRoleNoName.code'), {}, req.t('addRoleNoName.message')));
+    return res.json(Result.FAIL(req.t('updateRoleNoName.code'), {}, req.t('updateRoleNoName.message')));
   }
 
   if(!permissions){
-    return res.json(Result.FAIL(req.t('addRoleNoPermissions.code'), {}, req.t('addRoleNoPermissions.message')));
+    return res.json(Result.FAIL(req.t('updateRoleNoPermissions.code'), {}, req.t('updateRoleNoPermissions.message')));
   }
 
   info.name = name;
   info.permissions = permissions.split(",");
-  roleInfo.collection.findOneAndUpdate({ _id: _id}, { $set: info }, {returnOriginal: false}, function(err, r){
+  roleInfo.collection.findOne({_id:{$ne: _id}, name: name}, function(err, doc){
     if(err){
       return res.json(Result.FAIL('-1', [], err.message));
     }
-    return res.json(Result.SUCCESS(r.value));
-  });
+    if(doc){
+      return res.json(Result.FAIL(req.t('updateRoleNameIsAlreadyExist.code'), {}, req.t('updateRoleNameIsAlreadyExist.message')));
+    }
+    roleInfo.collection.findOneAndUpdate({ _id: _id}, { $set: info }, {returnOriginal: false}, function(err, r){
+      if(err){
+        return res.json(Result.FAIL('-1', [], err.message));
+      }
+      return res.json(Result.SUCCESS(r.value));
+    });
+  })
 });
 
 

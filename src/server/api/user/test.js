@@ -14,10 +14,11 @@ describe('user', function() {
     done();
   });
   
-  describe('#detail', function () {
-    it('/user/detail', function (done) {
+  describe('#login', function () {
+    it('/user/login', function (done) {
       request(url)
-        .get('/api/user/detail')
+        .post('/api/user/login')
+        .send({username: "xuyawen", password: "123123"})
         .expect('Content-Type', /json/)
         .expect(200) //Status code
         .end(function (err, res) {
@@ -26,6 +27,7 @@ describe('user', function() {
           }
           // Should.js fluent syntax applied
           res.body.status.should.equal('0');
+          userCookie = res.headers['set-cookie'];
           done();
         });
     });

@@ -6,6 +6,7 @@ const fs = require('fs');
 const vm = require('vm');
 const mongodb = require('mongodb');
 const redis = require('redis');
+const co =require('co');
 
 let config = {};
 const configPath = path.join(__dirname, './config_master.js');
@@ -23,13 +24,29 @@ config.cookieExpires = 1000 * 60 * 60 * 24 * 7;  //cookie有效期七天
 config.redisExpires = 1 * 60 * 60 * 12;       //redis有效期12小时
 config.port = process.env.NODE_ENV === 'development' ? 8080 : 8080;
 
+var connectMongo = function(cb){
+  if(config.mongodb.dbInstance){
+    return cb && cb(null);
+  }else{
+    mongodb.MongoClient.connect(config.mongodb.url, function(err, db) {
+      if (err) {
+        console.log(err);
+        return cb && cb(err);
+      }
+      console.log("mongodb connect Success!");
+      config.mongodb.dbInstance = db;
+      return cb && cb(null);
+    })
+  }
+}
+
 let init = function(){
   let redisClient = redis.createClient(config.redis_port, config.redis_host, config.redis_opts);
-  redisClient.on("error", function(err){
+  redisClient.on("error", function (err) {
     console.log("Redis Error: " + err);
   })
 
-  redisClient.on("ready", function(){
+  redisClient.on("ready", function () {
     console.log("Redis Connect Success!");
   })
 
