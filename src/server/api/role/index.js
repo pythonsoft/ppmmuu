@@ -423,7 +423,7 @@ router.get('/listPermission', (req, res)=> {
  *               example: xuyawen@phoenixtv.com,131@qq.com
  *     responses:
  *       200:
- *         description: UserInfo
+ *         description: RoleInfo
  *         schema:
  *           type: object
  *           properties:

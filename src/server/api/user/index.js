@@ -34,6 +34,7 @@ const service = require('./service');
  *         description: user
  */
 router.get('/detail', isLogin.middleware, (req, res) => {
+  
   return res.json(Utils.result('0', {user: "test"}));
 });
 

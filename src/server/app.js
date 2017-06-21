@@ -22,37 +22,45 @@ app.set('view engine', 'pug');
 app.use(i18nMiddleware);
 
 const runServer = function() {
-  app.listen(config.port, function() {
-    var routersPath = path.join(__dirname, '../fe/routers');
-    // var feRoutes = {};
-    // fs.readdirSync(routersPath).forEach(file => {
-    //   if (fs.statSync(path.join(routersPath, file)).isDirectory()) {
-    //     feRoutes[]
-    //   }
-    // })
-
-    app.use('*', function(req, res, next) {
-      var url = req.originalUrl;
-      if(!path.extname(url) && !(/^\/api/.test(url))) {
-        if(!fs.statSync(path.join(routersPath, url)).isDirectory()) {
-          res.render('404');
-          return false;
+  mongodb.MongoClient.connect(config.mongodb.url, function(err, db) {
+    if (err) {
+      console.log(err);
+      return false;
+    }
+    console.log("mongodb connect Success!");
+    config.mongodb.dbInstance = db;
+    app.listen(config.port, function () {
+      var routersPath = path.join(__dirname, '../fe/routers');
+      // var feRoutes = {};
+      // fs.readdirSync(routersPath).forEach(file => {
+      //   if (fs.statSync(path.join(routersPath, file)).isDirectory()) {
+      //     feRoutes[]
+      //   }
+      // })
+    
+      app.use('*', function (req, res, next) {
+        var url = req.originalUrl;
+        if (!path.extname(url) && !(/^\/api/.test(url))) {
+          if (!fs.statSync(path.join(routersPath, url)).isDirectory()) {
+            res.render('404');
+            return false;
+          }
+        
+          res.render("index");
+        } else {
+          next();
         }
-
-        res.render("index");
-      }else{
-        next();
-      }
-    })
-
-    require('./apiPath.js')(app);
-    require('./mongodbScript/init');
-
-    app.get('/api/test', (req, res) => {
-      res.end('api test');
+      })
+    
+      require('./apiPath.js')(app);
+      require('./mongodbScript/init');
+    
+      app.get('/api/test', (req, res) => {
+        res.end('api test');
+      });
+    
+      console.log('Listening on port ' + config.port + '...');
     });
-
-    console.log('Listening on port ' + config.port + '...');
   });
 };
 
