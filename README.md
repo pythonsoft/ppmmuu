@@ -9,5 +9,7 @@ UMP
 
 ### 生产环境
 1.npm run build
+
 2.修改build/config.master配置文件
+
 3.nohup node build/server.js
