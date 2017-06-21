@@ -49,7 +49,7 @@ router.get('/detail', isLogin.middleware, (req, res) => {
  *     description: login
  *     tags:
  *       - v1
- *       - user
+ *       - UserInfo
  *     consumes:
  *       - application/json
  *     parameters:
@@ -68,7 +68,7 @@ router.get('/detail', isLogin.middleware, (req, res) => {
  *               type: string
  *     responses:
  *       200:
- *         description: user
+ *         description: UserInfo
  *         schema:
  *           type: object
  *           properties:
