@@ -4,40 +4,7 @@
 var express = require('express');
 var router = express.Router();
 const Utils = require('../../common/utils');
-const isLogin = require('../../middleware/login');
-const Token = require('../../common/token');
 const service = require('./service');
-
-/**
- * @apiName: getUserDetail
- * @apiFuncType: get
- * @apiFuncUrl: /api/user/detail
- * @swagger
- * /user/detail:
- *   get:
- *     description: get user detail by _id
- *     version: 1.0.0
- *     tags:
- *       - v1
- *       - user
- *     produces:
- *       - application/json
- *     parameters:
- *       - in: path
- *         name: _id
- *         description: user _id
- *         required: true
- *         type: string
- *         collectionFormat: csv
- *     responses:
- *       200:
- *         description: user
- */
-router.get('/detail', isLogin.middleware, (req, res) => {
-  
-  return res.json(Utils.result('0', {user: "test"}));
-});
-
 
 /**
  * @apiName: postUserLogin
@@ -64,8 +31,10 @@ router.get('/detail', isLogin.middleware, (req, res) => {
  *           properties:
  *             username:
  *               type: string
+ *               example: xuyawen
  *             password:
  *               type: string
+ *               example: 123123
  *     responses:
  *       200:
  *         description: UserInfo
