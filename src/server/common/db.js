@@ -10,7 +10,7 @@ class DB {
     this.doc = {};
   }
 
-  assgin(info) {
+  assign(info) {
     return utils.merge(Object.assign({}, this.doc), info);
   }
 

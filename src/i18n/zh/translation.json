@@ -6,5 +6,45 @@
   "userInfoFindWrong": {
     "code": "-1002",
     "message": "查找userInfo系统报错",
+  },
+  "addRoleNoName": {
+    "code": "-2001",
+    "message": "添加角色需要参数name"
+  },
+  "addRoleNoPermissions": {
+    "code": "-2002",
+    "message": "添加角色需要参数permissions"
+  },
+  "addRoleNameIsExist": {
+    "code": "-2003",
+    "message": "添加角色参数name已经存在了"
+  },
+  "updateRoleNoId": {
+    "code": "-2004",
+    "message": "更新角色需要参数_id"
+  },
+  "getRoleNoId": {
+    "code": "-2005",
+    "message": "获取角色详情需要参数_id"
+  },
+  "deleteRoleNoIds": {
+    "code": "-2006",
+    "message": "删除角色需要参数_ids"
+  },
+  "assignRoleNoRoles": {
+    "code": "-2007",
+    "message": "分配角色需要参数roles"
+  },
+  "assignRoleNoUserIds": {
+    "code": "-2008",
+    "message": "分配角色需要参数userIds"
+  },
+  "loginCannotFindUser": {
+    "code": "-3001",
+    "message": "登录时找不到用户"
+  },
+  "noAccess": {
+    "code": "-4001",
+    "message": "无权访问此接口"
   }
 }

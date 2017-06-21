@@ -6,5 +6,45 @@
   "userInfoFindWrong": {
     "code": "-1002",
     "message": "find userInfo system wrong"
+  },
+  "addRoleNoName": {
+    "code": "-2001",
+    "message": "parameter name required"
+  },
+  "addRoleNoPermissions": {
+    "code": "-2002",
+    "message": "parameter permissions required"
+  },
+  "addRoleNameIsExist": {
+    "code": "-2003",
+    "message": "add role parameter name is already exist"
+  },
+  "updateRoleNoId": {
+    "code": "-2004",
+    "message": "update role parameter _id required"
+  },
+  "getRoleNoId": {
+    "code": "-2005",
+    "message": "get role parameter _id required"
+  },
+  "deleteRoleNoIds": {
+    "code": "-2006",
+    "message": "delete role parameter _id required"
+  },
+  "assignRoleNoRoles": {
+    "code": "-2007",
+    "message": "assign role parameter roles required"
+  },
+  "assignRoleNoUserIds": {
+    "code": "-2008",
+    "message": "assign role parameter userIds required"
+  },
+  "loginCannotFindUser": {
+    "code": "-3001",
+    "message": "login cannot find user"
+  },
+  "noAccess": {
+    "code": "-4001",
+    "message": "no access to this api"
   }
 }

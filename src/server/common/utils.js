@@ -121,4 +121,49 @@ Utils.err = function(code, message){
   return {code: code, message: message};
 }
 
+
+Utils.checkEmail = function(email) {
+  if((email.length > 128) || (email.length < 6)) {
+    return false;
+  }
+  
+  var format = /^[A-Za-z0-9+]+[A-Za-z0-9\.\_\-+]*@([A-Za-z0-9\-]+\.)+[A-Za-z0-9]+$/;
+  if(!email.match(format)) {
+    return false;
+  }
+  
+  return true;
+}
+
+Utils.checkPhone = function(phone){
+  if(phone.length != 11){
+    return false;
+  }
+  if(/^1[34578]\d{9}$/.test(phone) == false){
+    return false;
+  }else{
+    return true;
+  }
+}
+
+/**
+ * 2-20位有效字符
+ * @param name
+ * @returns {boolean}
+ */
+Utils.checkVipName = function(name){
+  if( /^[0-9a-zA-Z_\u4e00-\u9fa5]{2,20}$/.test(name) == false){
+    return false;
+  }else{
+    return true;
+  }
+}
+
+Utils.checkPassword = function(password){
+  if( /^[0-9a-zA-Z_]{6,20}$/.test(password) == false){
+    return false;
+  }else{
+    return true;
+  }
+}
 module.exports = Utils;

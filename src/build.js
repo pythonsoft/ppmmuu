@@ -3,9 +3,16 @@ const del = require('del');
 const webpack = require('webpack');
 const webpackConfig = require('../webpack.config');
 const fs = require('fs');
+const uuid = require('uuid');
+const mongodb = require('mongodb');
+const config = require("./server/config");
 
 const apiPathFile = path.join(__dirname, './server/apiPath.js');
 const feApiPath = path.join(__dirname, './fe/lib/api');
+
+var permissionNames = [];
+var permissionPaths = [];
+
 del.sync(path.resolve('build'));
 del.sync(apiPathFile);
 del.sync(feApiPath);
@@ -52,9 +59,15 @@ var generateFeApiFuncFile = function(){
     if (stats.isDirectory()){
       var indexFile = path.join(fullname, 'index.js');
       var codeStr = fs.readFileSync(indexFile, 'utf8');
-      var funcNameArr = getArrByPattern(codeStr, /apiName: (.*)/g);
-      var funcTypeArr = getArrByPattern(codeStr, /apiFuncType: (.*)/g);
-      var funcUrlArr = getArrByPattern(codeStr, /apiFuncUrl: (.*)/g);
+      var funcNameArr = getArrByPattern(codeStr, /@apiName: (.*)/g);
+      var funcTypeArr = getArrByPattern(codeStr, /@apiFuncType: (.*)/g);
+      var funcUrlArr = getArrByPattern(codeStr, /@apiFuncUrl: (.*)/g);
+
+      var tempPermissionNames = getArrByPattern(codeStr, /@permissionName: (.*)/g);
+      var tempPermissionPaths = getArrByPattern(codeStr, /@permissionPath: (.*)/g);
+
+      permissionNames = permissionNames.concat(tempPermissionNames);
+      permissionPaths = permissionPaths.concat(tempPermissionPaths);
 
       if(funcNameArr.length != funcTypeArr.length || funcNameArr.length != funcUrlArr.length){
         throw new Error("funcNameArr cannot match funcTypeArr length or funcUrlArr length");
@@ -72,9 +85,46 @@ var generateFeApiFuncFile = function(){
   });
 }
 
+var initPermissionInfo = function(){
+  let nLength = permissionNames.length;
+  let pLength = permissionPaths.length;
+  if(nLength && nLength == pLength){
+    let info = [];
+    for(let i = 0; i < nLength; i++){
+      info.push({
+        _id: uuid.v1(),
+        name: permissionNames[i],
+        path: permissionPaths[i]
+      })
+    }
+    mongodb.MongoClient.connect(config.mongodb.url, function(err, db) {
+      if (err) {
+        console.log(err);
+        return false;
+      }
+      console.log("mongodb connect Success!");
+      var permissionInfo = db.collection("PermissionInfo");
+      permissionInfo.remove({}, {w: 1}, function (err) {
+        if (err) {
+          throw new Error('权限表初始化有问题:' + err.message);
+        }
+        permissionInfo.insert(info, {w: 1}, function (err, docs) {
+          if (err) {
+            throw new Error('权限表初始化有问题:' + err.message);
+          }
+        });
+      });
+    })
+  }else if(nLength != pLength){
+    throw new Error("api接口权限注释有问题");
+  }
+}
+
 generateFeApiFuncFile();
 
 writeToApiPath();
+
+initPermissionInfo()
 
 webpack(webpackConfig.fe, function(err, stats) {
   if (err) {

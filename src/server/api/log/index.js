@@ -6,9 +6,9 @@ var router = express.Router();
 const Utils = require('../../common/utils');
 
 /**
- * apiName: postLogTest
- * apiFuncType: post
- * apiFuncUrl: /api/log/test
+ * @apiName: postLogTest
+ * @apiFuncType: post
+ * @apiFuncUrl: /api/log/test
  * @swagger
  * /log/test/:
  *   post:
@@ -54,7 +54,7 @@ const Utils = require('../../common/utils');
  */
 
 router.post('/test', (req, res)=> {
-  console.log(req.body);
+  console.log("hello fafa");
   return res.json(Utils.result('0', {log: "test"}));
 });
 

@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "node src/build.js",
-    "dev": "cross-env NODE_ENV=development node src/server/app.js",
+    "dev": "export NODE_ENV=development && supervisor client src/server/app.js",
     "test": "mocha --compilers js:babel-core/register \"src/server/api/**/test.js\" ",
     "update": "npm install --registry=https://registry.npm.taobao.org"
   },
@@ -51,13 +51,17 @@
     "vue-template-compiler": "^2.3.2",
     "webpack": "^2.4.1",
     "webpack-dev-middleware": "^1.10.2",
+    "webpack-dev-server": "^2.4.5",
     "webpack-hot-middleware": "^2.18.0"
   },
   "dependencies": {
+    "chokidar": "^1.7.0",
     "i18next": "^8.1.0",
     "i18next-express-middleware": "^1.0.5",
     "i18next-node-fs-backend": "^1.0.0",
     "mongodb": "^2.2.26",
+    "redis": "^2.7.1",
+    "uuid": "^3.0.1",
     "vm": "^0.1.0"
   }
 }

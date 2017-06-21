@@ -7,7 +7,7 @@ const DB = require('../../common/db');
 /**
  * @swagger
  * definitions:
- *   User:
+ *   UserInfo:
  *     required:
  *       - name
  *     properties:
@@ -28,6 +28,8 @@ class UserInfo extends DB {
       name: '',
       password: '',
       createdAt: '',
+      token: '',
+      roles: [],
       status: 0
     };
   }
