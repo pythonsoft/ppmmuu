@@ -23,6 +23,18 @@
     "code": "-2004",
     "message": "update role parameter _id required"
   },
+  "updateRoleNoName": {
+    "code": "-2009",
+    "message": "parameter name required"
+  },
+  "updateRoleNoPermissions": {
+    "code": "-2010",
+    "message": "parameter permissions required"
+  },
+  "updateRoleNameIsAlreadyExist": {
+    "code": "-2011",
+    "message": "update role name is already exist"
+  },
   "getRoleNoId": {
     "code": "-2005",
     "message": "get role parameter _id required"
@@ -42,6 +54,18 @@
   "loginCannotFindUser": {
     "code": "-3001",
     "message": "login cannot find user"
+  },
+  "notLogin": {
+    "code": "-3002",
+    "message": "user don't login"
+  },
+  "loginExpired": {
+    "code": "-3003",
+    "message": "login has expired"
+  },
+  "loginCannotGetUserInfo": {
+    "code": "-3004",
+    "message": "login can't get userInfo"
   },
   "noAccess": {
     "code": "-4001",

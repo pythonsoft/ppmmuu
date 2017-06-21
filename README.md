@@ -3,11 +3,9 @@ UMP
 ### 开发环境
 1.先执行 npm run build
 
-2.npm install -g supervisor
+2.然后 npm run dev
 
-3.然后 npm run dev
-
-4.文档地址,访问http://localhost:8080/api-docs/
+3.文档地址,访问http://localhost:8080/api-docs/
 
 ### 生产环境
 1.npm run build

@@ -21,14 +21,28 @@ app.set('views', path.resolve('build', 'views'));
 app.set('view engine', 'pug');
 app.use(i18nMiddleware);
 
+var connectMongo = function(cb){
+  if(config.mongodb.dbInstance){
+    return cb && cb(null);
+  }else{
+    mongodb.MongoClient.connect(config.mongodb.url, function(err, db) {
+      if (err) {
+        console.log(err);
+        return cb && cb(err);
+      }
+      console.log("mongodb connect Success!");
+      config.mongodb.dbInstance = db;
+      return cb && cb(null);
+    })
+  }
+}
+
 const runServer = function() {
-  mongodb.MongoClient.connect(config.mongodb.url, function(err, db) {
-    if (err) {
-      console.log(err);
-      return false;
+  connectMongo(function(err){
+    if(err){
+      throw new Error(err);
+      return;
     }
-    console.log("mongodb connect Success!");
-    config.mongodb.dbInstance = db;
     app.listen(config.port, function () {
       var routersPath = path.join(__dirname, '../fe/routers');
       // var feRoutes = {};
@@ -37,7 +51,7 @@ const runServer = function() {
       //     feRoutes[]
       //   }
       // })
-    
+
       app.use('*', function (req, res, next) {
         var url = req.originalUrl;
         if (!path.extname(url) && !(/^\/api/.test(url))) {
@@ -45,20 +59,20 @@ const runServer = function() {
             res.render('404');
             return false;
           }
-        
+
           res.render("index");
         } else {
           next();
         }
       })
-    
+
       require('./apiPath.js')(app);
-      require('./mongodbScript/init');
-    
+      require('./mongodbScript/index');
+
       app.get('/api/test', (req, res) => {
         res.end('api test');
       });
-    
+
       console.log('Listening on port ' + config.port + '...');
     });
   });

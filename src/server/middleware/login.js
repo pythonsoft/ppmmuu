@@ -79,9 +79,7 @@ Login.middleware = function(req, res, next) {
       Login.getUserInfo(req, function(err, info){
         if(err){
           res.clearCookie('ticket');
-          res.redirect('/error');
-          return;
-          //return res.json(Result.FAIL(err.code, {}, err.message))
+          return res.json(Result.FAIL(req.t("loginCannotGetUserInfo.code"), {}, req.t("loginCannotGetUserInfo.message")));
         }
 
         req.ex.userInfo = info;
@@ -89,10 +87,10 @@ Login.middleware = function(req, res, next) {
       })
     }else { //过期
       res.clearCookie('ticket');
-      res.redirect('/login');
+      return res.json(Result.FAIL(req.t("loginExpired.code"), {}, req.t("loginExpired.message")));
     }
   }else {
-    res.redirect('/login');
+    return res.json(Result.FAIL(req.t("notLogin.code"), {}, req.t("notLogin.message")));
   }
 
 };
@@ -100,7 +98,7 @@ Login.middleware = function(req, res, next) {
 Login.hasAccessMiddleware = function(req, res, next){
   let permissions = req.ex.userInfo.permissions || [];
   let url = req.originalUrl;
-  if(permissions.indexOf(url) != -1){
+  if(permissions.indexOf(url) != -1 || permissions.indexOf('all') != -1){
     next();
   }else{
     return res.json(Result.FAIL(req.t("noAccess.code"), {}, req.t("noAccess.message")))
