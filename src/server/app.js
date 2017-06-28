@@ -1,15 +1,15 @@
+const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const del = require('del');
-const mongodb = require('mongodb');
+const mongoClient = require('mongodb').MongoClient;
 const config = require("./config");
-let swaggerJSDoc = require('swagger-jsdoc');
+const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
-let i18nMiddleware = require('./middleware/i18n');
-
-const fs = require('fs');
+const i18nMiddleware = require('./middleware/i18n');
+const feMiddleware = require('./middleware/fe');
 
 const app = express();
 
@@ -20,45 +20,44 @@ app.use('/', express.static(path.resolve('build', 'public')));
 app.set('views', path.resolve('build', 'views'));
 app.set('view engine', 'pug');
 app.use(i18nMiddleware);
+app.use(feMiddleware);
+
+const initMongodb = function(names, completeFn) {
+  let init = function(index) {
+    let name = names[index];
+    if(!name) {
+      completeFn && completeFn(); return false;
+    }
+
+    mongoClient.connect(config.mongodb[name + 'URL'], {
+      autoReconnect: true,
+      poolSize: 10
+    }, function(err, db) {
+      if(err) {
+        throw new Error(err);
+        db.close();
+        return;
+      }
+      config.dbInstance[name + 'DB'] = db;
+      init(index + 1);
+      console.log('connect mongodb: '+ name + ' success!');
+    });
+  };
+
+  init(0);
+};
 
 const runServer = function() {
-  mongodb.MongoClient.connect(config.mongodb.url, function(err, db) {
-    if (err) {
-      console.log(err);
-      return false;
-    }
-    console.log("mongodb connect Success!");
-    config.mongodb.dbInstance = db;
+  initMongodb(['ump'], function() {
     app.listen(config.port, function () {
-      var routersPath = path.join(__dirname, '../fe/routers');
-      // var feRoutes = {};
-      // fs.readdirSync(routersPath).forEach(file => {
-      //   if (fs.statSync(path.join(routersPath, file)).isDirectory()) {
-      //     feRoutes[]
-      //   }
-      // })
-    
-      app.use('*', function (req, res, next) {
-        var url = req.originalUrl;
-        if (!path.extname(url) && !(/^\/api/.test(url))) {
-          if (!fs.statSync(path.join(routersPath, url)).isDirectory()) {
-            res.render('404');
-            return false;
-          }
-        
-          res.render("index");
-        } else {
-          next();
-        }
-      })
-    
+
       require('./apiPath.js')(app);
       require('./mongodbScript/init');
-    
+
       app.get('/api/test', (req, res) => {
         res.end('api test');
       });
-    
+
       console.log('Listening on port ' + config.port + '...');
     });
   });

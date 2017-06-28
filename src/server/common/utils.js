@@ -4,34 +4,30 @@
 const crypto = require('crypto');
 const os = require('os');
 
-let Utils = {};
+let utils = {};
 
-Utils.isEmptyObject = function(obj) {
-  // null and undefined are 'empty'
-  if (obj == null || typeof obj == 'undefined') return true;
+utils.isEmptyObject = function(obj) {
+  if (obj === null || typeof obj === 'undefined') return true;
 
-  // Assume if it has a length property with a non-zeo value
   if (obj.length && obj.length > 0) return false;
   if (obj.length === 0) return true;
 
-  // Otherwise, does it have any properties of its own?
-  // Note that this doesn't handle toString and valueOf enumeration bugs in IE < 9
-  for (var key in obj) {
-    if (hasOwnProperty.call(obj, key)) return false;
+  for(let key in obj) {
+    if(hasOwnProperty.call(obj, key)) return false;
   }
 
   return true;
 };
 
-Utils.merge = function(source, target) {
-  if(Utils.isEmptyObject(target)) { return source };
-  if(Utils.isEmptyObject(source)) {
-    if(typeof source == 'string') {
+utils.merge = function(source, target) {
+  if(utils.isEmptyObject(target)) { return source }
+  if(utils.isEmptyObject(source)) {
+    if (typeof source === 'string') {
       return '';
     }
 
     return {};
-  };
+  }
 
   let s = Object.assign({}, source);
 
@@ -44,27 +40,41 @@ Utils.merge = function(source, target) {
   return s;
 };
 
-Utils.cipher = function(str, password) {
+utils.cipher = function(str, password) {
   let cipher = crypto.createCipher('aes-256-cbc', password);
   let crypted = cipher.update(str,'utf8','hex');
   crypted += cipher.final('hex');
   return crypted;
 };
 
-Utils.decipher = function (str, password) {
+utils.decipher = function (str, password) {
   let decipher = crypto.createDecipher('aes-256-cbc', password);
-  let dec = decipher.update(Buffer(str,'hex'),'utf8');
+  let dec = decipher.update(Buffer.from(str,'hex'), 'utf8');
   dec += decipher.final('utf8');
   return dec;
 };
 
-Utils.trim = function(obj) {
-  if(typeof obj == 'string') {
+utils.trim = function(obj) {
+  if(typeof obj === 'string') {
     return obj.trim();
   }
   let rs = {};
+
+  if(typeof obj === 'array') {
+    rs = [];
+    for(let i = 0, len = obj.length; i < len; i++) {
+      if(typeof obj[i] === 'string') {
+        rs.push(obj[i].trim());
+      }else {
+        rs.push(obj[i]);
+      }
+    }
+
+    return rs;
+  }
+
   for(let t in obj) {
-    if(typeof obj[t] == 'string') {
+    if(typeof obj[t] === 'string') {
       rs[t] = obj[t].trim();
     }else {
       rs[t] = obj[t];
@@ -73,29 +83,15 @@ Utils.trim = function(obj) {
   return rs;
 };
 
-
-Utils.isEmptyObject = function(obj) {
-  if (obj == null || typeof obj == 'undefined') return true;
-
-  if (obj.length && obj.length > 0) return false;
-  if (obj.length === 0) return true;
-
-  for (var key in obj) {
-    if (hasOwnProperty.call(obj, key)) return false;
-  }
-
-  return true;
-};
-
-Utils.tpl = function(str, data) {
-  for(var item in data) {
+utils.tpl = function(str, data) {
+  for(let item in data) {
     str = str.replace(new RegExp('\{\\$'+ item +'\}', 'gmi'), data[item]);
   }
   str = str.replace(/\{\$(.*?)\}/ig, '');
   return str;
 };
 
-Utils.analysisNetworkInterfaces = function () {
+utils.analysisNetworkInterfaces = function () {
   const nf = os.networkInterfaces();
   let ips = [];
   for(let k in nf) {
@@ -110,60 +106,28 @@ Utils.analysisNetworkInterfaces = function () {
   return ips;
 };
 
-Utils.result = function(code, data, message=null){
-  if(code === '0'){
-    message = 'ok';
-  }
-  return { status: code, data: data, statusInfo: { message: message}};
-}
+utils.err = function(code, message) {
+  return { code: code, message: message };
+};
 
-Utils.err = function(code, message){
-  return {code: code, message: message};
-}
-
-
-Utils.checkEmail = function(email) {
+utils.checkEmail = function(email) {
   if((email.length > 128) || (email.length < 6)) {
     return false;
   }
-  
-  var format = /^[A-Za-z0-9+]+[A-Za-z0-9\.\_\-+]*@([A-Za-z0-9\-]+\.)+[A-Za-z0-9]+$/;
-  if(!email.match(format)) {
-    return false;
-  }
-  
-  return true;
-}
-
-Utils.checkPhone = function(phone){
-  if(phone.length != 11){
-    return false;
-  }
-  if(/^1[34578]\d{9}$/.test(phone) == false){
-    return false;
-  }else{
-    return true;
-  }
-}
+  return !!email.match(/^[A-Za-z0-9+]+[A-Za-z0-9\.\_\-+]*@([A-Za-z0-9\-]+\.)+[A-Za-z0-9]+$/);
+};
 
 /**
  * 2-20位有效字符
  * @param name
  * @returns {boolean}
  */
-Utils.checkVipName = function(name){
-  if( /^[0-9a-zA-Z_\u4e00-\u9fa5]{2,20}$/.test(name) == false){
-    return false;
-  }else{
-    return true;
-  }
-}
+utils.checkVipName = function(name) {
+  return /^[0-9a-zA-Z_\u4e00-\u9fa5]{2,20}$/.test(name);
+};
 
-Utils.checkPassword = function(password){
-  if( /^[0-9a-zA-Z_]{6,20}$/.test(password) == false){
-    return false;
-  }else{
-    return true;
-  }
-}
-module.exports = Utils;
+utils.checkPassword = function(password) {
+  return /^[0-9a-zA-Z_]{6,20}$/.test(password);
+};
+
+module.exports = utils;

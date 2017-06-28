@@ -1,9 +1,9 @@
 /**
  * Created by steven on 17/5/5.
  */
-var express = require('express');
-var router = express.Router();
-const Utils = require('../../common/utils');
+const express = require('express');
+const router = express.Router();
+const result = require('../../common/result');
 
 /**
  * @apiName: postLogTest
@@ -52,10 +52,8 @@ const Utils = require('../../common/utils');
  *                  type: string
  *
  */
-
 router.post('/test', (req, res)=> {
-  console.log("hello fafa");
-  return res.json(Utils.result('0', {log: "test"}));
+  return res.json(result.success({log: "test"}));
 });
 
 module.exports = router;

@@ -1,8 +1,10 @@
 /**
  * Created by chaoningxie on 26/2/17.
  */
-const Utils = require('../common/Utils');
-const Result = require('../common/result');
+const i18n = require('i18next');
+
+const utils = require('../common/utils');
+const result = require('../common/result');
 const token = require('../common/token');
 const config =  require('../config');
 const UserInfo = require('../api/user/userInfo');
@@ -15,7 +17,7 @@ const redisClient = config.redisClient;
 let Login = {};
 
 Login.isLogin = function(req) {
-  const query = Utils.trim(req.query);
+  const query = utils.trim(req.query);
   const ticket = query['ticket'] || (req.cookies['ticket'] || req.header('token'));
 
   if(!ticket) {
@@ -34,59 +36,67 @@ Login.isLogin = function(req) {
 Login.getUserInfo = function(req, cb){
   let info = {};
   let userId = req.ex.userId;
+
   redisClient.get(userId, function(err, r){
-    if(err){
-      console.log(err.message);
+    if(err) {
+      return cb && cb(err);
     }
+
     if(r){
       info = JSON.parse(r);
       return cb &&cb(null, info);
-    }else{
-      userInfo.collection.findOne({
-        _id: userId
-      }, { password: 0 }, function(err, doc) {
-        if(err) {
-          return cb && cb(Utils.err("-1", err.message));
-        }
-
-        if(!doc) {
-          return cb && cb(Utils.err(req.t('loginCannotFindUser.code'), req.t('loginCannotFindUser.message')))
-        }else {
-          info = doc;
-          info.permissions = [];
-          let roles = info.roles || [];
-          roleService.getPermissions({name:{$in: roles}}, function(err, permissions){
-            if(err){
-              return cb && cb(err);
-            }
-            info.permissions = permissions;
-            redisClient.set(userId, JSON.stringify(info));
-            redisClient.EXPIRE(userId, config.redisExpires);
-            return cb && cb(null, info);
-          })
-        }
-      });
     }
+
+    userInfo.getUserInfo(userId, function(err, doc) {
+      if(err) {
+        return cb && cb(err);
+      }
+
+      if(!doc) {
+        return cb && cb(i18n.t('loginCannotFindUser'));
+      }
+
+      info = doc;
+      info.permissions = [];
+      let roles = info.roles || [];
+
+      roleService.getPermissions({ name: { $in: roles }}, function(err, permissions){
+        if(err){
+          return cb && cb(err);
+        }
+        info.permissions = permissions;
+        redisClient.set(userId, JSON.stringify(info));
+        redisClient.EXPIRE(userId, config.redisExpires);
+        return cb && cb(null, info);
+      })
+    });
   })
 }
 
 Login.middleware = function(req, res, next) {
   const decodeTicket = Login.isLogin(req);
+
   if(decodeTicket) {
     const now = new Date().getTime();
     if(decodeTicket[1] > now) { //token有效期内
       req.ex = { userId: decodeTicket[0] };
+      req.query = utils.trim(req.query);
+
+      if(!(req.headers['content-type'] && req.headers['content-type'].indexOf('multipart/form-data') !== -1)) {
+        req.body = utils.trim(req.body);
+      }
+
       Login.getUserInfo(req, function(err, info){
-        if(err){
+        if(err) {
           res.clearCookie('ticket');
           res.redirect('/error');
-          return;
-          //return res.json(Result.FAIL(err.code, {}, err.message))
+          return false;
         }
 
         req.ex.userInfo = info;
         next();
-      })
+      });
+
     }else { //过期
       res.clearCookie('ticket');
       res.redirect('/login');
@@ -97,14 +107,15 @@ Login.middleware = function(req, res, next) {
 
 };
 
-Login.hasAccessMiddleware = function(req, res, next){
+Login.hasAccessMiddleware = function(req, res, next) {
   let permissions = req.ex.userInfo.permissions || [];
   let url = req.originalUrl;
-  if(permissions.indexOf(url) != -1){
+
+  if(permissions.indexOf(url) !== -1) {
     next();
-  }else{
-    return res.json(Result.FAIL(req.t("noAccess.code"), {}, req.t("noAccess.message")))
+  }else {
+    return res.json(result.fail(req.t("noAccess")));
   }
-}
+};
 
 module.exports = Login;

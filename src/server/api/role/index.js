@@ -1,22 +1,29 @@
 /**
  * Created by steven on 17/5/5.
  */
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
 const uuid = require('uuid');
-const Result = require('../../common/result');
-const isLogin = require('../../middleware/login');
-const RoleInfo = require("./roleInfo");
-const PermissionInfo = require("./permissionInfo");
+
+const result = require('../../common/result');
+
 const UserInfo = require("../user/userInfo");
-const roleInfo = new RoleInfo();
-const permissionInfo = new PermissionInfo();
 const userInfo = new UserInfo();
+
+const RoleInfo = require("./roleInfo");
+const roleInfo = new RoleInfo();
+
+const PermissionInfo = require("./permissionInfo");
+const permissionInfo = new PermissionInfo();
+
 const config = require("../../config");
 const redisClient = config.redisClient;
 
+const isLogin = require('../../middleware/login');
 router.use(isLogin.middleware);
 router.use(isLogin.hasAccessMiddleware);
+
+const service = require('./service');
 
 /**
  * @permissionName: 角色列表
@@ -55,16 +62,10 @@ router.use(isLogin.hasAccessMiddleware);
  */
 router.get('/list', (req, res)=> {
   let page = req.query.page || 1;
-  let pageSize = req.query.pageSize || 999;
+  let pageSize = req.query.pageSize || 30;
 
-  page = page * 1;
-  pageSize = pageSize * 1;
-  roleInfo.pagination({}, page, pageSize, function(err, docs){
-    if(err){
-      return res.json(Result.FAIL('-1', [], err.message));
-    }
-
-    return res.json(Result.SUCCESS(docs));
+  service.listRole(page, pageSize, function(err, docs) {
+    return res.json(result.json(err, docs));
   });
 });
 
@@ -97,19 +98,12 @@ router.get('/list', (req, res)=> {
  *         description: RoleInfo
  */
 router.get('/getDetail', (req, res)=> {
-  let _id = req.query._id || "";
+  let id = req.query._id || "";
 
-  if(!_id){
-    return res.json(Result.FAIL(req.t('getRoleNoId.code'), {}, req.t('getRoleNoId.message')));
-  }
-
-  roleInfo.collection.findOne({ _id: _id}, function(err, doc){
-    if(err){
-      return res.json(Result.FAIL('-1', [], err.message));
-    }
-
-    return res.json(Result.SUCCESS(doc));
+  service.getRoleDetail(id, function(err, doc) {
+    return res.json(result.json(err, doc));
   });
+
 });
 
 /**
@@ -162,36 +156,8 @@ router.get('/getDetail', (req, res)=> {
  *
  */
 router.post('/add', (req, res)=> {
-  let name = req.body.name || '';
-  let permissions = req.body.permissions || "";
-  let info = {};
-
-  if(!name){
-    return res.json(Result.FAIL(req.t('addRoleNoName.code'), {}, req.t('addRoleNoName.message')));
-  }
-
-  if(!permissions){
-    return res.json(Result.FAIL(req.t('addRoleNoPermissions.code'), {}, req.t('addRoleNoPermissions.message')));
-  }
-
-  info._id = uuid.v1();
-  info.name = name;
-  info.permissions = permissions.split(",");
-  roleInfo.collection.findOne({ name: name}, { fields: { _id: 1} }, function(err, doc){
-    if(err){
-      return res.json(Result.FAIL('-1', [], err.message));
-    }
-
-    if(doc){
-      return res.json(Result.FAIL(req.t('addRoleNameIsExist.code'), {}, req.t('addRoleNameIsExist.message')));
-    }
-
-    roleInfo.collection.insertOne(roleInfo.assign(info), function(err) {
-      if(err){
-        return res.json(Result.FAIL(-1, {}, err.message));
-      }
-      return res.json(Result.SUCCESS({}));
-    })
+  service.addRole(req.body, function(err, r) {
+    res.json(result.json(err, {}));
   });
 });
 
@@ -249,33 +215,10 @@ router.post('/add', (req, res)=> {
  *
  */
 router.post('/update', (req, res)=> {
-  let _id = req.body._id || '';
-  let name = req.body.name || '';
-  let permissions = req.body.permissions || "";
-  let info = {};
-
-  if(!_id){
-    return res.json(Result.FAIL(req.t('updateRoleNoId.code'), {}, req.t('updateRoleNoId.message')));
-  }
-
-  if(!name){
-    return res.json(Result.FAIL(req.t('addRoleNoName.code'), {}, req.t('addRoleNoName.message')));
-  }
-
-  if(!permissions){
-    return res.json(Result.FAIL(req.t('addRoleNoPermissions.code'), {}, req.t('addRoleNoPermissions.message')));
-  }
-
-  info.name = name;
-  info.permissions = permissions.split(",");
-  roleInfo.collection.findOneAndUpdate({ _id: _id}, { $set: info }, {returnOriginal: false}, function(err, r){
-    if(err){
-      return res.json(Result.FAIL('-1', [], err.message));
-    }
-    return res.json(Result.SUCCESS(r.value));
+  service.updateRole(req.body._id, req.body, function(err, r) {
+    res.json(result.json(err, {}));
   });
 });
-
 
 /**
  * @permissionName: 删除角色
@@ -323,19 +266,8 @@ router.post('/update', (req, res)=> {
  *
  */
 router.post('/delete', (req, res)=> {
-  let _ids = req.body._ids || '';
-
-  if(!_ids){
-    return res.json(Result.FAIL(req.t('deleteRoleNoIds.code'), {}, req.t('deleteRoleNoIds.message')));
-  }
-
-  _ids = _ids.split(",");
-
-  roleInfo.collection.remove({ _id: {$in: _ids}}, function(err, r){
-    if(err){
-      return res.json(Result.FAIL('-1', [], err.message));
-    }
-    return res.json(Result.SUCCESS({}));
+  service.deleteRoles(req.body.ids, function(err, r) {
+    res.json(result.json(err, {}));
   });
 });
 
@@ -382,10 +314,10 @@ router.get('/listPermission', (req, res)=> {
   pageSize = pageSize * 1;
   permissionInfo.pagination({}, page, pageSize, function(err, docs){
     if(err){
-      return res.json(Result.FAIL('-1', [], err.message));
+      return res.json(result.fail('-1', [], err.message));
     }
 
-    return res.json(Result.SUCCESS(docs));
+    return res.json(result.success(docs));
   });
 });
 
@@ -443,17 +375,17 @@ router.post('/assignRoleToUser', (req, res)=> {
   let userIds = req.body.userIds || '';
 
   if(!userIds){
-    return res.json(Result.FAIL(req.t('assignRoleNoUserIds.code'), {}, req.t('assignRoleNoUserIds.message')));
+    return res.json(result.fail(req.t('assignRoleNoUserIds.code'), {}, req.t('assignRoleNoUserIds.message')));
   }
 
   userIds = userIds.split(",");
   roles = roles.split(",");
   userInfo.collection.update({ _id: {$in: userIds}}, {$set: { roles: roles}}, { multi: true}, function(err){
     if(err){
-      return res.json(Result.FAIL('-1', [], err.message));
+      return res.json(result.fail('-1', [], err.message));
     }
     redisClient.del(userIds);
-    return res.json(Result.SUCCESS({}));
+    return res.json(result.success({}));
   });
 });
 

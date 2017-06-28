@@ -1,17 +1,30 @@
 /**
  * Created by chaoningx on 2017/2/27.
  */
-const config = require('../config');
 const utils = require('../common/utils');
 
 class DB {
-  constructor(collectionName) {
-    this.collection = config.mongodb.dbInstance.collection(collectionName);
+  constructor(dbInstance, collectionName) {
+    this.collection = dbInstance.collection(collectionName);
     this.doc = {};
+    this.updateDoc = {};
   }
 
   assign(info) {
-    return utils.merge(Object.assign({}, this.doc), info);
+    return utils.merge(this.doc, info);
+  }
+
+  updateAssign(info) {
+    const ud = this.updateDoc;
+    let obj = {};
+
+    for(let k in info) {
+      if(ud[k]) {
+        obj[k] = info[k];
+      }
+    }
+
+    return obj;
   }
 
   pagination(query, page, pageSize, callback, sortFields, fieldsNeed) {
@@ -36,7 +49,7 @@ class DB {
 
         let pageCount =  ((count / pageSize) | 0) + (count % pageSize ? 1 : 0);
         page = page > pageCount ? pageCount : page;
-        let rs = { docs: items, page: page, pages: pageCount, limit: pageSize, total: count };
+        let rs = { docs: items, page: page, pageCount: pageCount, pageSize: pageSize, total: count };
         callback && callback(null, rs);
       });
     });

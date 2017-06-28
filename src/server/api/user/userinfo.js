@@ -33,6 +33,13 @@ class UserInfo extends DB {
       status: 0
     };
   }
+
+  getUserInfo(id, cb) {
+    this.collection.findOne({ _id: id }, { password: 0 }, function(err, doc) {
+      cb (err, doc);
+    });
+  }
+
 };
 
 UserInfo.STATUS = {
