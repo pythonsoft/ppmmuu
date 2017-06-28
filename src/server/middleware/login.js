@@ -1,7 +1,7 @@
 /**
  * Created by chaoningxie on 26/2/17.
  */
-const Utils = require('../common/Utils');
+const Utils = require('../common/utils');
 const Result = require('../common/result');
 const token = require('../common/token');
 const config =  require('../config');

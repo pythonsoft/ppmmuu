@@ -449,7 +449,6 @@ router.get('/listPermission', (req, res)=> {
 router.post('/assignRoleToUser', (req, res)=> {
   let roles = req.body.roles || '';
   let userIds = req.body.userIds || '';
-
   if(!userIds){
     return res.json(Result.FAIL(req.t('assignRoleNoUserIds.code'), {}, req.t('assignRoleNoUserIds.message')));
   }

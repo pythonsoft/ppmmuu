@@ -19,8 +19,9 @@ function getEntries() {
 let config = {};
 
 config.server = {
-  entry: './src/server/app.js',
+  entry: ['./src/server/app.js'],
   output: {
+    publicPath: path.join(__dirname, 'build', 'server.js'),
     path: path.join(__dirname, 'build'),
     filename: 'server.js',
     chunkFilename: 'server.[name].js',
@@ -40,6 +41,10 @@ config.server = {
     __dirname: false,
   },
   devtool: 'source-map',
+  devServer: {
+    hot: true,
+    inline: true
+  },
   module: {
   }
 };
