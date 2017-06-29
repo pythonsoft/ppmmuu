@@ -21,7 +21,7 @@ app.set('views', path.resolve('build', 'views'));
 app.set('view engine', 'pug');
 
 app.use(i18nMiddleware);
-app.use(feMiddleware);
+app.use(feMiddleware.middleware);
 
 const initMongodb = function(names, completeFn) {
   let init = function(index) {
