@@ -9,7 +9,7 @@ const config = require("./config");
 const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 const i18nMiddleware = require('./middleware/i18n');
-const feMiddleware = require('./middleware/fe').middleware;
+const feMiddleware = require('./middleware/fe');
 
 const app = express();
 
@@ -21,7 +21,7 @@ app.set('views', path.resolve('build', 'views'));
 app.set('view engine', 'pug');
 
 app.use(i18nMiddleware);
-app.use(feMiddleware);
+app.use(feMiddleware.middleware);
 
 const initMongodb = function(names, completeFn) {
   let init = function(index) {

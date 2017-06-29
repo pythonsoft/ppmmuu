@@ -25,14 +25,28 @@ class UserInfo extends DB {
     super(config.dbInstance['umpDB'], 'UserInfo');
 
     this.doc = {
-      _id: '',
+      _id : '',
       name: '',
-      password: '',
-      createdAt: '',
-      token: '',
-      roles: [],     //RoleInfo _id array
-      status: 0
-    };
+      password : '',
+      title : "",
+      roles: [],       //RoleInfo _id
+      company: {
+        _id: '',
+        name: ''
+      },
+      department: {
+        _id: '',
+        name: ''
+      },
+      createdAt: new Date(),
+      description: '',
+      employeeId: '',
+      email: '',
+      phone: '',
+      photo: '', //path
+      status: UserInfo.STATUS.NORMAL,
+      Detail : {}
+    }
 
   }
 

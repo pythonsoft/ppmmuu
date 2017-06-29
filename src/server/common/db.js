@@ -24,6 +24,10 @@ class DB {
       }
     }
 
+    if(ud['modifyTime']){
+      obj['modifyTime'] = new Date();
+    }
+
     return obj;
   }
 
