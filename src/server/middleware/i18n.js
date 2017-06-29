@@ -1,6 +1,6 @@
-let i18n = require('i18next');
-let i18nMiddleware = require('i18next-express-middleware');
-let i18nFsBackend = require('i18next-node-fs-backend');
+const i18n = require('i18next');
+const i18nMiddleware = require('i18next-express-middleware');
+const i18nFsBackend = require('i18next-node-fs-backend');
 const path = require('path');
 
 i18n

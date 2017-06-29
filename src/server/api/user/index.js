@@ -1,9 +1,9 @@
 /**
  * Created by steven on 17/5/5.
  */
-var express = require('express');
-var router = express.Router();
-const Utils = require('../../common/utils');
+const express = require('express');
+const router = express.Router();
+const result = require('../../common/result');
 const service = require('./service');
 
 /**
@@ -55,14 +55,16 @@ const service = require('./service');
  *                  type: string
  *
  */
-router.post('/login', (req, res)=> {
+router.post('/login', (req, res) => {
   let username = req.body.username || '';
   let password = req.body.password || '';
+
   service.login(req, res, username, password, function(err, token){
-    if(err){
-      return res.json(Utils.result(err.code, {}, err.message));
+    if(err) {
+      return res.json(result.fail(err));
     }
-    return res.json(Utils.result('0', {token: token}));
-  })
+    return res.json(result.success({token: token}));
+  });
 });
+
 module.exports = router;
