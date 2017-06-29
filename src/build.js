@@ -102,7 +102,7 @@ var initPermissionInfo = function(){
         console.log(err);
         return false;
       }
-      console.log("mongodb connect Success!");
+      console.log("mongodb connect utils!");
       var permissionInfo = db.collection("PermissionInfo");
       permissionInfo.remove({}, {w: 1}, function (err) {
         if (err) {
