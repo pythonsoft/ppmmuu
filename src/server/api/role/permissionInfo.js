@@ -2,7 +2,7 @@
  * Created by steven on 17/5/5.
  */
 const DB = require('../../common/db');
-
+const config = require('../../config');
 
 /**
  * @swagger
@@ -18,7 +18,8 @@ const DB = require('../../common/db');
  */
 class PermissionInfo extends DB {
   constructor() {
-    super('PermissionInfo');
+    super(config.dbInstance['umpDB'], 'PermissionInfo');
+
     this.doc = {
       _id: '',
       name: '',
