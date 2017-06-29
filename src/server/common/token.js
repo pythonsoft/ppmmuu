@@ -30,7 +30,7 @@ let Token = {
 
     let decodeSession = utils.decipher(token, security);
 
-    if(decodeSession.indexOf('-') == -1) {
+    if(decodeSession.indexOf('-') === -1) {
       return false;
     }
 
@@ -64,7 +64,7 @@ let Token = {
       return false;
     }
 
-    if(decodeSession.indexOf('-') == -1) {
+    if(decodeSession.indexOf('-') === -1) {
       return false;
     }
 

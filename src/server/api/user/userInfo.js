@@ -23,6 +23,7 @@ const DB = require('../../common/db');
 class UserInfo extends DB {
   constructor() {
     super('UserInfo');
+
     this.doc = {
       _id: '',
       name: '',
@@ -32,6 +33,7 @@ class UserInfo extends DB {
       roles: [],
       status: 0
     };
+
   }
 
   getUserInfo(id, cb) {
@@ -40,7 +42,7 @@ class UserInfo extends DB {
     });
   }
 
-};
+}
 
 UserInfo.STATUS = {
   NORMAL: '0',

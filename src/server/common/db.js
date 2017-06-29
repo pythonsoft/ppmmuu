@@ -27,6 +27,15 @@ class DB {
     return obj;
   }
 
+  /**
+   * 分页组件
+   * @param query 查询条件
+   * @param page 页码
+   * @param pageSize 每页显示条数
+   * @param callback 回调函数
+   * @param sortFields 排序，传入格式如：'-createdTime,name', "-"代表倒序，没有写代表正序，多个使用","号分割
+   * @param fieldsNeed 希望返回的字段，传入格式如：'-createdTime,name', "-"代表不希望返回，多个使用","号分割
+   */
   pagination(query, page, pageSize, callback, sortFields, fieldsNeed) {
     let collection = this.collection;
     collection.count(query, function(err, count) {
@@ -35,22 +44,32 @@ class DB {
         return false;
       }
 
-      let cursor = collection.find(query, fieldsNeed || {});
-      page = page * 1 || 1;
-      pageSize = pageSize * 1 || 10;
-      cursor.sort(sortFields);
-      cursor.skip(page ? ((page - 1) * pageSize) : (0 * pageSize));
-      cursor = cursor.limit(pageSize * 1);
+      page = page ? page * 1 : 1;
+      pageSize = pageSize ? pageSize * 1 : 30;
+
+      let cursor = collection.find(query);
+
+      if(sortFields) {
+        cursor.sort(utils.formatSortOrFieldsParams(sortFields, true));
+      }
+
+      cursor.skip(page ? ((page - 1) * pageSize) : 0);
+      cursor = cursor.limit(pageSize);
+
+      if(fieldsNeed) {
+        cursor = cursor.project(utils.formatSortOrFieldsParams(fieldsNeed, false));
+      }
+
       cursor.toArray(function(err, items) {
         if(err) {
           callback && callback(err);
           return false;
         }
 
-        let pageCount =  ((count / pageSize) | 0) + (count % pageSize ? 1 : 0);
+        const pageCount =  ((count / pageSize) | 0) + (count % pageSize ? 1 : 0);
         page = page > pageCount ? pageCount : page;
-        let rs = { docs: items, page: page, pageCount: pageCount, pageSize: pageSize, total: count };
-        callback && callback(null, rs);
+
+        callback && callback(null, { docs: items, page: page, pageCount: pageCount, pageSize: pageSize, total: count });
       });
     });
   }

@@ -55,7 +55,7 @@ const service = require('./service');
  *                  type: string
  *
  */
-router.post('/login', (req, res)=> {
+router.post('/login', (req, res) => {
   let username = req.body.username || '';
   let password = req.body.password || '';
 
@@ -66,4 +66,5 @@ router.post('/login', (req, res)=> {
     return res.json(result.success({token: token}));
   });
 });
+
 module.exports = router;

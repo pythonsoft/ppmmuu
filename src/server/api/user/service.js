@@ -13,7 +13,7 @@ const userInfo = new UserInfo();
 let service = {};
 
 service.login = function(req, res, username, password, cb){
-  let cipherPassword = utils.cipher(password, config.KEY);
+  const cipherPassword = utils.cipher(password, config.KEY);
   let query = {
     name: username,
     password: cipherPassword
@@ -48,10 +48,12 @@ service.login = function(req, res, username, password, cb){
 service.setCookie = function(res, id) {
   const expires = Date.now() + config.cookieExpires;
   const token = Token.create(id, expires, config.KEY);
+
   res.cookie('ticket', token, {
     expires: new Date(expires),
     httpOnly: true
   });
+
   return token;
 };
 

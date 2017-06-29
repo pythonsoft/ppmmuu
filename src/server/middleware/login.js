@@ -34,10 +34,11 @@ Login.isLogin = function(req) {
 };
 
 Login.getUserInfo = function(req, cb){
-  let info = {};
-  let userId = req.ex.userId;
+  const userId = req.ex.userId;
 
-  redisClient.get(userId, function(err, r){
+  let info = {};
+
+  redisClient.get(userId, function(err, r) {
     if(err) {
       return cb && cb(err);
     }
@@ -58,15 +59,16 @@ Login.getUserInfo = function(req, cb){
 
       info = doc;
       info.permissions = [];
-      let roles = info.roles || [];
 
-      roleService.getPermissions({ name: { $in: roles }}, function(err, permissions){
+      roleService.getPermissions({ name: { $in: info.roles || [] }}, function(err, permissions){
         if(err){
           return cb && cb(err);
         }
+
         info.permissions = permissions;
         redisClient.set(userId, JSON.stringify(info));
         redisClient.EXPIRE(userId, config.redisExpires);
+
         return cb && cb(null, info);
       })
     });
@@ -108,8 +110,8 @@ Login.middleware = function(req, res, next) {
 };
 
 Login.hasAccessMiddleware = function(req, res, next) {
-  let permissions = req.ex.userInfo.permissions || [];
-  let url = req.originalUrl;
+  const permissions = req.ex.userInfo.permissions || [];
+  const url = req.originalUrl;
 
   if(permissions.indexOf(url) !== -1) {
     next();

@@ -106,10 +106,6 @@ utils.analysisNetworkInterfaces = function () {
   return ips;
 };
 
-utils.err = function(code, message) {
-  return { code: code, message: message };
-};
-
 utils.checkEmail = function(email) {
   if((email.length > 128) || (email.length < 6)) {
     return false;
@@ -128,6 +124,29 @@ utils.checkVipName = function(name) {
 
 utils.checkPassword = function(password) {
   return /^[0-9a-zA-Z_]{6,20}$/.test(password);
+};
+
+utils.formatSortOrFieldsParams = function(sortString, isSort) {
+  let sorts = {};
+  let arr = [];
+  if(sortString.indexOf(',') !== -1) {
+    arr = sortString.split(',');
+  }else {
+    arr.push(sortString);
+  }
+
+  const flags = {
+    sorts: [-1, 1],
+    fields: [0, 1]
+  };
+
+  const flag = isSort ? flags['sorts'] : flags['fields'];
+
+  for(let i = 0, len = arr.length; i < len; i++) {
+    sorts[arr[i].trim()] = /^-/.test(arr[i]) ? flag[0] : flag[1];
+  }
+
+  return sorts;
 };
 
 module.exports = utils;

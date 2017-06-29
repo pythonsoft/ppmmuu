@@ -22,7 +22,12 @@ class PermissionInfo extends DB {
     this.doc = {
       _id: '',
       name: '',
-      path: ''
+      path: '',
+      creator: {},
+      createdTime: new Date(),
+      modifyTime: new Date(),
+      description: '',
+      detail: {}
     };
   }
 };

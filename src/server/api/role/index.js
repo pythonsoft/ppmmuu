@@ -7,9 +7,6 @@ const uuid = require('uuid');
 
 const result = require('../../common/result');
 
-const UserInfo = require("../user/userInfo");
-const userInfo = new UserInfo();
-
 const RoleInfo = require("./roleInfo");
 const roleInfo = new RoleInfo();
 
@@ -20,6 +17,7 @@ const config = require("../../config");
 const redisClient = config.redisClient;
 
 const isLogin = require('../../middleware/login');
+
 router.use(isLogin.middleware);
 router.use(isLogin.hasAccessMiddleware);
 
@@ -289,6 +287,13 @@ router.post('/delete', (req, res)=> {
  *       - application/json
  *     parameters:
  *       - in: path
+ *         name: roleId
+ *         description: wish get role permission, post it.
+ *         required: false
+ *         type: string
+ *         example: roleId
+ *         collectionFormat: csv
+ *       - in: path
  *         name: page
  *         description:
  *         required: false
@@ -300,24 +305,35 @@ router.post('/delete', (req, res)=> {
  *         description:
  *         required: false
  *         type: integer
- *         example: 15
+ *         example: 30 default
+ *         collectionFormat: csv
+ *         - in: path
+ *         name: sortFields
+ *         description: sort by this params
+ *         required: false
+ *         type: string
+ *         example: '-createdTime' that means sort by createdTime dec
+ *         collectionFormat: csv
+ *         - in: path
+ *         name: fieldsNeed
+ *         description: request only you need fields
+ *         required: false
+ *         type: string
+ *         example: '-name,createdTime' that means i need createdTime, don't need name field, if you need all fields, let it empty
  *         collectionFormat: csv
  *     responses:
  *       200:
  *         description: PermissionInfo
  */
 router.get('/listPermission', (req, res)=> {
-  let page = req.query.page || 1;
-  let pageSize = req.query.pageSize || 999;
+  const roleId = req.query['roleId'];
+  const page = req.query.page;
+  const pageSize = req.query.pageSize;
+  const sortFields = req.query['sortFields'] || '-createdTime';
+  const fieldsNeed = req.query['fieldsNeed'];
 
-  page = page * 1;
-  pageSize = pageSize * 1;
-  permissionInfo.pagination({}, page, pageSize, function(err, docs){
-    if(err){
-      return res.json(result.fail('-1', [], err.message));
-    }
-
-    return res.json(result.success(docs));
+  service.listPermission(roleId, page, pageSize, sortFields, fieldsNeed, function(err, docs) {
+    res.json(result.json(err, docs));
   });
 });
 
@@ -371,21 +387,11 @@ router.get('/listPermission', (req, res)=> {
  *
  */
 router.post('/assignRoleToUser', (req, res)=> {
-  let roles = req.body.roles || '';
-  let userIds = req.body.userIds || '';
+  const roles = req.body['roles'];
+  const userIds = req.body['userIds'];
 
-  if(!userIds){
-    return res.json(result.fail(req.t('assignRoleNoUserIds.code'), {}, req.t('assignRoleNoUserIds.message')));
-  }
-
-  userIds = userIds.split(",");
-  roles = roles.split(",");
-  userInfo.collection.update({ _id: {$in: userIds}}, {$set: { roles: roles}}, { multi: true}, function(err){
-    if(err){
-      return res.json(result.fail('-1', [], err.message));
-    }
-    redisClient.del(userIds);
-    return res.json(result.success({}));
+  service.assignUserRole(userIds, roles, function(err, r) {
+    res.json(result.json(err, 'ok'));
   });
 });
 

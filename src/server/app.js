@@ -19,6 +19,7 @@ app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x
 app.use('/', express.static(path.resolve('build', 'public')));
 app.set('views', path.resolve('build', 'views'));
 app.set('view engine', 'pug');
+
 app.use(i18nMiddleware);
 app.use(feMiddleware);
 
@@ -53,10 +54,6 @@ const runServer = function() {
 
       require('./apiPath.js')(app);
       require('./mongodbScript/init');
-
-      app.get('/api/test', (req, res) => {
-        res.end('api test');
-      });
 
       console.log('Listening on port ' + config.port + '...');
     });

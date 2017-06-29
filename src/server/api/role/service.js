@@ -5,14 +5,20 @@ const uuid = require('uuid');
 const utils = require('../../common/utils');
 const i18n = require('i18next');
 
+const UserInfo = require('../user/userInfo');
+const userInfo = new UserInfo();
+
 const RoleInfo = require('./roleInfo');
 const roleInfo = new RoleInfo();
+
+const PermissionInfo = require('./permissionInfo');
+const permissionInfo = new PermissionInfo();
 
 let service = {};
 
 /* role */
 service.listRole = function(page, pageSize, cb) {
-  roleInfo.pagination({}, page || 1, pageSize * 1 || 30, function(err, docs) {
+  roleInfo.pagination({}, page, pageSize, function(err, docs) {
     if(err) {
       //TODO add log4j record
       return cb && cb(i18n.t('databaseError'));
@@ -104,6 +110,21 @@ service.deleteRoles = function(ids, cb) {
   });
 };
 
+service.assignUserRole = function(userIds, roles, cb) {
+  if(!userIds) {
+    return cb && cb(i18n.t('assignRoleNoUserIds'));
+  }
+
+  userInfo.collection.updateMany({ _id: userIds.split(',') }, { $set: { role: roles.split(',') } }, function(err, r) {
+    if(err) {
+      //TODO add log4j record
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    cb && cb(null, r);
+  });
+};
+
 /* permission */
 service.getPermissions = function(query, cb) {
   roleInfo.collection.find(query).toArray(function(err, docs) {
@@ -123,8 +144,40 @@ service.getPermissions = function(query, cb) {
   });
 };
 
-service.listPermission = function(cb) {
+const listPermission = function(q, page, pageSize, sortFields, fieldsNeed, cb) {
+  permissionInfo.pagination(q, page, pageSize, function(err, docs) {
+    if(err) {
+      //TODO add log4j record
+      return cb && cb(i18n.t('databaseError'));
+    }
 
+    cb && cb(null, docs);
+
+  }, sortFields, fieldsNeed);
+};
+
+service.listPermission = function(roleId, page, pageSize, sortFields, fieldsNeed, cb) {
+  if(roleId) {
+    roleInfo.collection.findOne({ _id: roleId }, { fields: { permissions: 1 } }, function(err, doc) {
+      if(err) {
+        //TODO add log4j record
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      if(!doc) {
+        return cb && cb(i18n.t('roleInfoIsNotExist'))
+      }
+
+      listPermission({ _id: { $in: doc.permissions.constructor === Array ? doc.permissions : [] } }, page, pageSize, sortFields, fieldsNeed, function(err, docs) {
+        cb && cb(err, docs);
+      });
+
+    });
+  }else {
+    listPermission({}, page, pageSize, sortFields, fieldsNeed, function(err, docs) {
+      cb && cb(err, docs);
+    });
+  }
 };
 
 module.exports = service;
