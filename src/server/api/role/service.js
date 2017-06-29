@@ -33,7 +33,7 @@ service.getRoleDetail = function(id, cb) {
     return cb && cb(i18n.t('getRoleNoId'));
   }
 
-  roleInfo.collection.findOne({ _id: _id}, function(err, doc){
+  roleInfo.collection.findOne({ _id: id}, function(err, doc){
     if(err) {
       //TODO add log4j record
       return cb && cb(i18n.t('databaseError'));
@@ -53,7 +53,7 @@ service.addRole = function(_roleInfo = {}, cb) {
   }
 
   _roleInfo._id = _roleInfo._id || uuid.v1();
-  _roleInfo.permission = _roleInfo.permission.indexOf(',') !== -1 ?utils.trim(_roleInfo.permission.split(',')) : [];
+  _roleInfo.permissions = _roleInfo.permissions.indexOf(',') !== -1 ?utils.trim(_roleInfo.permissions.split(',')) : [];
 
   roleInfo.collection.findOne({ name: name }, { fields: { _id: 1} }, function(err, doc) {
     if(err) {
@@ -83,7 +83,7 @@ service.updateRole = function(id, _roleInfo, cb) {
   }
 
   const updateDoc = roleInfo.updateAssign(_roleInfo);
-  updateDoc.permission = updateDoc.permission.indexOf(',') !== -1 ? utils.trim(updateDoc.permission.split(',')) : [];
+  updateDoc.permissions = updateDoc.permissions.indexOf(',') !== -1 ? utils.trim(updateDoc.permissions.split(',')) : [];
 
   roleInfo.collection.updateOne({ _id: id }, { $set: updateDoc }, function(err, r) {
     if(err) {
