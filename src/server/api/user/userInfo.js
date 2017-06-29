@@ -30,7 +30,7 @@ class UserInfo extends DB {
       password: '',
       createdAt: '',
       token: '',
-      roles: [],
+      roles: [],     //RoleInfo _id array
       status: 0
     };
 

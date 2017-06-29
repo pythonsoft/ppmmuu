@@ -5,7 +5,7 @@
   },
   "userInfoFindWrong": {
     "code": "-1002",
-    "message": "查找userInfo系统报错",
+    "message": "查找userInfo系统报错"
   },
   "addRoleNoName": {
     "code": "-2001",

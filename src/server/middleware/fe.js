@@ -13,9 +13,8 @@ const routersPath = path.join(__dirname, '../../fe/routers');
 fe.middleware = function(req, res, next) {
   const url = req.originalUrl;
 
-  if(path.extname(url) && /^\/api/.test(url)) {
-    next();
-    return false;
+  if(path.extname(url) || /^\/api/.test(url) || /^\/api-docs/.test(url)) {
+    return next();
   }
 
   if(!fs.statSync(path.join(routersPath, url)).isDirectory()) {

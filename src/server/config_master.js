@@ -4,7 +4,7 @@
 config.host = "localhost:8080";
 config.domain = 'http://' + config.host;
 config.mongodb = {
-  url: 'mongodb://10.0.15.62:27017/ump_v1',
+  umpURL: 'mongodb://10.0.15.62:27017/ump_v1',
   dbInstance: null
 };
 

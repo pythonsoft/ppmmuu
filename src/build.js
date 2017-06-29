@@ -97,7 +97,7 @@ var initPermissionInfo = function(){
         path: permissionPaths[i]
       })
     }
-    mongodb.MongoClient.connect(config.mongodb.url, function(err, db) {
+    mongodb.MongoClient.connect(config.mongodb.umpURL, function(err, db) {
       if (err) {
         console.log(err);
         return false;

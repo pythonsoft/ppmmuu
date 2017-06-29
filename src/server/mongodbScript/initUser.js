@@ -44,7 +44,7 @@ roleInfo.collection.remove({'name': 'admin'}, function(err){
     throw new Error('admin role初始化有问题:' + err.message);
   }
   set.name = 'admin';
-  set._id = uuid.v1();
+  set._id = 'admin';
   roleInfo.collection.insertOne(set, function(err){
     if(err){
       throw new Error('admin role初始化有问题:' + err.message);

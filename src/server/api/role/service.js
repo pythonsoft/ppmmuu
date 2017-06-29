@@ -1,6 +1,7 @@
 /**
  * Created by steven on 2017/6/20.
  */
+const logger = require('../../common/log')('error');
 const uuid = require('uuid');
 const utils = require('../../common/utils');
 const i18n = require('i18next');
@@ -14,13 +15,16 @@ const roleInfo = new RoleInfo();
 const PermissionInfo = require('./permissionInfo');
 const permissionInfo = new PermissionInfo();
 
+const config =  require('../../config');
+const redisClient = config.redisClient;
+
 let service = {};
 
 /* role */
 service.listRole = function(page, pageSize, cb) {
   roleInfo.pagination({}, page, pageSize, function(err, docs) {
     if(err) {
-      //TODO add log4j record
+      logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
 
@@ -33,9 +37,9 @@ service.getRoleDetail = function(id, cb) {
     return cb && cb(i18n.t('getRoleNoId'));
   }
 
-  roleInfo.collection.findOne({ _id: _id}, function(err, doc){
+  roleInfo.collection.findOne({ _id: id}, function(err, doc){
     if(err) {
-      //TODO add log4j record
+      logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
 
@@ -53,11 +57,11 @@ service.addRole = function(_roleInfo = {}, cb) {
   }
 
   _roleInfo._id = _roleInfo._id || uuid.v1();
-  _roleInfo.permission = _roleInfo.permission.indexOf(',') !== -1 ?utils.trim(_roleInfo.permission.split(',')) : [];
+  _roleInfo.permissions = _roleInfo.permissions.indexOf(',') !== -1 ?utils.trim(_roleInfo.permissions.split(',')) : [];
 
-  roleInfo.collection.findOne({ name: name }, { fields: { _id: 1} }, function(err, doc) {
+  roleInfo.collection.findOne({ name: _roleInfo.name }, { fields: { _id: 1} }, function(err, doc) {
     if(err) {
-      //TODO add log4j record
+      logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
 
@@ -67,7 +71,7 @@ service.addRole = function(_roleInfo = {}, cb) {
 
     roleInfo.collection.insertOne(roleInfo.assign(_roleInfo), function(err, r) {
       if(err) {
-        //TODO add log4j record
+        logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
 
@@ -83,16 +87,26 @@ service.updateRole = function(id, _roleInfo, cb) {
   }
 
   const updateDoc = roleInfo.updateAssign(_roleInfo);
-  updateDoc.permission = updateDoc.permission.indexOf(',') !== -1 ? utils.trim(updateDoc.permission.split(',')) : [];
+  updateDoc.permissions = updateDoc.permissions.indexOf(',') !== -1 ? utils.trim(updateDoc.permissions.split(',')) : [];
 
-  roleInfo.collection.updateOne({ _id: id }, { $set: updateDoc }, function(err, r) {
-    if(err) {
-      //TODO add log4j record
+  roleInfo.collection.findOne({ _id: {$ne: id}, name: _roleInfo.name }, { fields: { _id: 1} }, function(err, doc) {
+    if (err) {
+      logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
+    if(doc){
+      return cb && cb(i18n.t('updateRoleNameIsAlreadyExist'));
+    }
 
-    cb && cb(null, r);
-  });
+    roleInfo.collection.updateOne({_id: id}, {$set: updateDoc}, function (err, r) {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      cb && cb(null, r);
+    });
+  })
 };
 
 service.deleteRoles = function(ids, cb) {
@@ -102,7 +116,7 @@ service.deleteRoles = function(ids, cb) {
 
   roleInfo.collection.removeMany({ _id: { $in: ids.split(',') } }, function(err, r) {
     if(err) {
-      //TODO add log4j record
+      logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
 
@@ -115,12 +129,15 @@ service.assignUserRole = function(userIds, roles, cb) {
     return cb && cb(i18n.t('assignRoleNoUserIds'));
   }
 
-  userInfo.collection.updateMany({ _id: userIds.split(',') }, { $set: { role: roles.split(',') } }, function(err, r) {
+  userIds = userIds.split(',');
+  roles = roles.split(',');
+  userInfo.collection.updateMany({ _id: userIds }, { $set: { role: roles } }, function(err, r) {
     if(err) {
-      //TODO add log4j record
+      logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
 
+    redisClient.del(userIds);
     cb && cb(null, r);
   });
 };
@@ -130,7 +147,7 @@ service.getPermissions = function(query, cb) {
   roleInfo.collection.find(query).toArray(function(err, docs) {
 
     if(err) {
-      //TODO add log4j record
+      logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
 
@@ -147,7 +164,7 @@ service.getPermissions = function(query, cb) {
 const listPermission = function(q, page, pageSize, sortFields, fieldsNeed, cb) {
   permissionInfo.pagination(q, page, pageSize, function(err, docs) {
     if(err) {
-      //TODO add log4j record
+      logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
 
@@ -160,7 +177,7 @@ service.listPermission = function(roleId, page, pageSize, sortFields, fieldsNeed
   if(roleId) {
     roleInfo.collection.findOne({ _id: roleId }, { fields: { permissions: 1 } }, function(err, doc) {
       if(err) {
-        //TODO add log4j record
+        logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
 

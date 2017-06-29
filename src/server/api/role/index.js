@@ -14,7 +14,6 @@ const PermissionInfo = require("./permissionInfo");
 const permissionInfo = new PermissionInfo();
 
 const config = require("../../config");
-const redisClient = config.redisClient;
 
 const isLogin = require('../../middleware/login');
 
@@ -40,19 +39,19 @@ const service = require('./service');
  *     produces:
  *       - application/json
  *     parameters:
- *       - in: path
+ *       - in: query
  *         name: page
  *         description:
  *         required: false
  *         type: integer
- *         example: 1
+ *         default: 1
  *         collectionFormat: csv
- *       - in: path
+ *       - in: query
  *         name: pageSize
  *         description:
  *         required: false
  *         type: integer
- *         example: 999
+ *         default: 999
  *         collectionFormat: csv
  *     responses:
  *       200:
@@ -84,12 +83,12 @@ router.get('/list', (req, res)=> {
  *     produces:
  *       - application/json
  *     parameters:
- *       - in: path
+ *       - in: query
  *         name: _id
  *         description:
  *         required: true
  *         type: string
- *         example: "1c6ad690-5583-11e7-b784-69097aa4b384"
+ *         default: "1c6ad690-5583-11e7-b784-69097aa4b384"
  *         collectionFormat: csv
  *     responses:
  *       200:
@@ -127,9 +126,13 @@ router.get('/getDetail', (req, res)=> {
  *         schema:
  *           type: object
  *           required:
+ *            - _id
  *            - name
  *            - permissions
  *           properties:
+ *             _id:
+ *               type: string
+ *               example: admin
  *             name:
  *               type: string
  *               example: admin
@@ -293,33 +296,33 @@ router.post('/delete', (req, res)=> {
  *         type: string
  *         example: roleId
  *         collectionFormat: csv
- *       - in: path
+ *       - in: query
  *         name: page
  *         description:
  *         required: false
  *         type: integer
- *         example: 1
+ *         default: 1
  *         collectionFormat: csv
- *       - in: path
+ *       - in: query
  *         name: pageSize
  *         description:
  *         required: false
  *         type: integer
- *         example: 30 default
+ *         default: 30
  *         collectionFormat: csv
- *         - in: path
+ *       - in: query
  *         name: sortFields
  *         description: sort by this params
  *         required: false
  *         type: string
- *         example: '-createdTime' that means sort by createdTime dec
+ *         default: -createdTime
  *         collectionFormat: csv
- *         - in: path
+ *       - in: query
  *         name: fieldsNeed
  *         description: request only you need fields
  *         required: false
  *         type: string
- *         example: '-name,createdTime' that means i need createdTime, don't need name field, if you need all fields, let it empty
+ *         default: '-name,createdTime'
  *         collectionFormat: csv
  *     responses:
  *       200:
@@ -360,10 +363,10 @@ router.get('/listPermission', (req, res)=> {
  *         schema:
  *           type: object
  *           required:
- *            - roles
+ *            - roleIds
  *            - userIds
  *           properties:
- *             roles:
+ *             roleIds:
  *               type: string
  *               example: admin,guest,support
  *             userIds:
@@ -387,10 +390,10 @@ router.get('/listPermission', (req, res)=> {
  *
  */
 router.post('/assignRoleToUser', (req, res)=> {
-  const roles = req.body['roles'];
+  const roleIds = req.body['roleIds'];
   const userIds = req.body['userIds'];
 
-  service.assignUserRole(userIds, roles, function(err, r) {
+  service.assignUserRole(userIds, roleIds, function(err, r) {
     res.json(result.json(err, 'ok'));
   });
 });

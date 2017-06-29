@@ -59,7 +59,7 @@ Login.getUserInfo = function(req, cb){
       info = doc;
       info.permissions = [];
 
-      roleService.getPermissions({ name: { $in: info.roles || [] }}, function(err, permissions){
+      roleService.getPermissions({ _id: { $in: info.roles || [] }}, function(err, permissions){
         if(err){
           return cb && cb(err);
         }

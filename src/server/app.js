@@ -9,7 +9,7 @@ const config = require("./config");
 const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 const i18nMiddleware = require('./middleware/i18n');
-const feMiddleware = require('./middleware/fe');
+const feMiddleware = require('./middleware/fe').middleware;
 
 const app = express();
 
@@ -53,7 +53,7 @@ const runServer = function() {
     app.listen(config.port, function () {
 
       require('./apiPath.js')(app);
-      require('./mongodbScript/init');
+      require('./mongodbScript/index');
 
       console.log('Listening on port ' + config.port + '...');
     });
