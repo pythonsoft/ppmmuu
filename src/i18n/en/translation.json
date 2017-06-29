@@ -74,7 +74,7 @@
   "noAccess": {
     "code": "-4001",
     "message": "no access to this api"
-  }
+  },
   "databaseError": {
     "code": "-1",
     "message": "data base error."

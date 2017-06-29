@@ -29,7 +29,7 @@ class UserInfo extends DB {
       name: '',
       password : '',
       title : "",
-      roles: [],
+      roles: [],       //RoleInfo _id
       company: {
         _id: '',
         name: ''

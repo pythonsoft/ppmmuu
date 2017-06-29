@@ -53,7 +53,7 @@ const runServer = function() {
     app.listen(config.port, function () {
 
       require('./apiPath.js')(app);
-      require('./mongodbScript/init');
+      require('./mongodbScript/index');
 
       console.log('Listening on port ' + config.port + '...');
     });
@@ -69,52 +69,6 @@ if(process.env.NODE_ENV === 'development') {
   const webpackHotMiddleware = require('webpack-hot-middleware');
   const webpackConfig = require('../../webpack.config.js');
 
-  webpack(webpackConfig.fe, function(err, stats) {
-    if (err || stats.hasErrors()) {
-      throw new Error(JSON.stringify(err));
-    }
-
-    runServer();
-
-    // initialize swagger-jsdoc
-    let swaggerOptions = {
-      swaggerDefinition: {
-        info: {
-          title: 'API',
-          version: 1,
-          description: 'Testing how to describe a RESTful API with Swagger',
-        },
-        host: config.host,
-        basePath: '/api',
-
-      },
-      //TODO: import apis as below
-      apis: [
-        './**/api/*/index.js',
-        './**/api/*/*Info.js',
-      ],
-    };
-    let swaggerSpec = swaggerJSDoc(swaggerOptions);
-
-// set swagger-ui-express
-    let showExplorer = true;
-    let swaggerUiOptions = {};
-    let swaggerUiCss = '';
-
-
-// import rests
-    app.get('/api-docs.json', function(req, res) {
-      res.set({
-        'Content-Type': 'application/json',
-      });
-      res.send(swaggerSpec);
-    });
-    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, showExplorer, swaggerUiOptions, swaggerUiCss));
-
-
-    require('./../runGulp')();
-  });
-
   let compiler = webpack(webpackConfig.fe);
   app.use(webpackDevMiddleware(compiler, {
     noInfo: false,
@@ -124,7 +78,46 @@ if(process.env.NODE_ENV === 'development') {
     },
     publicPath: webpackConfig.fe.output.publicPath
   }));
+
   app.use(webpackHotMiddleware(compiler));
+
+  runServer();
+
+  // initialize swagger-jsdoc
+  let swaggerOptions = {
+    swaggerDefinition: {
+      info: {
+        title: 'API',
+        version: 1,
+        description: 'Testing how to describe a RESTful API with Swagger',
+      },
+      host: config.host,
+      basePath: '/api',
+
+    },
+    //TODO: import apis as below
+    apis: [
+      './**/api/*/index.js',
+      './**/api/*/*Info.js',
+    ],
+  };
+  let swaggerSpec = swaggerJSDoc(swaggerOptions);
+
+// set swagger-ui-express
+  let showExplorer = true;
+  let swaggerUiOptions = {};
+  let swaggerUiCss = '';
+
+
+// import rests
+  app.get('/api-docs.json', function(req, res) {
+    res.set({
+      'Content-Type': 'application/json',
+    });
+    res.send(swaggerSpec);
+  });
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, showExplorer, swaggerUiOptions, swaggerUiCss));
+  require('./../runGulp')();
 }else {
   runServer();
 }
