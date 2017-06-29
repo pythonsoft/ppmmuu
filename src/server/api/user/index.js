@@ -34,7 +34,7 @@ const service = require('./service');
  *               example: xuyawen
  *             password:
  *               type: string
- *               example: 123123
+ *               example: "123123"
  *     responses:
  *       200:
  *         description: UserInfo
@@ -59,11 +59,9 @@ router.post('/login', (req, res) => {
   let username = req.body.username || '';
   let password = req.body.password || '';
 
-  service.login(req, res, username, password, function(err, token){
-    if(err) {
-      return res.json(result.fail(err));
-    }
-    return res.json(result.success({token: token}));
+  service.login(res, username, password, function(err, data){
+
+    return res.json(result.json(err, data));
   });
 });
 

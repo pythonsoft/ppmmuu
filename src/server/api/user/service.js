@@ -1,9 +1,9 @@
 /**
  * Created by steven on 17/5/12.
  */
+const logger = require('../../common/log')('error');
 const i18n = require('i18next');
 const utils = require('../../common/utils');
-const result = require('../../common/result');
 const Token = require('../../common/token');
 const config = require('../../config');
 
@@ -12,7 +12,7 @@ const userInfo = new UserInfo();
 
 let service = {};
 
-service.login = function(req, res, username, password, cb){
+service.login = function(res, username, password, cb){
   const cipherPassword = utils.cipher(password, config.KEY);
   let query = {
     name: username,
@@ -25,6 +25,7 @@ service.login = function(req, res, username, password, cb){
 
   userInfo.collection.findOne(query, { fields: { _id: 1 } }, function(err, doc) {
     if(err) {
+      logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
 
@@ -40,7 +41,7 @@ service.login = function(req, res, username, password, cb){
       httpOnly: true
     });
 
-    return cb && cb(null, token);
+    return cb && cb(null, {token: token});
   });
 
 };

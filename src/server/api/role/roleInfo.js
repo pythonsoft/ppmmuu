@@ -24,14 +24,14 @@ class RoleInfo extends DB {
       _id: '',
       name: '',
       creator: '',
-      permissions: [],
+      permissions: [],   //PermissionInfo path
       createdTime: new Date(),
       modifyTime: new Date(),
       description: '',
       detail: {}
     };
 
-    this.updateDoc = { name: 1, permissions: 1, description: 1, detail: 1 };
+    this.updateDoc = { name: 1, permissions: 1, description: 1, detail: 1, modifyTime: 1 };
   }
 
 };

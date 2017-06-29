@@ -2,7 +2,6 @@
  * Created by chaoningxie on 26/2/17.
  */
 const i18n = require('i18next');
-
 const utils = require('../common/utils');
 const result = require('../common/result');
 const token = require('../common/token');
@@ -60,7 +59,7 @@ Login.getUserInfo = function(req, cb){
       info = doc;
       info.permissions = [];
 
-      roleService.getPermissions({ name: { $in: info.roles || [] }}, function(err, permissions){
+      roleService.getPermissions({ _id: { $in: info.roles || [] }}, function(err, permissions){
         if(err){
           return cb && cb(err);
         }
