@@ -27,9 +27,11 @@ class UserInfo extends DB {
     this.doc = {
       _id : '',
       name: '',
+      displayName: '', //英文名
       password : '',
       title : "",
-      roles: [],       //RoleInfo _id
+      roles: [], //RoleInfo _id
+      verifyType: UserInfo.VERIFY_TYPE.PASSWORD, //密码验证方式
       company: {
         _id: '',
         name: ''
@@ -62,6 +64,11 @@ UserInfo.STATUS = {
   NORMAL: '0',
   UNACTIVE: '1',
   DELETE: '2'
+};
+
+UserInfo.VERIFY_TYPE = {
+  PASSWORD: '0', //密码验证
+  AD: '1' //域验证，域验证会根据组织里的验证信息去验证
 };
 
 module.exports = UserInfo;
