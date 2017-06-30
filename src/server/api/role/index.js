@@ -398,4 +398,62 @@ router.post('/assignRoleToUser', (req, res)=> {
   });
 });
 
+
+/**
+ * @permissionName: 分配角色
+ * @permissionPath: /api/role/assignPermissionToUser
+ * @apiName: postAssignPermissionToUser
+ * @apiFuncType: post
+ * @apiFuncUrl: /api/role/assignPermissionToUser
+ * @swagger
+ * /role/assignPermissionToUser:
+ *   post:
+ *     description: assign permission to user
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - RoleInfo
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: assign permission to user
+ *         schema:
+ *           type: object
+ *           required:
+ *            - permissions
+ *            - userIds
+ *           properties:
+ *             permissions:
+ *               type: string
+ *               example: /api/role/list,/api/role/assignPermissionToUser
+ *             userIds:
+ *               type: string
+ *               example: xuyawen@phoenixtv.com,131@qq.com
+ *     responses:
+ *       200:
+ *         description: RoleInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *
+ */
+router.post('/assignPermissionToUser', (req, res)=> {
+  const permissions = req.body['permissions'];
+  const userIds = req.body['userIds'];
+
+  service.assignUserPermission(userIds, permissions, function(err, r) {
+    res.json(result.json(err, 'ok'));
+  });
+});
 module.exports = router;

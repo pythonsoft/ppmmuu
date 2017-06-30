@@ -131,7 +131,7 @@ service.assignUserRole = function(userIds, roles, cb) {
 
   userIds = userIds.split(',');
   roles = roles.split(',');
-  userInfo.collection.updateMany({ _id: userIds }, { $set: { role: roles } }, function(err, r) {
+  userInfo.collection.updateMany({ _id: {$in: userIds} }, { $set: { roles: roles } }, function(err, r) {
     if(err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -196,5 +196,23 @@ service.listPermission = function(roleId, page, pageSize, sortFields, fieldsNeed
     });
   }
 };
+
+service.assignUserPermission = function(userIds, permissions, cb){
+  if(!userIds) {
+    return cb && cb(i18n.t('assignPermissionNoUserIds'));
+  }
+
+  userIds = userIds.split(',');
+  permissions = permissions.split(',');
+  userInfo.collection.updateMany({ _id: {$in: userIds} }, { $set: { permissions: permissions } }, function(err, r) {
+    if(err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    redisClient.del(userIds);
+    cb && cb(null, r);
+  });
+}
 
 module.exports = service;
