@@ -4,8 +4,7 @@
 config.host = "localhost:8080";
 config.domain = 'http://' + config.host;
 config.mongodb = {
-  umpURL: 'mongodb://10.0.15.62:27017/ump_v1',
-  dbInstance: null
+  umpURL: 'mongodb://10.0.15.62:27017/ump_v1'
 };
 
 config.redis_host = "10.0.15.105";
