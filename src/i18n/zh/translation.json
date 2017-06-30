@@ -51,6 +51,14 @@
     "code": "-2008",
     "message": "分配角色需要参数userIds"
   },
+  "roleInfoIsNotExist": {
+    "code": "-2009",
+    "message": "找不到角色"
+  },
+  "assignPermissionNoUserIds": {
+    "code": "-2010",
+    "message": "分配权限需要参数userIds"
+  },
   "loginCannotFindUser": {
     "code": "-3001",
     "message": "登录时找不到用户"
@@ -70,5 +78,9 @@
   "noAccess": {
     "code": "-4001",
     "message": "无权访问此接口"
+  },
+  "databaseError": {
+    "code": "-1",
+    "message": "数据库异常."
   }
 }

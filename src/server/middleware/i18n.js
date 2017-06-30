@@ -8,7 +8,7 @@ i18n
 .use(i18nFsBackend)
 .init({
   preload: ['en', 'zh'],
-  fallbackLng: 'en',
+  fallbackLng: 'zh',
   returnObjects: true,
   backend: {
     loadPath: path.join(__dirname, '../../i18n/{{lng}}/{{ns}}.json'),

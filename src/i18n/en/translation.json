@@ -56,7 +56,7 @@
     "message": "role info is not exist"
   },
   "assignPermissionNoUserIds": {
-    "code": "-2008",
+    "code": "-2010",
     "message": "assign permissions parameter userIds required"
   },
   "loginCannotFindUser": {
