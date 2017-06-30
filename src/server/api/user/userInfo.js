@@ -41,6 +41,10 @@ class UserInfo extends DB {
         _id: '',
         name: ''
       },
+      team: {
+        _id: '',
+        name: ''
+      },
       createdAt: new Date(),
       description: '',
       employeeId: '',
