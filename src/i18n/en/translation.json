@@ -82,5 +82,25 @@
   "databaseError": {
     "code": "-1",
     "message": "data base error."
+  },
+  "groupIdIsNull": {
+    "code": "-5000",
+    "message": "no parameter groupId."
+  },
+  "aboveGroupIsNotExist": {
+    "code": "-5001",
+    "message": "parent group is not exist"
+  },
+  "groupIsNotExist": {
+    "code": "-5002",
+    "message": "group is not exist."
+  },
+  "groupDeleteDenyIsYes": {
+    "code": "-5003",
+    "message": "you cannot delete this group that has set up delete protection"
+  },
+  "cannotDeleteProtectGroup": {
+    "code": "-5004",
+    "message": "the following groups have set up delete protection, and can not perform delete operations, please cancel the protection after the trial, {{groupNames}}"
   }
 }

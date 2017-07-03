@@ -84,23 +84,23 @@
     "message": "数据库异常."
   },
   "groupIdIsNull": {
-    "code": "5000",
+    "code": "-5000",
     "message": "请输入组织Id."
   },
   "aboveGroupIsNotExist": {
-    "code": "5001",
+    "code": "-5001",
     "message": "上级组织不存在."
   },
   "groupIsNotExist": {
-    "code": "5002",
+    "code": "-5002",
     "message": "组织不存在."
   },
   "groupDeleteDenyIsYes": {
-    "code": "5003",
+    "code": "-5003",
     "message": "该组织设置了删除保持，不能将该组织删除."
   },
   "cannotDeleteProtectGroup": {
-    "code": "5004",
+    "code": "-5004",
     "message": "以下组织设置了删除保持，不能执行删除操作，请取消保护后再进行偿试，{{groupNames}}"
-  },
+  }
 }
