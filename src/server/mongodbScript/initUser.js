@@ -5,6 +5,10 @@ const UserInfo = require('../api/user/userInfo');
 const userInfo = new UserInfo();
 const RoleInfo = require('../api/role/roleInfo');
 const roleInfo = new RoleInfo();
+const UserPermission = require('../api/user/userPermission');
+const userPermission = new UserPermission();
+
+let email = "xuyawen@phoenixtv.com";
 
 userInfo.collection.findOne({
   _id: "xuyawen@phoenixtv.com"
@@ -20,10 +24,9 @@ userInfo.collection.findOne({
   }
 
   userInfo.collection.insertOne(userInfo.assgin({
-    "_id" : "xuyawen@phoenixtv.com",
+    "_id" : email,
     "name" : "xuyawen",
     "status" : 0,
-    "role" : ['admin'],
     "password" : utils.cipher('123123', config.KEY),
     "createdAt" : new Date()
   }), function(err) {
@@ -38,7 +41,7 @@ userInfo.collection.findOne({
 });
 
 
-var set = { permissions: ['all']};
+var set = { allowedPermissions: ['all']};
 roleInfo.collection.remove({'name': 'admin'}, function(err){
   if(err){
     throw new Error('admin role初始化有问题:' + err.message);
@@ -49,6 +52,15 @@ roleInfo.collection.remove({'name': 'admin'}, function(err){
     if(err){
       throw new Error('admin role初始化有问题:' + err.message);
     }
+    let info ={
+      _id: email,
+      roles: ['admin']
+    }
+    userPermission.collection.findOneAndUpdate({_id: email}, {$set: userPermission.assign(info)}, {upsert: true}, function(err){
+      if(err){
+        throw new Error('userPermission初始化有问题:' + err.message);
+      }
+    })
   })
 })
 

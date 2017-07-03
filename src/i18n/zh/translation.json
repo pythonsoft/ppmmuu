@@ -47,9 +47,9 @@
     "code": "-2007",
     "message": "分配角色需要参数roles"
   },
-  "assignRoleNoUserIds": {
+  "assignRoleNoId": {
     "code": "-2008",
-    "message": "分配角色需要参数userIds"
+    "message": "分配角色需要参数_id"
   },
   "roleInfoIsNotExist": {
     "code": "-2009",
@@ -102,5 +102,13 @@
   "cannotDeleteProtectGroup": {
     "code": "-5004",
     "message": "以下组织设置了删除保持，不能执行删除操作，请取消保护后再进行偿试，{{groupNames}}"
+  },
+  "getUserOrDepartmentRoleAndPermissionsNoId": {
+    "code": "-6001",
+    "message": "获取用户或部门角色和权限详情没有参数_id"
+  },
+  "permissionIsUnActive": {
+    "code": "-7001",
+    "message": "此权限已经被禁用"
   }
 }

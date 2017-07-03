@@ -66,6 +66,31 @@ service.listAllChildGroup = function(id, fields, cb) {
   listGroup(ids);
 };
 
+service.listAllParentGroup = function(parentId, fields, cb) {
+  let groups = [];
+  
+  if(!fields.hasOwnProperty('_id')) {
+    fields._id = 1;
+  }
+  
+  const listGroup = function(parentId) {
+    groupInfo.collection.findOne({ _id: parentId }, function(err, doc) {
+      if(err) {
+        return cb && cb(i18n.t('databaseError'));
+      }
+      
+      if(!doc) {
+        cb && cb(null, groups);
+      }
+      
+      groups = groups.concat(doc);
+      listGroup(doc.parentId);
+    });
+  };
+  
+  listGroup(parentId);
+};
+
 service.getGroup = function(id, cb) {
   if(!id) {
     return cb && cb(i18n.t('groupIdIsNull'));

@@ -8,7 +8,7 @@ const token = require('../common/token');
 const config =  require('../config');
 const UserInfo = require('../api/user/userInfo');
 const RoleInfo = require("../api/role/roleInfo");
-const roleService = require("../api/role/service");
+const userService = require("../api/user/service");
 const userInfo = new UserInfo();
 const roleInfo = new RoleInfo();
 const redisClient = config.redisClient;
@@ -56,15 +56,12 @@ Login.getUserInfo = function(req, cb){
         return cb && cb(i18n.t('loginCannotFindUser'));
       }
 
-      info = doc;
-      info.permissions = info.permissions || [];
-
-      roleService.getPermissions({ _id: { $in: info.roles || [] }}, function(err, permissions){
+      userService.getAllPermissions(doc, function(err, result){
         if(err){
           return cb && cb(err);
         }
-
-        info.permissions = permissions.concat(info.permissions);
+        info = doc;
+        info.permissions = result;
         redisClient.set(userId, JSON.stringify(info));
         redisClient.EXPIRE(userId, config.redisExpires);
         return cb && cb(null, info);
@@ -108,10 +105,15 @@ Login.middleware = function(req, res, next) {
 
 Login.hasAccessMiddleware = function(req, res, next) {
   const permissions = req.ex.userInfo.permissions || [];
+  const allowedPermissions = permissions.allowedPermissions || [];
+  const unActivePermissions = permissions.unActivePermissions || [];
   let url = req.originalUrl;
   url = url.split('?')[0];
 
-  if(permissions.indexOf(url) !== -1 || permissions.indexOf('all') !== -1) {
+  if(allowedPermissions.indexOf(url) !== -1 || allowedPermissions.indexOf('all') !== -1) {
+    if(unActivePermissions.indexOf(url) !== -1){
+      return res.json(result.fail(req.t("permissionIsUnActive")));
+    }
     next();
   }else {
     return res.json(result.fail(req.t("noAccess")));

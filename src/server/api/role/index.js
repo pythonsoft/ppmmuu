@@ -128,7 +128,6 @@ router.get('/getDetail', (req, res)=> {
  *           required:
  *            - _id
  *            - name
- *            - permissions
  *           properties:
  *             _id:
  *               type: string
@@ -136,9 +135,12 @@ router.get('/getDetail', (req, res)=> {
  *             name:
  *               type: string
  *               example: admin
- *             permissions:
+ *             allowedPermissions:
  *               type: string
  *               example: "/api/role/list,/api/role/getDetail"
+ *             deniedPermissions:
+ *               type: string
+ *               example: "/api/role/add,/api/role/update"
  *     responses:
  *       200:
  *         description: RoleInfo
@@ -185,16 +187,17 @@ router.post('/add', (req, res)=> {
  *         schema:
  *           type: object
  *           required:
- *            - name
- *            - permissions
  *            - _id
  *           properties:
  *             name:
  *               type: string
  *               example: admin
- *             permissions:
+ *             allowedPermissions:
  *               type: string
  *               example: "/api/role/list,/api/role/getDetail,/api/role/delete,/api/role/listPermissions"
+ *             deniedPermissions:
+ *               type: string
+ *               example: "/api/role/update"
  *             _id:
  *               type: string
  *               example: "1c6ad690-5583-11e7-b784-69097aa4b384"
@@ -341,15 +344,15 @@ router.get('/listPermission', (req, res)=> {
 });
 
 /**
- * @permissionName: 分配角色
- * @permissionPath: /api/role/assignRoleToUser
- * @apiName: postAssignRoleToUser
+ * @permissionName: 分配角色和权限
+ * @permissionPath: /api/role/assignRole
+ * @apiName: postAssignRole
  * @apiFuncType: post
- * @apiFuncUrl: /api/role/assignRoleToUser
+ * @apiFuncUrl: /api/role/assignRole
  * @swagger
- * /role/assignRoleToUser:
+ * /role/assignRole:
  *   post:
- *     description: assign role to user
+ *     description: assign role
  *     version: 1.0.0
  *     tags:
  *       - v1
@@ -359,19 +362,24 @@ router.get('/listPermission', (req, res)=> {
  *     parameters:
  *       - in: body
  *         name: body
- *         description: assign role to user
+ *         description: assign role
  *         schema:
  *           type: object
  *           required:
- *            - roleIds
- *            - userIds
+ *            - _id
  *           properties:
  *             roleIds:
  *               type: string
  *               example: admin,guest,support
- *             userIds:
+ *             _id:
  *               type: string
- *               example: xuyawen@phoenixtv.com,131@qq.com
+ *               example: xuyawen@phoenixtv.com
+ *             allowedPermissions:
+ *               type: string
+ *               example: "/api/role/list,/api/role/add"
+ *             deniedPermissions:
+ *               type: string
+ *               example: "/api/role/update,/api/role/delete"
  *     responses:
  *       200:
  *         description: RoleInfo
@@ -389,48 +397,37 @@ router.get('/listPermission', (req, res)=> {
  *                  type: string
  *
  */
-router.post('/assignRoleToUser', (req, res)=> {
-  const roleIds = req.body['roleIds'];
-  const userIds = req.body['userIds'];
+router.post('/assignRole', (req, res)=> {
 
-  service.assignUserRole(userIds, roleIds, function(err, r) {
+  service.assignRole(req.body, function(err, r) {
     res.json(result.json(err, 'ok'));
   });
 });
 
-
 /**
- * @permissionName: 分配角色
- * @permissionPath: /api/role/assignPermissionToUser
- * @apiName: postAssignPermissionToUser
+ * @permissionName: 用户或部门角色权限详情
+ * @permissionPath: /api/role/getUserOrDepartmentRoleAndPermissions
+ * @apiName: getUserOrDepartmentRoleAndPermissions
  * @apiFuncType: post
- * @apiFuncUrl: /api/role/assignPermissionToUser
+ * @apiFuncUrl: /api/role/getUserOrDepartmentRoleAndPermissions
  * @swagger
- * /role/assignPermissionToUser:
- *   post:
- *     description: assign permission to user
+ * /role/getUserOrDepartmentRoleAndPermissions:
+ *   get:
+ *     description: get user or department role and permissions
  *     version: 1.0.0
  *     tags:
  *       - v1
  *       - RoleInfo
- *     consumes:
+ *     produces:
  *       - application/json
  *     parameters:
- *       - in: body
- *         name: body
- *         description: assign permission to user
- *         schema:
- *           type: object
- *           required:
- *            - permissions
- *            - userIds
- *           properties:
- *             permissions:
- *               type: string
- *               example: /api/role/list,/api/role/assignPermissionToUser
- *             userIds:
- *               type: string
- *               example: xuyawen@phoenixtv.com,131@qq.com
+ *       - in: query
+ *         name: _id
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: "043741f0-5cac-11e7-9a4a-5b43dc9cf567"
+ *         collectionFormat: csv
  *     responses:
  *       200:
  *         description: RoleInfo
@@ -446,13 +443,11 @@ router.post('/assignRoleToUser', (req, res)=> {
  *              properties:
  *                message:
  *                  type: string
- *
  */
-router.post('/assignPermissionToUser', (req, res)=> {
-  const permissions = req.body['permissions'];
-  const userIds = req.body['userIds'];
+router.get('/getUserOrDepartmentRoleAndPermissions', (req, res)=> {
+  const _id = req.query._id || ''
 
-  service.assignUserPermission(userIds, permissions, function(err, r) {
+  service.getUserOrDepartmentRoleAndPermissions(req.body, function(err, r) {
     res.json(result.json(err, 'ok'));
   });
 });
