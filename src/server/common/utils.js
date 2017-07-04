@@ -60,7 +60,7 @@ utils.trim = function(obj) {
   }
   let rs = {};
 
-  if(typeof obj === 'array') {
+  if(obj instanceof Array) {
     rs = [];
     for(let i = 0, len = obj.length; i < len; i++) {
       if(typeof obj[i] === 'string') {
@@ -82,6 +82,26 @@ utils.trim = function(obj) {
   }
   return rs;
 };
+
+utils.formatFields = function(obj, needId=true){
+  if(!obj){
+    return null;
+  }
+  
+  if(typeof obj === 'string'){
+    obj = obj.split(',');
+  }
+
+  let rs = {};
+  for(let i = 0, len = obj.length; i < len; i++) {
+    rs[obj[i]] = 1;
+  }
+
+  if(needId){
+    rs['_id'] = 1;
+  }
+  return rs;
+}
 
 utils.tpl = function(str, data) {
   for(let item in data) {
@@ -112,6 +132,17 @@ utils.checkEmail = function(email) {
   }
   return !!email.match(/^[A-Za-z0-9+]+[A-Za-z0-9\.\_\-+]*@([A-Za-z0-9\-]+\.)+[A-Za-z0-9]+$/);
 };
+
+utils.checkPhone = function(phone){
+  if(phone.length != 11){
+    return false;
+  }
+  if(/^1[34578]\d{9}$/.test(phone) == false){
+    return false;
+  }else{
+    return true;
+  }
+}
 
 /**
  * 2-20位有效字符

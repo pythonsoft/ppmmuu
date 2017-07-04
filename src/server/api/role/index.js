@@ -270,7 +270,7 @@ router.post('/update', (req, res)=> {
  *
  */
 router.post('/delete', (req, res)=> {
-  service.deleteRoles(req.body.ids, function(err, r) {
+  service.deleteRoles(req.body._ids, function(err, r) {
     res.json(result.json(err, {}));
   });
 });
@@ -447,7 +447,7 @@ router.post('/assignRole', (req, res)=> {
 router.get('/getUserOrDepartmentRoleAndPermissions', (req, res)=> {
   const _id = req.query._id || ''
 
-  service.getUserOrDepartmentRoleAndPermissions(req.body, function(err, r) {
+  service.getUserOrDepartmentRoleAndPermissions(_id, function(err, r) {
     res.json(result.json(err, 'ok'));
   });
 });

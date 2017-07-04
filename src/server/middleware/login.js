@@ -8,7 +8,7 @@ const token = require('../common/token');
 const config =  require('../config');
 const UserInfo = require('../api/user/userInfo');
 const RoleInfo = require("../api/role/roleInfo");
-const userService = require("../api/user/service");
+const roleService = require("../api/role/service");
 const userInfo = new UserInfo();
 const roleInfo = new RoleInfo();
 const redisClient = config.redisClient;
@@ -47,7 +47,7 @@ Login.getUserInfo = function(req, cb){
       return cb &&cb(null, info);
     }
 
-    userInfo.getUserInfo(userId, function(err, doc) {
+    userInfo.getUserInfo(userId, "", function(err, doc) {
       if(err) {
         return cb && cb(err);
       }
@@ -55,8 +55,8 @@ Login.getUserInfo = function(req, cb){
       if(!doc) {
         return cb && cb(i18n.t('loginCannotFindUser'));
       }
-
-      userService.getAllPermissions(doc, function(err, result){
+  
+      roleService.getAllPermissions(doc, function(err, result){
         if(err){
           return cb && cb(err);
         }

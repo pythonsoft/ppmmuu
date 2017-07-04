@@ -20,18 +20,22 @@ const config = require('../../config');
  *       createdAt:
  *         type: Date
  */
-class UserPermission extends DB {
+class PermissionAssignmentInfo extends DB {
   constructor() {
-    super(config.dbInstance['umpDB'], 'UserPermission');
-    
+    super(config.dbInstance['umpDB'], 'PermissionAssignmentInfo');
+
     this.doc = {
       _id : '',    //userId or departmentId or teamId
       roles: [],
       allowedPermissions: [],   //允许权限
       deniedPermissions: [],    //拒绝权限
+      createdTime: new Date(),
+      modifyTime: new Date()
     }
+
+    this.updateDoc = {roles: 1, allowedPermissions: 1, deniedPermissions: 1, modifyTime: 1};
 
   }
 }
 
-module.exports = UserPermission;
+module.exports = PermissionAssignmentInfo;

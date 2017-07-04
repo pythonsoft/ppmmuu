@@ -7,6 +7,14 @@
     "code": "-1002",
     "message": "查找userInfo系统报错"
   },
+  "userIdIsNull": {
+    "code": "-1003",
+    "message": "参数_id为空"
+  },
+  "userNotFind": {
+    "code": "-1004",
+    "message": "找不到用户"
+  },
   "addRoleNoName": {
     "code": "-2001",
     "message": "添加角色需要参数name"
@@ -83,6 +91,14 @@
     "code": "-1",
     "message": "数据库异常."
   },
+  "validateError": {
+    "code": "-10",
+    "message": "参数 {{param}} 不正确"
+  },
+  "uniqueError": {
+    "code": "-20",
+    "message": "{{key}}({{value}})已经被使用了"
+  },
   "groupIdIsNull": {
     "code": "-5000",
     "message": "请输入组织Id."
@@ -102,6 +118,22 @@
   "cannotDeleteProtectGroup": {
     "code": "-5004",
     "message": "以下组织设置了删除保持，不能执行删除操作，请取消保护后再进行偿试，{{groupNames}}"
+  },
+  "groupTypeIsUnValidate": {
+    "code": "-5005",
+    "message": "组织type不正确."
+  },
+  "groupNameIsNull": {
+    "code": "-5006",
+    "message": "组织name为空."
+  },
+  "groupNameIsAlreadyExist": {
+    "code": "-5007",
+    "message": "同一级已经存在相同的组织名."
+  },
+  "cannotFindGroup": {
+    "code": "-5008",
+    "message": "找不到组"
   },
   "getUserOrDepartmentRoleAndPermissionsNoId": {
     "code": "-6001",

@@ -3,6 +3,8 @@
  */
 const DB = require('../../common/db');
 const config = require('../../config');
+const i18n = require('i18next');
+const utils = require('../../common/utils');
 
 /**
  * @swagger
@@ -43,7 +45,7 @@ class UserInfo extends DB {
         _id: '',
         name: ''
       },
-      createdAt: new Date(),
+      createdTime: new Date(),
       description: '',
       employeeId: '',
       email: '',
@@ -53,14 +55,28 @@ class UserInfo extends DB {
       Detail : {}
     }
 
+    this.updateDoc = this.doc;
+
+    this.createNeedValidateFields = {"email": 1, "phone": 1, "name": 1, "displayName": 1, "password": 1};
+    this.updateNeedValidateFields =  {"_id": 1, "email": 1, "phone": 1, "name": 1, "displayName": 1, "password": 1};
+    this.createGroupUserNeedValidateFields = {"email": 1, "phone": 1, "name": 1, "displayName": 1, "password": 1, "companyId": 1};
+    this.validateFunc = {"email": utils.checkEmail, "phone": utils.checkEmail, "password": utils.checkPassword}
+    this.uniqueFields = {"email": 1, "phone": 1, "name": 1};
   }
 
-  getUserInfo(id, cb) {
-    this.collection.findOne({ _id: id }, { password: 0 }, function(err, doc) {
-      cb (err, doc);
-    });
-  }
+  getUserInfo(_id, fields, cb) {
+    fields = utils.formatFields(fields);
 
+    this.collection.findOne({_id: _id}, {fields: fields}, function(err, doc){
+      if(err){
+        return cb && cb(i18n.t("databaseError"));
+      }
+      if(!doc){
+        return cb && cb(i18n.t("userNotFind"));
+      }
+      return cb && cb(null, doc);
+    })
+  }
 }
 
 UserInfo.STATUS = {

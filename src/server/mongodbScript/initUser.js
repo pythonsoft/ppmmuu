@@ -5,8 +5,8 @@ const UserInfo = require('../api/user/userInfo');
 const userInfo = new UserInfo();
 const RoleInfo = require('../api/role/roleInfo');
 const roleInfo = new RoleInfo();
-const UserPermission = require('../api/user/userPermission');
-const userPermission = new UserPermission();
+const AssignPermission = require('../api/role/permissionAssignmentInfo');
+const assignPermission = new AssignPermission();
 
 let email = "xuyawen@phoenixtv.com";
 
@@ -23,7 +23,7 @@ userInfo.collection.findOne({
     return;
   }
 
-  userInfo.collection.insertOne(userInfo.assgin({
+  userInfo.collection.insertOne(userInfo.assign({
     "_id" : email,
     "name" : "xuyawen",
     "status" : 0,
@@ -56,9 +56,10 @@ roleInfo.collection.remove({'name': 'admin'}, function(err){
       _id: email,
       roles: ['admin']
     }
-    userPermission.collection.findOneAndUpdate({_id: email}, {$set: userPermission.assign(info)}, {upsert: true}, function(err){
+
+    assignPermission.collection.findOneAndUpdate({_id: email}, {$set: assignPermission.assign(info)}, {upsert: true}, function(err){
       if(err){
-        throw new Error('userPermission初始化有问题:' + err.message);
+        throw new Error('assignPermission初始化有问题:' + err.message);
       }
     })
   })

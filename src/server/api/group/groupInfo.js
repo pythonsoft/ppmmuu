@@ -55,6 +55,14 @@ class GroupInfo extends DB {
     }
   }
 
+  validateType(type=""){
+    for(let key in GroupInfo.TYPE){
+      if(GroupInfo.TYPE[key] == type){
+        return true;
+      }
+    }
+    return false;
+  }
 };
 
 GroupInfo.TYPE = {

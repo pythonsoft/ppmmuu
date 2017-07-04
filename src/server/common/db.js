@@ -2,6 +2,7 @@
  * Created by chaoningx on 2017/2/27.
  */
 const utils = require('../common/utils');
+const i18n = require('i18next');
 
 class DB {
   constructor(dbInstance, collectionName) {
@@ -19,7 +20,7 @@ class DB {
     let obj = {};
 
     for(let k in info) {
-      if(ud[k]) {
+      if(ud[k] !== undefined) {
         obj[k] = info[k];
       }
     }
@@ -29,6 +30,83 @@ class DB {
     }
 
     return obj;
+  }
+
+  validateCreateError(needValidateFields, info) {
+    for(let k in needValidateFields){
+      if(info[k] === undefined || info[k] === ""){
+        return i18n.t("validateError", { param: k})
+      }else{
+        if(this.validateFunc){
+          let fn = this.validateFunc[k];
+          if(fn && !fn(info[k])){
+            return i18n.t("validateError", { param: k})
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  validateUpdateError(needValidateFields, info){
+    for(let k in needValidateFields){
+      if(info[k] === undefined){
+        continue;
+      }
+      else if(info[k] === ""){
+        return i18n.t("validateError", { param: k})
+      }else{
+        if(this.validateFunc){
+          let fn = this.validateFunc[k];
+          if(fn && !fn(info[k])){
+            return i18n.t("validateError", { param: k})
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  checkUnique(info, isUpdate=false, cb){
+    let uniqueFields = this.uniqueFields || "";
+    let queryOrArr = [];
+    let query = {};
+    if(!uniqueFields){
+      return cb && cb(null)
+    }
+    for(let k in uniqueFields){
+      if(info[k] !== undefined){
+        let temp = {};
+        temp[k] = info[k];
+        queryOrArr.push(temp);
+      }
+    }
+
+    query.$or = queryOrArr;
+    if(isUpdate){
+      query._id = {$ne: info._id}
+    }
+
+    if(queryOrArr.length == 0){
+      return cb && cb(null)
+    }
+
+    this.collection.findOne(query, {fields: uniqueFields}, function(err, doc){
+      if(err){
+        return cb && cb(i18n.t("databaseError"));
+      }
+
+      if(!doc){
+        return cb && cb(null);
+      }
+
+      for(let k in uniqueFields){
+        if(doc[k] == info[k]){
+          return cb && cb(i18n.t("uniqueError", {field: k, value: info[k]}));
+        }
+      }
+
+    })
   }
 
   /**

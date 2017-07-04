@@ -35,6 +35,13 @@ router.use(isLogin.hasAccessMiddleware);
  *         default: "043741f0-5cac-11e7-9a4a-5b43dc9cf567"
  *         collectionFormat: csv
  *       - in: query
+ *         name: type
+ *         description: group type
+ *         required: false
+ *         type: string
+ *         default: "0"
+ *         collectionFormat: csv
+ *       - in: query
  *         name: page
  *         description:
  *         required: false
@@ -54,10 +61,11 @@ router.use(isLogin.hasAccessMiddleware);
  */
 router.get('/list', (req, res)=> {
   let parentId = req.query.parentId || "";
+  let type = req.query.type || "";
   let page = req.query.page || 1;
   let pageSize = req.query.pageSize || 30;
 
-  service.listGroup(parentId, page, pageSize, function(err, docs) {
+  service.listGroup(parentId, type, page, pageSize, function(err, docs) {
     return res.json(result.json(err, docs));
   });
 });
@@ -202,7 +210,7 @@ router.post('/add', (req, res)=> {
 });
 
 /**
- * @permissionName:  更新组
+ * @permissionName: 更新组
  * @permissionPath: /api/group/update
  * @apiName: postUpdateGroup
  * @apiFuncType: post
@@ -259,11 +267,12 @@ router.post('/update', (req, res)=> {
 });
 
 /**
- * @permissionName:  删除组
+ * @permissionName: 删除组
  * @permissionPath: /api/group/delete
  * @apiName: postDeleteGroup
  * @apiFuncType: post
  * @apiFuncUrl: /api/group/delete
+ * @swagger
  * /group/delete:
  *   post:
  *     description: delete group
@@ -305,6 +314,177 @@ router.post('/delete', (req, res)=> {
   let _id = req.body._id || "";
 
   service.deleteGroup(_id, function(err, docs) {
+    return res.json(result.json(err, docs));
+  });
+});
+
+/**
+ * @permissionName: 查看成员详情
+ * @permissionPath: /api/group/userDetail
+ * @apiName: getGroupUserDetail
+ * @apiFuncType: post
+ * @apiFuncUrl: /api/group/userDetail
+ * @swagger
+ * /group/userDetail:
+ *   get:
+ *     description: get group user detail
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - GroupInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: _id
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: "xuyawen@phoenixtv.com"
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: fields
+ *         description:
+ *         required: false
+ *         type: string
+ *         default: "name,_id,createdTime"
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: GroupInfo
+ */
+router.get('/userDetail', (req, res)=> {
+  let _id = req.query._id || "";
+  let fields = req.query.fields || "";
+
+  service.getGroupUserDetail(_id, fields, function(err, docs) {
+    return res.json(result.json(err, docs));
+  });
+});
+
+/**
+ * @permissionName: 添加组成员
+ * @permissionPath: /api/group/addUser
+ * @apiName: postGroupAddUser
+ * @apiFuncType: post
+ * @apiFuncUrl: /api/group/addUser
+ * @swagger
+ * /group/addUser:
+ *   post:
+ *     description: add group user
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - GroupInfo
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: add group user
+ *         schema:
+ *           type: object
+ *           required:
+ *            - email
+ *            - name
+ *            - displayName
+ *            - departmentId
+ *           properties:
+ *             email:
+ *               type: string
+ *               example: "xuyawen@phoenixtv.com"
+ *             name:
+ *               type: string
+ *               example: "小明"
+ *             displayName:
+ *               type: string
+ *               example: "xiaoming"
+ *             departmentId:
+ *               type: string
+ *               example: "2c189400-6083-11e7-80d5-61ac588ddf98"
+ *             teamId:
+ *               type: string
+ *               example: "2c189400-6083-11e7-80d5-61ac588ddf98"
+ *     responses:
+ *       200:
+ *         description: GroupInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.post('/addUser', (req, res)=> {
+  service.addGroupUser(req.body, function(err, docs) {
+    return res.json(result.json(err, docs));
+  });
+});
+
+/**
+ * @permissionName: 修改组成员
+ * @permissionPath: /api/group/updateUser
+ * @apiName: postGroupUpdateUser
+ * @apiFuncType: post
+ * @apiFuncUrl: /api/group/updateUser
+ * @swagger
+ * /group/updateUser:
+ *   post:
+ *     description: update group user
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - GroupInfo
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: update group user
+ *         schema:
+ *           type: object
+ *           required:
+ *            - _id
+ *           properties:
+ *             _id:
+ *               type: string
+ *               example: "xuyawen@phoenixtv.com"
+ *             name:
+ *               type: string
+ *               example: "小明"
+ *             displayName:
+ *               type: string
+ *               example: "xiaoming"
+ *             departmentId:
+ *               type: string
+ *               example: "2c189400-6083-11e7-80d5-61ac588ddf98"
+ *             teamId:
+ *               type: string
+ *               example: "2c189400-6083-11e7-80d5-61ac588ddf98"
+ *     responses:
+ *       200:
+ *         description: GroupInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.post('/updateUser', (req, res)=> {
+  service.updateGroupUser(req.body, function(err, docs) {
     return res.json(result.json(err, docs));
   });
 });

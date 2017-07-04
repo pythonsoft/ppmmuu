@@ -14,3 +14,6 @@ config.KEY = 'secret';
 config.cookieExpires = 1000 * 60 * 60 * 24 * 7;  //cookie有效期七天
 config.redisExpires = 1 * 60 * 60 * 12;       //redis有效期12小时
 config.port = process.env.NODE_ENV === 'development' ? 8080 : 8080;
+
+//日志路径
+config.logPath = "/Users/steven/UMP/log";

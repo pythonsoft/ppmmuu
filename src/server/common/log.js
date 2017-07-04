@@ -2,8 +2,9 @@
  * Created by steven on 2017/6/28.
  */
 const log4js = require('log4js');
+const config = require("../config");
 const path = require('path');
-const logPath = path.join(__dirname, 'log');
+const logPath = config.logPath;
 
 log4js.configure({
   appenders: [

@@ -16,11 +16,15 @@ const config =  require('../../config');
 
 let service = {};
 
-service.listGroup = function(parentId, page, pageSize, cb) {
+service.listGroup = function(parentId, type,  page, pageSize, cb) {
   let q = {};
 
   if(parentId) {
     q.parentId = parentId;
+  }
+
+  if(type != ""){
+    q.type = type;
   }
 
   groupInfo.pagination(q, page, pageSize, function(err, docs) {
@@ -36,6 +40,8 @@ service.listGroup = function(parentId, page, pageSize, cb) {
 service.listAllChildGroup = function(id, fields, cb) {
   let groups = [];
 
+  fields = utils.formatFields(fields);
+
   if(!fields.hasOwnProperty('_id')) {
     fields._id = 1;
   }
@@ -45,11 +51,12 @@ service.listAllChildGroup = function(id, fields, cb) {
   const listGroup = function(ids) {
     groupInfo.collection.find({ parentId: { $in: ids } }).project(fields).toArray(function(err, docs) {
       if(err) {
+        logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
 
-      if(!docs) {
-        cb && cb(null, groups);
+      if(!docs || docs.length == 0) {
+        return cb && cb(null, groups);
       }
 
       groups = groups.concat(docs);
@@ -68,26 +75,27 @@ service.listAllChildGroup = function(id, fields, cb) {
 
 service.listAllParentGroup = function(parentId, fields, cb) {
   let groups = [];
-  
+
   if(!fields.hasOwnProperty('_id')) {
     fields._id = 1;
   }
-  
+
   const listGroup = function(parentId) {
     groupInfo.collection.findOne({ _id: parentId }, function(err, doc) {
       if(err) {
+        logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
-      
+
       if(!doc) {
         cb && cb(null, groups);
       }
-      
+
       groups = groups.concat(doc);
       listGroup(doc.parentId);
     });
   };
-  
+
   listGroup(parentId);
 };
 
@@ -102,12 +110,24 @@ service.getGroup = function(id, cb) {
       return cb && cb(i18n.t('databaseError'));
     }
 
+    if(!doc){
+      return cb && cb(i18n.t('cannotFindGroup'));
+    }
+
     cb && cb(null, doc);
   });
 };
 
 service.addGroup = function(parentId, info, cb) {
-  if(!parentId) {
+  if(!groupInfo.validateType(info.type)){
+    return cb && cb(i18n.t('groupTypeIsUnValidate'));
+  }
+
+  if(!info.name){
+    return cb && cb(i18n.t('groupNameIsNull'));
+  }
+
+  if(!parentId && info.type != GroupInfo.TYPE.COMPANY) {
     return cb && cb(i18n.t('groupIdIsNull'));
   }
 
@@ -121,14 +141,45 @@ service.addGroup = function(parentId, info, cb) {
     info.parentId = parentId;
   }
 
-  groupInfo.collection.findOne({ _id: parentId }, { fields: { _id: 1 } }, function(err, doc) {
-    if(err) {
-      logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
-    }
+  const canInsertGroup = function(parentId, info, cb){
+    let type = info.type;
+    let name = info.name;
 
-    if(!doc) {
-      return cb && cb(i18n.t('aboveGroupIsNotExist'));
+    groupInfo.collection.findOne({name: name, parentId: parentId}, function(err, doc) {
+      if(err){
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      if(doc){
+        return cb && cb(i18n.t('groupNameIsAlreadyExist'));
+      }
+
+      if (type == GroupInfo.TYPE.COMPANY) {
+
+        return cb && cb(null)
+
+      } else {
+
+        groupInfo.collection.findOne({_id: parentId}, {fields: {_id: 1}}, function (err, doc) {
+          if (err) {
+            logger.error(err.message);
+            return cb && cb(i18n.t('databaseError'));
+          }
+
+          if (!doc) {
+            return cb && cb(i18n.t('aboveGroupIsNotExist'));
+          }
+
+          return cb && cb(null);
+        })
+      }
+    });
+  }
+
+  canInsertGroup(parentId, info, function(err){
+    if(err){
+      return cb && cb(err);
     }
 
     groupInfo.collection.insertOne(groupInfo.assign(info), function(err, r) {
@@ -137,7 +188,7 @@ service.addGroup = function(parentId, info, cb) {
         return cb && cb(i18n.t('databaseError'));
       }
 
-      cb && cb(null, r);
+      cb && cb(null, {});
     });
 
   });
@@ -282,5 +333,137 @@ service.deleteGroup = function(id, cb) {
   });
 
 };
+
+service.getGroupUserDetail = function(_id, fields, cb){
+  userInfo.getUserInfo(_id, fields, function(err, doc){
+    return cb && cb(err, doc);
+  })
+}
+
+service.addGroupUser = function(info, cb){
+  let err = userInfo.validateCreateError(userInfo.createGroupUserNeedValidateFields, info)
+
+  if(err){
+    return cb && cb(err);
+  }
+
+  info._id = info.email;
+  info.password = utils.cipher(info.password, config.KEY);
+
+  service.getGroup(info.companyId, function(err, doc){
+    if(err){
+      return cb && cb(err);
+    }
+
+    info.company = {
+      _id: doc._id,
+      name: doc.name
+    }
+
+    service.getGroup(info.departmentId, function(err, doc) {
+      if (err && err.code != i18n.t("groupIdIsNull.code")) {
+        return cb && cb(err);
+      }
+
+      info.department = {
+        _id: doc._id || "",
+        name: doc.name || ""
+      }
+
+      service.getGroup(info.teamId, function(err, doc) {
+        if (err && err.code != i18n.t("groupIdIsNull.code")) {
+          return cb && cb(err);
+        }
+
+        info.team = {
+          _id: doc._id || "",
+          name: doc.name || ""
+        }
+
+        userInfo.checkUnique(info, false, function(err){
+          if(err){
+            return cb && cb(err);
+          }
+
+          userInfo.collection.insertOne(userInfo.assign(info), function(err, r){
+            if(err){
+              return cb && cb(i18n.t("databaseError"));
+            }
+
+            return cb && cb(null, r);
+          })
+        })
+      })
+    })
+  })
+
+
+}
+
+service.updateGroupUser = function(info, cb){
+  let err = userInfo.validateUpdateError(userInfo.updateNeedValidateFields, info)
+
+  if(err){
+    return cb && cb(err);
+  }
+
+  if(info.password){
+    info.password = utils.cipher(info.password, config.KEY);
+  }
+
+  const getGroup = function(id, key, info, cb){
+    if(id === undefined){
+      return cb && cb(null, info);
+    }else if(id == ""){
+      info[key] = {
+        _id: "",
+        name: ""
+      }
+      return cb && cb(null, info);
+    }else{
+      service.getGroup(id, function(err, doc) {
+        if (err) {
+          return cb && cb(err);
+        }
+        info[key] = {
+          _id: doc._id,
+          name: doc.name
+        }
+        return cb && cb(null, info);
+      })
+    }
+  }
+
+  getGroup(info.companyId, 'company', info, function(err, info){
+    if(err){
+      return cb && cb(err);
+    }
+    getGroup(info.departmentId, 'department', info, function(err, info) {
+      if (err) {
+        return cb && cb(err);
+      }
+      getGroup(info.teamId, 'team', info, function(err, info) {
+        if (err) {
+          return cb && cb(err);
+        }
+        
+        userInfo.checkUnique(info, true, function(err){
+          if(err){
+            return cb && cb(err);
+          }
+          
+          userInfo.collection.updateOne({_id: info._id}, {$set: userInfo.updateAssign(info)}, function(err, r){
+            if(err){
+              return cb && cb(i18n.t("databaseError"));
+            }
+
+            return cb && cb(null, r);
+          })
+        })
+      });
+    });
+
+  })
+}
 
 module.exports = service;
