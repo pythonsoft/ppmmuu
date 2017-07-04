@@ -47,9 +47,9 @@
     "code": "-2007",
     "message": "assign role parameter roles required"
   },
-  "assignRoleNoUserIds": {
+  "assignRoleNoId": {
     "code": "-2008",
-    "message": "assign role parameter userIds required"
+    "message": "assign role parameter _id required"
   },
   "roleInfoIsNotExist": {
     "code": "-2009",
@@ -82,5 +82,33 @@
   "databaseError": {
     "code": "-1",
     "message": "data base error."
+  },
+  "groupIdIsNull": {
+    "code": "-5000",
+    "message": "no parameter groupId."
+  },
+  "aboveGroupIsNotExist": {
+    "code": "-5001",
+    "message": "parent group is not exist"
+  },
+  "groupIsNotExist": {
+    "code": "-5002",
+    "message": "group is not exist."
+  },
+  "groupDeleteDenyIsYes": {
+    "code": "-5003",
+    "message": "you cannot delete this group that has set up delete protection"
+  },
+  "cannotDeleteProtectGroup": {
+    "code": "-5004",
+    "message": "the following groups have set up delete protection, and can not perform delete operations, please cancel the protection after the trial, {{groupNames}}"
+  },
+  "getUserOrDepartmentRoleAndPermissionsNoId": {
+    "code": "-6001",
+    "message": "get user or department role and permissions no parameter _id"
+  },
+  "permissionIsUnActive": {
+    "code": "-7001",
+    "message": "this permission has been forbidden"
   }
 }

@@ -30,8 +30,6 @@ class UserInfo extends DB {
       displayName: '', //英文名
       password : '',
       title : "",
-      roles: [], //RoleInfo _id
-      permissions: [],
       verifyType: UserInfo.VERIFY_TYPE.PASSWORD, //密码验证方式
       company: {
         _id: '',

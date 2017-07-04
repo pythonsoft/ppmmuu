@@ -94,7 +94,10 @@ var initPermissionInfo = function(){
       info.push({
         _id: uuid.v1(),
         name: permissionNames[i],
-        path: permissionPaths[i]
+        path: permissionPaths[i],
+        createdTime: new Date(),
+        modifyTime: new Date(),
+        status: '0'
       })
     }
     mongodb.MongoClient.connect(config.mongodb.umpURL, function(err, db) {

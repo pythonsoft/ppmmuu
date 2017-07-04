@@ -28,9 +28,15 @@ class PermissionInfo extends DB {
       createdTime: new Date(),
       modifyTime: new Date(),
       description: '',
-      detail: {}
+      detail: {},
+      status: PermissionInfo.STATUS.NORMAL
     };
   }
+};
+
+PermissionInfo.STATUS = {
+  NORMAL: '0',
+  UNACTIVE: '1'
 };
 
 module.exports = PermissionInfo;

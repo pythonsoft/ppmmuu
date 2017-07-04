@@ -10,3 +10,5 @@ npm-debug.log
 /src/server/apiPath.js
 
 /src/fe/lib/api
+
+/src/server/common/log/
