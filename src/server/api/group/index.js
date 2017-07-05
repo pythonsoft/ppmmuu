@@ -1,7 +1,11 @@
 /**
  * Created by steven on 17/5/5.
  */
+
+'use strict';
+
 const express = require('express');
+
 const router = express.Router();
 const result = require('../../common/result');
 const service = require('./service');
@@ -59,15 +63,14 @@ router.use(isLogin.hasAccessMiddleware);
  *       200:
  *         description: RoleInfo
  */
-router.get('/list', (req, res)=> {
-  let parentId = req.query.parentId || "";
-  let type = req.query.type || "";
-  let page = req.query.page || 1;
-  let pageSize = req.query.pageSize || 30;
+router.get('/list', (req, res) => {
+  const parentId = req.query.parentId || '';
+  const type = req.query.type || '';
+  const page = req.query.page || 1;
+  const pageSize = req.query.pageSize || 30;
 
-  service.listGroup(parentId, type, page, pageSize, function(err, docs) {
-    return res.json(result.json(err, docs));
-  });
+  service.listGroup(parentId, type, page, pageSize, (err, docs) =>
+    res.json(result.json(err, docs)));
 });
 
 /**
@@ -105,13 +108,11 @@ router.get('/list', (req, res)=> {
  *       200:
  *         description: GroupInfo
  */
-router.get('/listAllChildGroup', (req, res)=> {
-  let _id = req.query._id || "";
-  let fields = req.query.fields || "";
+router.get('/listAllChildGroup', (req, res) => {
+  const _id = req.query._id || '';
+  const fields = req.query.fields || '';
 
-  service.listAllChildGroup(_id, fields, function(err, docs) {
-    return res.json(result.json(err, docs));
-  });
+  service.listAllChildGroup(_id, fields, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
@@ -142,12 +143,10 @@ router.get('/listAllChildGroup', (req, res)=> {
  *       200:
  *         description: GroupInfo
  */
-router.get('/getDetail', (req, res)=> {
-  let _id = req.query._id || "";
+router.get('/getDetail', (req, res) => {
+  const _id = req.query._id || '';
 
-  service.getGroup(_id, function(err, docs) {
-    return res.json(result.json(err, docs));
-  });
+  service.getGroup(_id, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
@@ -198,15 +197,13 @@ router.get('/getDetail', (req, res)=> {
  *                message:
  *                  type: string
  */
-router.post('/add', (req, res)=> {
-  let parentId = req.body.parentId || "";
-  let info = req.body;
-  let creator = {_id: req.ex.userInfo._id, name: req.ex.userInfo.name};
+router.post('/add', (req, res) => {
+  const parentId = req.body.parentId || '';
+  const info = req.body;
+  const creator = { _id: req.ex.userInfo._id, name: req.ex.userInfo.name };
   info.creator = creator;
 
-  service.addGroup(parentId, info, function(err, docs) {
-    return res.json(result.json(err, docs));
-  });
+  service.addGroup(parentId, info, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
@@ -257,13 +254,11 @@ router.post('/add', (req, res)=> {
  *                message:
  *                  type: string
  */
-router.post('/update', (req, res)=> {
-  let _id = req.body._id || "";
-  let info = req.body;
+router.post('/update', (req, res) => {
+  const _id = req.body._id || '';
+  const info = req.body;
 
-  service.updateGroup(_id, info, function(err, docs) {
-    return res.json(result.json(err, docs));
-  });
+  service.updateGroup(_id, info, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
@@ -310,12 +305,10 @@ router.post('/update', (req, res)=> {
  *                message:
  *                  type: string
  */
-router.post('/delete', (req, res)=> {
-  let _id = req.body._id || "";
+router.post('/delete', (req, res) => {
+  const _id = req.body._id || '';
 
-  service.deleteGroup(_id, function(err, docs) {
-    return res.json(result.json(err, docs));
-  });
+  service.deleteGroup(_id, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
@@ -353,13 +346,11 @@ router.post('/delete', (req, res)=> {
  *       200:
  *         description: GroupInfo
  */
-router.get('/userDetail', (req, res)=> {
-  let _id = req.query._id || "";
-  let fields = req.query.fields || "";
+router.get('/userDetail', (req, res) => {
+  const _id = req.query._id || '';
+  const fields = req.query.fields || '';
 
-  service.getGroupUserDetail(_id, fields, function(err, docs) {
-    return res.json(result.json(err, docs));
-  });
+  service.getGroupUserDetail(_id, fields, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
@@ -432,10 +423,8 @@ router.get('/userDetail', (req, res)=> {
  *                message:
  *                  type: string
  */
-router.post('/addUser', (req, res)=> {
-  service.addGroupUser(req.body, function(err, docs) {
-    return res.json(result.json(err, docs));
-  });
+router.post('/addUser', (req, res) => {
+  service.addGroupUser(req.body, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
@@ -494,9 +483,7 @@ router.post('/addUser', (req, res)=> {
  *                message:
  *                  type: string
  */
-router.post('/updateUser', (req, res)=> {
-  service.updateGroupUser(req.body, function(err, docs) {
-    return res.json(result.json(err, docs));
-  });
+router.post('/updateUser', (req, res) => {
+  service.updateGroupUser(req.body, (err, docs) => res.json(result.json(err, docs)));
 });
 module.exports = router;

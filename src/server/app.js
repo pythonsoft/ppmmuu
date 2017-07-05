@@ -1,13 +1,13 @@
-const fs = require('fs');
+
+'use strict';
+
 const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const del = require('del');
 const mongoClient = require('mongodb').MongoClient;
-const config = require("./config");
-const swaggerJSDoc = require('swagger-jsdoc');
-const swaggerUi = require('swagger-ui-express');
+const config = require('./config');
 const i18nMiddleware = require('./middleware/i18n');
 const feMiddleware = require('./middleware/fe');
 
@@ -23,45 +23,43 @@ app.set('view engine', 'pug');
 app.use(i18nMiddleware);
 app.use(feMiddleware.middleware);
 
-const initMongodb = function(names, completeFn) {
-  let init = function(index) {
-    let name = names[index];
-    if(!name) {
-      completeFn && completeFn(); return false;
+const initMongodb = function initMongodb(names, completeFn) {
+  /* eslint-disable consistent-return */
+  const init = function init(index) {
+    const name = names[index];
+    if (!name) {
+      return completeFn && completeFn();
     }
-
-    mongoClient.connect(config.mongodb[name + 'URL'], {
+    mongoClient.connect(config.mongodb[`${name}URL`], {
       autoReconnect: true,
-      poolSize: 10
-    }, function(err, db) {
-      if(err) {
+      poolSize: 10,
+    }, (err, db) => {
+      if (err) {
         throw new Error(err);
-        db.close();
-        return;
       }
-      config.dbInstance[name + 'DB'] = db;
+      config.dbInstance[`${name}DB`] = db;
       init(index + 1);
-      console.log('connect mongodb: '+ name + ' success!');
+      console.log(`connect mongodb: ${name} success!`);
+      return false;
     });
   };
+  /* eslint-enable consistent-return */
 
   init(0);
 };
 
-const runServer = function() {
-  initMongodb(['ump'], function() {
-    app.listen(config.port, function () {
-
+const runServer = function runServer() {
+  initMongodb(['ump'], () => {
+    app.listen(config.port, () => {
       require('./apiPath.js')(app);
       require('./mongodbScript/index');
 
-      console.log('Listening on port ' + config.port + '...');
+      console.log(`Listening on port ${config.port}...`);
     });
   });
 };
 
-if(process.env.NODE_ENV === 'development') {
-
+if (process.env.NODE_ENV === 'development') {
   del.sync(path.resolve('build'));
 
   const webpack = require('webpack');
@@ -69,14 +67,14 @@ if(process.env.NODE_ENV === 'development') {
   const webpackHotMiddleware = require('webpack-hot-middleware');
   const webpackConfig = require('../../webpack.config.js');
 
-  let compiler = webpack(webpackConfig.fe);
+  const compiler = webpack(webpackConfig.fe);
   app.use(webpackDevMiddleware(compiler, {
     noInfo: false,
     stats: {
       colors: true,
-      chunks: false
+      chunks: false,
     },
-    publicPath: webpackConfig.fe.output.publicPath
+    publicPath: webpackConfig.fe.output.publicPath,
   }));
 
   app.use(webpackHotMiddleware(compiler));
@@ -84,7 +82,7 @@ if(process.env.NODE_ENV === 'development') {
   runServer();
 
   // initialize swagger-jsdoc
-  let swaggerOptions = {
+  const swaggerOptions = {
     swaggerDefinition: {
       info: {
         title: 'API',
@@ -95,22 +93,24 @@ if(process.env.NODE_ENV === 'development') {
       basePath: '/api',
 
     },
-    //TODO: import apis as below
+    // TODO: import apis as below
     apis: [
       './**/api/*/index.js',
       './**/api/*/*Info.js',
     ],
   };
-  let swaggerSpec = swaggerJSDoc(swaggerOptions);
+  const swaggerJSDoc = require('swagger-jsdoc');
+  const swaggerUi = require('swagger-ui-express');
+  const swaggerSpec = swaggerJSDoc(swaggerOptions);
 
-// set swagger-ui-express
-  let showExplorer = true;
-  let swaggerUiOptions = {};
-  let swaggerUiCss = '';
+  // set swagger-ui-express
+  const showExplorer = true;
+  const swaggerUiOptions = {};
+  const swaggerUiCss = '';
 
 
-// import rests
-  app.get('/api-docs.json', function(req, res) {
+  // import rests
+  app.get('/api-docs.json', (req, res) => {
     res.set({
       'Content-Type': 'application/json',
     });
@@ -118,11 +118,7 @@ if(process.env.NODE_ENV === 'development') {
   });
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, showExplorer, swaggerUiOptions, swaggerUiCss));
   require('./../runGulp')();
-}else {
+} else {
   runServer();
 }
-
-
-
-
 

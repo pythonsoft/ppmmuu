@@ -1,22 +1,24 @@
-var webpack = require('webpack');
-var fs = require('fs');
+'use strict';
 
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
-var AssetsPlugin = require('assets-webpack-plugin');
-var DEBUG = process.env.NODE_ENV === 'development';
+const webpack = require('webpack');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const AssetsPlugin = require('assets-webpack-plugin');
 
-var path = require('path');
-var glob = require('glob');
+const DEBUG = process.env.NODE_ENV === 'development';
+
+const path = require('path');
+const glob = require('glob');
+
 function getEntries() {
-  var entry = {};
-  var fileList = glob.sync("./src/fe/routers/app.js").forEach(function(file) {
-    var name = path.basename(file);
+  const entry = {};
+  glob.sync('./src/fe/routers/app.js').forEach((file) => {
+    const name = path.basename(file);
     entry[name.split('.')[0]] = DEBUG ? ['webpack-hot-middleware/client', file] : file;
-  })
+  });
   return entry;
 }
 
-let config = {};
+const config = {};
 
 config.server = {
   entry: ['./src/server/app.js'],
@@ -25,13 +27,15 @@ config.server = {
     path: path.join(__dirname, 'build'),
     filename: 'server.js',
     chunkFilename: 'server.[name].js',
-    libraryTarget: 'commonjs2'
+    libraryTarget: 'commonjs2',
   },
   target: 'node',
+  /* eslint-disable no-useless-escape */
   externals: [
     /^\.\/assets$/,
     /^[@a-z][a-z\/\.\-0-9]*$/i,
   ],
+  /* eslint-enable no-useless-escape */
   node: {
     console: false,
     global: false,
@@ -43,10 +47,10 @@ config.server = {
   devtool: 'source-map',
   devServer: {
     hot: true,
-    inline: true
+    inline: true,
   },
   module: {
-  }
+  },
 };
 config.fe = {
   entry: getEntries(),
@@ -54,13 +58,13 @@ config.fe = {
     publicPath: '',
     path: path.join(__dirname, './build/public'),
     filename: DEBUG ? '[name].js' : '[name].[hash].js',
-    chunkFilename: '[name].[id].js'
+    chunkFilename: '[name].[id].js',
   },
   module: {
     rules: [
       {
         test: /\.vue$/,
-        loader: 'vue-loader'
+        loader: 'vue-loader',
       },
       {
         test: /\.js$/,
@@ -68,8 +72,8 @@ config.fe = {
         exclude: /node_modules/,
         query: {
           presets: ['es2015'],
-          plugins: ['transform-runtime']
-        }
+          plugins: ['transform-runtime'],
+        },
       },
       {
         test: /\.css$/,
@@ -77,98 +81,102 @@ config.fe = {
           fallback: 'style-loader',
           use: [
             {
-              loader: 'css-loader'
+              loader: 'css-loader',
             },
             {
               loader: 'postcss-loader',
               options: {
-                plugins: function() {
+                plugins() {
+                  /* eslint-disable */
                   return [
                     require('postcss-import'),
-                    require('autoprefixer')
-                  ]
-                }
-              }
-            }
-          ]
-        })
+                    require('autoprefixer'),
+                  ];
+                  /* eslint-enable */
+                },
+              },
+            },
+          ],
+        }),
       },
       {
         test: /\.(eot|svg|ttf|woff|woff2)(\?\S*)?$/,
-        loader: 'file-loader'
+        loader: 'file-loader',
       },
       {
         test: /\.(png|jpe?g|gif|svg)(\?\S*)?$/,
         loader: 'file-loader',
         query: {
-          name: '[name].[ext]?[hash]'
-        }
-      }
-    ]
+          name: '[name].[ext]?[hash]',
+        },
+      },
+    ],
   },
   resolve: {
     alias: {
-      'vue$': 'vue/dist/vue.common.js'
-    }
+      vue$: 'vue/dist/vue.common.js',
+    },
   },
   devtool: 'cheap-module-eval-source-map',
   plugins: [
     new ExtractTextPlugin({
-      filename: "main.css",
-      allChunks: true
+      filename: 'main.css',
+      allChunks: true,
     }),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
     new webpack.optimize.CommonsChunkPlugin({
       name: 'vendor',
-      minChunks: function (module) {
+      minChunks(module) {
         return module.context && module.context.indexOf('node_modules') !== -1;
-      }
+      },
     }),
     new AssetsPlugin({
       path: path.join(__dirname, './build'),
       filename: 'assets.json',
-      processOutput: function(x) {
-        let doc = {};
-        for(let k in x) {
-          doc[k] = (function(key) {
+      processOutput(x) {
+        const doc = {};
+        /* eslint-disable */
+        for (const k in x) {
+          doc[k] = (function (key) {
             let rs = null;
-            for(let _k in key) {
-              if(_k == 'js') {
+            for (const _k in key) {
+              if (_k == 'js') {
                 rs = key[_k];
-              }else if(_k == 'css') {
-                doc['css'] = key[_k];
+              } else if (_k == 'css') {
+                doc.css = key[_k];
               }
               // break;
             }
-            return rs
-          })(x[k]);
+            return rs;
+          }(x[k]));
         }
+        /* eslint-enable */
         // return `module.exports = ${JSON.stringify(x, null, 2)};`
-        return `${JSON.stringify(doc, null, 2)}`
+        return `${JSON.stringify(doc, null, 2)}`;
       },
-    })
-  ]
-}
+    }),
+  ],
+};
 
 module.exports = config;
 
 // 相当于 webpack -p (webpack --optimize-minimize --define process.env.NODE_ENV="'production'")
-if(!DEBUG) {
+if (!DEBUG) {
   module.exports.fe.plugins = (module.exports.fe.plugins || []).concat([
     new webpack.DefinePlugin({
       'process.env': {
-        NODE_ENV: '"production"'
-      }
+        NODE_ENV: '"production"',
+      },
     }),
     new webpack.LoaderOptionsPlugin({
-      minimize: true
+      minimize: true,
     }),
     new webpack.optimize.UglifyJsPlugin({
       compress: {
         screw_ie8: true,
-        warnings: false
-      }
-    })
-  ])
+        warnings: false,
+      },
+    }),
+  ]);
 }

@@ -1,46 +1,51 @@
 /**
  * Created by steven on 17/5/8.
  */
+
+'use strict';
+
+/* eslint-disable */
 const should = require('should');
 const assert = require('assert');
+/* eslint-enable */
 const request = require('supertest');
-const config = require("../../config");
+const config = require('../../config');
 const mongodb = require('mongodb');
 
-describe('role', function() {
-  var url = config.domain;
-  var userCookie = '';
-  var userIds = '';
-  var userInfo = ""
-  var roleInfo = "";
+describe('role', () => {
+  const url = config.domain;
+  let userCookie = '';
+  let userIds = '';
+  let userInfo = '';
+  let roleInfo = '';
 
-  before(function (done) {
-    mongodb.MongoClient.connect(config.mongodb.umpURL, function(err, db) {
+  before((done) => {
+    mongodb.MongoClient.connect(config.mongodb.umpURL, (err, db) => {
       if (err) {
         console.log(err);
         done();
       }
       userInfo = db.collection('UserInfo');
       roleInfo = db.collection('RoleInfo');
-      userInfo.findOne({"_id": "xuyawen@phoenixtv.com"}, function (err, doc) {
+      userInfo.findOne({ _id: 'xuyawen@phoenixtv.com' }, (err, doc) => {
         if (err) {
           console.log(err);
           done();
         }
         userIds = doc._id;
         done();
-      })
-    })
+      });
+    });
   });
 
-  describe('#login', function () {
-    it('/user/login', function (done) {
+  describe('#login', () => {
+    it('/user/login', (done) => {
       request(url)
         .post('/api/user/login')
-        .send({username: "xuyawen", password: "123123"})
+        .send({ username: 'xuyawen', password: '123123' })
         .expect('Content-Type', /json/)
-        .expect(200) //Status code
-        .end(function (err, res) {
+        .expect(200) // Status code
+        .end((err, res) => {
           if (err) {
             throw err;
           }
@@ -52,169 +57,168 @@ describe('role', function() {
     });
   });
 
-  describe('#list', function () {
-    it('/role/list', function (done) {
+  describe('#list', () => {
+    it('/role/list', (done) => {
       request(url)
         .get('/api/role/list')
         .set('Cookie', userCookie)
         .expect('Content-Type', /json/)
-        .expect(200) //Status code
-        .end(function (err, res) {
+        .expect(200) // Status code
+        .end((err, res) => {
           if (err) {
             throw err;
           }
           // Should.js fluent syntax applied
           res.body.status.should.equal('0');
           done();
-        })
+        });
     });
   });
 
-  var _roleId = '';
-  describe('#add', function () {
-    it('/role/add', function (done) {
+  let _roleId = '';
+  describe('#add', () => {
+    it('/role/add', (done) => {
       request(url)
         .post('/api/role/add')
         .set('Cookie', userCookie)
         .set('Content-Type', 'application/json;charset=utf-8')
-        .send({'name': 'test', 'allowedPermissions': '/api/role/list'})
+        .send({ name: 'test', allowedPermissions: '/api/role/list' })
         .expect('Content-Type', /json/)
-        .expect(200) //Status code
-        .end(function (err, res) {
+        .expect(200) // Status code
+        .end((err, res) => {
           if (err) {
             throw err;
           }
           // Should.js fluent syntax applied
 
           res.body.status.should.equal('0');
-          roleInfo.findOne({name: 'test'}, function(err, doc){
-            if(err){
+          roleInfo.findOne({ name: 'test' }, (err, doc) => {
+            if (err) {
               console.log(err);
               done();
             }
             _roleId = doc._id;
             done();
-          })
-        })
+          });
+        });
     });
   });
 
-  describe('#getDetail', function () {
-    it('/role/getDetail', function (done) {
+  describe('#getDetail', () => {
+    it('/role/getDetail', (done) => {
       request(url)
         .get('/api/role/getDetail')
         .set('Cookie', userCookie)
         .set('Content-Type', 'application/json;charset=utf-8')
-        .query({"_id": _roleId})
+        .query({ _id: _roleId })
         .expect('Content-Type', /json/)
-        .expect(200) //Status code
-        .end(function (err, res) {
+        .expect(200) // Status code
+        .end((err, res) => {
           if (err) {
             throw err;
           }
           // Should.js fluent syntax applied
           res.body.status.should.equal('0');
           done();
-        })
+        });
     });
   });
 
-  describe('#update', function () {
-    it('/role/update', function (done) {
+  describe('#update', () => {
+    it('/role/update', (done) => {
       request(url)
         .post('/api/role/update')
         .set('Cookie', userCookie)
         .set('Content-Type', 'application/json;charset=utf-8')
-        .send({"_id": _roleId, "name": "test1", "allowedPermissions": "/api/role/list"})
+        .send({ _id: _roleId, name: 'test1', allowedPermissions: '/api/role/list' })
         .expect('Content-Type', /json/)
-        .expect(200) //Status code
-        .end(function (err, res) {
+        .expect(200) // Status code
+        .end((err, res) => {
           if (err) {
             throw err;
           }
           // Should.js fluent syntax applied
           res.body.status.should.equal('0');
           done();
-        })
+        });
     });
   });
 
-  describe('#delete', function () {
-    it('/role/delete', function (done) {
+  describe('#delete', () => {
+    it('/role/delete', (done) => {
       request(url)
         .post('/api/role/delete')
         .set('Cookie', userCookie)
         .set('Content-Type', 'application/json;charset=utf-8')
-        .send({"_ids": _roleId})
+        .send({ _ids: _roleId })
         .expect('Content-Type', /json/)
-        .expect(200) //Status code
-        .end(function (err, res) {
+        .expect(200) // Status code
+        .end((err, res) => {
           if (err) {
             throw err;
           }
           // Should.js fluent syntax applied
           res.body.status.should.equal('0');
           done();
-        })
+        });
     });
   });
 
-  describe('#listPermission', function () {
-    it('/role/listPermission', function (done) {
+  describe('#listPermission', () => {
+    it('/role/listPermission', (done) => {
       request(url)
         .get('/api/role/listPermission')
         .set('Cookie', userCookie)
         .set('Content-Type', 'application/json;charset=utf-8')
         .expect('Content-Type', /json/)
-        .expect(200) //Status code
-        .end(function (err, res) {
+        .expect(200) // Status code
+        .end((err, res) => {
           if (err) {
             throw err;
           }
           // Should.js fluent syntax applied
           res.body.status.should.equal('0');
           done();
-        })
+        });
     });
   });
 
-  describe('#assignRole', function () {
-    it('/role/assignRole', function (done) {
+  describe('#assignRole', () => {
+    it('/role/assignRole', (done) => {
       request(url)
         .post('/api/role/assignRole')
         .set('Cookie', userCookie)
         .set('Content-Type', 'application/json;charset=utf-8')
-        .send({"_id": userIds, "roles": "admin"})
+        .send({ _id: userIds, roles: 'admin' })
         .expect('Content-Type', /json/)
-        .expect(200) //Status code
-        .end(function (err, res) {
+        .expect(200) // Status code
+        .end((err, res) => {
           if (err) {
             throw err;
           }
           // Should.js fluent syntax applied
           res.body.status.should.equal('0');
           done();
-        })
+        });
     });
   });
 
-  describe('#getUserOrDepartmentRoleAndPermissions', function () {
-    it('/role/getUserOrDepartmentRoleAndPermissions', function (done) {
+  describe('#getUserOrDepartmentRoleAndPermissions', () => {
+    it('/role/getUserOrDepartmentRoleAndPermissions', (done) => {
       request(url)
         .get('/api/role/getUserOrDepartmentRoleAndPermissions')
         .set('Cookie', userCookie)
-        .query({"_id": userIds})
+        .query({ _id: userIds })
         .expect('Content-Type', /json/)
-        .expect(200) //Status code
-        .end(function (err, res) {
+        .expect(200) // Status code
+        .end((err, res) => {
           if (err) {
             throw err;
           }
           // Should.js fluent syntax applied
           res.body.status.should.equal('0');
           done();
-        })
+        });
     });
   });
-
-})
+});

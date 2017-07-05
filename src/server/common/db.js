@@ -1,6 +1,9 @@
 /**
  * Created by chaoningx on 2017/2/27.
  */
+
+'use strict';
+
 const utils = require('../common/utils');
 const i18n = require('i18next');
 
@@ -17,96 +20,91 @@ class DB {
 
   updateAssign(info) {
     const ud = this.updateDoc;
-    let obj = {};
+    const obj = {};
 
-    for(let k in info) {
-      if(ud[k] !== undefined) {
+    for (const k in info) {
+      if (ud[k] !== undefined) {
         obj[k] = info[k];
       }
     }
 
-    if(ud['modifyTime']){
-      obj['modifyTime'] = new Date();
+    if (ud.modifyTime) {
+      obj.modifyTime = new Date();
     }
 
     return obj;
   }
 
   validateCreateError(needValidateFields, info) {
-    for(let k in needValidateFields){
-      if(info[k] === undefined || info[k] === ""){
-        return i18n.t("validateError", { param: k})
-      }else{
-        if(this.validateFunc){
-          let fn = this.validateFunc[k];
-          if(fn && !fn(info[k])){
-            return i18n.t("validateError", { param: k})
-          }
+    for (const k in needValidateFields) {
+      if (info[k] === undefined || info[k] === '') {
+        return i18n.t('validateError', { param: k });
+      }
+      if (this.validateFunc) {
+        const fn = this.validateFunc[k];
+        if (fn && !fn(info[k])) {
+          return i18n.t('validateError', { param: k });
         }
       }
     }
     return null;
   }
 
-  validateUpdateError(needValidateFields, info){
-    for(let k in needValidateFields){
-      if(info[k] === undefined){
+  validateUpdateError(needValidateFields, info) {
+    for (const k in needValidateFields) {
+      if (info[k] === undefined) {
         continue;
-      }
-      else if(info[k] === ""){
-        return i18n.t("validateError", { param: k})
-      }else{
-        if(this.validateFunc){
-          let fn = this.validateFunc[k];
-          if(fn && !fn(info[k])){
-            return i18n.t("validateError", { param: k})
-          }
+      } else if (info[k] === '') {
+        return i18n.t('validateError', { param: k });
+      } else if (this.validateFunc) {
+        const fn = this.validateFunc[k];
+        if (fn && !fn(info[k])) {
+          return i18n.t('validateError', { param: k });
         }
       }
     }
     return null;
   }
 
-  checkUnique(info, isUpdate=false, cb){
-    let uniqueFields = this.uniqueFields || "";
-    let queryOrArr = [];
-    let query = {};
-    if(!uniqueFields){
-      return cb && cb(null)
+  checkUnique(info, isUpdate = false, cb) {
+    const uniqueFields = this.uniqueFields || '';
+    const queryOrArr = [];
+    const query = {};
+    if (!uniqueFields) {
+      return cb && cb(null);
     }
-    for(let k in uniqueFields){
-      if(info[k] !== undefined){
-        let temp = {};
+    for (const k in uniqueFields) {
+      if (info[k] !== undefined) {
+        const temp = {};
         temp[k] = info[k];
         queryOrArr.push(temp);
       }
     }
 
     query.$or = queryOrArr;
-    if(isUpdate){
-      query._id = {$ne: info._id}
+    if (isUpdate) {
+      query._id = { $ne: info._id };
     }
 
-    if(queryOrArr.length == 0){
-      return cb && cb(null)
+    if (queryOrArr.length === 0) {
+      return cb && cb(null);
     }
 
-    this.collection.findOne(query, {fields: uniqueFields}, function(err, doc){
-      if(err){
-        return cb && cb(i18n.t("databaseError"));
+    this.collection.findOne(query, { fields: uniqueFields }, (err, doc) => {
+      if (err) {
+        return cb && cb(i18n.t('databaseError'));
       }
 
-      if(!doc){
+      if (!doc) {
         return cb && cb(null);
       }
 
-      for(let k in uniqueFields){
-        if(doc[k] == info[k]){
-          return cb && cb(i18n.t("uniqueError", {field: k, value: info[k]}));
+      for (const k in uniqueFields) {
+        if (doc[k] === info[k]) {
+          return cb && cb(i18n.t('uniqueError', { field: k, value: info[k] }));
         }
       }
-
-    })
+    });
   }
 
   /**
@@ -119,11 +117,10 @@ class DB {
    * @param fieldsNeed 希望返回的字段，传入格式如：'-createdTime,name', "-"代表不希望返回，多个使用","号分割
    */
   pagination(query, page, pageSize, callback, sortFields, fieldsNeed) {
-    let collection = this.collection;
-    collection.count(query, function(err, count) {
-      if(err) {
-        callback && callback(err);
-        return false;
+    const collection = this.collection;
+    collection.count(query, (err, count) => {
+      if (err) {
+        return callback && callback(err);
       }
 
       page = page ? page * 1 : 1;
@@ -131,27 +128,26 @@ class DB {
 
       let cursor = collection.find(query);
 
-      if(sortFields) {
+      if (sortFields) {
         cursor.sort(utils.formatSortOrFieldsParams(sortFields, true));
       }
 
       cursor.skip(page ? ((page - 1) * pageSize) : 0);
       cursor = cursor.limit(pageSize);
 
-      if(fieldsNeed) {
+      if (fieldsNeed) {
         cursor = cursor.project(utils.formatSortOrFieldsParams(fieldsNeed, false));
       }
 
-      cursor.toArray(function(err, items) {
-        if(err) {
-          callback && callback(err);
-          return false;
+      cursor.toArray((err, items) => {
+        if (err) {
+          return callback && callback(err);
         }
 
-        const pageCount =  ((count / pageSize) | 0) + (count % pageSize ? 1 : 0);
+        const pageCount = ((count / pageSize) | 0) + (count % pageSize ? 1 : 0);
         page = page > pageCount ? pageCount : page;
 
-        callback && callback(null, { docs: items, page: page, pageCount: pageCount, pageSize: pageSize, total: count });
+        return callback && callback(null, { docs: items, page, pageCount, pageSize, total: count });
       });
     });
   }

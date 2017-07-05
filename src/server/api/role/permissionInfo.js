@@ -1,6 +1,9 @@
 /**
  * Created by steven on 17/5/5.
  */
+
+'use strict';
+
 const DB = require('../../common/db');
 const config = require('../../config');
 
@@ -18,7 +21,7 @@ const config = require('../../config');
  */
 class PermissionInfo extends DB {
   constructor() {
-    super(config.dbInstance['umpDB'], 'PermissionInfo');
+    super(config.dbInstance.umpDB, 'PermissionInfo');
 
     this.doc = {
       _id: '',
@@ -29,14 +32,14 @@ class PermissionInfo extends DB {
       modifyTime: new Date(),
       description: '',
       detail: {},
-      status: PermissionInfo.STATUS.NORMAL
+      status: PermissionInfo.STATUS.NORMAL,
     };
   }
-};
+}
 
 PermissionInfo.STATUS = {
   NORMAL: '0',
-  UNACTIVE: '1'
+  UNACTIVE: '1',
 };
 
 module.exports = PermissionInfo;
