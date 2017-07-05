@@ -1,8 +1,13 @@
 /**
  * Created by steven on 17/5/5.
  */
+
+'use strict';
+
 const DB = require('../../common/db');
 const config = require('../../config');
+const i18n = require('i18next');
+const utils = require('../../common/utils');
 
 /**
  * @swagger
@@ -22,56 +27,70 @@ const config = require('../../config');
  */
 class UserInfo extends DB {
   constructor() {
-    super(config.dbInstance['umpDB'], 'UserInfo');
+    super(config.dbInstance.umpDB, 'UserInfo');
 
     this.doc = {
-      _id : '',
+      _id: '',
       name: '',
-      displayName: '', //英文名
-      password : '',
-      title : "",
-      verifyType: UserInfo.VERIFY_TYPE.PASSWORD, //密码验证方式
+      displayName: '', // 英文名
+      password: '',
+      title: '',
+      verifyType: UserInfo.VERIFY_TYPE.PASSWORD, // 密码验证方式
       company: {
         _id: '',
-        name: ''
+        name: '',
       },
       department: {
         _id: '',
-        name: ''
+        name: '',
       },
       team: {
         _id: '',
-        name: ''
+        name: '',
       },
-      createdAt: new Date(),
+      createdTime: new Date(),
       description: '',
       employeeId: '',
       email: '',
       phone: '',
-      photo: '', //path
+      photo: '', // path
       status: UserInfo.STATUS.NORMAL,
-      Detail : {}
-    }
+      Detail: {},
+    };
 
+    this.updateDoc = this.doc;
+
+    this.createNeedValidateFields = { email: 1, phone: 1, name: 1, displayName: 1, password: 1 };
+    this.updateNeedValidateFields = { _id: 1, email: 1, phone: 1, name: 1, displayName: 1, password: 1 };
+    this.createGroupUserNeedValidateFields = { email: 1, phone: 1, name: 1, displayName: 1, password: 1, companyId: 1 };
+    this.validateFunc = { email: utils.checkEmail, phone: utils.checkPhone, password: utils.checkPassword };
+    this.uniqueFields = { email: 1, phone: 1, name: 1 };
   }
 
-  getUserInfo(id, cb) {
-    this.collection.findOne({ _id: id }, { password: 0 }, function(err, doc) {
-      cb (err, doc);
+  getUserInfo(_id, fields, cb) {
+    fields = utils.formatFields(fields);
+
+    this.collection.findOne({ _id }, { fields }, (err, doc) => {
+      if (err) {
+        return cb && cb(i18n.t('databaseError'));
+      }
+      if (!doc) {
+        return cb && cb(i18n.t('userNotFind'));
+      }
+      return cb && cb(null, doc);
     });
   }
-
 }
 
 UserInfo.STATUS = {
   NORMAL: '0',
   UNACTIVE: '1',
-  DELETE: '2'
+  DELETE: '2',
 };
 
 UserInfo.VERIFY_TYPE = {
-  PASSWORD: '0', //密码验证
-  AD: '1' //域验证，域验证会根据组织里的验证信息去验证
+  PASSWORD: '0', // 密码验证
+  AD: '1', // 域验证，域验证会根据组织里的验证信息去验证
 };
 
 module.exports = UserInfo;

@@ -1,19 +1,14 @@
 /**
  * Created by steven on 17/5/5.
  */
+
+'use strict';
+
 const express = require('express');
+
 const router = express.Router();
-const uuid = require('uuid');
 
 const result = require('../../common/result');
-
-const RoleInfo = require("./roleInfo");
-const roleInfo = new RoleInfo();
-
-const PermissionInfo = require("./permissionInfo");
-const permissionInfo = new PermissionInfo();
-
-const config = require("../../config");
 
 const isLogin = require('../../middleware/login');
 
@@ -57,13 +52,11 @@ const service = require('./service');
  *       200:
  *         description: RoleInfo
  */
-router.get('/list', (req, res)=> {
-  let page = req.query.page || 1;
-  let pageSize = req.query.pageSize || 30;
+router.get('/list', (req, res) => {
+  const page = req.query.page || 1;
+  const pageSize = req.query.pageSize || 30;
 
-  service.listRole(page, pageSize, function(err, docs) {
-    return res.json(result.json(err, docs));
-  });
+  service.listRole(page, pageSize, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
@@ -94,13 +87,10 @@ router.get('/list', (req, res)=> {
  *       200:
  *         description: RoleInfo
  */
-router.get('/getDetail', (req, res)=> {
-  let id = req.query._id || "";
+router.get('/getDetail', (req, res) => {
+  const id = req.query._id || '';
 
-  service.getRoleDetail(id, function(err, doc) {
-    return res.json(result.json(err, doc));
-  });
-
+  service.getRoleDetail(id, (err, doc) => res.json(result.json(err, doc)));
 });
 
 /**
@@ -158,8 +148,8 @@ router.get('/getDetail', (req, res)=> {
  *                  type: string
  *
  */
-router.post('/add', (req, res)=> {
-  service.addRole(req.body, function(err, r) {
+router.post('/add', (req, res) => {
+  service.addRole(req.body, (err) => {
     res.json(result.json(err, {}));
   });
 });
@@ -218,8 +208,8 @@ router.post('/add', (req, res)=> {
  *                  type: string
  *
  */
-router.post('/update', (req, res)=> {
-  service.updateRole(req.body._id, req.body, function(err, r) {
+router.post('/update', (req, res) => {
+  service.updateRole(req.body._id, req.body, (err) => {
     res.json(result.json(err, {}));
   });
 });
@@ -269,13 +259,11 @@ router.post('/update', (req, res)=> {
  *                  type: string
  *
  */
-router.post('/delete', (req, res)=> {
-  service.deleteRoles(req.body.ids, function(err, r) {
-    res.json(result.json(err, {}));
-  });
+router.post('/delete', (req, res) => {
+  service.deleteRoles(req.body._ids, err => res.json(result.json(err, {})));
 });
 
-/**
+/*
  * @permissionName: 权限列表
  * @permissionPath: /api/role/listPermission
  * @apiName: getPermissionList
@@ -331,14 +319,14 @@ router.post('/delete', (req, res)=> {
  *       200:
  *         description: PermissionInfo
  */
-router.get('/listPermission', (req, res)=> {
-  const roleId = req.query['roleId'];
+router.get('/listPermission', (req, res) => {
+  const roleId = req.query.roleId;
   const page = req.query.page;
   const pageSize = req.query.pageSize;
-  const sortFields = req.query['sortFields'] || '-createdTime';
-  const fieldsNeed = req.query['fieldsNeed'];
+  const sortFields = req.query.sortFields || '-createdTime';
+  const fieldsNeed = req.query.fieldsNeed;
 
-  service.listPermission(roleId, page, pageSize, sortFields, fieldsNeed, function(err, docs) {
+  service.listPermission(roleId, page, pageSize, sortFields, fieldsNeed, (err, docs) => {
     res.json(result.json(err, docs));
   });
 });
@@ -397,10 +385,9 @@ router.get('/listPermission', (req, res)=> {
  *                  type: string
  *
  */
-router.post('/assignRole', (req, res)=> {
-
-  service.assignRole(req.body, function(err, r) {
-    res.json(result.json(err, 'ok'));
+router.post('/assignRole', (req, res) => {
+  service.assignRole(req.body, (err, r) => {
+    res.json(result.json(err, r));
   });
 });
 
@@ -444,11 +431,11 @@ router.post('/assignRole', (req, res)=> {
  *                message:
  *                  type: string
  */
-router.get('/getUserOrDepartmentRoleAndPermissions', (req, res)=> {
-  const _id = req.query._id || ''
+router.get('/getUserOrDepartmentRoleAndPermissions', (req, res) => {
+  const _id = req.query._id || '';
 
-  service.getUserOrDepartmentRoleAndPermissions(req.body, function(err, r) {
-    res.json(result.json(err, 'ok'));
+  service.getUserOrDepartmentRoleAndPermissions(_id, (err, r) => {
+    res.json(result.json(err, r));
   });
 });
 module.exports = router;

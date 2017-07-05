@@ -1,152 +1,157 @@
+'use strict';
+
 const path = require('path');
-const del = require('del');
 const webpack = require('webpack');
+const del = require('del');
 const webpackConfig = require('../webpack.config');
 const fs = require('fs');
 const uuid = require('uuid');
 const mongodb = require('mongodb');
-const config = require("./server/config");
+const config = require('./server/config');
 
 const apiPathFile = path.join(__dirname, './server/apiPath.js');
 const feApiPath = path.join(__dirname, './fe/lib/api');
 
-var permissionNames = [];
-var permissionPaths = [];
+let permissionNames = [];
+let permissionPaths = [];
 
 del.sync(path.resolve('build'));
 del.sync(apiPathFile);
 del.sync(feApiPath);
 
-//读取api接口路径,写入文件
-var writeToApiPath = function(){
-  var apiRootPath = path.join(__dirname, './server/api');
-  var files = fs.readdirSync(apiRootPath);
-  fs.appendFileSync(apiPathFile, "module.exports = function(app){\n");
-  files.forEach(function (filename) {
-    var fullname = path.join(apiRootPath, filename);
-    var stats = fs.statSync(fullname);
-    if (stats.isDirectory()){
-      fs.appendFileSync(apiPathFile, "  app.use('/api/" + filename + "', require('./api/" + filename + "'));\n");
+// 读取api接口路径,写入文件
+const writeToApiPath = function writeToApiPath() {
+  const apiRootPath = path.join(__dirname, './server/api');
+  const files = fs.readdirSync(apiRootPath);
+  fs.appendFileSync(apiPathFile, "'use strict';\n\nmodule.exports = function api(app) {\n");
+  files.forEach((filename) => {
+    const fullname = path.join(apiRootPath, filename);
+    const stats = fs.statSync(fullname);
+    if (stats.isDirectory()) {
+      fs.appendFileSync(apiPathFile, `  app.use('/api/${filename}', require('./api/${filename}'));\n`);
     }
   });
-  fs.appendFileSync(apiPathFile, "}");
-}
+  fs.appendFileSync(apiPathFile, '};\n');
+};
 
-var getArrByPattern = function(codeStr, pattern){
-  var arr = codeStr.match(pattern);
-  var newArr = [];
-  if(arr) {
-    for( let i = 0 ; i < arr.length; i++){
-      var funcName = arr[i].split(' ')[1];
+const getArrByPattern = function getArrByPattern(codeStr, pattern) {
+  const arr = codeStr.match(pattern);
+  const newArr = [];
+  if (arr) {
+    for (let i = 0; i < arr.length; i++) {
+      const funcName = arr[i].split(' ')[1];
       newArr.push(funcName);
     }
   }
   return newArr;
-}
+};
 
-var writeApiFuncFile = function(filePath, funcName, funcType, funcUrl){
-  fs.appendFileSync(filePath, "  " + funcName + "(data,cb) {\n    $.ajax({\n      url: '" + funcUrl + "',\n      type: '" + funcType + "',\n      data: data,\n      cache: false\n    }).done(data => {\n      cb(data)\n    })\n  },\n\n");
-}
+const writeApiFuncFile = function writeApiFuncFile(filePath, funcName, funcType, funcUrl) {
+  fs.appendFileSync(filePath, `  ${funcName}(data,cb) {\n    $.ajax({\n      url: '${funcUrl}',\n      type: '${funcType}',\n      data: data,\n      cache: false\n    }).done(data => {\n      cb(data)\n    })\n  },\n\n`);
+};
 
-//读取后端接口生成前端调用的函数文件
-var generateFeApiFuncFile = function(){
-  var apiRootPath = path.join(__dirname, './server/api');
-  var files = fs.readdirSync(apiRootPath);
+// 读取后端接口生成前端调用的函数文件
+const generateFeApiFuncFile = function generateFeApiFuncFile() {
+  const apiRootPath = path.join(__dirname, './server/api');
+  const files = fs.readdirSync(apiRootPath);
   fs.mkdirSync(feApiPath);
-  files.forEach(function (filename) {
-    var fullname = path.join(apiRootPath, filename);
-    var stats = fs.statSync(fullname);
-    if (stats.isDirectory()){
-      var indexFile = path.join(fullname, 'index.js');
-      var codeStr = fs.readFileSync(indexFile, 'utf8');
-      var funcNameArr = getArrByPattern(codeStr, /@apiName: (.*)/g);
-      var funcTypeArr = getArrByPattern(codeStr, /@apiFuncType: (.*)/g);
-      var funcUrlArr = getArrByPattern(codeStr, /@apiFuncUrl: (.*)/g);
+  files.forEach((filename) => {
+    const fullname = path.join(apiRootPath, filename);
+    const stats = fs.statSync(fullname);
+    if (stats.isDirectory()) {
+      const indexFile = path.join(fullname, 'index.js');
+      const codeStr = fs.readFileSync(indexFile, 'utf8');
+      const funcNameArr = getArrByPattern(codeStr, /@apiName: (.*)/g);
+      const funcTypeArr = getArrByPattern(codeStr, /@apiFuncType: (.*)/g);
+      const funcUrlArr = getArrByPattern(codeStr, /@apiFuncUrl: (.*)/g);
 
-      var tempPermissionNames = getArrByPattern(codeStr, /@permissionName: (.*)/g);
-      var tempPermissionPaths = getArrByPattern(codeStr, /@permissionPath: (.*)/g);
+      const tempPermissionNames = getArrByPattern(codeStr, /@permissionName: (.*)/g);
+      const tempPermissionPaths = getArrByPattern(codeStr, /@permissionPath: (.*)/g);
 
       permissionNames = permissionNames.concat(tempPermissionNames);
       permissionPaths = permissionPaths.concat(tempPermissionPaths);
 
-      if(funcNameArr.length != funcTypeArr.length || funcNameArr.length != funcUrlArr.length){
-        throw new Error("funcNameArr cannot match funcTypeArr length or funcUrlArr length");
+      if (funcNameArr.length !== funcTypeArr.length || funcNameArr.length !== funcUrlArr.length) {
+        throw new Error('funcNameArr cannot match funcTypeArr length or funcUrlArr length');
       }
 
-      if(funcNameArr.length > 0) {
-        var filePath = path.join(__dirname, './fe/lib/api', filename + '.js');
-        fs.appendFileSync(filePath, "export default {\n");
+      if (funcNameArr.length > 0) {
+        const filePath = path.join(__dirname, './fe/lib/api', `${filename}.js`);
+        fs.appendFileSync(filePath, "'use strict';\n\nexport default {\n");
         for (let i = 0; i < funcNameArr.length; i++) {
           writeApiFuncFile(filePath, funcNameArr[i], funcTypeArr[i], funcUrlArr[i]);
         }
-        fs.appendFileSync(filePath, "}");
+        fs.appendFileSync(filePath, '};\n');
       }
     }
   });
-}
+};
 
-var initPermissionInfo = function(){
-  let nLength = permissionNames.length;
-  let pLength = permissionPaths.length;
-  if(nLength && nLength == pLength){
-    let info = [];
-    for(let i = 0; i < nLength; i++){
+const initPermissionInfo = function initPermissionInfo() {
+  const nLength = permissionNames.length;
+  const pLength = permissionPaths.length;
+  if (nLength && nLength === pLength) {
+    const info = [];
+    for (let i = 0; i < nLength; i++) {
       info.push({
         _id: uuid.v1(),
         name: permissionNames[i],
         path: permissionPaths[i],
         createdTime: new Date(),
         modifyTime: new Date(),
-        status: '0'
-      })
+        status: '0',
+      });
     }
-    mongodb.MongoClient.connect(config.mongodb.umpURL, function(err, db) {
+    /* eslint-disable consistent-return */
+    mongodb.MongoClient.connect(config.mongodb.umpURL, (err, db) => {
       if (err) {
         console.log(err);
         return false;
       }
-      console.log("mongodb connect utils!");
-      var permissionInfo = db.collection("PermissionInfo");
-      permissionInfo.remove({}, {w: 1}, function (err) {
+      console.log('mongodb connect utils!');
+      const permissionInfo = db.collection('PermissionInfo');
+      permissionInfo.remove({}, { w: 1 }, (err) => {
         if (err) {
-          throw new Error('权限表初始化有问题:' + err.message);
+          throw new Error(`权限表初始化有问题:${err.message}`);
         }
-        permissionInfo.insert(info, {w: 1}, function (err, docs) {
+        permissionInfo.insert(info, { w: 1 }, (err) => {
           if (err) {
-            throw new Error('权限表初始化有问题:' + err.message);
+            throw new Error(`权限表初始化有问题:${err.message}`);
           }
+          return true;
         });
       });
-    })
-  }else if(nLength != pLength){
-    throw new Error("api接口权限注释有问题");
+    });
+    /* eslint-enable consistent-return */
+  } else if (nLength !== pLength) {
+    throw new Error('api接口权限注释有问题');
   }
-}
+};
 
 generateFeApiFuncFile();
 
 writeToApiPath();
 
-initPermissionInfo()
+initPermissionInfo();
 
-webpack(webpackConfig.fe, function(err, stats) {
+webpack(webpackConfig.fe, (err, stats) => {
   if (err) {
     // Handle errors here
     throw new Error(JSON.stringify(err.errors));
-  }else if(stats.hasErrors()){
+  } else if (stats.hasErrors()) {
     throw new Error(stats.compilation.errors);
   }
 
-  require('./runGulp')(function done() {
+  require('./runGulp')(() => {
     console.log('server webpack completely...');
   });
 });
 
-webpack(webpackConfig.server, function(err, stats) {
+webpack(webpackConfig.server, (err, stats) => {
   if (err) {
     // Handle errors here
     throw new Error(JSON.stringify(err.errors));
-  }else if(stats.hasErrors()){
+  } else if (stats.hasErrors()) {
     throw new Error(stats.compilation.errors);
   }
 

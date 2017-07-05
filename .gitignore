@@ -12,3 +12,4 @@ npm-debug.log
 /src/fe/lib/api
 
 /src/server/common/log/
+/log

@@ -1,7 +1,11 @@
 /**
  * Created by steven on 17/5/5.
  */
+
+'use strict';
+
 const express = require('express');
+
 const router = express.Router();
 const result = require('../../common/result');
 const service = require('./service');
@@ -56,13 +60,10 @@ const service = require('./service');
  *
  */
 router.post('/login', (req, res) => {
-  let username = req.body.username || '';
-  let password = req.body.password || '';
+  const username = req.body.username || '';
+  const password = req.body.password || '';
 
-  service.login(res, username, password, function(err, data){
-
-    return res.json(result.json(err, data));
-  });
+  service.login(res, username, password, (err, data) => res.json(result.json(err, data)));
 });
 
 module.exports = router;

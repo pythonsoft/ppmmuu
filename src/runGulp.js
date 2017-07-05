@@ -1,8 +1,9 @@
-const spawn = require('child_process').spawn;
-const path = require('path');
+'use strict';
 
-const runGulp = function(done) {
-  const g = spawn(process.platform === 'win32' ? 'gulp.cmd' : 'gulp', [ 'default' ]);
+const spawn = require('child_process').spawn;
+
+const runGulp = function runGulp(done) {
+  const g = spawn(process.platform === 'win32' ? 'gulp.cmd' : 'gulp', ['default']);
   g.stdout.on('data', (data) => {
     console.log(`stdout: ${data}`);
   });
@@ -13,8 +14,8 @@ const runGulp = function(done) {
 
   g.on('close', (code) => {
     console.log(`child process exited with code ${code}`);
-    done && done();
+    done();
   });
-}
+};
 
 module.exports = runGulp;

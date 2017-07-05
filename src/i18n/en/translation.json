@@ -7,6 +7,14 @@
     "code": "-1002",
     "message": "find userInfo system wrong"
   },
+  "userIdIsNull": {
+    "code": "-1003",
+    "message": "parameter _id is null"
+  },
+  "userNotFind": {
+    "code": "-1004",
+    "message": "cannot find user"
+  },
   "addRoleNoName": {
     "code": "-2001",
     "message": "parameter name required"
@@ -83,6 +91,14 @@
     "code": "-1",
     "message": "data base error."
   },
+  "validateError": {
+    "code": "-10",
+    "message": "parameter {{param}} is not correct"
+  },
+  "uniqueError": {
+    "code": "-20",
+    "message": "{{key}}({{value}}) has been used"
+  },
   "groupIdIsNull": {
     "code": "-5000",
     "message": "no parameter groupId."
@@ -102,6 +118,22 @@
   "cannotDeleteProtectGroup": {
     "code": "-5004",
     "message": "the following groups have set up delete protection, and can not perform delete operations, please cancel the protection after the trial, {{groupNames}}"
+  },
+  "groupTypeIsUnValidate": {
+    "code": "-5005",
+    "message": "group type is not correct"
+  },
+  "groupNameIsNull": {
+    "code": "-5006",
+    "message": "group name is null."
+  },
+  "groupNameIsAlreadyExist": {
+    "code": "-5007",
+    "message": "group name is already exist in the same level."
+  },
+  "cannotFindGroup": {
+    "code": "-5008",
+    "message": "cannot find group"
   },
   "getUserOrDepartmentRoleAndPermissionsNoId": {
     "code": "-6001",

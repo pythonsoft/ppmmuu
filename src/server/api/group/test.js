@@ -12,12 +12,14 @@ const request = require('supertest');
 const config = require('../../config');
 const mongodb = require('mongodb');
 
-describe('role', () => {
+describe('group', () => {
   const url = config.domain;
   let userCookie = '';
   let userIds = '';
   let userInfo = '';
-  let roleInfo = '';
+  let groupInfo = '';
+  let parentId = '';
+  let groupId = '';
 
   before((done) => {
     mongodb.MongoClient.connect(config.mongodb.umpURL, (err, db) => {
@@ -26,14 +28,24 @@ describe('role', () => {
         done();
       }
       userInfo = db.collection('UserInfo');
-      roleInfo = db.collection('RoleInfo');
+      groupInfo = db.collection('GroupInfo');
       userInfo.findOne({ _id: 'xuyawen@phoenixtv.com' }, (err, doc) => {
         if (err) {
           console.log(err);
           done();
         }
         userIds = doc._id;
-        done();
+        groupInfo.findOne({ name: '中国凤凰卫视', parentId: '' }, (err, doc) => {
+          if (err) {
+            console.log(err);
+            done();
+          }
+          if (!doc) {
+            throw new Error('请先创建(中国凤凰卫视)这个公司');
+          }
+          parentId = doc._id;
+          done();
+        });
       });
     });
   });
@@ -58,9 +70,9 @@ describe('role', () => {
   });
 
   describe('#list', () => {
-    it('/role/list', (done) => {
+    it('/group/list', (done) => {
       request(url)
-        .get('/api/role/list')
+        .get('/api/group/list')
         .set('Cookie', userCookie)
         .expect('Content-Type', /json/)
         .expect(200) // Status code
@@ -75,14 +87,13 @@ describe('role', () => {
     });
   });
 
-  let _roleId = '';
   describe('#add', () => {
-    it('/role/add', (done) => {
+    it('/group/add', (done) => {
       request(url)
-        .post('/api/role/add')
+        .post('/api/group/add')
         .set('Cookie', userCookie)
         .set('Content-Type', 'application/json;charset=utf-8')
-        .send({ name: 'test', allowedPermissions: '/api/role/list' })
+        .send({ name: '信息部', type: '1', parentId, deleteDeny: '0' })
         .expect('Content-Type', /json/)
         .expect(200) // Status code
         .end((err, res) => {
@@ -90,27 +101,26 @@ describe('role', () => {
             throw err;
           }
           // Should.js fluent syntax applied
-
           res.body.status.should.equal('0');
-          roleInfo.findOne({ name: 'test' }, (err, doc) => {
+          groupInfo.findOne({ name: '信息部', type: '1', parentId }, (err, doc) => {
             if (err) {
               console.log(err);
               done();
             }
-            _roleId = doc._id;
+            groupId = doc._id;
             done();
           });
         });
     });
   });
 
-  describe('#getDetail', () => {
-    it('/role/getDetail', (done) => {
+  describe('#update', () => {
+    it('/group/update', (done) => {
       request(url)
-        .get('/api/role/getDetail')
+        .post('/api/group/update')
         .set('Cookie', userCookie)
         .set('Content-Type', 'application/json;charset=utf-8')
-        .query({ _id: _roleId })
+        .send({ name: '宣传部', type: '1', _id: groupId })
         .expect('Content-Type', /json/)
         .expect(200) // Status code
         .end((err, res) => {
@@ -124,13 +134,13 @@ describe('role', () => {
     });
   });
 
-  describe('#update', () => {
-    it('/role/update', (done) => {
+  describe('#getDetail', () => {
+    it('/group/getDetail', (done) => {
       request(url)
-        .post('/api/role/update')
+        .get('/api/group/getDetail')
         .set('Cookie', userCookie)
         .set('Content-Type', 'application/json;charset=utf-8')
-        .send({ _id: _roleId, name: 'test1', allowedPermissions: '/api/role/list' })
+        .query({ _id: groupId })
         .expect('Content-Type', /json/)
         .expect(200) // Status code
         .end((err, res) => {
@@ -138,6 +148,26 @@ describe('role', () => {
             throw err;
           }
           // Should.js fluent syntax applied
+          res.body.status.should.equal('0');
+          done();
+        });
+    });
+  });
+
+  describe('#listAllChildGroup', () => {
+    it('/group/listAllChildGroup', (done) => {
+      request(url)
+        .get('/api/group/listAllChildGroup')
+        .set('Cookie', userCookie)
+        .query({ _id: parentId })
+        .expect('Content-Type', /json/)
+        .expect(200) // Status code
+        .end((err, res) => {
+          if (err) {
+            throw err;
+          }
+          // Should.js fluent syntax applied
+
           res.body.status.should.equal('0');
           done();
         });
@@ -145,12 +175,12 @@ describe('role', () => {
   });
 
   describe('#delete', () => {
-    it('/role/delete', (done) => {
+    it('/group/delete', (done) => {
       request(url)
-        .post('/api/role/delete')
+        .post('/api/group/delete')
         .set('Cookie', userCookie)
         .set('Content-Type', 'application/json;charset=utf-8')
-        .send({ _ids: _roleId })
+        .send({ _id: groupId })
         .expect('Content-Type', /json/)
         .expect(200) // Status code
         .end((err, res) => {
@@ -164,49 +194,10 @@ describe('role', () => {
     });
   });
 
-  describe('#listPermission', () => {
-    it('/role/listPermission', (done) => {
+  describe('#userDetail', () => {
+    it('/group/userDetail', (done) => {
       request(url)
-        .get('/api/role/listPermission')
-        .set('Cookie', userCookie)
-        .set('Content-Type', 'application/json;charset=utf-8')
-        .expect('Content-Type', /json/)
-        .expect(200) // Status code
-        .end((err, res) => {
-          if (err) {
-            throw err;
-          }
-          // Should.js fluent syntax applied
-          res.body.status.should.equal('0');
-          done();
-        });
-    });
-  });
-
-  describe('#assignRole', () => {
-    it('/role/assignRole', (done) => {
-      request(url)
-        .post('/api/role/assignRole')
-        .set('Cookie', userCookie)
-        .set('Content-Type', 'application/json;charset=utf-8')
-        .send({ _id: userIds, roles: 'admin' })
-        .expect('Content-Type', /json/)
-        .expect(200) // Status code
-        .end((err, res) => {
-          if (err) {
-            throw err;
-          }
-          // Should.js fluent syntax applied
-          res.body.status.should.equal('0');
-          done();
-        });
-    });
-  });
-
-  describe('#getUserOrDepartmentRoleAndPermissions', () => {
-    it('/role/getUserOrDepartmentRoleAndPermissions', (done) => {
-      request(url)
-        .get('/api/role/getUserOrDepartmentRoleAndPermissions')
+        .get('/api/group/userDetail')
         .set('Cookie', userCookie)
         .query({ _id: userIds })
         .expect('Content-Type', /json/)
@@ -216,8 +207,65 @@ describe('role', () => {
             throw err;
           }
           // Should.js fluent syntax applied
+
           res.body.status.should.equal('0');
           done();
+        });
+    });
+  });
+
+  describe('#addUser', () => {
+    it('/group/addUser', (done) => {
+      request(url)
+        .post('/api/group/addUser')
+        .set('Cookie', userCookie)
+        .set('Content-Type', 'application/json;charset=utf-8')
+        .send({
+          email: 'test@phoenixtv.com',
+          name: '测试',
+          phone: '13788768854',
+          displayName: 'test',
+          password: '123456',
+          companyId: parentId,
+        })
+        .expect('Content-Type', /json/)
+        .expect(200) // Status code
+        .end((err, res) => {
+          if (err) {
+            throw err;
+          }
+          // Should.js fluent syntax applied
+          res.body.status.should.equal('0');
+          done();
+        });
+    });
+  });
+
+  describe('#updateUser', () => {
+    it('/group/updateUser', (done) => {
+      request(url)
+        .post('/api/group/updateUser')
+        .set('Cookie', userCookie)
+        .set('Content-Type', 'application/json;charset=utf-8')
+        .send({
+          _id: 'test@phoenixtv.com',
+          name: '测试1',
+          displayName: 'test1',
+        })
+        .expect('Content-Type', /json/)
+        .expect(200) // Status code
+        .end((err, res) => {
+          if (err) {
+            throw err;
+          }
+          // Should.js fluent syntax applied
+          res.body.status.should.equal('0');
+          userInfo.deleteOne({ _id: 'test@phoenixtv.com' }, (err) => {
+            if (err) {
+              throw err;
+            }
+            done();
+          });
         });
     });
   });
