@@ -256,6 +256,10 @@ const getAssignPermission = function(_id, cb){
       return cb && cb(i18n.t('databaseError'));
     }
 
+    if(!doc){
+      return cb && cb(null);
+    }
+
     let roles = doc.roles || [];
     getRolesPermissions(roles, function(err, docs){
       if(err){

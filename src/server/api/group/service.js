@@ -42,10 +42,6 @@ service.listAllChildGroup = function(id, fields, cb) {
 
   fields = utils.formatFields(fields);
 
-  if(!fields.hasOwnProperty('_id')) {
-    fields._id = 1;
-  }
-
   const ids = id.constructor === Array ? id : [id];
 
   const listGroup = function(ids) {
@@ -88,7 +84,7 @@ service.listAllParentGroup = function(parentId, fields, cb) {
       }
 
       if(!doc) {
-        cb && cb(null, groups);
+        return cb && cb(null, groups);
       }
 
       groups = groups.concat(doc);
@@ -248,15 +244,18 @@ service.deleteGroup = function(id, cb) {
     let updateDoc = {};
 
     if(type === GroupInfo.TYPE.COMPANY) {
+      q.company = {};
       q.company._id = id;
       updateDoc.company = {};
       updateDoc.department = {};
       updateDoc.team = {};
     }else if(type === GroupInfo.TYPE.DEPARTMENT) {
+      q.department = {};
       q.department._id = id;
       updateDoc.department = {};
       updateDoc.team = {};
     }else if(type === GroupInfo.TYPE.TEAM) {
+      q.team = {};
       q.team._id = id;
       updateDoc.team = {};
     }
@@ -365,9 +364,11 @@ service.addGroupUser = function(info, cb){
         return cb && cb(err);
       }
 
-      info.department = {
-        _id: doc._id || "",
-        name: doc.name || ""
+      if(doc){
+        info.department = {
+          _id: doc._id,
+          name: doc.name
+        }
       }
 
       service.getGroup(info.teamId, function(err, doc) {
@@ -375,9 +376,11 @@ service.addGroupUser = function(info, cb){
           return cb && cb(err);
         }
 
-        info.team = {
-          _id: doc._id || "",
-          name: doc.name || ""
+        if(doc) {
+          info.team = {
+            _id: doc._id || "",
+            name: doc.name || ""
+          }
         }
 
         userInfo.checkUnique(info, false, function(err){
@@ -446,12 +449,12 @@ service.updateGroupUser = function(info, cb){
         if (err) {
           return cb && cb(err);
         }
-        
+
         userInfo.checkUnique(info, true, function(err){
           if(err){
             return cb && cb(err);
           }
-          
+
           userInfo.collection.updateOne({_id: info._id}, {$set: userInfo.updateAssign(info)}, function(err, r){
             if(err){
               return cb && cb(i18n.t("databaseError"));

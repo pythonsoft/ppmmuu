@@ -60,7 +60,7 @@ class UserInfo extends DB {
     this.createNeedValidateFields = {"email": 1, "phone": 1, "name": 1, "displayName": 1, "password": 1};
     this.updateNeedValidateFields =  {"_id": 1, "email": 1, "phone": 1, "name": 1, "displayName": 1, "password": 1};
     this.createGroupUserNeedValidateFields = {"email": 1, "phone": 1, "name": 1, "displayName": 1, "password": 1, "companyId": 1};
-    this.validateFunc = {"email": utils.checkEmail, "phone": utils.checkEmail, "password": utils.checkPassword}
+    this.validateFunc = {"email": utils.checkEmail, "phone": utils.checkPhone, "password": utils.checkPassword}
     this.uniqueFields = {"email": 1, "phone": 1, "name": 1};
   }
 

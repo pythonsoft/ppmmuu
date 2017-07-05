@@ -191,4 +191,81 @@ describe('group', function() {
     });
   });
 
+  describe('#userDetail', function () {
+    it('/group/userDetail', function (done) {
+      request(url)
+        .get('/api/group/userDetail')
+        .set('Cookie', userCookie)
+        .query({'_id': userIds})
+        .expect('Content-Type', /json/)
+        .expect(200) //Status code
+        .end(function (err, res) {
+          if (err) {
+            throw err;
+          }
+          // Should.js fluent syntax applied
+
+          res.body.status.should.equal('0');
+          done();
+        })
+    });
+  });
+
+  describe('#addUser', function () {
+    it('/group/addUser', function (done) {
+      request(url)
+        .post('/api/group/addUser')
+        .set('Cookie', userCookie)
+        .set('Content-Type', 'application/json;charset=utf-8')
+        .send({
+          "email": "test@phoenixtv.com",
+          "name": "测试",
+          "phone": "13788768854",
+          "displayName": "test",
+          "password":"123456",
+          "companyId": parentId
+        })
+        .expect('Content-Type', /json/)
+        .expect(200) //Status code
+        .end(function (err, res) {
+          if (err) {
+            throw err;
+          }
+          // Should.js fluent syntax applied
+          console.log(res.body);
+          res.body.status.should.equal('0');
+          done();
+        })
+    });
+  });
+
+  describe('#updateUser', function () {
+    it('/group/updateUser', function (done) {
+      request(url)
+        .post('/api/group/updateUser')
+        .set('Cookie', userCookie)
+        .set('Content-Type', 'application/json;charset=utf-8')
+        .send({
+          "_id": "test@phoenixtv.com",
+          "name": "测试1",
+          "displayName": "test1"
+        })
+        .expect('Content-Type', /json/)
+        .expect(200) //Status code
+        .end(function (err, res) {
+          if (err) {
+            throw err;
+          }
+          // Should.js fluent syntax applied
+          res.body.status.should.equal('0');
+          userInfo.deleteOne({_id: "test@phoenixtv.com"}, function(err, r){
+            if (err) {
+              throw err;
+            }
+            done();
+          })
+        })
+    });
+  });
+
 })

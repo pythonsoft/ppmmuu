@@ -388,7 +388,9 @@ router.get('/userDetail', (req, res)=> {
  *            - email
  *            - name
  *            - displayName
- *            - departmentId
+ *            - companyId
+ *            - password
+ *            - phone
  *           properties:
  *             email:
  *               type: string
@@ -405,6 +407,15 @@ router.get('/userDetail', (req, res)=> {
  *             teamId:
  *               type: string
  *               example: "2c189400-6083-11e7-80d5-61ac588ddf98"
+ *             companyId:
+ *               type: string
+ *               example: "28767af0-606b-11e7-9066-d9d30fbb84c0"
+ *             phone:
+ *               type: string
+ *               example: "13876556785"
+ *             password:
+ *               type: string
+ *               example: "123456"
  *     responses:
  *       200:
  *         description: GroupInfo
@@ -454,7 +465,7 @@ router.post('/addUser', (req, res)=> {
  *           properties:
  *             _id:
  *               type: string
- *               example: "xuyawen@phoenixtv.com"
+ *               example: "xiaoming@phoenixtv.com"
  *             name:
  *               type: string
  *               example: "小明"

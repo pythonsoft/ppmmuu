@@ -97,7 +97,7 @@
   },
   "uniqueError": {
     "code": "-20",
-    "message": "{{key}}({{value}})已经被使用了"
+    "message": "{{field}}({{value}})已经被使用了"
   },
   "groupIdIsNull": {
     "code": "-5000",

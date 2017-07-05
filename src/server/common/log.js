@@ -24,14 +24,6 @@ log4js.configure({
       pattern: "-yyyy-MM-dd",
       alwaysIncludePattern: true,
       category: 'error',
-    },
-    {
-      type: 'dateFile', //文件输出
-      absolute: true,
-      filename: path.join(logPath, 'mqCountError.log'),
-      pattern: "-yyyy-MM-dd",
-      alwaysIncludePattern: true,
-      category: 'mqCountError',
     }
   ],
   levels: {

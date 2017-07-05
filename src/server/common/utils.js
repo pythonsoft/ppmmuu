@@ -87,7 +87,7 @@ utils.formatFields = function(obj, needId=true){
   if(!obj){
     return null;
   }
-  
+
   if(typeof obj === 'string'){
     obj = obj.split(',');
   }
