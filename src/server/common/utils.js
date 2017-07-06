@@ -86,26 +86,6 @@ utils.trim = function trim(obj) {
   return rs;
 };
 
-utils.formatFields = function formatFields(obj, needId = true) {
-  if (!obj) {
-    return null;
-  }
-
-  if (typeof obj === 'string') {
-    obj = obj.split(',');
-  }
-
-  const rs = {};
-  for (let i = 0, len = obj.length; i < len; i++) {
-    rs[obj[i]] = 1;
-  }
-
-  if (needId) {
-    rs._id = 1;
-  }
-  return rs;
-};
-
 utils.tpl = function tpl(str, data) {
   for (const item in data) {
     str = str.replace(new RegExp(`\{\\$${item}\}`, 'gmi'), data[item]);

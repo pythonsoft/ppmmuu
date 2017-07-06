@@ -45,7 +45,7 @@ service.listGroup = function listGroup(parentId, type, page, pageSize, cb) {
 service.listAllChildGroup = function listAllChildGroupfunction(id, fields, cb) {
   let groups = [];
 
-  fields = utils.formatFields(fields);
+  fields = utils.formatSortOrFieldsParams(fields);
 
   const ids = id.constructor === Array ? id : [id];
 
