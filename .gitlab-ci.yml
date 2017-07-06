@@ -36,14 +36,14 @@ build_job:
 deploy_to_67_job:
   stage: deploy
   script:
-    - proj_path="/root/gitlab/UMP/$CI_BUILD_REF_NAME/UMP"
-    - sudo mkdir -p $proj_path/build
-    - sudo mkdir -p $proj_path/node_modules
-    - sudo cp -r build/* $proj_path/build
-    - sudo cp -r node_modules/* $proj_path/node_modules
-    - sudo sed -i -re "s/(^\s*config\.host)\s*=.*/\1='api\.szdev\.cn\/'/" ${proj_path}/build/config_master.js
-    - sudo killall -q node
-    - sudo nohup node $proj_path/build/server.js >/dev/null 2>&1 &
+    - proj_path="/home/ump/UMP/$CI_BUILD_REF_NAME/ump"
+    - function at_67 { ssh ump@10.0.15.67 $1; }
+    - at_67 "mkdir -p ${proj_path}-manager/build ${proj_path}-manager/node_modules"
+    - scp -r build/* ump@10.0.15.67:"${proj_path}-manager/build"
+    - scp -r node_modules/* ump@10.0.15.61:"${proj_path}-manager/node_modules"
+    - at_67 "sed -i -re \"s/(^\s*config\.host)\s*=.*/\1='api\.szdev\.cn\/'/\" ${proj_path}-manager/build/config_master.js
+    - at_67 "sudo killall -q node; sudo nohup node ${proj_path}-manager/build/server.js >/dev/null 2>&1 &"
+
   environment:
     name: test
   tags:
