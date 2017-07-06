@@ -16,16 +16,16 @@ log4js.configure({
     {
       type: 'dateFile', // 文件输出
       absolute: true,
-      filename: path.join(logPath, 'access.log'),
-      pattern: '-yyyy-MM-dd',
+      filename: path.join(logPath, 'access'),
+      pattern: '-yyyy-MM-dd.log',
       alwaysIncludePattern: true,
       category: 'access',
     },
     {
       type: 'dateFile', // 文件输出
       absolute: true,
-      filename: path.join(logPath, 'error.log'),
-      pattern: '-yyyy-MM-dd',
+      filename: path.join(logPath, 'error'),
+      pattern: '-yyyy-MM-dd.log',
       alwaysIncludePattern: true,
       category: 'error',
     },

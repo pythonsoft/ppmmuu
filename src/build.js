@@ -144,6 +144,7 @@ webpack(webpackConfig.fe, (err, stats) => {
 
   require('./runGulp')(() => {
     console.log('server webpack completely...');
+    process.exit(0);
   });
 });
 

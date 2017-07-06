@@ -4,6 +4,8 @@
 
 'use strict';
 
+const path = require('path');
+
 /* eslint-disable no-undef */
 config.host = 'localhost:8080';
 config.domain = `http://${config.host}`;
@@ -20,4 +22,7 @@ config.redisExpires = 1 * 60 * 60 * 12; // redis有效期12小时
 config.port = process.env.NODE_ENV === 'development' ? 8080 : 8080;
 
 // 日志路径
-config.logPath = '/Users/steven/UMP/log';
+config.logPath = path.join(__dirname, '../logs/');
+
+// path for uploading files
+config.uploadPath = path.join(__dirname, '../uploads/');
