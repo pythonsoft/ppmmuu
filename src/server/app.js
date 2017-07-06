@@ -5,7 +5,6 @@ const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const del = require('del');
 const mongoClient = require('mongodb').MongoClient;
 const config = require('./config');
 const i18nMiddleware = require('./middleware/i18n');
@@ -58,13 +57,6 @@ const runServer = function runServer() {
 };
 
 if (process.env.NODE_ENV === 'development') {
-  del.sync(path.resolve('build'));
-
-  const webpack = require('webpack');
-  const webpackDevMiddleware = require('webpack-dev-middleware');
-  const webpackHotMiddleware = require('webpack-hot-middleware');
-  const webpackConfig = require('../../webpack.config.js');
-
   runServer();
 
   // initialize swagger-jsdoc
@@ -72,7 +64,7 @@ if (process.env.NODE_ENV === 'development') {
     swaggerDefinition: {
       info: {
         title: 'API',
-        version: "1.0.0",
+        version: '1.0.0',
         description: 'Testing how to describe a RESTful API with Swagger',
       },
       host: config.host,

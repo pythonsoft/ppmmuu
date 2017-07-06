@@ -1,0 +1,52 @@
+stages:
+  - setup
+  - build
+  - deploy
+
+setup_job:
+  stage: setup
+  script:
+    - npm config set strict-ssl false
+    - npm config set registry "http://registry.npm.taobao.org/"
+    - npm install
+  cache:
+    key: ${CI_BUILD_REF_NAME}
+    paths:
+      - node_modules/
+  artifacts:
+    when: always
+    paths:
+      - node_modules/*
+    expire_in: "1 month"
+  tags:
+    - test
+
+build_job:
+  stage: build
+  script:
+    - npm run build
+  artifacts:
+    when: always
+    paths:
+      - build/*
+    expire_in: "1 month"
+  tags:
+    - test
+
+deploy_to_67_job:
+  stage: deploy
+  script:
+    - proj_path="/root/gitlab/UMP/$CI_BUILD_REF_NAME/UMP"
+    - sudo mkdir -p $proj_path/build
+    - sudo mkdir -p $proj_path/node_modules
+    - sudo cp -r build/* $proj_path/build
+    - sudo cp -r node_modules/* $proj_path/node_modules
+    - sudo sed -i -re "s/(^\s*config\.host)\s*=.*/\1='api\.szdev\.cn\/'/" ${proj_path}/build/config_master.js
+    - sudo killall -q node
+    - sudo nohup node $proj_path/build/server.js >/dev/null 2>&1 &
+  environment:
+    name: test
+  tags:
+    - test
+  only:
+    - master

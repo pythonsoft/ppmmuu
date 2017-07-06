@@ -45,7 +45,7 @@ class RoleInfo extends DB {
     this.doc = {
       _id: '',
       name: '',
-      creator: {_id: "",name: ""},
+      creator: { _id: '', name: '' },
       allowedPermissions: [], // PermissionInfo path
       deniedPermissions: [], // PermissionInfo path
       createdTime: new Date(),
