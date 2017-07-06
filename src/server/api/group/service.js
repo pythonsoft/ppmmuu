@@ -273,7 +273,7 @@ service.deleteGroup = function deleteGroup(id, cb) {
     });
   };
   const listAllChildGroup = function listAllChildGroup(callback) {
-    service.listAllChildGroup(id, { _id: 1, deleteDeny: 1, name: 1 }, (err, groups) => {
+    service.listAllChildGroup(id, "_id,deleteDeny,name", (err, groups) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
