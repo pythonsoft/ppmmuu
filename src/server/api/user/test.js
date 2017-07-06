@@ -21,7 +21,7 @@ describe('user', () => {
   describe('#login', () => {
     it('/user/login', (done) => {
       request(url)
-        .post('/api/user/login')
+        .post('/user/login')
         .send({ username: 'xuyawen', password: '123123' })
         .expect('Content-Type', /json/)
         .expect(200) // Status code

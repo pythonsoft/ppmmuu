@@ -16,12 +16,20 @@ const config = require('../../config');
  *     properties:
  *       roles:
  *         type: array
+ *         items:
+ *           type: string
  *       allowedPermissions:
  *         type: array
+ *         items:
+ *           type: string
  *       deniedPermissions:
  *         type: array
+ *         items:
+ *           type: string
  *       createdTime:
- *         type: Date
+ *         type: string
+ *       modifyTime:
+ *         type: string
  */
 class PermissionAssignmentInfo extends DB {
   constructor() {

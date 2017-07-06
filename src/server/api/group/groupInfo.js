@@ -16,8 +16,35 @@ const config = require('../../config');
  *     properties:
  *       name:
  *         type: string
+ *       logo:
+ *         type: string
+ *       creator:
+ *         type: object
  *       parentId:
  *         type: string
+ *       contact:
+ *         type: object
+ *         properties:
+ *           _id: string
+ *           name: string
+ *           phone: string
+ *           email: string
+ *       memberCount:
+ *         type: integer
+ *       ad:
+ *         type: string
+ *       type:
+ *         type: string
+ *       createdTime:
+ *         type: string
+ *       modifyTime:
+ *         type: string
+ *       description:
+ *         type: string
+ *       deleteDeny:
+ *         type: string
+ *       detail:
+ *         type: object
  */
 class GroupInfo extends DB {
   constructor() {

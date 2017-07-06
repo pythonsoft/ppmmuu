@@ -10,14 +10,15 @@ const mongodb = require('mongodb');
 const config = require('./server/config');
 
 const apiPathFile = path.join(__dirname, './server/apiPath.js');
-const feApiPath = path.join(__dirname, './fe/lib/api');
+const buildPath = path.join(__dirname, '../build');
+const feApiPath = path.join(buildPath, 'api');
 
 let permissionNames = [];
 let permissionPaths = [];
 
 del.sync(path.resolve('build'));
 del.sync(apiPathFile);
-del.sync(feApiPath);
+del.sync(buildPath);
 
 // 读取api接口路径,写入文件
 const writeToApiPath = function writeToApiPath() {
@@ -28,7 +29,7 @@ const writeToApiPath = function writeToApiPath() {
     const fullname = path.join(apiRootPath, filename);
     const stats = fs.statSync(fullname);
     if (stats.isDirectory()) {
-      fs.appendFileSync(apiPathFile, `  app.use('/api/${filename}', require('./api/${filename}'));\n`);
+      fs.appendFileSync(apiPathFile, `  app.use('/${filename}', require('./api/${filename}'));\n`);
     }
   });
   fs.appendFileSync(apiPathFile, '};\n');
@@ -54,6 +55,7 @@ const writeApiFuncFile = function writeApiFuncFile(filePath, funcName, funcType,
 const generateFeApiFuncFile = function generateFeApiFuncFile() {
   const apiRootPath = path.join(__dirname, './server/api');
   const files = fs.readdirSync(apiRootPath);
+  fs.mkdirSync(buildPath);
   fs.mkdirSync(feApiPath);
   files.forEach((filename) => {
     const fullname = path.join(apiRootPath, filename);
@@ -76,7 +78,7 @@ const generateFeApiFuncFile = function generateFeApiFuncFile() {
       }
 
       if (funcNameArr.length > 0) {
-        const filePath = path.join(__dirname, './fe/lib/api', `${filename}.js`);
+        const filePath = path.join(feApiPath, `${filename}.js`);
         fs.appendFileSync(filePath, "'use strict';\n\nexport default {\n");
         for (let i = 0; i < funcNameArr.length; i++) {
           writeApiFuncFile(filePath, funcNameArr[i], funcTypeArr[i], funcUrlArr[i]);
@@ -134,26 +136,16 @@ writeToApiPath();
 
 initPermissionInfo();
 
-webpack(webpackConfig.fe, (err, stats) => {
+webpack(webpackConfig, (err, stats) => {
   if (err) {
     // Handle errors here
     throw new Error(JSON.stringify(err.errors));
   } else if (stats.hasErrors()) {
     throw new Error(stats.compilation.errors);
   }
-
-  require('./runGulp')(() => {
-    console.log('server webpack completely...');
-  });
-});
-
-webpack(webpackConfig.server, (err, stats) => {
-  if (err) {
-    // Handle errors here
-    throw new Error(JSON.stringify(err.errors));
-  } else if (stats.hasErrors()) {
-    throw new Error(stats.compilation.errors);
-  }
-
   console.log('server webpack completely...');
+  const done = function done() {
+    process.exit(0);
+  };
+  require('./runGulp')(done);
 });

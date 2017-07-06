@@ -16,8 +16,27 @@ const config = require('../../config');
  *     properties:
  *       name:
  *         type: string
- *       permissions:
- *         type: Array
+ *       creator:
+ *         type: object
+ *         properties:
+ *           _id: string
+ *           name: string
+ *       allowedPermissions:
+ *         type: array
+ *         items:
+ *           type: string
+ *       deniedPermissions:
+ *         type: array
+ *         items:
+ *           type: string
+ *       createdTime:
+ *         type: string
+ *       modifyTime:
+ *         type: string
+ *       description:
+ *         type: string
+ *       detail:
+ *         type: object
  */
 class RoleInfo extends DB {
   constructor() {
@@ -26,7 +45,7 @@ class RoleInfo extends DB {
     this.doc = {
       _id: '',
       name: '',
-      creator: '',
+      creator: { _id: '', name: '' },
       allowedPermissions: [], // PermissionInfo path
       deniedPermissions: [], // PermissionInfo path
       createdTime: new Date(),
