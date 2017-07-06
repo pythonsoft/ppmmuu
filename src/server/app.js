@@ -9,7 +9,6 @@ const del = require('del');
 const mongoClient = require('mongodb').MongoClient;
 const config = require('./config');
 const i18nMiddleware = require('./middleware/i18n');
-const feMiddleware = require('./middleware/fe');
 
 const app = express();
 
@@ -21,7 +20,6 @@ app.set('views', path.resolve('build', 'views'));
 app.set('view engine', 'pug');
 
 app.use(i18nMiddleware);
-app.use(feMiddleware.middleware);
 
 const initMongodb = function initMongodb(names, completeFn) {
   /* eslint-disable consistent-return */
@@ -67,18 +65,6 @@ if (process.env.NODE_ENV === 'development') {
   const webpackHotMiddleware = require('webpack-hot-middleware');
   const webpackConfig = require('../../webpack.config.js');
 
-  const compiler = webpack(webpackConfig.fe);
-  app.use(webpackDevMiddleware(compiler, {
-    noInfo: false,
-    stats: {
-      colors: true,
-      chunks: false,
-    },
-    publicPath: webpackConfig.fe.output.publicPath,
-  }));
-
-  app.use(webpackHotMiddleware(compiler));
-
   runServer();
 
   // initialize swagger-jsdoc
@@ -86,11 +72,11 @@ if (process.env.NODE_ENV === 'development') {
     swaggerDefinition: {
       info: {
         title: 'API',
-        version: 1,
+        version: "1.0.0",
         description: 'Testing how to describe a RESTful API with Swagger',
       },
       host: config.host,
-      basePath: '/api',
+      basePath: '/',
 
     },
     // TODO: import apis as below

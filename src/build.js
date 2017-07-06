@@ -28,7 +28,7 @@ const writeToApiPath = function writeToApiPath() {
     const fullname = path.join(apiRootPath, filename);
     const stats = fs.statSync(fullname);
     if (stats.isDirectory()) {
-      fs.appendFileSync(apiPathFile, `  app.use('/api/${filename}', require('./api/${filename}'));\n`);
+      fs.appendFileSync(apiPathFile, `  app.use('/${filename}', require('./api/${filename}'));\n`);
     }
   });
   fs.appendFileSync(apiPathFile, '};\n');
@@ -134,19 +134,6 @@ writeToApiPath();
 
 initPermissionInfo();
 
-webpack(webpackConfig.fe, (err, stats) => {
-  if (err) {
-    // Handle errors here
-    throw new Error(JSON.stringify(err.errors));
-  } else if (stats.hasErrors()) {
-    throw new Error(stats.compilation.errors);
-  }
-
-  require('./runGulp')(() => {
-    console.log('server webpack completely...');
-  });
-});
-
 webpack(webpackConfig.server, (err, stats) => {
   if (err) {
     // Handle errors here
@@ -154,6 +141,6 @@ webpack(webpackConfig.server, (err, stats) => {
   } else if (stats.hasErrors()) {
     throw new Error(stats.compilation.errors);
   }
-
   console.log('server webpack completely...');
+  process.exit(0);
 });

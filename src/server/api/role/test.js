@@ -41,7 +41,7 @@ describe('role', () => {
   describe('#login', () => {
     it('/user/login', (done) => {
       request(url)
-        .post('/api/user/login')
+        .post('/user/login')
         .send({ username: 'xuyawen', password: '123123' })
         .expect('Content-Type', /json/)
         .expect(200) // Status code
@@ -60,7 +60,7 @@ describe('role', () => {
   describe('#list', () => {
     it('/role/list', (done) => {
       request(url)
-        .get('/api/role/list')
+        .get('/role/list')
         .set('Cookie', userCookie)
         .expect('Content-Type', /json/)
         .expect(200) // Status code
@@ -79,10 +79,10 @@ describe('role', () => {
   describe('#add', () => {
     it('/role/add', (done) => {
       request(url)
-        .post('/api/role/add')
+        .post('/role/add')
         .set('Cookie', userCookie)
         .set('Content-Type', 'application/json;charset=utf-8')
-        .send({ name: 'test', allowedPermissions: '/api/role/list' })
+        .send({ name: 'test', allowedPermissions: '/role/list' })
         .expect('Content-Type', /json/)
         .expect(200) // Status code
         .end((err, res) => {
@@ -107,7 +107,7 @@ describe('role', () => {
   describe('#getDetail', () => {
     it('/role/getDetail', (done) => {
       request(url)
-        .get('/api/role/getDetail')
+        .get('/role/getDetail')
         .set('Cookie', userCookie)
         .set('Content-Type', 'application/json;charset=utf-8')
         .query({ _id: _roleId })
@@ -127,10 +127,10 @@ describe('role', () => {
   describe('#update', () => {
     it('/role/update', (done) => {
       request(url)
-        .post('/api/role/update')
+        .post('/role/update')
         .set('Cookie', userCookie)
         .set('Content-Type', 'application/json;charset=utf-8')
-        .send({ _id: _roleId, name: 'test1', allowedPermissions: '/api/role/list' })
+        .send({ _id: _roleId, name: 'test1', allowedPermissions: '/role/list' })
         .expect('Content-Type', /json/)
         .expect(200) // Status code
         .end((err, res) => {
@@ -147,7 +147,7 @@ describe('role', () => {
   describe('#delete', () => {
     it('/role/delete', (done) => {
       request(url)
-        .post('/api/role/delete')
+        .post('/role/delete')
         .set('Cookie', userCookie)
         .set('Content-Type', 'application/json;charset=utf-8')
         .send({ _ids: _roleId })
@@ -167,7 +167,7 @@ describe('role', () => {
   describe('#listPermission', () => {
     it('/role/listPermission', (done) => {
       request(url)
-        .get('/api/role/listPermission')
+        .get('/role/listPermission')
         .set('Cookie', userCookie)
         .set('Content-Type', 'application/json;charset=utf-8')
         .expect('Content-Type', /json/)
@@ -186,7 +186,7 @@ describe('role', () => {
   describe('#assignRole', () => {
     it('/role/assignRole', (done) => {
       request(url)
-        .post('/api/role/assignRole')
+        .post('/role/assignRole')
         .set('Cookie', userCookie)
         .set('Content-Type', 'application/json;charset=utf-8')
         .send({ _id: userIds, roles: 'admin' })
@@ -206,7 +206,7 @@ describe('role', () => {
   describe('#getUserOrDepartmentRoleAndPermissions', () => {
     it('/role/getUserOrDepartmentRoleAndPermissions', (done) => {
       request(url)
-        .get('/api/role/getUserOrDepartmentRoleAndPermissions')
+        .get('/role/getUserOrDepartmentRoleAndPermissions')
         .set('Cookie', userCookie)
         .query({ _id: userIds })
         .expect('Content-Type', /json/)

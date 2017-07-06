@@ -53,7 +53,7 @@ describe('group', () => {
   describe('#login', () => {
     it('/user/login', (done) => {
       request(url)
-        .post('/api/user/login')
+        .post('/user/login')
         .send({ username: 'xuyawen', password: '123123' })
         .expect('Content-Type', /json/)
         .expect(200) // Status code
@@ -72,7 +72,7 @@ describe('group', () => {
   describe('#list', () => {
     it('/group/list', (done) => {
       request(url)
-        .get('/api/group/list')
+        .get('/group/list')
         .set('Cookie', userCookie)
         .expect('Content-Type', /json/)
         .expect(200) // Status code
@@ -90,7 +90,7 @@ describe('group', () => {
   describe('#add', () => {
     it('/group/add', (done) => {
       request(url)
-        .post('/api/group/add')
+        .post('/group/add')
         .set('Cookie', userCookie)
         .set('Content-Type', 'application/json;charset=utf-8')
         .send({ name: '信息部', type: '1', parentId, deleteDeny: '0' })
@@ -117,7 +117,7 @@ describe('group', () => {
   describe('#update', () => {
     it('/group/update', (done) => {
       request(url)
-        .post('/api/group/update')
+        .post('/group/update')
         .set('Cookie', userCookie)
         .set('Content-Type', 'application/json;charset=utf-8')
         .send({ name: '宣传部', type: '1', _id: groupId })
@@ -137,7 +137,7 @@ describe('group', () => {
   describe('#getDetail', () => {
     it('/group/getDetail', (done) => {
       request(url)
-        .get('/api/group/getDetail')
+        .get('/group/getDetail')
         .set('Cookie', userCookie)
         .set('Content-Type', 'application/json;charset=utf-8')
         .query({ _id: groupId })
@@ -157,7 +157,7 @@ describe('group', () => {
   describe('#listAllChildGroup', () => {
     it('/group/listAllChildGroup', (done) => {
       request(url)
-        .get('/api/group/listAllChildGroup')
+        .get('/group/listAllChildGroup')
         .set('Cookie', userCookie)
         .query({ _id: parentId })
         .expect('Content-Type', /json/)
@@ -177,7 +177,7 @@ describe('group', () => {
   describe('#delete', () => {
     it('/group/delete', (done) => {
       request(url)
-        .post('/api/group/delete')
+        .post('/group/delete')
         .set('Cookie', userCookie)
         .set('Content-Type', 'application/json;charset=utf-8')
         .send({ _id: groupId })
@@ -197,7 +197,7 @@ describe('group', () => {
   describe('#userDetail', () => {
     it('/group/userDetail', (done) => {
       request(url)
-        .get('/api/group/userDetail')
+        .get('/group/userDetail')
         .set('Cookie', userCookie)
         .query({ _id: userIds })
         .expect('Content-Type', /json/)
@@ -217,7 +217,7 @@ describe('group', () => {
   describe('#addUser', () => {
     it('/group/addUser', (done) => {
       request(url)
-        .post('/api/group/addUser')
+        .post('/group/addUser')
         .set('Cookie', userCookie)
         .set('Content-Type', 'application/json;charset=utf-8')
         .send({
@@ -244,7 +244,7 @@ describe('group', () => {
   describe('#updateUser', () => {
     it('/group/updateUser', (done) => {
       request(url)
-        .post('/api/group/updateUser')
+        .post('/group/updateUser')
         .set('Cookie', userCookie)
         .set('Content-Type', 'application/json;charset=utf-8')
         .send({

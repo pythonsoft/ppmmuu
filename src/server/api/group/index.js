@@ -16,10 +16,10 @@ router.use(isLogin.hasAccessMiddleware);
 
 /**
  * @permissionName: 组列表
- * @permissionPath: /api/group/list
+ * @permissionPath: /group/list
  * @apiName: getGroupList
  * @apiFuncType: get
- * @apiFuncUrl: /api/group/list
+ * @apiFuncUrl: /group/list
  * @swagger
  * /group/list:
  *   get:
@@ -75,10 +75,10 @@ router.get('/list', (req, res) => {
 
 /**
  * @permissionName: 组的所有子组列表
- * @permissionPath: /api/group/listAllChildGroup
+ * @permissionPath: /group/listAllChildGroup
  * @apiName: getAllChildGroupList
  * @apiFuncType: get
- * @apiFuncUrl: /api/group/listAllChildGroup
+ * @apiFuncUrl: /group/listAllChildGroup
  * @swagger
  * /group/listAllChildGroup:
  *   get:
@@ -117,10 +117,10 @@ router.get('/listAllChildGroup', (req, res) => {
 
 /**
  * @permissionName: 组的详情
- * @permissionPath: /api/group/getDetail
+ * @permissionPath: /group/getDetail
  * @apiName: getGroupDetail
  * @apiFuncType: get
- * @apiFuncUrl: /api/group/getDetail
+ * @apiFuncUrl: /group/getDetail
  * @swagger
  * /group/getDetail:
  *   get:
@@ -151,10 +151,10 @@ router.get('/getDetail', (req, res) => {
 
 /**
  * @permissionName: 添加组
- * @permissionPath: /api/group/add
+ * @permissionPath: /group/add
  * @apiName: postAddGroup
  * @apiFuncType: post
- * @apiFuncUrl: /api/group/add
+ * @apiFuncUrl: /group/add
  * @swagger
  * /group/add:
  *   post:
@@ -208,10 +208,10 @@ router.post('/add', (req, res) => {
 
 /**
  * @permissionName: 更新组
- * @permissionPath: /api/group/update
+ * @permissionPath: /group/update
  * @apiName: postUpdateGroup
  * @apiFuncType: post
- * @apiFuncUrl: /api/group/update
+ * @apiFuncUrl: /group/update
  * @swagger
  * /group/update:
  *   post:
@@ -263,10 +263,10 @@ router.post('/update', (req, res) => {
 
 /**
  * @permissionName: 删除组
- * @permissionPath: /api/group/delete
+ * @permissionPath: /group/delete
  * @apiName: postDeleteGroup
  * @apiFuncType: post
- * @apiFuncUrl: /api/group/delete
+ * @apiFuncUrl: /group/delete
  * @swagger
  * /group/delete:
  *   post:
@@ -313,10 +313,10 @@ router.post('/delete', (req, res) => {
 
 /**
  * @permissionName: 查看成员详情
- * @permissionPath: /api/group/userDetail
+ * @permissionPath: /group/userDetail
  * @apiName: getGroupUserDetail
  * @apiFuncType: post
- * @apiFuncUrl: /api/group/userDetail
+ * @apiFuncUrl: /group/userDetail
  * @swagger
  * /group/userDetail:
  *   get:
@@ -355,10 +355,10 @@ router.get('/userDetail', (req, res) => {
 
 /**
  * @permissionName: 添加组成员
- * @permissionPath: /api/group/addUser
+ * @permissionPath: /group/addUser
  * @apiName: postGroupAddUser
  * @apiFuncType: post
- * @apiFuncUrl: /api/group/addUser
+ * @apiFuncUrl: /group/addUser
  * @swagger
  * /group/addUser:
  *   post:
@@ -429,10 +429,10 @@ router.post('/addUser', (req, res) => {
 
 /**
  * @permissionName: 修改组成员
- * @permissionPath: /api/group/updateUser
+ * @permissionPath: /group/updateUser
  * @apiName: postGroupUpdateUser
  * @apiFuncType: post
- * @apiFuncUrl: /api/group/updateUser
+ * @apiFuncUrl: /group/updateUser
  * @swagger
  * /group/updateUser:
  *   post:
