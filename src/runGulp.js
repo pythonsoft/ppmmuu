@@ -14,7 +14,7 @@ const runGulp = function runGulp(done) {
 
   g.on('close', (code) => {
     console.log(`child process exited with code ${code}`);
-    done();
+    return done && done();
   });
 };
 
