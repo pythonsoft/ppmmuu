@@ -329,8 +329,60 @@ service.getGroupUserDetail = function getGroupUserDetail(_id, fields, cb) {
   userInfo.getUserInfo(_id, fields, (err, doc) => cb && cb(err, doc));
 };
 
+const getGroups = function getGroupUsers(query, cb){
+  groupInfo.collection.find(query).toArray(function(err, docs){
+    if(err){
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if(!docs || docs.length === 0){
+      return cb && cb(i18n.t('cannotFindGroup'));
+    }
+
+    return cb && cb(null, docs);
+  })
+}
+
+const fillUserInfo = function(_ids, info, cb){
+  if(!_ids || _ids.length === 0){
+    return cb && cb(null, info);
+  }
+  getGroups({_id: {$in: _ids}}, function(err, docs) {
+    if (err) {
+      return cb && cb(err);
+    }
+    
+    if(docs.length !== _ids.length){
+      return cb && cb(i18n.t('cannotFindGroup'));
+    }
+
+    for (let i = 0; i < docs.length; i++) {
+      const group = docs[i];
+      if (group.type === GroupInfo.TYPE.COMPANY) {
+        info.company = {
+          _id: group._id,
+          name: group.name,
+        };
+      } else if (group.type === GroupInfo.TYPE.DEPARTMENT) {
+        info.department = {
+          _id: group._id,
+          name: group.name,
+        };
+      } else if (group.type === GroupInfo.TYPE.TEAM) {
+        info.team = {
+          _id: group._id || '',
+          name: group.name || '',
+        };
+      }
+    }
+    return cb && cb(null, info);
+  })
+}
+
 service.addGroupUser = function addGroupUser(info, cb) {
   const err = userInfo.validateCreateError(userInfo.createGroupUserNeedValidateFields, info);
+  let _ids = [];
 
   if (err) {
     return cb && cb(err);
@@ -338,61 +390,40 @@ service.addGroupUser = function addGroupUser(info, cb) {
 
   info._id = info.email;
   info.password = utils.cipher(info.password, config.KEY);
+  _ids.push(info.companyId);
 
-  service.getGroup(info.companyId, (err, doc) => {
-    if (err) {
+  if(info.departmentId){
+    _ids.push(info.departmentId)
+  }
+
+  if(info.teamId){
+    _ids.push(info.teamId)
+  }
+
+  fillUserInfo(_ids, info, function(err, info){
+    if(err){
       return cb && cb(err);
     }
 
-    info.company = {
-      _id: doc._id,
-      name: doc.name,
-    };
-
-    service.getGroup(info.departmentId, (err, doc) => {
-      if (err && err.code !== i18n.t('groupIdIsNull.code')) {
+    userInfo.checkUnique(info, false, (err) => {
+      if (err) {
         return cb && cb(err);
       }
 
-      if (doc) {
-        info.department = {
-          _id: doc._id,
-          name: doc.name,
-        };
-      }
-
-      service.getGroup(info.teamId, (err, doc) => {
-        if (err && err.code !== i18n.t('groupIdIsNull.code')) {
-          return cb && cb(err);
+      userInfo.collection.insertOne(userInfo.assign(info), (err, r) => {
+        if (err) {
+          return cb && cb(i18n.t('databaseError'));
         }
 
-        if (doc) {
-          info.team = {
-            _id: doc._id || '',
-            name: doc.name || '',
-          };
-        }
-
-        userInfo.checkUnique(info, false, (err) => {
-          if (err) {
-            return cb && cb(err);
-          }
-
-          userInfo.collection.insertOne(userInfo.assign(info), (err, r) => {
-            if (err) {
-              return cb && cb(i18n.t('databaseError'));
-            }
-
-            return cb && cb(null, r);
-          });
-        });
+        return cb && cb(null, r);
       });
-    });
-  });
+    })
+  })
 };
 
 service.updateGroupUser = function updateGroupUser(info, cb) {
   const err = userInfo.validateUpdateError(userInfo.updateNeedValidateFields, info);
+  let _ids = [];
 
   if (err) {
     return cb && cb(err);
@@ -402,58 +433,53 @@ service.updateGroupUser = function updateGroupUser(info, cb) {
     info.password = utils.cipher(info.password, config.KEY);
   }
 
-  const getGroup = function getGroup(id, key, info, cb) {
-    if (id === undefined) {
-      return cb && cb(null, info);
-    } else if (id === '') {
-      info[key] = {
-        _id: '',
-        name: '',
-      };
-      return cb && cb(null, info);
-    }
-    service.getGroup(id, (err, doc) => {
-      if (err) {
-        return cb && cb(err);
-      }
-      info[key] = {
-        _id: doc._id,
-        name: doc.name,
-      };
-      return cb && cb(null, info);
-    });
-  };
+  if(info.companyId){
+    _ids.push(info.companyId)
+  }else if(info.companyId === ''){
+    info.company = {
+      _id: "",
+      name: "",
+    };
+  }
 
-  getGroup(info.companyId, 'company', info, (err, info) => {
-    if (err) {
+  if(info.departmentId){
+    _ids.push(info.departmentId)
+  }else if(info.departmentId === ''){
+    info.department = {
+      _id: "",
+      name: "",
+    };
+  }
+
+  if(info.teamId){
+    _ids.push(info.teamId)
+  }else if(info.teamId === ''){
+    info.team = {
+      _id: "",
+      name: "",
+    };
+  }
+
+  fillUserInfo(_ids, info, function(err, info){
+    if(err){
       return cb && cb(err);
     }
-    getGroup(info.departmentId, 'department', info, (err, info) => {
+
+    userInfo.checkUnique(info, true, (err) => {
       if (err) {
         return cb && cb(err);
       }
-      getGroup(info.teamId, 'team', info, (err, info) => {
-        if (err) {
-          return cb && cb(err);
-        }
 
-        userInfo.checkUnique(info, true, (err) => {
+      userInfo.collection.updateOne(
+        { _id: info._id }, { $set: userInfo.updateAssign(info) }, (err, r) => {
           if (err) {
-            return cb && cb(err);
+            return cb && cb(i18n.t('databaseError'));
           }
 
-          userInfo.collection.updateOne(
-            { _id: info._id }, { $set: userInfo.updateAssign(info) }, (err, r) => {
-              if (err) {
-                return cb && cb(i18n.t('databaseError'));
-              }
-
-              return cb && cb(null, r);
-            });
+          return cb && cb(null, r);
         });
-      });
     });
-  });
+  })
 };
 
 module.exports = service;
