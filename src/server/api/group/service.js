@@ -273,7 +273,7 @@ service.deleteGroup = function deleteGroup(id, cb) {
     });
   };
   const listAllChildGroup = function listAllChildGroup(callback) {
-    service.listAllChildGroup(id, "_id,deleteDeny,name", (err, groups) => {
+    service.listAllChildGroup(id, '_id,deleteDeny,name', (err, groups) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
@@ -329,31 +329,31 @@ service.getGroupUserDetail = function getGroupUserDetail(_id, fields, cb) {
   userInfo.getUserInfo(_id, fields, (err, doc) => cb && cb(err, doc));
 };
 
-const getGroups = function getGroupUsers(query, cb){
-  groupInfo.collection.find(query).toArray(function(err, docs){
-    if(err){
+const getGroups = function getGroupUsers(query, cb) {
+  groupInfo.collection.find(query).toArray((err, docs) => {
+    if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
 
-    if(!docs || docs.length === 0){
+    if (!docs || docs.length === 0) {
       return cb && cb(i18n.t('cannotFindGroup'));
     }
 
     return cb && cb(null, docs);
-  })
-}
+  });
+};
 
-const fillUserInfo = function(_ids, info, cb){
-  if(!_ids || _ids.length === 0){
+const fillUserInfo = function fillUserInfo(_ids, info, cb) {
+  if (!_ids || _ids.length === 0) {
     return cb && cb(null, info);
   }
-  getGroups({_id: {$in: _ids}}, function(err, docs) {
+  getGroups({ _id: { $in: _ids } }, (err, docs) => {
     if (err) {
       return cb && cb(err);
     }
-    
-    if(docs.length !== _ids.length){
+
+    if (docs.length !== _ids.length) {
       return cb && cb(i18n.t('cannotFindGroup'));
     }
 
@@ -377,12 +377,12 @@ const fillUserInfo = function(_ids, info, cb){
       }
     }
     return cb && cb(null, info);
-  })
-}
+  });
+};
 
 service.addGroupUser = function addGroupUser(info, cb) {
   const err = userInfo.validateCreateError(userInfo.createGroupUserNeedValidateFields, info);
-  let _ids = [];
+  const _ids = [];
 
   if (err) {
     return cb && cb(err);
@@ -392,16 +392,16 @@ service.addGroupUser = function addGroupUser(info, cb) {
   info.password = utils.cipher(info.password, config.KEY);
   _ids.push(info.companyId);
 
-  if(info.departmentId){
-    _ids.push(info.departmentId)
+  if (info.departmentId) {
+    _ids.push(info.departmentId);
   }
 
-  if(info.teamId){
-    _ids.push(info.teamId)
+  if (info.teamId) {
+    _ids.push(info.teamId);
   }
 
-  fillUserInfo(_ids, info, function(err, info){
-    if(err){
+  fillUserInfo(_ids, info, (err, info) => {
+    if (err) {
       return cb && cb(err);
     }
 
@@ -417,13 +417,13 @@ service.addGroupUser = function addGroupUser(info, cb) {
 
         return cb && cb(null, r);
       });
-    })
-  })
+    });
+  });
 };
 
 service.updateGroupUser = function updateGroupUser(info, cb) {
   const err = userInfo.validateUpdateError(userInfo.updateNeedValidateFields, info);
-  let _ids = [];
+  const _ids = [];
 
   if (err) {
     return cb && cb(err);
@@ -433,35 +433,35 @@ service.updateGroupUser = function updateGroupUser(info, cb) {
     info.password = utils.cipher(info.password, config.KEY);
   }
 
-  if(info.companyId){
-    _ids.push(info.companyId)
-  }else if(info.companyId === ''){
+  if (info.companyId) {
+    _ids.push(info.companyId);
+  } else if (info.companyId === '') {
     info.company = {
-      _id: "",
-      name: "",
+      _id: '',
+      name: '',
     };
   }
 
-  if(info.departmentId){
-    _ids.push(info.departmentId)
-  }else if(info.departmentId === ''){
+  if (info.departmentId) {
+    _ids.push(info.departmentId);
+  } else if (info.departmentId === '') {
     info.department = {
-      _id: "",
-      name: "",
+      _id: '',
+      name: '',
     };
   }
 
-  if(info.teamId){
-    _ids.push(info.teamId)
-  }else if(info.teamId === ''){
+  if (info.teamId) {
+    _ids.push(info.teamId);
+  } else if (info.teamId === '') {
     info.team = {
-      _id: "",
-      name: "",
+      _id: '',
+      name: '',
     };
   }
 
-  fillUserInfo(_ids, info, function(err, info){
-    if(err){
+  fillUserInfo(_ids, info, (err, info) => {
+    if (err) {
       return cb && cb(err);
     }
 
@@ -479,7 +479,7 @@ service.updateGroupUser = function updateGroupUser(info, cb) {
           return cb && cb(null, r);
         });
     });
-  })
+  });
 };
 
 module.exports = service;
