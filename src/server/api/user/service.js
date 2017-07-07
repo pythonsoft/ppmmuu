@@ -66,7 +66,7 @@ service.getUserDetail = function getUserDetail(_id, fields, cb) {
     return cb && cb(i18n.t('userIdIsNull'));
   }
 
-  fields = utils.formatFields(fields);
+  fields = utils.formatSortOrFieldsParams(fields);
 
   userInfo.collection.findOne({ _id }, { fields }, (err, doc) => {
     if (err) {

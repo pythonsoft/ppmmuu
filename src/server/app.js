@@ -48,7 +48,7 @@ const initMongodb = function initMongodb(names, completeFn) {
 const runServer = function runServer() {
   initMongodb(['ump'], () => {
     app.listen(config.port, () => {
-      require('./apiPath.js')(app); //eslint-disable-line
+      require('./apiPath.js')(app); // eslint-disable-line
       require('./mongodbScript/index');
 
       console.log(`Listening on port ${config.port}...`);
@@ -73,8 +73,8 @@ if (process.env.NODE_ENV === 'development') {
     },
     // TODO: import apis as below
     apis: [
-      './**/api/*/index.js',
-      './**/api/*/*Info.js',
+      './**/api/*/*.js',
+      './**/common/*.js',
     ],
   };
   const swaggerJSDoc = require('swagger-jsdoc');

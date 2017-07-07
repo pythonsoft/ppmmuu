@@ -107,8 +107,7 @@ class UserInfo extends DB {
   }
 
   getUserInfo(_id, fields, cb) {
-    fields = utils.formatFields(fields);
-
+    fields = utils.formatSortOrFieldsParams(fields);
     this.collection.findOne({ _id }, { fields }, (err, doc) => {
       if (err) {
         return cb && cb(i18n.t('databaseError'));
