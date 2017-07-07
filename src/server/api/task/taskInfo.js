@@ -12,52 +12,36 @@ const config = require('../../config');
  * definitions:
  *   TaskInfo:
  *     required:
- *       - name
+ *       - target:
+ *       - creator:
  *     properties:
- *       name:
- *         type: string
- *       displayName:
- *         type: string
- *       password:
- *         type: string
- *       createdTime:
- *         type: string
- *       company:
+ *       target:
  *         type: object
  *         properties:
- *           _id:
- *             type: string
- *           name:
- *             type: string
- *       department:
+ *          _id: string
+ *          name: string
+ *          type: string
+ *       creator:
  *         type: object
  *         properties:
- *           _id:
- *             type: string
- *           name:
- *             type: string
- *       team:
- *         type: object
- *         properties:
- *           _id:
- *             type: string
- *           name:
- *             type: string
- *       verifyType:
+ *          _id: string
+ *          name: string
+ *          type: string
+ *       category:
  *         type: string
- *       title:
+ *       command:
  *         type: string
- *       description:
- *         type: string
- *       employeeId:
- *         type: string
- *       email:
- *         type: string
- *       phone:
- *         type: string
- *       photo:
+ *       parentId:
  *         type: string
  *       status:
+ *         type: string
+ *       progress:
+ *         type: string
+ *       createdTime:
+ *         type: date
+ *       modifyTime:
+ *         type: date
+ *       message:
  *         type: string
  *       Detail:
  *         type: object
@@ -82,7 +66,7 @@ class TaskInfo extends DB {
       command: '',
       parentId: '', // 父结点
       status: TaskInfo.STATUS.READY,
-      progress: 0,
+      progress: '0',
       createdTime: new Date(),
       modifyTime: new Date(),
       message: '',
