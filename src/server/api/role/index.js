@@ -438,4 +438,5 @@ router.get('/getUserOrDepartmentRoleAndPermissions', (req, res) => {
     res.json(result.json(err, r));
   });
 });
+
 module.exports = router;

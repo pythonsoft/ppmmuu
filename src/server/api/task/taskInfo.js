@@ -60,7 +60,7 @@ class TaskInfo extends DB {
       creator: {
         _id: '',
         name: '',
-        type: '',
+        type: TaskInfo.CREATOR_TYPE.USER,
       },
       category: '',
       command: '',
@@ -92,6 +92,12 @@ TaskInfo.STATUS = {
   SUCCESS: '2',
   FAIL: '100',
   GIVE_UP: '101',
+};
+
+TaskInfo.CREATOR_TYPE = {
+  USER: '0',
+  TEAM: '1',
+  SYSTEM: '2',
 };
 
 module.exports = TaskInfo;
