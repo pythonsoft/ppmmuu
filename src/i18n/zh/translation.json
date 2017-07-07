@@ -142,5 +142,21 @@
   "permissionIsUnActive": {
     "code": "-7001",
     "message": "此权限已经被禁用"
-  }
+  },
+  "taskIdIsNull": {
+    "code": "-8001",
+    "message": "任务Id不存在"
+  },
+  "taskInfoIsNull": {
+    "code": "-8002",
+    "message": "任务信息不存在"
+  },
+  "parentTaskInfoIsNull": {
+    "code": "-8003",
+    "message": "父任务信息不存在"
+  },
+  "parentIdIsNull": {
+    "code": "-8003",
+    "message": "父任务Id不存在"
+  },
 }
