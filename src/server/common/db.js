@@ -12,6 +12,8 @@ class DB {
     this.collection = dbInstance.collection(collectionName);
     this.doc = {};
     this.updateDoc = {};
+    this.validateFunc = null;
+    this.uniqueFields = null;
   }
 
   assign(info) {
