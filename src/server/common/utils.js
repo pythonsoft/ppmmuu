@@ -162,4 +162,8 @@ utils.formatSortOrFieldsParams = function formatSortOrFieldsParams(sortString, i
   return sorts;
 };
 
+utils.clone = function clone(origin) {
+  return JSON.parse(JSON.stringify(origin));
+};
+
 module.exports = utils;
