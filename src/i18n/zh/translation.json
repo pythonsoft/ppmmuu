@@ -171,4 +171,16 @@
     "code": "-8005",
     "message": "任务创建者信息不完整"
   },
+  "storageIdIsNull": {
+    "code": "-9001",
+    "message": "存储区Id不存在"
+  },
+  "storageInfoIsNull": {
+    "code": "-9001",
+    "message": "存储区信息不存在"
+  },
+  "storageNameIsNull": {
+    "code": "-9001",
+    "message": "存储区名称不存在"
+  },
 }
