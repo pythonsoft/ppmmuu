@@ -48,7 +48,6 @@ const readConfig = function readConfig(p) {
     __dirname,
     console,
     process,
-    require,
   };
   vm.createContext(sandbox);
   vm.runInContext(fs.readFileSync(p), sandbox);

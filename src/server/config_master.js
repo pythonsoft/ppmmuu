@@ -4,8 +4,6 @@
 
 'use strict';
 
-const path = require('path');
-
 /* eslint-disable no-undef */
 config.host = 'localhost:8080';
 config.domain = `http://${config.host}`;
