@@ -18,12 +18,51 @@ const utils = require('../../common/utils');
  *     properties:
  *       name:
  *         type: string
- *       status:
+ *       displayName:
  *         type: string
  *       password:
  *         type: string
- *       createdAt:
- *         type: Date
+ *       createdTime:
+ *         type: string
+ *       company:
+ *         type: object
+ *         properties:
+ *           _id:
+ *             type: string
+ *           name:
+ *             type: string
+ *       department:
+ *         type: object
+ *         properties:
+ *           _id:
+ *             type: string
+ *           name:
+ *             type: string
+ *       team:
+ *         type: object
+ *         properties:
+ *           _id:
+ *             type: string
+ *           name:
+ *             type: string
+ *       verifyType:
+ *         type: string
+ *       title:
+ *         type: string
+ *       description:
+ *         type: string
+ *       employeeId:
+ *         type: string
+ *       email:
+ *         type: string
+ *       phone:
+ *         type: string
+ *       photo:
+ *         type: string
+ *       status:
+ *         type: string
+ *       Detail:
+ *         type: object
  */
 class UserInfo extends DB {
   constructor() {

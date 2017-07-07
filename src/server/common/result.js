@@ -7,6 +7,21 @@
 const result = {};
 const logger = require('../common/log')('error');
 
+/**
+ * @swagger
+ * definitions:
+ *   ResultInfo:
+ *     properties:
+ *       status:
+ *         type: string
+ *       data:
+ *         type: object
+ *       statusInfo:
+ *         type: object
+ *         properties:
+ *           message:
+ *             type: string
+ */
 const build = function build(code, data, message = null) {
   if (code === '0') {
     message = 'ok';

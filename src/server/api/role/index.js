@@ -19,10 +19,10 @@ const service = require('./service');
 
 /**
  * @permissionName: 角色列表
- * @permissionPath: /api/role/list
+ * @permissionPath: /role/list
  * @apiName: getRoleList
  * @apiFuncType: get
- * @apiFuncUrl: /api/role/list
+ * @apiFuncUrl: /role/list
  * @swagger
  * /role/list:
  *   get:
@@ -61,10 +61,10 @@ router.get('/list', (req, res) => {
 
 /**
  * @permissionName: 角色详情
- * @permissionPath: /api/role/getDetail
+ * @permissionPath: /role/getDetail
  * @apiName: getRoleDetail
  * @apiFuncType: get
- * @apiFuncUrl: /api/role/getDetail
+ * @apiFuncUrl: /role/getDetail
  * @swagger
  * /role/getDetail:
  *   get:
@@ -95,10 +95,10 @@ router.get('/getDetail', (req, res) => {
 
 /**
  * @permissionName: 增加角色
- * @permissionPath: /api/role/add
+ * @permissionPath: /role/add
  * @apiName: postAddRole
  * @apiFuncType: post
- * @apiFuncUrl: /api/role/add
+ * @apiFuncUrl: /role/add
  * @swagger
  * /role/add:
  *   post:
@@ -127,10 +127,10 @@ router.get('/getDetail', (req, res) => {
  *               example: admin
  *             allowedPermissions:
  *               type: string
- *               example: "/api/role/list,/api/role/getDetail"
+ *               example: "/role/list,/role/getDetail"
  *             deniedPermissions:
  *               type: string
- *               example: "/api/role/add,/api/role/update"
+ *               example: "/role/add,/role/update"
  *     responses:
  *       200:
  *         description: RoleInfo
@@ -156,10 +156,10 @@ router.post('/add', (req, res) => {
 
 /**
  * @permissionName: 更新角色
- * @permissionPath: /api/role/update
+ * @permissionPath: /role/update
  * @apiName: postUpdateRole
  * @apiFuncType: post
- * @apiFuncUrl: /api/role/update
+ * @apiFuncUrl: /role/update
  * @swagger
  * /role/update:
  *   post:
@@ -184,10 +184,10 @@ router.post('/add', (req, res) => {
  *               example: admin
  *             allowedPermissions:
  *               type: string
- *               example: "/api/role/list,/api/role/getDetail,/api/role/delete,/api/role/listPermissions"
+ *               example: "/role/list,/role/getDetail,/role/delete,/role/listPermissions"
  *             deniedPermissions:
  *               type: string
- *               example: "/api/role/update"
+ *               example: "/role/update"
  *             _id:
  *               type: string
  *               example: "1c6ad690-5583-11e7-b784-69097aa4b384"
@@ -216,10 +216,10 @@ router.post('/update', (req, res) => {
 
 /**
  * @permissionName: 删除角色
- * @permissionPath: /api/role/delete
+ * @permissionPath: /role/delete
  * @apiName: postDeleteRole
  * @apiFuncType: post
- * @apiFuncUrl: /api/role/delete
+ * @apiFuncUrl: /role/delete
  * @swagger
  * /role/delete:
  *   post:
@@ -265,10 +265,10 @@ router.post('/delete', (req, res) => {
 
 /*
  * @permissionName: 权限列表
- * @permissionPath: /api/role/listPermission
+ * @permissionPath: /role/listPermission
  * @apiName: getPermissionList
  * @apiFuncType: get
- * @apiFuncUrl: /api/role/listPermission
+ * @apiFuncUrl: /role/listPermission
  * @swagger
  * /role/listPermission:
  *   get:
@@ -333,10 +333,10 @@ router.get('/listPermission', (req, res) => {
 
 /**
  * @permissionName: 分配角色和权限
- * @permissionPath: /api/role/assignRole
+ * @permissionPath: /role/assignRole
  * @apiName: postAssignRole
  * @apiFuncType: post
- * @apiFuncUrl: /api/role/assignRole
+ * @apiFuncUrl: /role/assignRole
  * @swagger
  * /role/assignRole:
  *   post:
@@ -364,10 +364,10 @@ router.get('/listPermission', (req, res) => {
  *               example: xuyawen@phoenixtv.com
  *             allowedPermissions:
  *               type: string
- *               example: "/api/role/list,/api/role/add"
+ *               example: "/role/list,/role/add"
  *             deniedPermissions:
  *               type: string
- *               example: "/api/role/update,/api/role/delete"
+ *               example: "/role/update,/role/delete"
  *     responses:
  *       200:
  *         description: RoleInfo
@@ -393,10 +393,10 @@ router.post('/assignRole', (req, res) => {
 
 /**
  * @permissionName: 用户或部门角色权限详情
- * @permissionPath: /api/role/getUserOrDepartmentRoleAndPermissions
+ * @permissionPath: /role/getUserOrDepartmentRoleAndPermissions
  * @apiName: getUserOrDepartmentRoleAndPermissions
  * @apiFuncType: post
- * @apiFuncUrl: /api/role/getUserOrDepartmentRoleAndPermissions
+ * @apiFuncUrl: /role/getUserOrDepartmentRoleAndPermissions
  * @swagger
  * /role/getUserOrDepartmentRoleAndPermissions:
  *   get:

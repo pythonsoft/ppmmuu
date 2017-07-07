@@ -138,3 +138,10 @@ fabric.properties
 .idea/sonarlint
 
 # End of https://www.gitignore.io/api/vim,macos,linux,webstorm
+
+# Created by https://www.gitignore.io/api/git
+
+### Git ###
+*.orig
+
+# End of https://www.gitignore.io/api/git

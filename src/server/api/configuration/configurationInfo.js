@@ -10,9 +10,20 @@ const config = require('../../config');
  *     required:
  *       - key
  *       - value
+ *       - genre
  *     properties:
  *       key:
  *         type: String
+ *         example: "testKey"
+ *       value:
+ *         type: String
+ *         example: "testValue"
+ *       genre:
+ *         type: String
+ *         example: "testGenre"
+ *       description:
+ *         type: String
+ *         example: "A simple description"
  */
 class ConfigurationInfo extends DB {
   constructor() {

@@ -13,7 +13,7 @@ const service = require('./service');
 /**
  * @apiName: postUserLogin
  * @apiFuncType: post
- * @apiFuncUrl: /api/user/login
+ * @apiFuncUrl: /user/login
  * @swagger
  * /user/login/:
  *   post:

@@ -18,6 +18,18 @@ const config = require('../../config');
  *         type: string
  *       path:
  *         type: string
+ *       creator:
+ *         type: object
+ *       createdTime:
+ *         type: string
+ *       modifyTime:
+ *         type: string
+ *       description:
+ *         type: string
+ *       status:
+ *         type: string
+ *       detail:
+ *         type: object
  */
 class PermissionInfo extends DB {
   constructor() {
