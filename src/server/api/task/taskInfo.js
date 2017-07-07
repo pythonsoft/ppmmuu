@@ -97,7 +97,7 @@ TaskInfo.STATUS = {
 TaskInfo.CREATOR_TYPE = {
   USER: '0',
   TEAM: '1',
-  SYSTEM: '2'
+  SYSTEM: '2',
 };
 
 module.exports = TaskInfo;

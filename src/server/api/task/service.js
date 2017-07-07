@@ -101,13 +101,13 @@ service.addTask = function addTask(parentTaskInfo, childTasksInfo, cb) {
     return cb && cb(i18n.t('parentTaskInfoIsNull'));
   }
 
-  if(utils.isEmptyObject(parentTaskInfo.creator)) {
+  if (utils.isEmptyObject(parentTaskInfo.creator)) {
     return cb && cb(i18n.t('taskCreatorIsNull'));
   }
 
   const pInfo = taskInfo.assign(parentTaskInfo);
 
-  if(!pInfo.target) {
+  if (!pInfo.target) {
     return cb && cb(i18n.t('taskTargetIsNull'));
   }
 

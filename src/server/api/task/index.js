@@ -44,15 +44,15 @@ router.get('/getTaskDetail', (req, res) => {
 router.post('/addParentTask', (req, res) => {
   const info = req.body;
 
-  if (!(info.creator && info.creator.type === [TaskInfo.CREATOR_TYPE.TEAM, TaskInfo.CREATOR_TYPE.SYSTEM].indexOf(info.creator.type) !== -1)) {
+  if (!(info.creator && [TaskInfo.CREATOR_TYPE.TEAM, TaskInfo.CREATOR_TYPE.SYSTEM].indexOf(info.creator.type) !== -1)) {
     info.creator = {
       _id: req.ex.userInfo._id,
       name: req.ex.userInfo.name,
-      type: TaskInfo.CREATOR_TYPE.USER
-    }
+      type: TaskInfo.CREATOR_TYPE.USER,
+    };
   }
 
-  service.addTask(info, null, (err, r) => res.json(result.json(err, 'ok')));
+  service.addTask(info, null, err => res.json(result.json(err, 'ok')));
 });
 
 router.post('/addChildTask', (req, res) => {
@@ -61,18 +61,18 @@ router.post('/addChildTask', (req, res) => {
 
   try {
     const tasks = JSON.parse(childTasks);
-    service.addChildTasks(parentId, tasks, (err, r) => res.json(result.json(err, 'ok')));
+    service.addChildTasks(parentId, tasks, err => res.json(result.json(err, 'ok')));
   } catch (e) {
-    return res.json(result.fail(i18n.t('jsonParseError')))
+    return res.json(result.fail(i18n.t('jsonParseError')));
   }
 });
 
 router.post('/updateTask', (req, res) => {
-  service.updateTask(req.body.id, req.body, (err, r) => res.json(result.json(err, 'ok')));
+  service.updateTask(req.body.id, req.body, err => res.json(result.json(err, 'ok')));
 });
 
 router.post('/deleteTask', (req, res) => {
-  service.deleteTasks(req.body.ids, (err, r) => res.json(result.json(err, 'ok')));
+  service.deleteTasks(req.body.ids, err => res.json(result.json(err, 'ok')));
 });
 
 module.exports = router;
