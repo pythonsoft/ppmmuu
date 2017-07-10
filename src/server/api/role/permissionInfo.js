@@ -47,6 +47,15 @@ class PermissionInfo extends DB {
       status: PermissionInfo.STATUS.NORMAL,
     };
   }
+  
+  validateStatus(status){
+    for (const key in PermissionInfo.STATUS) {
+      if (PermissionInfo.STATUS[key] === status) {
+        return true;
+      }
+    }
+    return false;
+  }
 }
 
 PermissionInfo.STATUS = {

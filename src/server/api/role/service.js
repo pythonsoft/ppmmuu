@@ -173,7 +173,7 @@ const listPermission = function listPermission(q, page, pageSize, sortFields, fi
   }, sortFields, fieldsNeed);
 };
 
-service.listPermission = function lPermission(roleId, page, pageSize, sortFields, fieldsNeed, cb) {
+service.listPermission = function lPermission(roleId, status, name, page, pageSize, sortFields, fieldsNeed, cb) {
   if (roleId) {
     roleInfo.collection.findOne({ _id: roleId }, { fields: { permissions: 1 } }, (err, doc) => {
       if (err) {
@@ -188,7 +188,14 @@ service.listPermission = function lPermission(roleId, page, pageSize, sortFields
       listPermission({ _id: { $in: doc.permissions.constructor === Array ? doc.permissions : [] } }, page, pageSize, sortFields, fieldsNeed, (err, docs) => cb && cb(err, docs));
     });
   } else {
-    listPermission({}, page, pageSize, sortFields, fieldsNeed, (err, docs) => cb && cb(err, docs));
+    const query = {};
+    if (status) {
+      query.status = status;
+    }
+    if(name){
+      query.name = { $regex: name, $options: 'i'};
+    }
+    listPermission(query, page, pageSize, sortFields, fieldsNeed, (err, docs) => cb && cb(err, docs));
   }
 };
 
@@ -386,5 +393,27 @@ service.getAllPermissions = function getAllPermissions(userInfo, cb) {
     });
   });
 };
+
+service.enablePermission = function enablePermission(info, cb) {
+  let _ids = info._ids || '';
+  const status = info.status;
+
+  if(!_ids){
+    return cb && cb(i18n.t('enablePermissionNoIds'));
+  }
+
+  if(!permissionInfo.validateStatus(status)){
+    return cb && cb(i18n.t('enablePermissionStatusNotCorrect'));
+  }
+
+  _ids = _ids.split(',');
+  permissionInfo.collection.updateMany({_id: { $in: _ids}}, {$set: { status: status}}, function(err, r){
+    if(err){
+      return cb && cb(err);
+    }
+
+    return cb && cb(null, {});
+  })
+}
 
 module.exports = service;

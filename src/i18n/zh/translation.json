@@ -32,15 +32,15 @@
     "message": "更新角色需要参数_id"
   },
   "updateRoleNoName": {
-    "code": "-2009",
+    "code": "-2011",
     "message": "更新角色需要参数name"
   },
   "updateRoleNoPermissions": {
-    "code": "-2010",
+    "code": "-2012",
     "message": "更新角色需要参数permissions"
   },
   "updateRoleNameIsAlreadyExist": {
-    "code": "-2011",
+    "code": "-2013",
     "message": "更新角色参数name已经存在了"
   },
   "getRoleNoId": {
@@ -66,6 +66,14 @@
   "assignPermissionNoUserIds": {
     "code": "-2010",
     "message": "分配权限需要参数userIds"
+  },
+  "enablePermissionNoIds": {
+    "code": "-2014",
+    "message": "启用或禁用权限需要参数_ids"
+  },
+  "enablePermissionStatusNotCorrect": {
+    "code": "-2015",
+    "message": "启用或禁用权限参数status不正确"
   },
   "loginCannotFindUser": {
     "code": "-3001",
@@ -158,5 +166,5 @@
   "parentIdIsNull": {
     "code": "-8003",
     "message": "父任务Id不存在"
-  },
+  }
 }

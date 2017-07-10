@@ -48,7 +48,7 @@ const getArrByPattern = function getArrByPattern(codeStr, pattern) {
 };
 
 const writeApiFuncFile = function writeApiFuncFile(filePath, funcName, funcType, funcUrl) {
-  fs.appendFileSync(filePath, `  ${funcName}(data,cb) {\n    $.ajax({\n      url: '${funcUrl}',\n      type: '${funcType}',\n      data: data,\n      cache: false\n    }).done(data => {\n      cb(data)\n    })\n  },\n\n`);
+  fs.appendFileSync(filePath, `api.${funcName} = function ${funcName}(data,cb) {\n  axios.${funcType}('${config.apiURLPrefix}${funcUrl}', data)\n    .then(function (res) {\n      return cb && cb(null, res.data);\n    })\n    .catch(function (error) {\n      return cb && cb(error);\n    });\n}\n\n`);
 };
 
 // 读取后端接口生成前端调用的函数文件
@@ -79,11 +79,11 @@ const generateFeApiFuncFile = function generateFeApiFuncFile() {
 
       if (funcNameArr.length > 0) {
         const filePath = path.join(feApiPath, `${filename}.js`);
-        fs.appendFileSync(filePath, "'use strict';\n\nexport default {\n");
+        fs.appendFileSync(filePath, "import axios from 'axios';\nconst api = {};\n\n");
         for (let i = 0; i < funcNameArr.length; i++) {
           writeApiFuncFile(filePath, funcNameArr[i], funcTypeArr[i], funcUrlArr[i]);
         }
-        fs.appendFileSync(filePath, '};\n');
+        fs.appendFileSync(filePath, 'module.exports = api;\n');
       }
     }
   });

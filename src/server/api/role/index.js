@@ -12,8 +12,8 @@ const result = require('../../common/result');
 
 const isLogin = require('../../middleware/login');
 
-router.use(isLogin.middleware);
-router.use(isLogin.hasAccessMiddleware);
+// router.use(isLogin.middleware);
+// router.use(isLogin.hasAccessMiddleware);
 
 const service = require('./service');
 
@@ -321,12 +321,14 @@ router.post('/delete', (req, res) => {
  */
 router.get('/listPermission', (req, res) => {
   const roleId = req.query.roleId;
+  const status = req.query.status;
   const page = req.query.page;
   const pageSize = req.query.pageSize;
   const sortFields = req.query.sortFields || '-createdTime';
   const fieldsNeed = req.query.fieldsNeed;
+  const name = req.query.name || '';
 
-  service.listPermission(roleId, page, pageSize, sortFields, fieldsNeed, (err, docs) => {
+  service.listPermission(roleId, status, name, page, pageSize, sortFields, fieldsNeed, (err, docs) => {
     res.json(result.json(err, docs));
   });
 });
@@ -387,6 +389,63 @@ router.get('/listPermission', (req, res) => {
  */
 router.post('/assignRole', (req, res) => {
   service.assignRole(req.body, (err, r) => {
+    res.json(result.json(err, r));
+  });
+});
+
+/**
+ * @permissionName: 启用或禁用权限
+ * @permissionPath: /role/enablePermission
+ * @apiName: postEnablePermission
+ * @apiFuncType: post
+ * @apiFuncUrl: /role/enablePermission
+ * @swagger
+ * /role/enablePermission:
+ *   post:
+ *     description: enable or disable permission permission
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - PermissionInfo
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: need status value
+ *         schema:
+ *           type: object
+ *           required:
+ *            - _id
+ *            - status
+ *           properties:
+ *             _id:
+ *               type: string
+ *               example: "cf46cd70-6512-11e7-904d-edfdde914c9e"
+ *             status:
+ *               type: string
+ *               example: "0"
+ *               description: "'0' stands for 'enable','1' stands for 'disable'"
+ *
+ *     responses:
+ *       200:
+ *         description: RoleInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *
+ */
+router.post('/enablePermission', (req, res) => {
+  service.enablePermission(req.body, (err, r) => {
     res.json(result.json(err, r));
   });
 });

@@ -24,3 +24,5 @@ config.logPath = path.join(__dirname, '../logs/');
 
 // path for uploading files
 config.uploadPath = path.join(__dirname, '../uploads/');
+
+config.apiURLPrefix = "http://localhost:8080";
