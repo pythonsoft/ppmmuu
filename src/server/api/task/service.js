@@ -15,8 +15,18 @@ const taskInfo = new TaskInfo();
 
 const service = {};
 
-service.listAllParentTask = function listAllParentTask(page, pageSize, cb, sortFields, fieldsNeed) {
-  taskInfo.pagination({ parentId: '' }, page, pageSize, (err, docs) => {
+service.listAllParentTask = function listAllParentTask(creatorId, status, page, pageSize, cb, sortFields, fieldsNeed) {
+  const q = { parentId: '' };
+
+  if (creatorId) {
+    q.creator._id = creatorId;
+  }
+
+  if (status) {
+    q.status = status;
+  }
+
+  taskInfo.pagination(q, page, pageSize, (err, docs) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -66,7 +76,7 @@ service.getTaskDetail = function getTaskDetail(id, cb) {
   });
 };
 
-const componentChildTaskInfo = function componentChildTaskInfo(parentId, childTasksInfo) {
+const componentChildTaskInfo = function componentChildTaskInfo(parentId, creator, childTasksInfo) {
   const ts = [];
 
   if (!utils.isEmptyObject(childTasksInfo)) {
@@ -77,6 +87,7 @@ const componentChildTaskInfo = function componentChildTaskInfo(parentId, childTa
         }
         childTasksInfo[i].parentId = parentId;
         childTasksInfo[i].createdTime = new Date();
+        childTasksInfo[i].creator = creator;
         ts.push(taskInfo.assign(childTasksInfo[i]));
       }
     }
@@ -85,20 +96,30 @@ const componentChildTaskInfo = function componentChildTaskInfo(parentId, childTa
   return ts;
 };
 
-service.addTask = function addRole(parentTaskInfo, childTasksInfo, cb) {
+service.addTask = function addTask(parentTaskInfo, childTasksInfo, cb) {
   if (utils.isEmptyObject(parentTaskInfo)) {
     return cb && cb(i18n.t('parentTaskInfoIsNull'));
   }
 
-  const pInfo = taskInfo.assign(parentTaskInfo);
-  pInfo.createdTime = new Date();
+  if (utils.isEmptyObject(parentTaskInfo.creator)) {
+    return cb && cb(i18n.t('taskCreatorIsNull'));
+  }
 
-  if (!taskInfo._id) {
+  const pInfo = taskInfo.assign(parentTaskInfo);
+
+  if (!pInfo.target) {
+    return cb && cb(i18n.t('taskTargetIsNull'));
+  }
+
+  const time = new Date();
+  pInfo.createdTime = time;
+  pInfo.modifyTime = time;
+
+  if (!pInfo._id) {
     pInfo._id = uuid.v1();
   }
 
-  const ts = componentChildTaskInfo(pInfo._id, childTasksInfo);
-
+  const ts = componentChildTaskInfo(pInfo._id, pInfo.creator, childTasksInfo);
   ts.push(pInfo);
 
   taskInfo.collection.insertMany(ts, (err, r) => {
@@ -116,7 +137,7 @@ service.addChildTasks = function addChildTasks(parentId, childTasksInfo, cb) {
     return cb && cb(i18n.t('parentIdIsNull'));
   }
 
-  taskInfo.collection.findOne({ _id: parentId }, { fields: { _id: 1 } }, (err, doc) => {
+  taskInfo.collection.findOne({ _id: parentId }, { fields: { _id: 1, creator: 1 } }, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -126,7 +147,7 @@ service.addChildTasks = function addChildTasks(parentId, childTasksInfo, cb) {
       return cb && cb(i18n.t('taskInfoIsNull'));
     }
 
-    const ts = componentChildTaskInfo(parentId, childTasksInfo);
+    const ts = componentChildTaskInfo(parentId, doc.creator, childTasksInfo);
 
     taskInfo.collection.insertMany(ts, (err, r) => {
       if (err) {

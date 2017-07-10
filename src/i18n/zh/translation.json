@@ -107,6 +107,10 @@
     "code": "-20",
     "message": "{{field}}({{value}})已经被使用了"
   },
+  "jsonParseError": {
+    "code": "-30",
+    "message": "JSON对象解析出错"
+  },
   "groupIdIsNull": {
     "code": "-5000",
     "message": "请输入组织Id."
@@ -166,5 +170,13 @@
   "parentIdIsNull": {
     "code": "-8003",
     "message": "父任务Id不存在"
+  },
+  "taskTargetIsNull": {
+    "code": "-8004",
+    "message": "任务目标信息不完整"
+  },
+  "taskCreatorIsNull": {
+    "code": "-8005",
+    "message": "任务创建者信息不完整"
   }
 }
