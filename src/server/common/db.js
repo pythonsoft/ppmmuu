@@ -134,7 +134,6 @@ class DB {
         cursor.sort(utils.formatSortOrFieldsParams(sortFields, true));
       }
 
-      console.log("pageSize==>", pageSize);
       cursor.skip(page ? ((page - 1) * pageSize) : 0);
       cursor = cursor.limit(pageSize);
 

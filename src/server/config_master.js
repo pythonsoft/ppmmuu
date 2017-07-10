@@ -25,4 +25,5 @@ config.logPath = path.join(__dirname, '../logs/');
 // path for uploading files
 config.uploadPath = path.join(__dirname, '../uploads/');
 
-config.apiURLPrefix = "http://localhost:8080";
+//允许跨域访问的地址列表
+config.whitelist = ["http://localhost:8000", "http://10.0.15.68:8000", "http://10.0.15.105:8000"]

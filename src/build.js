@@ -48,7 +48,7 @@ const getArrByPattern = function getArrByPattern(codeStr, pattern) {
 };
 
 const writeApiFuncFile = function writeApiFuncFile(filePath, funcName, funcType, funcUrl) {
-  fs.appendFileSync(filePath, `api.${funcName} = function ${funcName}(data,cb) {\n  axios.${funcType}('${config.apiURLPrefix}${funcUrl}', data)\n    .then(function (res) {\n      return cb && cb(null, res.data);\n    })\n    .catch(function (error) {\n      return cb && cb(error);\n    });\n}\n\n`);
+  fs.appendFileSync(filePath, `api.${funcName} = function ${funcName}(data,cb) {\n  axios.${funcType}('${config.domain}${funcUrl}', data)\n    .then(function (res) {\n      return cb && cb(null, res.data);\n    })\n    .catch(function (error) {\n      return cb && cb(error);\n    });\n}\n\n`);
 };
 
 // 读取后端接口生成前端调用的函数文件
@@ -93,17 +93,6 @@ const initPermissionInfo = function initPermissionInfo() {
   const nLength = permissionNames.length;
   const pLength = permissionPaths.length;
   if (nLength && nLength === pLength) {
-    const info = [];
-    for (let i = 0; i < nLength; i++) {
-      info.push({
-        _id: uuid.v1(),
-        name: permissionNames[i],
-        path: permissionPaths[i],
-        createdTime: new Date(),
-        modifyTime: new Date(),
-        status: '0',
-      });
-    }
     /* eslint-disable consistent-return */
     mongodb.MongoClient.connect(config.mongodb.umpURL, (err, db) => {
       if (err) {
@@ -112,17 +101,42 @@ const initPermissionInfo = function initPermissionInfo() {
       }
       console.log('mongodb connect utils!');
       const permissionInfo = db.collection('PermissionInfo');
-      permissionInfo.remove({}, { w: 1 }, (err) => {
-        if (err) {
-          throw new Error(`权限表初始化有问题:${err.message}`);
+      permissionInfo.find().toArray(function(err, docs) {
+        if(err){
+          console.log(err);
+          return false;
         }
-        permissionInfo.insert(info, { w: 1 }, (err) => {
-          if (err) {
-            throw new Error(`权限表初始化有问题:${err.message}`);
+
+        if(docs && docs.length){
+          for(let i = 0, len = docs.length; i < len; i++){
+            const index = permissionPaths.indexOf(docs[i].path)
+            if(index !== -1){
+              permissionPaths.splice(index, 1);
+              permissionNames.splice(index, 1);
+            }
           }
-          return true;
-        });
-      });
+        }
+
+        const info = [];
+        for (let i = 0; i < permissionPaths.path; i++) {
+          info.push({
+            _id: uuid.v1(),
+            name: permissionNames[i],
+            path: permissionPaths[i],
+            createdTime: new Date(),
+            modifyTime: new Date(),
+            status: '0',
+          });
+        }
+        if(info.length) {
+          permissionInfo.insert(info, {w: 1}, (err) => {
+            if (err) {
+              throw new Error(`权限表初始化有问题:${err.message}`);
+            }
+            return true;
+          });
+        }
+      })
     });
     /* eslint-enable consistent-return */
   } else if (nLength !== pLength) {
