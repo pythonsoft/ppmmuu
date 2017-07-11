@@ -8,11 +8,11 @@ const logger = require('../../common/log')('error');
 const uuid = require('uuid');
 const utils = require('../../common/utils');
 const i18n = require('i18next');
-const config = require('../../config');
+// const config = require('../../config');
 
-const StorageInfo = require('./storageInfo');
+const BucketInfo = require('./bucketInfo');
 
-const storageInfo = new StorageInfo();
+const bucketInfo = new BucketInfo();
 
 const PathInfo = require('./pathInfo');
 
@@ -24,19 +24,19 @@ const tacticsInfo = new TacticsInfo();
 
 const service = {};
 
-/* storage */
-service.listStorage = function listStorage(status, page, pageSize, cb, sortFields, fieldsNeed) {
+/* bucket */
+service.listBucket = function listBucket(status, page, pageSize, sortFields, fieldsNeed, cb) {
   const q = {};
 
   if (status) {
-    if(status.indexOf(',')) {
+    if (status.indexOf(',')) {
       q.status = { $in: utils.trim(status.split(',')) };
-    }else {
+    } else {
       q.status = status;
     }
   }
 
-  storageInfo.pagination(q, page, pageSize, (err, docs) => {
+  bucketInfo.pagination(q, page, pageSize, (err, docs) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -46,12 +46,12 @@ service.listStorage = function listStorage(status, page, pageSize, cb, sortField
   }, sortFields, fieldsNeed);
 };
 
-service.getStorageDetail = function getStorageDetail(id, cb) {
+service.getBucketDetail = function getBucketDetail(id, cb) {
   if (!id) {
-    return cb && cb(i18n.t('storageIdIsNull'));
+    return cb && cb(i18n.t('bucketIdIsNull'));
   }
 
-  storageInfo.collection.findOne({ _id: id }, (err, doc) => {
+  bucketInfo.collection.findOne({ _id: id }, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -61,24 +61,24 @@ service.getStorageDetail = function getStorageDetail(id, cb) {
   });
 };
 
-service.addStorage = function addStorage(info = {}, cb) {
+service.addBucket = function addBucket(info = {}, cb) {
   if (utils.isEmptyObject(info)) {
-    return cb && cb(i18n.t('storageInfoIsNull'));
+    return cb && cb(i18n.t('bucketInfoIsNull'));
   }
 
   if (!info.name) {
-    return cb && cb(i18n.t('storageNameIsNull'));
+    return cb && cb(i18n.t('bucketNameIsNull'));
   }
 
   const time = new Date();
   info.createdTime = time;
   info.modifyTime = time;
 
-  if(!info._id) {
+  if (!info._id) {
     info._id = uuid.v1();
   }
 
-  storageInfo.collection.insertOne(storageInfo.assign(info), (err, r) => {
+  bucketInfo.collection.insertOne(bucketInfo.assign(info), (err, r) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -88,68 +88,69 @@ service.addStorage = function addStorage(info = {}, cb) {
   });
 };
 
-service.updateStorage = function updateStorage(id, info, cb) {
+service.updateBucket = function updateBucket(id, info, cb) {
   if (!id) {
-    return cb && cb(i18n.t('storageIdIsNull'));
+    return cb && cb(i18n.t('bucketIdIsNull'));
   }
 
-  const updateDoc = storageInfo.updateAssign(info);
+  const updateDoc = bucketInfo.updateAssign(info);
   updateDoc.modifyTime = new Date();
 
-  storageInfo.collection.findOneAndUpdate({ _id: id }, updateDoc, { projection: { _id: 1 } }, (err, r) => {
+  bucketInfo.collection.findOneAndUpdate({ _id: id }, updateDoc, { projection: { _id: 1 } }, (err, r) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
 
     if (!r.value || utils.isEmptyObject(r.value)) {
-      return cb && cb(i18n.t('storageInfoIsNull'));
+      return cb && cb(i18n.t('bucketInfoIsNull'));
     }
 
-    cb && cb(null, r.value);
+    return cb && cb(null, r.value);
   });
-
 };
 
-service.deleteRoles = function deleteRoles(ids, cb) {
-  if (!ids) {
+service.deleteBucket = function deleteBucket(id, cb) {
+  if (!id) {
     return cb && cb(i18n.t('deleteRoleNoIds'));
   }
 
-  roleInfo.collection.removeMany({ _id: { $in: ids.split(',') } }, (err, r) => {
+  bucketInfo.collection.findOne({ _id: id }, { fields: { _id: 1, deleteDeny: 1 } }, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
 
-    return cb && cb(null, r);
-  });
-};
-
-service.assignRole = function assignRole(updateDoc, cb) {
-  const _id = updateDoc._id;
-  if (!_id) {
-    return cb && cb(i18n.t('assignRoleNoId'));
-  }
-
-  updateDoc = assignPermission.updateAssign(updateDoc);
-
-  updateDoc.roles = updateDoc.roles || '';
-  updateDoc.allowedPermissions = updateDoc.allowedPermissions || '';
-  updateDoc.deniedPermissions = updateDoc.deniedPermissions || '';
-
-  updateDoc.roles = utils.trim(updateDoc.roles.split(','));
-  updateDoc.allowedPermissions = utils.trim(updateDoc.allowedPermissions.split(','));
-  updateDoc.deniedPermissions = utils.trim(updateDoc.deniedPermissions.split(','));
-
-  assignPermission.collection.updateOne({ _id }, { $set: updateDoc }, { upsert: true }, (err, r) => {
-    if (err) {
-      logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
+    if (!doc) {
+      return cb && cb(i18n.t('bucketInfoIsNull'));
     }
 
-    redisClient.del(_id);
-    return cb && cb(null, r);
+    if (doc.deleteDeny === BucketInfo.DELETE_DENY.YES) {
+      return cb && cb(i18n.t('bucketDeleteDeny'));
+    }
+
+    tacticsInfo.collection.removeMany({ 'source._id': doc._id }, (err) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      pathInfo.collection.removeMany({ 'storage._id': doc._id }, (err) => {
+        if (err) {
+          logger.error(err.message);
+          return cb && cb(i18n.t('databaseError'));
+        }
+
+        bucketInfo.collection.removeOne({ _id: doc._id }, (err, r) => {
+          if (err) {
+            logger.error(err.message);
+            return cb && cb(i18n.t('databaseError'));
+          }
+
+          return cb && cb(null, r);
+        });
+      });
+    });
   });
 };
 

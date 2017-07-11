@@ -10,7 +10,7 @@ const config = require('../../config');
 /**
  * @swagger
  * definitions:
- *   StorageInfo:
+ *   BucketInfo:
  *     required:
  *       - name
  *     properties:
@@ -30,29 +30,49 @@ const config = require('../../config');
  *       detail:
  *         type: object
  */
-class StorageInfo extends DB {
+class BucketInfo extends DB {
   constructor() {
-    super(config.dbInstance.umpDB, 'StorageInfo');
+    super(config.dbInstance.umpDB, 'BucketInfo');
 
     this.doc = {
       _id: '',
       name: '',
+      type: BucketInfo.TYPE.STANDARD,
+      permission: BucketInfo.PERMISSION.PUBLIC_READ_WRITE,
       creator: { _id: '', name: '' },
-      status: StorageInfo.STATUS.NORMAL,
+      status: BucketInfo.STATUS.NORMAL,
       createdTime: new Date(),
       modifyTime: new Date(),
+      deleteDeny: BucketInfo.DELETE_DENY.YES, // 删除保护，创建后默认为保护状态
       description: '',
       detail: {},
     };
 
     this.updateDoc = { name: 1, status: 1, modifyTime: 1, description: 1, detail: 1 };
-
   }
+
 }
 
-StorageInfo.STATUS = {
+BucketInfo.STATUS = {
   NORMAL: '0',
-  HAND_UP: '1'
+  HAND_UP: '1',
 };
 
-module.exports = StorageInfo;
+BucketInfo.PERMISSION = {
+  PRIVATE: '0',
+  PUBLIC_READ_ONLY: '1',
+  PUBLIC_READ_WRITE: '2',
+};
+
+BucketInfo.TYPE = {
+  STANDARD: '0', // 标准存储
+  IA: '1', // 低频存储
+  ARCHIVE: '2', // 归档存储
+};
+
+BucketInfo.DELETE_DENY = {
+  YES: '1',
+  NO: '0',
+};
+
+module.exports = BucketInfo;

@@ -61,30 +61,34 @@ class TacticsInfo extends DB {
     this.doc = {
       _id: '',
       name: '',
-      sourceType: TacticsInfo.SOURCE_TYPE.STORAGE,
-      sourceId: '',
+      source: {
+        _id: '',
+        name: '',
+        type: TacticsInfo.SOURCE_TYPE.STORAGE,
+      },
       type: '',
       creator: { _id: '', name: '' },
       status: TacticsInfo.STATUS.NORMAL,
       script: '',
-      priority: TacticsInfo.PRIORITY.NORMAL, //less is high
+      priority: TacticsInfo.PRIORITY.NORMAL, // less is high
       triggerType: TacticsInfo.TRIGGER_TYPE.LINE,
       scheduleType: TacticsInfo.SCHEDULE_TYPE.EVERY_MONTH,
       scheduleTime: '',
       orderBy: TacticsInfo.ORDER_BY.CREATE_TIME,
-      itemCount: 10, //每次提交对象数
-      frequency: 60, //提交频率(秒)
+      itemCount: 10, // 每次提交对象数
+      frequency: 60, // 提交频率(秒)
       createdTime: new Date(),
       modifyTime: new Date(),
       description: '',
       detail: {},
     };
   }
+
 }
 
 TacticsInfo.SOURCE_TYPE = {
   STORAGE: '0',
-  PATH: '1'
+  PATH: '1',
 };
 
 TacticsInfo.TYPE = {
@@ -94,37 +98,38 @@ TacticsInfo.TYPE = {
   CLEAR_PART_OF_DOWNLOAD_FILE: '3',
   DELETE_FILE: '4',
   CANCEL_PUBLISH: '5',
-  DELETE_MANUALLY: '6'
+  DELETE_MANUALLY: '6',
 };
 
 TacticsInfo.STATUS = {
   NORMAL: '0',
-  HAND_UP: '1'
+  HAND_UP: '1',
 };
 
 TacticsInfo.PRIORITY = {
   HIGH: '0',
   NORMAL: '1',
-  LOW: '2'
+  LOW: '2',
 };
 
 TacticsInfo.TRIGGER_TYPE = {
   LINE: '0',
   TIME: '1',
-  LINE_TIME: '2'
+  LINE_TIME: '2',
 };
 
 TacticsInfo.SCHEDULE_TYPE = {
   NOW: '0',
   EVERY_DAY: '1',
   EVERY_WEEK: '2',
-  EVERY_MONTH: '3'
+  EVERY_MONTH: '3',
+  EVERY_YEAR: '4',
 };
 
 TacticsInfo.ORDER_BY = {
   CREATE_TIME: '0',
   LAST_VISIT_TIME: '1',
-  VISIT_COUNT: '2'
+  VISIT_COUNT: '2',
 };
 
 module.exports = TacticsInfo;

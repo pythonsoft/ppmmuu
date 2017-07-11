@@ -56,10 +56,13 @@ class PathInfo extends DB {
       _id: '',
       name: '',
       path: '',
+      storage: {
+        _id: '',
+        name: '',
+      },
       creator: { _id: '', name: '' },
       status: PathInfo.STATUS.NORMAL,
-      protocol: PathInfo.PROTOCOL.LOCAL,
-      permission: PathInfo.PERMISSION.READ_WRITE,
+      type: PathInfo.TYPE.LOCAL,
       maxSize: 0,
       usage: 0,
       triggerLine: -1,
@@ -75,21 +78,16 @@ class PathInfo extends DB {
 
 PathInfo.STATUS = {
   NORMAL: '0',
-  HAND_UP: '1'
+  HAND_UP: '1',
 };
 
-PathInfo.PROTOCOL = {
+PathInfo.TYPE = {
   S3: '0',
   BAIDU_CLOUD: '1',
   ALIYUN: '2',
   LOCAL: '3',
   CIFS: '4',
-  NETWORK: '5'
-};
-
-PathInfo.PERMISSION = {
-  READ_ONLY: '0',
-  READ_WRITE: '1'
+  NETWORK: '5',
 };
 
 module.exports = PathInfo;

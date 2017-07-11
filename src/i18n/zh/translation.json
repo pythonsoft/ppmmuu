@@ -171,16 +171,20 @@
     "code": "-8005",
     "message": "任务创建者信息不完整"
   },
-  "storageIdIsNull": {
+  "bucketIdIsNull": {
     "code": "-9001",
     "message": "存储区Id不存在"
   },
-  "storageInfoIsNull": {
-    "code": "-9001",
+  "bucketInfoIsNull": {
+    "code": "-9002",
     "message": "存储区信息不存在"
   },
-  "storageNameIsNull": {
-    "code": "-9001",
+  "bucketNameIsNull": {
+    "code": "-9003",
     "message": "存储区名称不存在"
+  },
+  "bucketDeleteDeny": {
+    "code": "-9004",
+    "message": "存储区处于删除保护状态，删除此存储区请将删除保护关闭",
   },
 }
