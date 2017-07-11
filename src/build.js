@@ -48,7 +48,7 @@ const getArrByPattern = function getArrByPattern(codeStr, pattern) {
 };
 
 const writeApiFuncFile = function writeApiFuncFile(filePath, funcName, funcType, funcUrl) {
-  fs.appendFileSync(filePath, `api.${funcName} = function ${funcName}(data,cb) {\n  axios.${funcType}('${config.domain}${funcUrl}', data)\n    .then(function (res) {\n      return cb && cb(null, res.data);\n    })\n    .catch(function (error) {\n      return cb && cb(error);\n    });\n}\n\n`);
+  fs.appendFileSync(filePath, `api.${funcName} = function ${funcName}(data) {\n  return new Promise((resolve, reject) => {\n    axios.${funcType}('${config.domain}${funcUrl}', data)\n      .then(function (response) {\n        const res = response.data;\n        if(res.status === '0'){\n          resolve(res);\n        }\n        reject(res.statusInfo.message);\n      })\n      .catch(function (error) {\n        reject(error);\n      });\n  })\n}\n\n`);
 };
 
 // 读取后端接口生成前端调用的函数文件
