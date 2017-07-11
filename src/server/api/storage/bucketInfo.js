@@ -39,8 +39,6 @@ class StorageInfo extends DB {
       name: '',
       creator: { _id: '', name: '' },
       status: StorageInfo.STATUS.NORMAL,
-      paths: [],
-      tactics: [],
       createdTime: new Date(),
       modifyTime: new Date(),
       description: '',
