@@ -15,34 +15,6 @@
     "code": "-1004",
     "message": "找不到用户"
   },
-  "addRoleNoName": {
-    "code": "-2001",
-    "message": "添加角色需要参数name"
-  },
-  "addRoleNoPermissions": {
-    "code": "-2002",
-    "message": "添加角色需要参数permissions"
-  },
-  "addRoleNameIsExist": {
-    "code": "-2003",
-    "message": "添加角色参数name已经存在了"
-  },
-  "updateRoleNoId": {
-    "code": "-2004",
-    "message": "更新角色需要参数_id"
-  },
-  "updateRoleNoName": {
-    "code": "-2009",
-    "message": "更新角色需要参数name"
-  },
-  "updateRoleNoPermissions": {
-    "code": "-2010",
-    "message": "更新角色需要参数permissions"
-  },
-  "updateRoleNameIsAlreadyExist": {
-    "code": "-2011",
-    "message": "更新角色参数name已经存在了"
-  },
   "getRoleNoId": {
     "code": "-2005",
     "message": "获取角色详情需要参数_id"
@@ -66,6 +38,14 @@
   "assignPermissionNoUserIds": {
     "code": "-2010",
     "message": "分配权限需要参数userIds"
+  },
+  "enablePermissionNoIds": {
+    "code": "-2014",
+    "message": "启用或禁用权限需要参数_ids"
+  },
+  "enablePermissionStatusNotCorrect": {
+    "code": "-2015",
+    "message": "启用或禁用权限参数status不正确"
   },
   "loginCannotFindUser": {
     "code": "-3001",
@@ -185,11 +165,11 @@
   },
   "bucketDeleteDeny": {
     "code": "-9004",
-    "message": "存储区处于删除保护状态，删除此存储区请将删除保护关闭",
+    "message": "存储区处于删除保护状态，删除此存储区请将删除保护关闭"
   },
   "pathIdIsNull": {
     "code": "-9005",
-    "message": "请输入路径Id",
+    "message": "请输入路径Id"
   },
   "PathInfoIsNull": {
     "code": "-9006",
@@ -219,5 +199,8 @@
     "code": "-10004",
     "message": "{{field}} 字段不在实体类中，无法进行存取操作"
   },
-
+  "uniqueError": {
+    "code": "-10005",
+    "message": "{{field}} 已经被使用了"
+  }
 }

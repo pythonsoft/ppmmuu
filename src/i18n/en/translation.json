@@ -15,34 +15,6 @@
     "code": "-1004",
     "message": "cannot find user"
   },
-  "addRoleNoName": {
-    "code": "-2001",
-    "message": "parameter name required"
-  },
-  "addRoleNoPermissions": {
-    "code": "-2002",
-    "message": "parameter permissions required"
-  },
-  "addRoleNameIsExist": {
-    "code": "-2003",
-    "message": "add role parameter name is already exist"
-  },
-  "updateRoleNoId": {
-    "code": "-2004",
-    "message": "update role parameter _id required"
-  },
-  "updateRoleNoName": {
-    "code": "-2009",
-    "message": "parameter name required"
-  },
-  "updateRoleNoPermissions": {
-    "code": "-2010",
-    "message": "parameter permissions required"
-  },
-  "updateRoleNameIsAlreadyExist": {
-    "code": "-2011",
-    "message": "update role name is already exist"
-  },
   "getRoleNoId": {
     "code": "-2005",
     "message": "get role parameter _id required"
@@ -66,6 +38,14 @@
   "assignPermissionNoUserIds": {
     "code": "-2010",
     "message": "assign permissions parameter userIds required"
+  },
+  "enablePermissionNoIds": {
+    "code": "-2014",
+    "message": "enable or disable permission need parameter _ids"
+  },
+  "enablePermissionStatusNotCorrect": {
+    "code": "-2015",
+    "message": "enable or disable permission parameter status is not correct"
   },
   "loginCannotFindUser": {
     "code": "-3001",
@@ -142,5 +122,25 @@
   "permissionIsUnActive": {
     "code": "-7001",
     "message": "this permission has been forbidden"
+  },
+  "taskIdIsNull": {
+    "code": "-8001",
+    "message": "task id is null"
+  },
+  "taskInfoIsNull": {
+    "code": "-8002",
+    "message": "task info is null"
+  },
+  "parentTaskInfoIsNull": {
+    "code": "-8003",
+    "message": "parent task info is null"
+  },
+  "parentIdIsNull": {
+    "code": "-8003",
+    "message": "parent taskId is null"
+  },
+  "typeError": {
+    "code": "-10001",
+    "message": "{{field}} 输入类型错误"
   }
 }

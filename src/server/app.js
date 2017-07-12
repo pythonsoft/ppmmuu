@@ -8,8 +8,21 @@ const cookieParser = require('cookie-parser');
 const mongoClient = require('mongodb').MongoClient;
 const config = require('./config');
 const i18nMiddleware = require('./middleware/i18n');
+const cors = require('cors');
 
 const app = express();
+
+const corsOptions = {
+  origin(origin, callback) {
+    if (config.whitelist.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+};
+
+app.use(cors(corsOptions));
 
 app.use(cookieParser());
 app.use(bodyParser.json()); // for parsing application/json

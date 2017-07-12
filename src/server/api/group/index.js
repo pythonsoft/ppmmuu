@@ -198,12 +198,11 @@ router.get('/getDetail', (req, res) => {
  *                  type: string
  */
 router.post('/add', (req, res) => {
-  const parentId = req.body.parentId || '';
   const info = req.body;
   const creator = { _id: req.ex.userInfo._id, name: req.ex.userInfo.name };
   info.creator = creator;
 
-  service.addGroup(parentId, info, (err, docs) => res.json(result.json(err, docs)));
+  service.addGroup(info, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
@@ -255,10 +254,7 @@ router.post('/add', (req, res) => {
  *                  type: string
  */
 router.post('/update', (req, res) => {
-  const _id = req.body._id || '';
-  const info = req.body;
-
-  service.updateGroup(_id, info, (err, docs) => res.json(result.json(err, docs)));
+  service.updateGroup(req.body, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**

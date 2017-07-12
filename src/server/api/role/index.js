@@ -10,10 +10,10 @@ const router = express.Router();
 
 const result = require('../../common/result');
 
-const isLogin = require('../../middleware/login');
+// const isLogin = require('../../middleware/login');
 
-router.use(isLogin.middleware);
-router.use(isLogin.hasAccessMiddleware);
+// router.use(isLogin.middleware);
+// router.use(isLogin.hasAccessMiddleware);
 
 const service = require('./service');
 
@@ -55,8 +55,9 @@ const service = require('./service');
 router.get('/list', (req, res) => {
   const page = req.query.page || 1;
   const pageSize = req.query.pageSize || 30;
+  const keyword = req.query.keyword || '';
 
-  service.listRole(page, pageSize, (err, docs) => res.json(result.json(err, docs)));
+  service.listRole(page, pageSize, keyword, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
@@ -126,11 +127,15 @@ router.get('/getDetail', (req, res) => {
  *               type: string
  *               example: admin
  *             allowedPermissions:
- *               type: string
- *               example: "/role/list,/role/getDetail"
+ *               type: array
+ *               items:
+ *                 type: string
+ *               example: ["/role/list","/role/getDetail"]
  *             deniedPermissions:
- *               type: string
- *               example: "/role/add,/role/update"
+ *               type: array
+ *               items:
+ *                 type: string
+ *               example: ["/role/add","/role/update"]
  *     responses:
  *       200:
  *         description: RoleInfo
@@ -179,18 +184,22 @@ router.post('/add', (req, res) => {
  *           required:
  *            - _id
  *           properties:
+ *             _id:
+ *               type: string
+ *               example: admin
  *             name:
  *               type: string
  *               example: admin
  *             allowedPermissions:
- *               type: string
- *               example: "/role/list,/role/getDetail,/role/delete,/role/listPermissions"
+ *               type: array
+ *               items:
+ *                 type: string
+ *               example: ["/role/list","/role/getDetail"]
  *             deniedPermissions:
- *               type: string
- *               example: "/role/update"
- *             _id:
- *               type: string
- *               example: "1c6ad690-5583-11e7-b784-69097aa4b384"
+ *               type: array
+ *               items:
+ *                 type: string
+ *               example: ["/role/ ","/role/update"]
  *     responses:
  *       200:
  *         description: RoleInfo
@@ -209,7 +218,7 @@ router.post('/add', (req, res) => {
  *
  */
 router.post('/update', (req, res) => {
-  service.updateRole(req.body._id, req.body, (err) => {
+  service.updateRole(req.body, (err) => {
     res.json(result.json(err, {}));
   });
 });
@@ -321,12 +330,14 @@ router.post('/delete', (req, res) => {
  */
 router.get('/listPermission', (req, res) => {
   const roleId = req.query.roleId;
+  const status = req.query.status;
   const page = req.query.page;
   const pageSize = req.query.pageSize;
   const sortFields = req.query.sortFields || '-createdTime';
   const fieldsNeed = req.query.fieldsNeed;
+  const name = req.query.name || '';
 
-  service.listPermission(roleId, page, pageSize, sortFields, fieldsNeed, (err, docs) => {
+  service.listPermission(roleId, status, name, page, pageSize, sortFields, fieldsNeed, (err, docs) => {
     res.json(result.json(err, docs));
   });
 });
@@ -392,6 +403,63 @@ router.post('/assignRole', (req, res) => {
 });
 
 /**
+ * @permissionName: 启用或禁用权限
+ * @permissionPath: /role/enablePermission
+ * @apiName: postEnablePermission
+ * @apiFuncType: post
+ * @apiFuncUrl: /role/enablePermission
+ * @swagger
+ * /role/enablePermission:
+ *   post:
+ *     description: enable or disable permission permission
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - PermissionInfo
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: need status value
+ *         schema:
+ *           type: object
+ *           required:
+ *            - _id
+ *            - status
+ *           properties:
+ *             _id:
+ *               type: string
+ *               example: "cf46cd70-6512-11e7-904d-edfdde914c9e"
+ *             status:
+ *               type: string
+ *               example: "0"
+ *               description: "'0' stands for 'enable','1' stands for 'disable'"
+ *
+ *     responses:
+ *       200:
+ *         description: RoleInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *
+ */
+router.post('/enablePermission', (req, res) => {
+  service.enablePermission(req.body, (err, r) => {
+    res.json(result.json(err, r));
+  });
+});
+
+/**
  * @permissionName: 用户或部门角色权限详情
  * @permissionPath: /role/getUserOrDepartmentRoleAndPermissions
  * @apiName: getUserOrDepartmentRoleAndPermissions
@@ -433,6 +501,7 @@ router.post('/assignRole', (req, res) => {
  */
 router.get('/getUserOrDepartmentRoleAndPermissions', (req, res) => {
   const _id = req.query._id || '';
+
 
   service.getUserOrDepartmentRoleAndPermissions(_id, (err, r) => {
     res.json(result.json(err, r));

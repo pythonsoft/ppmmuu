@@ -35,17 +35,26 @@ class PermissionInfo extends DB {
   constructor() {
     super(config.dbInstance.umpDB, 'PermissionInfo');
 
-    this.doc = {
-      _id: '',
-      name: '',
-      path: '',
-      creator: {},
-      createdTime: new Date(),
-      modifyTime: new Date(),
-      description: '',
-      detail: {},
-      status: PermissionInfo.STATUS.NORMAL,
+    this.struct = {
+      _id: { type: String, default: '', validation: 'require', unique: true },
+      name: { type: String, default: '', validation: 'require', unique: true },
+      path: { type: String, default: '', validation: 'require', unique: true },
+      creator: { type: Object, default: {} },
+      createdTime: { type: Date, default() { return new Date(); } },
+      modifyTime: { type: Date, default() { return new Date(); }, allowUpdate: true },
+      description: { type: String, default: '', allowUpdate: true },
+      detail: { type: Object, default: {}, allowUpdate: true },
+      status: { type: String, default: PermissionInfo.STATUS.NORMAL, validation: this.validateStatus, allowUpdate: true },
     };
+  }
+
+  validateStatus(status) {
+    for (const key in PermissionInfo.STATUS) {
+      if (PermissionInfo.STATUS[key] === status) {
+        return true;
+      }
+    }
+    return false;
   }
 }
 
