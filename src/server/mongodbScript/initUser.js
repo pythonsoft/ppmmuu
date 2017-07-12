@@ -15,56 +15,36 @@ const assignPermission = new AssignPermission();
 
 const email = 'xuyawen@phoenixtv.com';
 
-userInfo.collection.findOne({
-  _id: 'xuyawen@phoenixtv.com',
-}, { fields: { _id: 1 } }, (err, doc) => {
-  if (err) {
-    console.log(err.message);
-    return;
-  }
 
-  if (doc) {
-    console.log('user(xuyawen) has been add.');
-    return;
-  }
+const user =  {
+  _id: email,
+  name: 'xuyawen',
+  status: 0,
+  password: utils.cipher('123123', config.KEY),
+  createdAt: new Date(),
+};
 
-  userInfo.collection.insertOne(userInfo.assign({
+userInfo.insertOne(user, function(err){
+  if(err){
+    console.log(err);
+  }
+  
+});
+
+
+const role = { allowedPermissions: ['all'], _id: 'admin', name: 'admin' };
+roleInfo.insertOne(role, function(err){
+  if(err){
+    console.log(err);
+  }
+  const info = {
     _id: email,
-    name: 'xuyawen',
-    status: 0,
-    password: utils.cipher('123123', config.KEY),
-    createdAt: new Date(),
-  }), (err) => {
-    if (err) {
-      console.log('add user error ', err.message);
-      return;
+    roles: ['admin'],
+  };
+  assignPermission.insertOne(info, function(err){
+    if(err){
+      console.log(err);
     }
-
-    console.log('user(xuyawen) has been add.');
-  });
-});
-
-
-const set = { allowedPermissions: ['all'], _id: 'admin', name: 'admin' };
-roleInfo.collection.remove({ name: 'admin' }, (err) => {
-  if (err) {
-    throw new Error(`admin role初始化有问题:${err.message}`);
-  }
-  roleInfo.collection.insertOne(set, (err) => {
-    if (err) {
-      throw new Error(`admin role初始化有问题:${err.message}`);
-    }
-    const info = {
-      _id: email,
-      roles: ['admin'],
-    };
-
-    assignPermission.collection.findOneAndUpdate(
-      { _id: email }, { $set: assignPermission.assign(info) }, { upsert: true }, (err) => {
-        if (err) {
-          throw new Error(`assignPermission初始化有问题:${err.message}`);
-        }
-      });
-  });
-});
+  })
+})
 

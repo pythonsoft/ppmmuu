@@ -501,6 +501,7 @@ router.post('/enablePermission', (req, res) => {
  */
 router.get('/getUserOrDepartmentRoleAndPermissions', (req, res) => {
   const _id = req.query._id || '';
+   
 
   service.getUserOrDepartmentRoleAndPermissions(_id, (err, r) => {
     res.json(result.json(err, r));

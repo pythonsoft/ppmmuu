@@ -138,5 +138,9 @@
   "parentIdIsNull": {
     "code": "-8003",
     "message": "parent taskId is null"
+  },
+  "typeError": {
+    "code": "-10001",
+    "message": "{{field}} 输入类型错误"
   }
 }

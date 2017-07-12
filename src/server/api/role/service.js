@@ -61,52 +61,23 @@ service.getRoleDetail = function getRoleDetail(id, cb) {
 };
 
 service.addRole = function addRole(_roleInfo, cb) {
-  const err = roleInfo.validateCreateError(roleInfo.createNeedValidateFields, _roleInfo);
-  if(err){
-    return cb && cb(err);
-  }
-
-  _roleInfo.allowedPermissions = _roleInfo.allowedPermissions || [];
-  _roleInfo.deniedPermissions = _roleInfo.deniedPermissions || [];
-
-  roleInfo.checkUnique(_roleInfo, false, (err) => {
-    if (err) {
+  roleInfo.insertOne(_roleInfo, function(err){
+    if(err){
       return cb && cb(err);
     }
-
-    roleInfo.collection.insertOne(roleInfo.assign(_roleInfo), (err) => {
-      if (err) {
-        logger.error(err.message);
-        return cb && cb(i18n.t('databaseError'));
-      }
-
-      return cb && cb(null, {});
-    });
-  });
+    
+    return cb && cb(null, {});
+  })
 };
 
 service.updateRole = function updateRole(_roleInfo, cb) {
-  const err = roleInfo.validateUpdateError(roleInfo.updateNeedValidateFields, _roleInfo);
-  if(err){
-    return cb && cb(err);
-  }
-
-  const updateDoc = roleInfo.updateAssign(_roleInfo);
-
-  roleInfo.checkUnique(_roleInfo, true, (err) => {
-    if (err) {
+  roleInfo.updateOne({_id: _roleInfo._id}, _roleInfo, function(err, doc){
+    if(err){
       return cb && cb(err);
     }
-
-    roleInfo.collection.updateOne({ _id: _roleInfo._id }, { $set: updateDoc }, (err, r) => {
-      if (err) {
-        logger.error(err.message);
-        return cb && cb(i18n.t('databaseError'));
-      }
-
-      return cb && cb(null, r);
-    });
-  });
+    
+    return cb && cb(null, doc);
+  })
 };
 
 service.deleteRoles = function deleteRoles(ids, cb) {
@@ -125,30 +96,13 @@ service.deleteRoles = function deleteRoles(ids, cb) {
 };
 
 service.assignRole = function assignRole(updateDoc, cb) {
-  const _id = updateDoc._id;
-  if (!_id) {
-    return cb && cb(i18n.t('assignRoleNoId'));
-  }
-
-  updateDoc = assignPermission.updateAssign(updateDoc);
-
-  updateDoc.roles = updateDoc.roles || '';
-  updateDoc.allowedPermissions = updateDoc.allowedPermissions || '';
-  updateDoc.deniedPermissions = updateDoc.deniedPermissions || '';
-
-  updateDoc.roles = utils.trim(updateDoc.roles.split(','));
-  updateDoc.allowedPermissions = utils.trim(updateDoc.allowedPermissions.split(','));
-  updateDoc.deniedPermissions = utils.trim(updateDoc.deniedPermissions.split(','));
-
-  assignPermission.collection.updateOne({ _id }, { $set: updateDoc }, { upsert: true }, (err, r) => {
-    if (err) {
-      logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
+  assignPermission.udpateOne({_id: updateDoc._id}, updateDoc, function(err, doc){
+    if(err){
+      return cb && cb(err);
     }
-
-    redisClient.del(_id);
-    return cb && cb(null, r);
-  });
+    
+    return cb && cb(null, doc);
+  })
 };
 
 const listPermission = function listPermission(q, page, pageSize, sortFields, fieldsNeed, cb) {
