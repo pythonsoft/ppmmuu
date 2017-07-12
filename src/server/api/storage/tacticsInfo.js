@@ -16,10 +16,12 @@ const config = require('../../config');
  *     properties:
  *       name:
  *         type: string
- *       sourceType:
- *         type: string
- *       sourceId:
- *         type: string
+ *       source:
+ *         type: object
+ *         properties:
+ *           _id: string
+ *           name: string,
+ *           type: string
  *       type:
  *         type: string
  *       creator:
@@ -64,7 +66,7 @@ class TacticsInfo extends DB {
       source: {
         _id: '',
         name: '',
-        type: TacticsInfo.SOURCE_TYPE.STORAGE,
+        type: TacticsInfo.SOURCE_TYPE.BUCKET,
       },
       type: '',
       creator: { _id: '', name: '' },
@@ -87,7 +89,7 @@ class TacticsInfo extends DB {
 }
 
 TacticsInfo.SOURCE_TYPE = {
-  STORAGE: '0',
+  BUCKET: '0',
   PATH: '1',
 };
 

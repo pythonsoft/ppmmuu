@@ -187,4 +187,37 @@
     "code": "-9004",
     "message": "存储区处于删除保护状态，删除此存储区请将删除保护关闭",
   },
+  "pathIdIsNull": {
+    "code": "-9005",
+    "message": "请输入路径Id",
+  },
+  "PathInfoIsNull": {
+    "code": "-9006",
+    "message": "路径信息不存在"
+  },
+  "PathNameIsNull": {
+    "code": "-9007",
+    "message": "请填写路径名称"
+  },
+  "PathCreatorIsNull": {
+    "code": "-9007",
+    "message": "请填写路径创建人"
+  },
+  "typeError": {
+    "code": "-10001",
+    "message": "{{field}} 输入类型错误"
+  },
+  "requireError": {
+    "code": "-10002",
+    "message": "必须填写 {{field}}"
+  },
+  "validationError": {
+    "code": "-10003",
+    "message": "{{field}} 不符合验证规则"
+  },
+  "fieldIsNotExistError": {
+    "code": "-10004",
+    "message": "{{field}} 字段不在实体类中，无法进行存取操作"
+  },
+
 }

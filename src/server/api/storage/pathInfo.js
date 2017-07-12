@@ -18,16 +18,17 @@ const config = require('../../config');
  *         type: string
  *       path:
  *         type: string
+ *       bucket:
+ *          type: object
+ *          properties:
+ *            _id: string
+ *            name: string
  *       creator:
  *         type: object
  *         properties:
  *           _id: string
  *           name: string
  *       status:
- *         type: string
- *       protocol:
- *         type: string
- *       permission:
  *         type: string
  *       maxSize:
  *         type: number
@@ -56,7 +57,7 @@ class PathInfo extends DB {
       _id: '',
       name: '',
       path: '',
-      storage: {
+      bucket: {
         _id: '',
         name: '',
       },

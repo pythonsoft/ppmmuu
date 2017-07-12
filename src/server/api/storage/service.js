@@ -135,7 +135,7 @@ service.deleteBucket = function deleteBucket(id, cb) {
         return cb && cb(i18n.t('databaseError'));
       }
 
-      pathInfo.collection.removeMany({ 'storage._id': doc._id }, (err) => {
+      pathInfo.collection.removeMany({ 'bucket._id': doc._id }, (err) => {
         if (err) {
           logger.error(err.message);
           return cb && cb(i18n.t('databaseError'));
@@ -150,6 +150,98 @@ service.deleteBucket = function deleteBucket(id, cb) {
           return cb && cb(null, r);
         });
       });
+    });
+  });
+};
+
+/* path */
+
+service.listPath = function listPath(bucketId, page, pageSize, sortFields, fieldsNeed, cb) {
+  const q = {};
+
+  if(bucketId) {
+    if (bucketId.indexOf(',')) {
+      q['bucket._id'] = { $in: utils.trim(bucketId.split(',')) };
+    } else {
+      q['bucket._id'] = bucketId;
+    }
+  }
+
+  pathInfo.pagination(q, page, pageSize, (err, docs) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, docs);
+  }, sortFields, fieldsNeed);
+};
+
+service.getPathDetail = function getPathDetail(pathId, cb) {
+  if (!pathId) {
+    return cb && cb(i18n.t('pathIdIsNull'));
+  }
+
+  pathInfo.collection.findOne({ _id: pathId }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, doc);
+  });
+};
+
+service.addPath = function addPath(bucketId, info, cb) {
+  if(!bucketId) {
+    return cb && cb(i18n.t('pathIdIsNull'));
+  }
+
+  bucketInfo.collection.findOne({ _id: bucketId }, { fields: { _id: 1, name: 1 } }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if(!doc) {
+      return cb && cb(i18n.t('bucketInfoIsNull'));
+    }
+
+    if(utils.isEmptyObject(info)) {
+      return cb && cb(i18n.t('PathInfoIsNull'));
+    }
+
+    if (!info.name) {
+      return cb && cb(i18n.t('PathNameIsNull'));
+    }
+
+    if (!info.creator || utils.isEmptyObject(info.creator) || !info.creator._id || !info.creator.name) {
+      return cb && cb(i18n.t('PathNameIsNull'));
+    }
+
+    if (!info._id) {
+      info._id = uuid.v1();
+    }
+
+    const time = new Date();
+
+    if (!info.createdTime) {
+      info.createdTime = time;
+    }
+
+    if (!info.modifyTime) {
+      info.modifyTime = time
+    }
+
+    info.bucket = { _id: doc._id, name: doc.name };
+
+    pathInfo.collection.insertOne(pathInfo.assign(info), (err, r) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      return cb && cb(null, r);
     });
   });
 };
