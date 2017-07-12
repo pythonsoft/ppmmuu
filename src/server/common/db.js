@@ -17,13 +17,13 @@ const i18n = require('i18next');
  */
 const validation = function validation(info, struct) {
   let temp = null;
+
   for (const k in info) {
     temp = struct[k];
 
     if (!temp) {
       return i18n.t('fieldIsNotExistError', { field: k });
     }
-
 
     if (typeof temp.type !== 'undefined' && info[k].constructor !== temp.type) {
       if (!temp.type === Date || !info[k].constructor === String) {
@@ -57,6 +57,7 @@ const defaultValue = {
 class DB {
   constructor(dbInstance, collectionName) {
     this.collection = dbInstance.collection(collectionName);
+    this.struct = {};
   }
 
   assign(info) {
@@ -92,26 +93,27 @@ class DB {
 
   updateAssign(info) {
     const struct = this.struct;
-    const obj = {};
+    const doc = {};
     let temp = null;
 
     for (const k in struct) {
       temp = struct[k];
       if (info[k] !== undefined) {
         if (typeof temp.allowUpdate === 'undefined' || temp.allowUpdate) {
-          obj[k] = info[k];
+          doc[k] = info[k];
         }
       }
     }
 
-    const err = validation(obj, struct);
-    return { err, doc: obj };
+    const err = validation(doc, struct);
+    return { err, doc };
   }
 
   getUniqueFields() {
     const struct = this.struct;
     const uniqueFields = {};
     let hasUniqueFields = false;
+
     for (const k in struct) {
       if (struct[k].unique) {
         uniqueFields[k] = 1;
@@ -127,22 +129,26 @@ class DB {
   }
 
   assignMany(infos) {
-    const newInfos = [];
+    const docs = [];
     let err = null;
+
     for (let i = 0, len = infos.length; i < len; i++) {
       const result = this.assign(infos[i]);
+
       if (result.err) {
         err = result.err;
         break;
       }
-      newInfos.push(result.doc);
+
+      docs.push(result.doc);
     }
-    return { err, docs: newInfos };
+    return { err, docs };
   }
 
   updateAssignMany(infos) {
     const newInfos = [];
     let err = null;
+
     for (let i = 0, len = infos.length; i < len; i++) {
       const result = this.updateAssign(infos[i]);
       if (result.err) {
@@ -151,61 +157,13 @@ class DB {
       }
       newInfos.push(result.doc);
     }
+
     return { err, docs: newInfos };
-  }
-
-  checkUniqueMany(infos, cb) {
-    const uniqueFields = this.getUniqueFields();
-    const query = {};
-    const queryOrArr = [];
-    if (!uniqueFields) {
-      return cb && cb(null, infos);
-    }
-    for (let i = 0, len = infos.length; i < len; i++) {
-      const info = infos[i];
-      const items = [];
-      const q = {};
-
-      for (const k in uniqueFields) {
-        if (info[k] !== undefined) {
-          const temp = {};
-          temp[k] = info[k];
-          items.push(temp);
-        }
-      }
-
-      if (items.length) {
-        q.$or = items;
-        queryOrArr.push(q);
-      }
-    }
-
-    if (!queryOrArr.length) {
-      return cb && cb(null);
-    }
-
-
-    query.$or = queryOrArr;
-
-    this.collection.findOne(query, { fields: uniqueFields }, (err, doc) => {
-      if (err) {
-        return cb && cb(i18n.t('databaseError'));
-      }
-
-      if (!doc) {
-        return cb && cb(null, doc);
-      }
-
-      for (const k in uniqueFields) {
-        if (doc[k] === doc[k]) {
-          return cb && cb(i18n.t('uniqueError', { field: k, value: doc[k] }));
-        }
-      }
-    });
   }
 
   insertOne(info, cb) {
     const result = this.assign(info);
+
     if (result.err) {
       return cb & cb(result.err);
     }
@@ -218,122 +176,174 @@ class DB {
         return cb && cb(err);
       }
 
-      me.collection.insertOne(doc, (err) => {
+      me.collection.insertOne(doc, (err, r) => {
         if (err) {
           return cb && cb(i18n.t('databaseError'));
         }
 
-        return cb && cb(null);
+        return cb && cb(null, r);
       });
     });
   }
 
   insertMany(infos, cb) {
     const result = this.assignMany(infos);
+
     if (result.err) {
       return cb & cb(result.err);
     }
 
-    const docs = result.docs;
     const me = this;
+    const docs = result.docs;
 
-    this.checkUniqueMany(docs, false, (err) => {
+    this.checkUnique(docs, false, (err) => {
       if (err) {
         return cb && cb(err);
       }
 
-      me.collection.insertMany(docs, (err) => {
+      me.collection.insertMany(docs, (err, r) => {
         if (err) {
           return cb && cb(i18n.t('databaseError'));
         }
 
-        return cb && cb(null);
+        return cb && cb(null, r);
       });
     });
   }
 
   updateOne(query, info, cb) {
     const result = this.updateAssign(info);
+
     if (result.err) {
       return cb & cb(result.err);
     }
 
-    const doc = result.doc;
     const me = this;
+    const doc = result.doc;
 
     this.checkUnique(doc, true, (err) => {
       if (err) {
         return cb && cb(err);
       }
-      me.collection.updateOne(query, { $set: doc }, (err, doc) => {
+
+      me.collection.updateOne(query, { $set: doc }, (err, r) => {
         if (err) {
           return cb && cb(err);
         }
-        return cb && cb(null, doc);
+
+        return cb && cb(null, r);
       });
     });
   }
 
   updateMany(query, info, cb) {
     const result = this.updateAssign(info);
+
     if (result.err) {
       return cb & cb(result.err);
     }
 
-    const doc = result.doc;
     const me = this;
+    const doc = result.doc;
 
     this.checkUnique(doc, true, (err) => {
       if (err) {
         return cb && cb(err);
       }
-      me.collection.updateMany(query, { $set: doc }, (err) => {
+
+      me.collection.updateMany(query, { $set: doc }, (err, r) => {
         if (err) {
           return cb && cb(err);
         }
-        return cb && cb(null, {});
+
+        return cb && cb(null, r);
       });
     });
   }
 
-  checkUnique(info, isUpdate = false, cb) {
+  checkUnique(infos, isUpdate = false, cb) {
     const uniqueFields = this.getUniqueFields();
+
     if (!uniqueFields) {
-      return cb && cb(null, info);
+      return cb && cb(null, infos);
     }
 
-    const queryOrArr = [];
-    const query = {};
+    let docs = [];
 
-    for (const k in uniqueFields) {
-      if (info[k] !== undefined) {
-        const temp = {};
-        temp[k] = info[k];
-        queryOrArr.push(temp);
+    if (infos.constructor !== Array) {
+      docs.push(infos);
+    }else {
+      docs = infos;
+    }
+
+    const q = {};
+    const query = { $or: [] };
+
+    for (let i = 0, len = docs.length; i < len; i++) {
+      const info = docs[i];
+
+      for(const attr in info) {
+        if(uniqueFields[attr]) {
+          if(!q[attr]) {
+            q[attr] = { $in: [] };
+          }
+          q[attr]['$in'].push(info.attr);
+        }
+
+        if(isUpdate && info.attr['_id']) {
+          if(!query._id) {
+            query._id = { $nin: [] };
+          }
+          query['_id']['$nin'].push(info.attr['_id']);
+        }
       }
     }
 
-    query.$or = queryOrArr;
-    if (isUpdate) {
+    if(!utils.isEmptyObject(q)) {
+      return cb && cb(null, infos);
+    }
+
+    for (const qk in q) {
+      const temp = {};
+      temp[qk] = q[qk];
+      query.$or.push(temp);
+    }
+
+    if(isUpdate) {
       query._id = { $ne: info._id };
     }
 
-    if (queryOrArr.length === 0) {
-      return cb && cb(null, info);
-    }
+    const whichFieldIsSame = function whichFieldIsSame(source, target, fields) {
+      for (const k in fields) {
+        if (source[k] === target[k]) {
+          return i18n.t('uniqueError', { field: k, value: target[k] });
+        }
+      }
 
-    this.collection.findOne(query, { fields: uniqueFields }, (err, doc) => {
+      return false;
+    };
+
+    this.collection.find(query).project(uniqueFields).toArray((err, findDocs) => {
       if (err) {
         return cb && cb(i18n.t('databaseError'));
       }
 
-      if (!doc) {
-        return cb && cb(null, info);
+      if (!findDocs || findDocs.length === 0) {
+        return cb && cb(null, findDocs);
       }
 
-      for (const k in uniqueFields) {
-        if (doc[k] === info[k]) {
-          return cb && cb(i18n.t('uniqueError', { field: k, value: info[k] }));
+      let findDoc = null;
+      let doc = null;
+      let flag = '';
+
+      for(let i = 0, len = findDocs.length; i < len; i++) {
+        findDoc = findDocs[i];
+        for(let j = 0, l = docs.length; j < l; j++) {
+          doc = docs[i];
+          flag = whichFieldIsSame(findDoc, doc, uniqueFields);
+          if(flag) {
+            return cb && cb(flag);
+          }
         }
       }
     });
