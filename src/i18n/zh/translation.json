@@ -15,34 +15,6 @@
     "code": "-1004",
     "message": "找不到用户"
   },
-  "addRoleNoName": {
-    "code": "-2001",
-    "message": "添加角色需要参数name"
-  },
-  "addRoleNoPermissions": {
-    "code": "-2002",
-    "message": "添加角色需要参数permissions"
-  },
-  "addRoleNameIsExist": {
-    "code": "-2003",
-    "message": "添加角色参数name已经存在了"
-  },
-  "updateRoleNoId": {
-    "code": "-2004",
-    "message": "更新角色需要参数_id"
-  },
-  "updateRoleNoName": {
-    "code": "-2011",
-    "message": "更新角色需要参数name"
-  },
-  "updateRoleNoPermissions": {
-    "code": "-2012",
-    "message": "更新角色需要参数permissions"
-  },
-  "updateRoleNameIsAlreadyExist": {
-    "code": "-2013",
-    "message": "更新角色参数name已经存在了"
-  },
   "getRoleNoId": {
     "code": "-2005",
     "message": "获取角色详情需要参数_id"

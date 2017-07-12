@@ -13,16 +13,16 @@ const cors = require('cors');
 const app = express();
 
 const corsOptions = {
-  origin: function (origin, callback) {
+  origin(origin, callback) {
     if (config.whitelist.indexOf(origin) !== -1) {
-      callback(null, true)
+      callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'))
+      callback(new Error('Not allowed by CORS'));
     }
-  }
-}
+  },
+};
 
-app.use(cors(corsOptions))
+app.use(cors(corsOptions));
 
 app.use(cookieParser());
 app.use(bodyParser.json()); // for parsing application/json

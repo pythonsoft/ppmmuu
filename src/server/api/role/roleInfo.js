@@ -55,6 +55,9 @@ class RoleInfo extends DB {
     };
 
     this.updateDoc = { name: 1, allowedPermissions: 1, deniedPermissions: 1, description: 1, detail: 1, modifyTime: 1 };
+    this.createNeedValidateFields = { _id: 1, name: 1};
+    this.updateNeedValidateFields = { _id: 1, name: 1 };
+    this.uniqueFields = { _id: 1, name: 1 };
   }
 }
 
