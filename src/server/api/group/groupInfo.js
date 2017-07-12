@@ -51,7 +51,7 @@ class GroupInfo extends DB {
     super(config.dbInstance.umpDB, 'GroupInfo');
 
     this.struct = {
-      _id: { type: 'string', default: '', validation: 'require', unique: true },
+      _id: { type: 'string', default: '', validation: 'require' },
       name: { type: 'string', default: '', validation: 'require', allowUpdate: true },
       logo: { type: 'string', default: '', allowUpdate: true },
       creator: { type: 'object', default: {} },
