@@ -198,7 +198,7 @@ const updateGroupDetail = function updateGroupDetail(id, updateDoc, cb) {
   });
 };
 
-service.updateGroup = function updateGroup(id, updateInfo, cb) {
+service.updateGroup = function updateGroup(id, updateDoc, cb) {
   if (!id) {
     return cb && cb(i18n.t('groupIdIsNull'));
   }

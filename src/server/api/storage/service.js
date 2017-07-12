@@ -159,7 +159,7 @@ service.deleteBucket = function deleteBucket(id, cb) {
 service.listPath = function listPath(bucketId, page, pageSize, sortFields, fieldsNeed, cb) {
   const q = {};
 
-  if(bucketId) {
+  if (bucketId) {
     if (bucketId.indexOf(',')) {
       q['bucket._id'] = { $in: utils.trim(bucketId.split(',')) };
     } else {
@@ -193,7 +193,7 @@ service.getPathDetail = function getPathDetail(pathId, cb) {
 };
 
 service.addPath = function addPath(bucketId, info, cb) {
-  if(!bucketId) {
+  if (!bucketId) {
     return cb && cb(i18n.t('pathIdIsNull'));
   }
 
@@ -203,11 +203,11 @@ service.addPath = function addPath(bucketId, info, cb) {
       return cb && cb(i18n.t('databaseError'));
     }
 
-    if(!doc) {
+    if (!doc) {
       return cb && cb(i18n.t('bucketInfoIsNull'));
     }
 
-    if(utils.isEmptyObject(info)) {
+    if (utils.isEmptyObject(info)) {
       return cb && cb(i18n.t('PathInfoIsNull'));
     }
 
@@ -230,7 +230,7 @@ service.addPath = function addPath(bucketId, info, cb) {
     }
 
     if (!info.modifyTime) {
-      info.modifyTime = time
+      info.modifyTime = time;
     }
 
     info.bucket = { _id: doc._id, name: doc.name };

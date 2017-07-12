@@ -67,18 +67,18 @@ const utils = require('../../common/utils');
 class UserInfo extends DB {
   constructor() {
     super(config.dbInstance.umpDB, 'UserInfo');
-    
-    this.struct = { 
+
+    this.struct = {
       _id: { type: 'string', default: '', validation: utils.checkEmail, unique: true, allowUpdate: true },
       name: { type: 'string', default: '', validation: 'require', allowUpdate: true, unique: true },
       displayName: { type: 'string', default: '', allowUpdate: true, unique: true },
       password: { type: 'string', default: '', validation: utils.checkPassword, allowUpdate: true },
       title: { type: 'string', default: '', allowUpdate: true },
       verifyType: { type: 'string', default: UserInfo.VERIFY_TYPE.PASSWORD, allowUpdate: true },
-      company: { type: 'object', default: {_id: '', name: '' }, allowUpdate: true },
-      department: { type: 'object', default: {_id: '', name: '' }, allowUpdate: true },
-      team: { type: 'object', default: {_id: '', name: '' }, allowUpdate: true },
-      createdTime: { type: 'date', default: function() { return new Date() }, allowUpdate: true },
+      company: { type: 'object', default: { _id: '', name: '' }, allowUpdate: true },
+      department: { type: 'object', default: { _id: '', name: '' }, allowUpdate: true },
+      team: { type: 'object', default: { _id: '', name: '' }, allowUpdate: true },
+      createdTime: { type: 'date', default() { return new Date(); }, allowUpdate: true },
       description: { type: 'string', default: '', allowUpdate: true },
       employeeId: { type: 'string', default: '', allowUpdate: true },
       email: { type: 'string', default: '', validation: utils.checkEmail, unique: true, allowUpdate: true },
@@ -86,7 +86,7 @@ class UserInfo extends DB {
       photo: { type: 'string', default: '', allowUpdate: true },
       status: { type: 'string', default: UserInfo.STATUS.NORMAL, allowUpdate: true },
       detail: { type: 'object', default: {}, allowUpdate: true },
-    }
+    };
   }
 
   getUserInfo(_id, fields, cb) {

@@ -30,13 +30,13 @@ class ConfigurationInfo extends DB {
     super(config.dbInstance.umpDB, 'ConfigurationInfo');
 
     this.doc = {
-      _id: { type: 'string', default: '', validation: 'require', allowUpdate: true},
-      createdTime: { type: 'date'},
-      updatedTime: { type: 'date', allowUpdate: true},
-      key: { type: 'string', allowUpdate: true, unique: true},
-      value: { type: 'string', allowUpdate: true},
-      description: { type: 'string', allowUpdate: true},
-      genre: { type: 'string', allowUpdate: true},
+      _id: { type: 'string', default: '', validation: 'require', allowUpdate: true },
+      createdTime: { type: 'date' },
+      updatedTime: { type: 'date', allowUpdate: true },
+      key: { type: 'string', allowUpdate: true, unique: true },
+      value: { type: 'string', allowUpdate: true },
+      description: { type: 'string', allowUpdate: true },
+      genre: { type: 'string', allowUpdate: true },
     };
 
     this.updateDoc = this.doc;

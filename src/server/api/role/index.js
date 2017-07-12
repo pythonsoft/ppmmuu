@@ -10,7 +10,7 @@ const router = express.Router();
 
 const result = require('../../common/result');
 
-const isLogin = require('../../middleware/login');
+// const isLogin = require('../../middleware/login');
 
 // router.use(isLogin.middleware);
 // router.use(isLogin.hasAccessMiddleware);
@@ -501,7 +501,7 @@ router.post('/enablePermission', (req, res) => {
  */
 router.get('/getUserOrDepartmentRoleAndPermissions', (req, res) => {
   const _id = req.query._id || '';
-   
+
 
   service.getUserOrDepartmentRoleAndPermissions(_id, (err, r) => {
     res.json(result.json(err, r));

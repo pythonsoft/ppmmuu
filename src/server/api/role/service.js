@@ -5,8 +5,7 @@
 'use strict';
 
 const logger = require('../../common/log')('error');
-const uuid = require('uuid');
-const utils = require('../../common/utils');
+
 const i18n = require('i18next');
 
 const AssignPermission = require('./permissionAssignmentInfo');
@@ -20,10 +19,6 @@ const roleInfo = new RoleInfo();
 const PermissionInfo = require('./permissionInfo');
 
 const permissionInfo = new PermissionInfo();
-
-const config = require('../../config');
-
-const redisClient = config.redisClient;
 
 const groupService = require('../group/service');
 
@@ -61,23 +56,23 @@ service.getRoleDetail = function getRoleDetail(id, cb) {
 };
 
 service.addRole = function addRole(_roleInfo, cb) {
-  roleInfo.insertOne(_roleInfo, function(err){
-    if(err){
+  roleInfo.insertOne(_roleInfo, (err) => {
+    if (err) {
       return cb && cb(err);
     }
-    
+
     return cb && cb(null, {});
-  })
+  });
 };
 
 service.updateRole = function updateRole(_roleInfo, cb) {
-  roleInfo.updateOne({_id: _roleInfo._id}, _roleInfo, function(err, doc){
-    if(err){
+  roleInfo.updateOne({ _id: _roleInfo._id }, _roleInfo, (err, doc) => {
+    if (err) {
       return cb && cb(err);
     }
-    
+
     return cb && cb(null, doc);
-  })
+  });
 };
 
 service.deleteRoles = function deleteRoles(ids, cb) {
@@ -96,13 +91,13 @@ service.deleteRoles = function deleteRoles(ids, cb) {
 };
 
 service.assignRole = function assignRole(updateDoc, cb) {
-  assignPermission.udpateOne({_id: updateDoc._id}, updateDoc, function(err, doc){
-    if(err){
+  assignPermission.udpateOne({ _id: updateDoc._id }, updateDoc, (err, doc) => {
+    if (err) {
       return cb && cb(err);
     }
-    
+
     return cb && cb(null, doc);
-  })
+  });
 };
 
 const listPermission = function listPermission(q, page, pageSize, sortFields, fieldsNeed, cb) {
@@ -350,7 +345,7 @@ service.enablePermission = function enablePermission(info, cb) {
   }
 
   _ids = _ids.split(',');
-  permissionInfo.collection.updateMany({ _id: { $in: _ids } }, { $set: { status } }, (err, r) => {
+  permissionInfo.collection.updateMany({ _id: { $in: _ids } }, { $set: { status } }, (err) => {
     if (err) {
       return cb && cb(err);
     }

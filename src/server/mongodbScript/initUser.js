@@ -16,7 +16,7 @@ const assignPermission = new AssignPermission();
 const email = 'xuyawen@phoenixtv.com';
 
 
-const user =  {
+const user = {
   _id: email,
   name: 'xuyawen',
   status: 0,
@@ -24,27 +24,26 @@ const user =  {
   createdAt: new Date(),
 };
 
-userInfo.insertOne(user, function(err){
-  if(err){
+userInfo.insertOne(user, (err) => {
+  if (err) {
     console.log(err);
   }
-  
 });
 
 
 const role = { allowedPermissions: ['all'], _id: 'admin', name: 'admin' };
-roleInfo.insertOne(role, function(err){
-  if(err){
+roleInfo.insertOne(role, (err) => {
+  if (err) {
     console.log(err);
   }
   const info = {
     _id: email,
     roles: ['admin'],
   };
-  assignPermission.insertOne(info, function(err){
-    if(err){
+  assignPermission.insertOne(info, (err) => {
+    if (err) {
       console.log(err);
     }
-  })
-})
+  });
+});
 

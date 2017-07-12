@@ -45,13 +45,13 @@ class RoleInfo extends DB {
     this.struct = {
       _id: { type: String, default: '', validation: 'require', unique: true },
       name: { type: String, default: '', validation: 'require', unique: true, allowUpdate: true },
-      creator: { type: Object, default: {_id: '', name: ''} },
-      allowedPermissions: { type: Array, default: [],  allowUpdate: true }, // PermissionInfo path
-      deniedPermissions: { type: Array, default: [],  allowUpdate: true }, // PermissionInfo path
-      createdTime: { type: Date, default: function() { return new Date()}},
-      modifyTime: { type: Date, default: function() { return new Date()}, allowUpdate: true},
-      description: { type: String, default: '', allowUpdate: true},
-      detail: { type: Object, default: {}, allowUpdate: true},
+      creator: { type: Object, default: { _id: '', name: '' } },
+      allowedPermissions: { type: Array, default: [], allowUpdate: true }, // PermissionInfo path
+      deniedPermissions: { type: Array, default: [], allowUpdate: true }, // PermissionInfo path
+      createdTime: { type: Date, default() { return new Date(); } },
+      modifyTime: { type: Date, default() { return new Date(); }, allowUpdate: true },
+      description: { type: String, default: '', allowUpdate: true },
+      detail: { type: Object, default: {}, allowUpdate: true },
     };
   }
 }

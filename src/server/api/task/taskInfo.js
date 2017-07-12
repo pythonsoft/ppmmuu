@@ -52,25 +52,27 @@ class TaskInfo extends DB {
 
     this.struct = {
       _id: { type: 'string', default: '', validation: 'require', unique: true },
-      target: { type: 'object', default: {
-        _id: '',
-        name: '',
-        type: '',
-      }},
-      creator: { type: 'object', default: {
-        _id: '',
-        name: '',
-        type: TaskInfo.CREATOR_TYPE.USER,
-      }},
-      category: { type: 'string', default: '', allowUpdate: true},
-      command: { type: 'string', default: '', allowUpdate: true},
-      parentId: { type: 'string', default: '', allowUpdate: true}, // 父结点
-      status: { type: 'string', default: TaskInfo.STATUS.READY, allowUpdate: true},
-      progress: { type: 'string', default: '0', allowUpdate: true},
-      createdTime: { type: 'date', default: function(){ return new Date()}},
-      modifyTime: { type: 'date', default: function(){ return new Date()}, allowUpdate: true},
-      message: { type: 'string', default: '0', allowUpdate: true},
-      details: { type: 'object', default: {}, allowUpdate: true},
+      target: { type: 'object',
+        default: {
+          _id: '',
+          name: '',
+          type: '',
+        } },
+      creator: { type: 'object',
+        default: {
+          _id: '',
+          name: '',
+          type: TaskInfo.CREATOR_TYPE.USER,
+        } },
+      category: { type: 'string', default: '', allowUpdate: true },
+      command: { type: 'string', default: '', allowUpdate: true },
+      parentId: { type: 'string', default: '', allowUpdate: true }, // 父结点
+      status: { type: 'string', default: TaskInfo.STATUS.READY, allowUpdate: true },
+      progress: { type: 'string', default: '0', allowUpdate: true },
+      createdTime: { type: 'date', default() { return new Date(); } },
+      modifyTime: { type: 'date', default() { return new Date(); }, allowUpdate: true },
+      message: { type: 'string', default: '0', allowUpdate: true },
+      details: { type: 'object', default: {}, allowUpdate: true },
     };
   }
 
