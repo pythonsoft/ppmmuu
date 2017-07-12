@@ -58,9 +58,8 @@ const defaultValue = {
 };
 
 class DB {
-  constructor(dbInstance, collectionName, struct) {
+  constructor(dbInstance, collectionName) {
     this.collection = dbInstance.collection(collectionName);
-    this.struct = struct;
     this.checkUnique = this.checkUnique.bind(this);
   }
 
