@@ -45,6 +45,16 @@ const validation = function validation(info, struct) {
   return null;
 };
 
+const whichFieldIsSame = function whichFieldIsSame(source, target, fields) {
+  for (const k in fields) {
+    if (source[k] === target[k]) {
+      return i18n.t('uniqueError', { field: k, value: target[k] });
+    }
+  }
+
+  return false;
+};
+
 const defaultValue = {
   String: '',
   Array: [],
@@ -311,16 +321,6 @@ class DB {
       query.$or.push(temp);
     }
 
-    const whichFieldIsSame = function whichFieldIsSame(source, target, fields) {
-      for (const k in fields) {
-        if (source[k] === target[k]) {
-          return i18n.t('uniqueError', { field: k, value: target[k] });
-        }
-      }
-
-      return false;
-    };
-
     this.collection.find(query).project(uniqueFields).toArray((err, findDocs) => {
       if (err) {
         return cb && cb(i18n.t('databaseError'));
@@ -344,6 +344,8 @@ class DB {
           }
         }
       }
+
+      return cb && cb(null);
     });
   }
 

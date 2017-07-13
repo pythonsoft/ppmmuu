@@ -58,7 +58,7 @@ class GroupInfo extends DB {
         _id: '',
         name: ''
       }, allowUpdate: false },
-      parentId: { type: 'string', default: '' },
+      parentId: { type: 'string', default: '', validation: 'require' },
       contact: { type: 'object',
         default: {
           _id: '',
@@ -89,14 +89,6 @@ class GroupInfo extends DB {
     };
   }
 
-  validateType(type = '') {
-    for (const key in GroupInfo.TYPE) {
-      if (GroupInfo.TYPE[key] === type) {
-        return true;
-      }
-    }
-    return false;
-  }
 }
 
 GroupInfo.TYPE = {

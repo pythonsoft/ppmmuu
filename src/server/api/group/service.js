@@ -117,14 +117,6 @@ service.getGroup = function getGroup(id, cb) {
 };
 
 service.addGroup = function addGroup(parentId, creatorId, creatorName, info, cb) {
-  if (!groupInfo.validateType(info.type)) {
-    return cb && cb(i18n.t('groupTypeIsUnValidate'));
-  }
-
-  if (!info.name) {
-    return cb && cb(i18n.t('groupNameIsNull'));
-  }
-
   if (!parentId && info.type !== GroupInfo.TYPE.COMPANY) {
     return cb && cb(i18n.t('groupIdIsNull'));
   }
