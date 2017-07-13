@@ -47,19 +47,19 @@ service.getRoleDetail = function getRoleDetail(id, cb) {
     return cb && cb(i18n.t('getRoleNoId'));
   }
 
-  const getPermissions = function getPermissions(arr, callback){
-    if(!arr || arr.length === 0){
+  const getPermissions = function getPermissions(arr, callback) {
+    if (!arr || arr.length === 0) {
       return callback && callback(null, []);
     }
-    permissionInfo.collection.find({path : {$in:  arr}}).toArray(function(err, docs){
-      if(err){
+    permissionInfo.collection.find({ path: { $in: arr } }).toArray((err, docs) => {
+      if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
 
       return callback && callback(null, docs);
-    })
-  }
+    });
+  };
 
   roleInfo.collection.findOne({ _id: id }, (err, doc) => {
     if (err) {
@@ -67,20 +67,20 @@ service.getRoleDetail = function getRoleDetail(id, cb) {
       return cb && cb(i18n.t('databaseError'));
     }
 
-    if(!doc){
+    if (!doc) {
       return cb && cb(i18n.t('canNotFindRole'));
     }
 
     const allowedPermissions = doc.allowedPermissions || [];
     const deniedPermissions = doc.deniedPermissions || [];
 
-    getPermissions(allowedPermissions, function(err, docs){
-      if(err){
+    getPermissions(allowedPermissions, (err, docs) => {
+      if (err) {
         return cb && cb(err);
       }
       doc.allowedPermissions = docs;
 
-      getPermissions(allowedPermissions, function(err, docs) {
+      getPermissions(deniedPermissions, (err, docs) => {
         if (err) {
           return cb && cb(err);
         }
@@ -89,7 +89,7 @@ service.getRoleDetail = function getRoleDetail(id, cb) {
 
         return cb && cb(null, doc);
       });
-    })
+    });
   });
 };
 

@@ -57,10 +57,12 @@ class GroupInfo extends DB {
       _id: { type: 'string' },
       name: { type: 'string', validation: 'require' },
       logo: { type: 'string' },
-      creator: { type: 'object', default: {
-        _id: '',
-        name: ''
-      }, allowUpdate: false },
+      creator: { type: 'object',
+        default: {
+          _id: '',
+          name: '',
+        },
+        allowUpdate: false },
       parentId: { type: 'string', default: '', validation: 'require' },
       contact: { type: 'object',
         default: {
@@ -69,17 +71,19 @@ class GroupInfo extends DB {
           phone: '',
           email: '',
         } },
-      memberCount: { type: 'number'},
+      memberCount: { type: 'number' },
       ad: { type: 'string' }, // 域控设置
       type: { type: 'string', default: GroupInfo.TYPE.COMPANY, validation: function(v) {
         return utils.isValueInObject(v, GroupInfo.TYPE);
       }},
       createdTime: { type: 'date', allowUpdate: false },
-      modifyTime: { type: 'date'},
+      modifyTime: { type: 'date' },
       description: { type: 'string' },
-      deleteDeny: { type: 'string', default: GroupInfo.DELETE_DENY.YES, validation: function(v) {
-        return GroupInfo.DELETE_DENY.YES === v || GroupInfo.DELETE_DENY.NO === v;
-      }}, // 删除保护，创建后默认为保护状态
+      deleteDeny: { type: 'string',
+        default: GroupInfo.DELETE_DENY.YES,
+        validation(v) {
+          return GroupInfo.DELETE_DENY.YES === v || GroupInfo.DELETE_DENY.NO === v;
+        } }, // 删除保护，创建后默认为保护状态
       detail: { type: 'object' },
     };
   }

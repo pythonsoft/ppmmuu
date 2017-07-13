@@ -202,9 +202,5 @@
   "fieldIsNotExistError": {
     "code": "-10004",
     "message": "{{field}} 字段不在实体类中，无法进行存取操作"
-  },
-  "uniqueError": {
-    "code": "-10005",
-    "message": "{{field}} 已经被使用了"
   }
 }
