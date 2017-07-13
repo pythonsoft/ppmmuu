@@ -6,6 +6,7 @@
 
 const DB = require('../../common/db');
 const config = require('../../config');
+const utils = require('../../common/utils');
 
 /**
  * @swagger
@@ -48,8 +49,9 @@ const config = require('../../config');
  */
 class GroupInfo extends DB {
   constructor() {
-    const indexes = [{ key: { name: 1, type: 1, parentId: 1 }, unique: true }];
-    super(config.dbInstance.umpDB, 'GroupInfo', indexes);
+    super(config.dbInstance.umpDB, 'GroupInfo', [
+      { key: {name: 1, type: 1, parentId: 1}, unique: true }
+    ]);
 
     this.struct = {
       _id: { type: 'string' },
@@ -71,18 +73,9 @@ class GroupInfo extends DB {
         } },
       memberCount: { type: 'number' },
       ad: { type: 'string' }, // 域控设置
-      type: { type: 'string',
-        default: GroupInfo.TYPE.COMPANY,
-        validation(v) {
-          let flag = false;
-          for (const key in GroupInfo.TYPE) {
-            if (GroupInfo.TYPE[key] === v) {
-              flag = true;
-              break;
-            }
-          }
-          return flag;
-        } },
+      type: { type: 'string', default: GroupInfo.TYPE.COMPANY, validation: function(v) {
+        return utils.isValueInObject(v, GroupInfo.TYPE);
+      }},
       createdTime: { type: 'date', allowUpdate: false },
       modifyTime: { type: 'date' },
       description: { type: 'string' },

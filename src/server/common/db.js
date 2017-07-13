@@ -125,25 +125,6 @@ class DB {
     return { err, doc };
   }
 
-  getUniqueFields() {
-    const struct = this.struct;
-    const uniqueFields = {};
-    let hasUniqueFields = false;
-
-    for (const k in struct) {
-      if (struct[k].unique) {
-        uniqueFields[k] = 1;
-        hasUniqueFields = true;
-      }
-    }
-
-    if (!hasUniqueFields) {
-      return null;
-    }
-
-    return uniqueFields;
-  }
-
   assignMany(infos) {
     const docs = [];
     let err = null;

@@ -35,9 +35,11 @@ class BucketInfo extends DB {
     super(config.dbInstance.umpDB, 'BucketInfo');
 
     this.doc = {
-      _id: '',
-      name: '',
-      type: BucketInfo.TYPE.STANDARD,
+      _id: { type: 'string' },
+      name: { type: 'string' },
+      type: { type: 'string', default: BucketInfo.TYPE.STANDARD, validation: function (v) {
+
+      }},
       permission: BucketInfo.PERMISSION.PUBLIC_READ_WRITE,
       creator: { _id: '', name: '' },
       status: BucketInfo.STATUS.NORMAL,

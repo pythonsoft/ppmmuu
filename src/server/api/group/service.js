@@ -42,7 +42,7 @@ service.listGroup = function listGroup(parentId, type, page, pageSize, cb) {
   });
 };
 
-service.listAllChildGroup = function listAllChildGroupfunction(id, fields, cb) {
+service.listAllChildGroup = function listAllChildGroup(id, fields, cb) {
   let groups = [];
 
   fields = utils.formatSortOrFieldsParams(fields);
@@ -76,10 +76,10 @@ service.listAllChildGroup = function listAllChildGroupfunction(id, fields, cb) {
 
 service.listAllParentGroup = function listAllParentGroup(parentId, fields, cb) {
   let groups = [];
-  fields = utils.formatFields(fields);
+  fields = fields ? { fields: utils.formatSortOrFieldsParams(fields) } : null;
 
   const listGroup = function listGroup(parentId) {
-    groupInfo.collection.findOne({ _id: parentId }, (err, doc) => {
+    groupInfo.collection.findOne({ _id: parentId }, fields,  (err, doc) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));

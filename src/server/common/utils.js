@@ -166,4 +166,15 @@ utils.clone = function clone(origin) {
   return JSON.parse(JSON.stringify(origin));
 };
 
+utils.isValueInObject = function isValueInObject(val, obj) {
+  let flag = false;
+  for (const k in obj) {
+    if (obj[k] === val) {
+      flag = true;
+      break;
+    }
+  }
+  return flag;
+};
+
 module.exports = utils;
