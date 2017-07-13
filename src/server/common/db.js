@@ -273,7 +273,9 @@ class DB {
     if (infos.constructor !== Array) {
       docs.push(infos);
     }else {
-      docs = infos;
+      const temp = [];
+      temp.push(infos);
+      docs = temp;
     }
 
     const q = {};
@@ -287,15 +289,15 @@ class DB {
           if(!q[attr]) {
             q[attr] = { $in: [] };
           }
-          q[attr]['$in'].push(info.attr);
+          q[attr]['$in'].push(info[attr]);
         }
+      }
 
-        if(isUpdate && info.attr['_id']) {
-          if(!query._id) {
-            query._id = { $nin: [] };
-          }
-          query['_id']['$nin'].push(info.attr['_id']);
+      if(isUpdate && info['_id']) {
+        if(!query._id) {
+          query._id = { $nin: [] };
         }
+        query['_id']['$nin'].push(info['_id']);
       }
     }
 
@@ -307,10 +309,6 @@ class DB {
       const temp = {};
       temp[qk] = q[qk];
       query.$or.push(temp);
-    }
-
-    if(isUpdate) {
-      query._id = { $ne: info._id };
     }
 
     const whichFieldIsSame = function whichFieldIsSame(source, target, fields) {
