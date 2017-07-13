@@ -27,9 +27,11 @@ const service = {};
 /* role */
 service.listRole = function listRole(page, pageSize, keyword, cb) {
   const query = {};
+
   if (keyword) {
     query.$or = [{ _id: { $regex: keyword, $options: 'i' } }, { name: { $regex: keyword, $options: 'i' } }];
   }
+
   roleInfo.pagination(query, page, pageSize, (err, docs) => {
     if (err) {
       logger.error(err.message);

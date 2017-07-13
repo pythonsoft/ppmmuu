@@ -206,5 +206,5 @@
   "uniqueError": {
     "code": "-10005",
     "message": "{{field}} 已经被使用了"
-  }
+  },
 }
