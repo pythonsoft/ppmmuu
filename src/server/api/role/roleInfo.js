@@ -40,7 +40,8 @@ const config = require('../../config');
  */
 class RoleInfo extends DB {
   constructor() {
-    super(config.dbInstance.umpDB, 'RoleInfo');
+    const indexes = [{ key:{name: 1}, unique: true }];
+    super(config.dbInstance.umpDB, 'RoleInfo', indexes);
 
     this.struct = {
       _id: { type: String, default: '', validation: 'require', unique: true},
