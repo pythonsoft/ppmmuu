@@ -33,14 +33,15 @@ const config = require('../../config');
  */
 class PermissionInfo extends DB {
   constructor() {
-    super(config.dbInstance.umpDB, 'PermissionInfo');
+    const indexes = [{ key:{name: 1}, unique: true }, { key:{path: 1}, unique: true }];
+    super(config.dbInstance.umpDB, 'PermissionInfo', indexes);
 
     this.struct = {
-      _id: { type: String, default: '', validation: 'require', unique: true },
-      name: { type: String, default: '', validation: 'require', unique: true },
-      path: { type: String, default: '', validation: 'require', unique: true },
-      creator: { type: Object, default: {} },
-      createdTime: { type: Date, default() { return new Date(); } },
+      _id: { type: String, default: '', validation: 'require', unique: true},
+      name: { type: String, default: '', validation: 'require', unique: true, allowUpdate: false },
+      path: { type: String, default: '', validation: 'require', unique: true, allowUpdate: false },
+      creator: { type: Object, default: {}, allowUpdate: false },
+      createdTime: { type: Date, default() { return new Date(); }, allowUpdate: false },
       modifyTime: { type: Date, default() { return new Date(); }, allowUpdate: true },
       description: { type: String, default: '', allowUpdate: true },
       detail: { type: Object, default: {}, allowUpdate: true },

@@ -40,7 +40,7 @@ class PermissionAssignmentInfo extends DB {
       roles: { type: 'array', default: [], allowUpdate: true },
       allowedPermissions: { type: 'array', default: [], allowUpdate: true }, // 允许权限
       deniedPermissions: { type: 'array', default: [], allowUpdate: true }, // 拒绝权限
-      createdTime: { type: 'date', default() { return new Date(); } },
+      createdTime: { type: 'date', default() { return new Date(); }, allowUpdate: false },
       modifyTime: { type: 'date', default() { return new Date(); }, allowUpdate: true },
     };
   }
