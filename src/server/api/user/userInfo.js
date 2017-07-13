@@ -67,28 +67,27 @@ const uuid = require('uuid');
  */
 class UserInfo extends DB {
   constructor() {
-
-    const indexes = [{ key:{name: 1}, unique: true },{ key: { email: 1}, unique: true}, { key: {phone: 1}, unique: true}];
+    const indexes = [{ key: { name: 1 }, unique: true }, { key: { email: 1 }, unique: true }, { key: { phone: 1 }, unique: true }];
     super(config.dbInstance.umpDB, 'UserInfo', indexes);
 
     this.struct = {
-      _id: { type: 'string', default(){ return uuid.v1() }, validation: 'require'},
-      name: { type: 'string', validation: 'require'},
+      _id: { type: 'string', default() { return uuid.v1(); }, validation: 'require' },
+      name: { type: 'string', validation: 'require' },
       displayName: { type: 'string' },
-      password: { type: 'string', validation: utils.checkPassword},
+      password: { type: 'string' },
       title: { type: 'string', default: '', allowUpdate: true },
       verifyType: { type: 'string', default: UserInfo.VERIFY_TYPE.PASSWORD },
-      company: { type: 'object', default: { _id: '', name: '' }},
-      department: { type: 'object', default: { _id: '', name: '' }},
+      company: { type: 'object', default: { _id: '', name: '' } },
+      department: { type: 'object', default: { _id: '', name: '' } },
       team: { type: 'object', default: { _id: '', name: '' } },
-      createdTime: { type: 'date'},
-      description: { type: 'string'},
-      employeeId: { type: 'string'},
+      createdTime: { type: 'date' },
+      description: { type: 'string' },
+      employeeId: { type: 'string' },
       email: { type: 'string', validation: utils.checkEmail },
       phone: { type: 'string', validation: utils.checkPhone },
-      photo: { type: 'string'},
-      status: { type: 'string', default: UserInfo.STATUS.NORMAL},
-      detail: { type: 'object'},
+      photo: { type: 'string' },
+      status: { type: 'string', default: UserInfo.STATUS.NORMAL },
+      detail: { type: 'object' },
     };
   }
 

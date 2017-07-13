@@ -17,9 +17,10 @@ const email = 'xuyawen@phoenixtv.com';
 
 
 const user = {
-  _id: email,
+  email,
+  phone: '13578988788',
   name: 'xuyawen',
-  status: 0,
+  status: '0',
   password: utils.cipher('123123', config.KEY),
   createdAt: new Date(),
 };
@@ -28,21 +29,32 @@ userInfo.insertOne(user, (err) => {
   if (err) {
     console.log(err);
   }
-});
 
-
-const role = { allowedPermissions: ['all'], _id: 'admin', name: 'admin' };
-roleInfo.insertOne(role, (err) => {
-  if (err) {
-    console.log(err);
-  }
-  const info = {
-    _id: email,
-    roles: ['admin'],
-  };
-  assignPermission.insertOne(info, (err) => {
+  userInfo.collection.findOne({ email }, (err, doc) => {
     if (err) {
       console.log(err);
+    }
+
+    if (!doc) {
+      console.log('没有创建初始账户');
+    } else {
+      const userId = doc._id;
+      const role = { allowedPermissions: ['all'], _id: 'admin', name: 'admin' };
+      roleInfo.insertOne(role, (err) => {
+        if (err) {
+          console.log(err);
+        }
+        const info = {
+          _id: userId,
+          type: AssignPermission.TYPE.USER,
+          roles: ['admin'],
+        };
+        assignPermission.insertOne(info, (err) => {
+          if (err) {
+            console.log(err);
+          }
+        });
+      });
     }
   });
 });

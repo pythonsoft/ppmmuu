@@ -56,16 +56,6 @@ const validation = function validation(info, struct) {
   return null;
 };
 
-const whichFieldIsSame = function whichFieldIsSame(source, target, fields) {
-  for (const k in fields) {
-    if (source[k] === target[k]) {
-      return i18n.t('uniqueError', { field: k, value: target[k] });
-    }
-  }
-
-  return false;
-};
-
 const defaultValue = {
   string: '',
   array: [],
@@ -80,10 +70,10 @@ class DB {
     this.collection = dbInstance.collection(collectionName);
     this.struct = {};
 
-    if(indexes){
+    if (indexes) {
       try {
         this.collection.createIndexes(indexes);
-      }catch(e){
+      } catch (e) {
         logger.error(e.message);
       }
     }
@@ -123,17 +113,14 @@ class DB {
   updateAssign(info) {
     const struct = this.struct;
     const doc = {};
-    let temp = null;
-
     for (const k in info) {
       const temp = struct[k];
       if (temp !== undefined) {
-        if (getValueType(temp.allowUpdate) === 'undefined' || temp.allowUpdate ) {
+        if (getValueType(temp.allowUpdate) === 'undefined' || temp.allowUpdate) {
           doc[k] = info[k];
         }
       }
     }
-
     const err = validation(doc, struct);
     return { err, doc };
   }
