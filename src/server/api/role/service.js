@@ -80,7 +80,7 @@ service.getRoleDetail = function getRoleDetail(id, cb) {
       }
       doc.allowedPermissions = docs;
 
-      getPermissions(allowedPermissions, function(err, docs) {
+      getPermissions(deniedPermissions, function(err, docs) {
         if (err) {
           return cb && cb(err);
         }

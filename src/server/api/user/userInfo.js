@@ -8,6 +8,7 @@ const DB = require('../../common/db');
 const config = require('../../config');
 const i18n = require('i18next');
 const utils = require('../../common/utils');
+const uuid = require('uuid');
 
 /**
  * @swagger
@@ -71,7 +72,7 @@ class UserInfo extends DB {
     super(config.dbInstance.umpDB, 'UserInfo', indexes);
 
     this.struct = {
-      _id: { type: 'string', validation: utils.checkEmail},
+      _id: { type: 'string', default(){ return uuid.v1() }, validation: 'require'},
       name: { type: 'string', validation: 'require'},
       displayName: { type: 'string' },
       password: { type: 'string', validation: utils.checkPassword},

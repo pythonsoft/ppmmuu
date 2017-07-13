@@ -366,8 +366,7 @@ service.addGroupUser = function addGroupUser(info, cb) {
   if (err) {
     return cb && cb(err);
   }
-
-  info._id = info.email;
+  
   info.password = utils.cipher(info.password, config.KEY);
   _ids.push(info.companyId);
 
