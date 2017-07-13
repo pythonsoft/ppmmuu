@@ -37,6 +37,7 @@ class PermissionAssignmentInfo extends DB {
 
     this.struct = {
       _id: { type: 'string', validation: 'require', allowUpdate: false }, // userId or departmentId or teamId
+      type: {type: 'string', validation: 'require', allowUpdate: false},
       roles: { type: 'array' },
       allowedPermissions: { type: 'array'}, // 允许权限
       deniedPermissions: { type: 'array'}, // 拒绝权限
@@ -44,6 +45,12 @@ class PermissionAssignmentInfo extends DB {
       modifyTime: { type: 'date'},
     };
   }
+}
+
+PermissionAssignmentInfo.TYPE = {
+  USER: '0',
+  DEPARTMENT: '1',
+  TEAM: '2'
 }
 
 module.exports = PermissionAssignmentInfo;
