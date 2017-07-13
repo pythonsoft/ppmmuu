@@ -107,11 +107,40 @@ service.updateConfig = function updateConfig(id, o = {}, cb) {
   });
 };
 
-service.listConfigGroup = function listConfigGroup(cb) {
-  configurationGroupInfo.collection.find().toArray((err, docs) => {
+// function treenify(array, parent = { id: '' }, tree = []) {
+//   const newA = array.forEach((o) => {
+//     console.log(_.pick(o, ['_id', 'parent', 'children', 'name']));
+//   });
+//
+//   console.log('newA:', newA);
+//   const children = _.filter(array, child => child.parent === parent.id);
+//   if (!_.isEmpty(children)) {
+//     if (parent.id === '') {
+//       tree = children;
+//     } else {
+//       parent.children = children;
+//     }
+//     _.each(children, child => treenify(array, child));
+//   }
+//   return tree;
+// }
+
+service.listConfigGroup = function listConfigGroup(parent, type = 'plain', cb) {
+  const query = {};
+  if (parent !== undefined) {
+    query.parent = parent;
+  }
+  configurationGroupInfo.collection.find(query).toArray((err, docs) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
+    }
+
+    if (type === 'plain') {
+      docs.forEach((o) => {
+        o['id'] = o['_id'];
+        delete o['_id'];
+      });
     }
 
     return cb && cb(err, docs);
@@ -120,7 +149,7 @@ service.listConfigGroup = function listConfigGroup(cb) {
 
 service.listConfig = function listConfig(page, pageSize, groupId, cb) {
   const query = {};
-  if (groupId) {
+  if (groupId !== undefined) {
     query.genre = groupId;
   }
   configurationInfo.pagination(query, page, pageSize, (err, docs) => {
