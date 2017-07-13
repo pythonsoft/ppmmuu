@@ -40,19 +40,19 @@ const config = require('../../config');
  */
 class RoleInfo extends DB {
   constructor() {
-    const indexes = [{ key:{name: 1}, unique: true }];
+    const indexes = [{ key: { name: 1 }, unique: true }];
     super(config.dbInstance.umpDB, 'RoleInfo', indexes);
 
     this.struct = {
-      _id: { type: 'string', validation: 'require'},
-      name: { type: 'string', validation: 'require'},
+      _id: { type: 'string', validation: 'require' },
+      name: { type: 'string', validation: 'require' },
       creator: { type: 'object', default: { _id: '', name: '' }, allowUpdate: false },
       allowedPermissions: { type: 'array' }, // PermissionInfo path
       deniedPermissions: { type: 'array' }, // PermissionInfo path
       createdTime: { type: 'date', allowUpdate: false },
       modifyTime: { type: 'date' },
       description: { type: 'string' },
-      detail: { type: 'object'},
+      detail: { type: 'object' },
     };
   }
 }

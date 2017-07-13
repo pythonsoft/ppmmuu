@@ -324,6 +324,10 @@ const getGroups = function getGroupUsers(query, cb) {
 };
 
 const fillUserInfo = function fillUserInfo(_ids, info, cb) {
+  if (info.password) {
+    info.password = utils.cipher(info.password, config.KEY);
+  }
+
   if (!_ids || _ids.length === 0) {
     return cb && cb(null, info);
   }
@@ -360,15 +364,12 @@ const fillUserInfo = function fillUserInfo(_ids, info, cb) {
 };
 
 service.addGroupUser = function addGroupUser(info, cb) {
-  const err = userInfo.validateCreateError(userInfo.createGroupUserNeedValidateFields, info);
   const _ids = [];
 
-  if (err) {
-    return cb && cb(err);
+  if (!utils.checkPassword(info.password)) {
+    return cb && cb(i18n.t('validationError', { field: 'password' }));
   }
 
-  info._id = info.email;
-  info.password = utils.cipher(info.password, config.KEY);
   _ids.push(info.companyId);
 
   if (info.departmentId) {
@@ -384,32 +385,23 @@ service.addGroupUser = function addGroupUser(info, cb) {
       return cb && cb(err);
     }
 
-    userInfo.checkUnique(info, false, (err) => {
+    userInfo.insertOne(info, (err) => {
       if (err) {
         return cb && cb(err);
       }
 
-      userInfo.collection.insertOne(userInfo.assign(info), (err, r) => {
-        if (err) {
-          return cb && cb(i18n.t('databaseError'));
-        }
-
-        return cb && cb(null, r);
-      });
+      return cb && cb(null, {});
     });
   });
 };
 
 service.updateGroupUser = function updateGroupUser(info, cb) {
-  const err = userInfo.validateUpdateError(userInfo.updateNeedValidateFields, info);
   const _ids = [];
 
-  if (err) {
-    return cb && cb(err);
-  }
-
   if (info.password) {
-    info.password = utils.cipher(info.password, config.KEY);
+    if (!utils.checkPassword(info.password)) {
+      return cb && cb(i18n.t('validationError', { field: 'password' }));
+    }
   }
 
   if (info.companyId) {
@@ -444,20 +436,14 @@ service.updateGroupUser = function updateGroupUser(info, cb) {
       return cb && cb(err);
     }
 
-    userInfo.checkUnique(info, true, (err) => {
-      if (err) {
-        return cb && cb(err);
-      }
+    userInfo.updateOne(
+      { _id: info._id }, info, (err, r) => {
+        if (err) {
+          return cb && cb(err);
+        }
 
-      userInfo.collection.updateOne(
-        { _id: info._id }, { $set: userInfo.updateAssign(info) }, (err, r) => {
-          if (err) {
-            return cb && cb(i18n.t('databaseError'));
-          }
-
-          return cb && cb(null, r);
-        });
-    });
+        return cb && cb(null, r);
+      });
   });
 };
 
