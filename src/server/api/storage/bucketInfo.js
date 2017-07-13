@@ -38,17 +38,16 @@ class BucketInfo extends DB {
     this.doc = {
       _id: { type: 'string' },
       name: { type: 'string', validation: 'require' },
-      type: { type: 'string', default: BucketInfo.TYPE.STANDARD, validation: (v) => utils.isValueInObject(v, BucketInfo.TYPE) },
-      permission: { type: 'string', default: BucketInfo.PERMISSION.PUBLIC_READ_WRITE, validation: (v) => utils.isValueInObject(v, BucketInfo.PERMISSION) },
+      type: { type: 'string', default: BucketInfo.TYPE.STANDARD, validation: v => utils.isValueInObject(v, BucketInfo.TYPE) },
+      permission: { type: 'string', default: BucketInfo.PERMISSION.PUBLIC_READ_WRITE, validation: v => utils.isValueInObject(v, BucketInfo.PERMISSION) },
       creator: { type: 'object', default: { _id: '', name: '' }, allowUpdate: false },
-      status: { type: 'string', default: BucketInfo.STATUS.NORMAL, validation: (v) => utils.isValueInObject(v, BucketInfo.STATUS) },
+      status: { type: 'string', default: BucketInfo.STATUS.NORMAL, validation: v => utils.isValueInObject(v, BucketInfo.STATUS) },
       createdTime: { type: 'date', allowUpdate: false },
       modifyTime: { type: 'date' },
-      deleteDeny: { type: 'string', default: BucketInfo.DELETE_DENY.YES, validation: (v) => utils.isValueInObject(v, BucketInfo.DELETE_DENY) }, // 删除保护，创建后默认为保护状态
+      deleteDeny: { type: 'string', default: BucketInfo.DELETE_DENY.YES, validation: v => utils.isValueInObject(v, BucketInfo.DELETE_DENY) }, // 删除保护，创建后默认为保护状态
       description: { type: 'string' },
       detail: { type: 'object' },
     };
-
   }
 
 }

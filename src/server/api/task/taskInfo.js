@@ -4,7 +4,10 @@
 
 'use strict';
 
+const uuid = require('uuid');
+
 const DB = require('../../common/db');
+const utils = require('../../common/utils');
 const config = require('../../config');
 
 /**
@@ -51,28 +54,18 @@ class TaskInfo extends DB {
     super(config.dbInstance.umpDB, 'TaskInfo');
 
     this.struct = {
-      _id: { type: 'string', default: '', validation: 'require', unique: true },
-      target: { type: 'object',
-        default: {
-          _id: '',
-          name: '',
-          type: '',
-        } },
-      creator: { type: 'object',
-        default: {
-          _id: '',
-          name: '',
-          type: TaskInfo.CREATOR_TYPE.USER,
-        } },
-      category: { type: 'string', default: '', allowUpdate: true },
-      command: { type: 'string', default: '', allowUpdate: true },
-      parentId: { type: 'string', default: '', allowUpdate: true }, // 父结点
-      status: { type: 'string', default: TaskInfo.STATUS.READY, allowUpdate: true },
-      progress: { type: 'string', default: '0', allowUpdate: true },
-      createdTime: { type: 'date', default() { return new Date(); } },
-      modifyTime: { type: 'date', default() { return new Date(); }, allowUpdate: true },
-      message: { type: 'string', default: '0', allowUpdate: true },
-      details: { type: 'object', default: {}, allowUpdate: true },
+      _id: { type: 'string', default: () => uuid.v1() },
+      target: { type: 'object', default: { _id: '', name: '', type: '' }, validation: 'require' },
+      creator: { type: 'object', default: { _id: '', name: '', type: TaskInfo.CREATOR_TYPE.USER }, validation: 'require', allowUpdate: false },
+      category: { type: 'string', validation: v => utils.isValueInObject(v, TaskInfo.CREATOR_TYPE) },
+      command: { type: 'string' },
+      parentId: { type: 'string' }, // 父结点
+      status: { type: 'string', default: TaskInfo.STATUS.READY, validation: v => utils.isValueInObject(v, TaskInfo.STATUS) },
+      progress: { type: 'number' },
+      createdTime: { type: 'date', validation: 'require', allowUpdate: false },
+      modifyTime: { type: 'date', validation: 'require' },
+      message: { type: 'string' },
+      details: { type: 'object' },
     };
   }
 

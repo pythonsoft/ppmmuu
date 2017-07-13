@@ -66,20 +66,22 @@ class TacticsInfo extends DB {
     this.doc = {
       _id: { type: 'string', default() { return uuid.v1(); } },
       name: { type: 'string', validation: 'require' },
-      source: { type: 'object', default: {
-        _id: '',
-        name: '',
-        type: TacticsInfo.SOURCE_TYPE.BUCKET,
-      }, validation: 'require'},
-      type: { type: 'string', default: TacticsInfo.TYPE.ARCHIVE, validation: (v) => utils.isValueInObject(v, TacticsInfo.TYPE) },
+      source: { type: 'object',
+        default: {
+          _id: '',
+          name: '',
+          type: TacticsInfo.SOURCE_TYPE.BUCKET,
+        },
+        validation: 'require' },
+      type: { type: 'string', default: TacticsInfo.TYPE.ARCHIVE, validation: v => utils.isValueInObject(v, TacticsInfo.TYPE) },
       creator: { type: 'object', default: { _id: '', name: '' }, allowUpdate: false, validation: 'require' },
-      status: { type: 'string', default: TacticsInfo.STATUS.NORMAL, validation: (v) => utils.isValueInObject(v, TacticsInfo.STATUS) },
+      status: { type: 'string', default: TacticsInfo.STATUS.NORMAL, validation: v => utils.isValueInObject(v, TacticsInfo.STATUS) },
       script: { type: 'string' },
-      priority: { type: 'string', default: TacticsInfo.PRIORITY.NORMAL, validation: (v) => utils.isValueInObject(v, TacticsInfo.PRIORITY) }, // less is high
-      triggerType: { type: 'string', default: TacticsInfo.TRIGGER_TYPE.LINE, validation: (v) => utils.isValueInObject(v, TacticsInfo.TRIGGER_TYPE) },
-      scheduleType: { type: 'string', default: TacticsInfo.SCHEDULE_TYPE.EVERY_MONTH, validation: (v) => utils.isValueInObject(v, TacticsInfo.EVERY_MONTH) },
-      scheduleTime: { type: 'string', validation: (v) => /[0-9]{4}-[0-9]{2}-[0-9]{2}[\s][0-9]{2}:[0-9]{2}:[0-9]{2}/.test(v) },
-      orderBy: { type: 'string', default: TacticsInfo.ORDER_BY.CREATE_TIME, validation: (v) => utils.isValueInObject(v, TacticsInfo.ORDER_BY) },
+      priority: { type: 'string', default: TacticsInfo.PRIORITY.NORMAL, validation: v => utils.isValueInObject(v, TacticsInfo.PRIORITY) }, // less is high
+      triggerType: { type: 'string', default: TacticsInfo.TRIGGER_TYPE.LINE, validation: v => utils.isValueInObject(v, TacticsInfo.TRIGGER_TYPE) },
+      scheduleType: { type: 'string', default: TacticsInfo.SCHEDULE_TYPE.EVERY_MONTH, validation: v => utils.isValueInObject(v, TacticsInfo.EVERY_MONTH) },
+      scheduleTime: { type: 'string', validation: v => /[0-9]{4}-[0-9]{2}-[0-9]{2}[\s][0-9]{2}:[0-9]{2}:[0-9]{2}/.test(v) },
+      orderBy: { type: 'string', default: TacticsInfo.ORDER_BY.CREATE_TIME, validation: v => utils.isValueInObject(v, TacticsInfo.ORDER_BY) },
       itemCount: { type: 'number', default: 10 }, // 每次提交对象数
       frequency: { type: 'number', default: 60 }, // 提交频率(秒)
       createdTime: { type: 'date', validation: 'require', allowUpdate: false },
