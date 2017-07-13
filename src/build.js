@@ -90,6 +90,8 @@ const generateFeApiFuncFile = function generateFeApiFuncFile() {
 };
 
 const initPermissionInfo = function initPermissionInfo() {
+  permissionNames.push('所有权限');
+  permissionPaths.push('all');
   const nLength = permissionNames.length;
   const pLength = permissionPaths.length;
   if (nLength && nLength === pLength) {
@@ -110,6 +112,7 @@ const initPermissionInfo = function initPermissionInfo() {
         if (docs && docs.length) {
           for (let i = 0, len = docs.length; i < len; i++) {
             const index = permissionPaths.indexOf(docs[i].path);
+            console.log(docs[i].path);
             if (index !== -1) {
               permissionPaths.splice(index, 1);
               permissionNames.splice(index, 1);
@@ -118,7 +121,7 @@ const initPermissionInfo = function initPermissionInfo() {
         }
 
         const info = [];
-        for (let i = 0; i < permissionPaths.path; i++) {
+        for (let i = 0; i < permissionPaths.length; i++) {
           info.push({
             _id: uuid.v1(),
             name: permissionNames[i],

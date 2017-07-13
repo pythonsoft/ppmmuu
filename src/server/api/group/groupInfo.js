@@ -48,41 +48,53 @@ const config = require('../../config');
  */
 class GroupInfo extends DB {
   constructor() {
-    super(config.dbInstance.umpDB, 'GroupInfo');
+    const indexes = [{ key: { name: 1, type: 1, parentId: 1 }, unique: true }];
+    super(config.dbInstance.umpDB, 'GroupInfo', indexes);
 
     this.struct = {
-      _id: { type: 'string', default: '', validation: 'require' },
-      name: { type: 'string', default: '', validation: 'require', allowUpdate: true },
-      logo: { type: 'string', default: '', allowUpdate: true },
-      creator: { type: 'object', default: {} },
-      parentId: { type: 'string', default: '' },
+      _id: { type: 'string' },
+      name: { type: 'string', validation: 'require' },
+      logo: { type: 'string' },
+      creator: { type: 'object',
+        default: {
+          _id: '',
+          name: '',
+        },
+        allowUpdate: false },
+      parentId: { type: 'string', default: '', validation: 'require' },
       contact: { type: 'object',
         default: {
           _id: '',
           name: '',
           phone: '',
           email: '',
-        },
-        allowUpdate: true },
-      memberCount: { type: 'number', default: 0, allowUpdate: true },
-      ad: { type: 'string', default: '', allowUpdate: true }, // 域控设置
-      type: { type: 'string', default: GroupInfo.TYPE.COMPANY, allowUpdate: true },
-      createdTime: { type: 'date', default() { return new Date(); } },
-      modifyTime: { type: 'date', default() { return new Date(); }, allowUpdate: true },
-      description: { type: 'string', default: '', allowUpdate: true },
-      deleteDeny: { type: 'string', default: GroupInfo.DELETE_DENY.YES, allowUpdate: true }, // 删除保护，创建后默认为保护状态
-      detail: { type: 'object', default: {}, allowUpdate: true },
+        } },
+      memberCount: { type: 'number' },
+      ad: { type: 'string' }, // 域控设置
+      type: { type: 'string',
+        default: GroupInfo.TYPE.COMPANY,
+        validation(v) {
+          let flag = false;
+          for (const key in GroupInfo.TYPE) {
+            if (GroupInfo.TYPE[key] === v) {
+              flag = true;
+              break;
+            }
+          }
+          return flag;
+        } },
+      createdTime: { type: 'date', allowUpdate: false },
+      modifyTime: { type: 'date' },
+      description: { type: 'string' },
+      deleteDeny: { type: 'string',
+        default: GroupInfo.DELETE_DENY.YES,
+        validation(v) {
+          return GroupInfo.DELETE_DENY.YES === v || GroupInfo.DELETE_DENY.NO === v;
+        } }, // 删除保护，创建后默认为保护状态
+      detail: { type: 'object' },
     };
   }
 
-  validateType(type = '') {
-    for (const key in GroupInfo.TYPE) {
-      if (GroupInfo.TYPE[key] === type) {
-        return true;
-      }
-    }
-    return false;
-  }
 }
 
 GroupInfo.TYPE = {

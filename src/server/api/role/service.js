@@ -27,9 +27,11 @@ const service = {};
 /* role */
 service.listRole = function listRole(page, pageSize, keyword, cb) {
   const query = {};
+
   if (keyword) {
     query.$or = [{ _id: { $regex: keyword, $options: 'i' } }, { name: { $regex: keyword, $options: 'i' } }];
   }
+
   roleInfo.pagination(query, page, pageSize, (err, docs) => {
     if (err) {
       logger.error(err.message);
@@ -45,13 +47,49 @@ service.getRoleDetail = function getRoleDetail(id, cb) {
     return cb && cb(i18n.t('getRoleNoId'));
   }
 
+  const getPermissions = function getPermissions(arr, callback) {
+    if (!arr || arr.length === 0) {
+      return callback && callback(null, []);
+    }
+    permissionInfo.collection.find({ path: { $in: arr } }).toArray((err, docs) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      return callback && callback(null, docs);
+    });
+  };
+
   roleInfo.collection.findOne({ _id: id }, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
 
-    return cb && cb(null, doc);
+    if (!doc) {
+      return cb && cb(i18n.t('canNotFindRole'));
+    }
+
+    const allowedPermissions = doc.allowedPermissions || [];
+    const deniedPermissions = doc.deniedPermissions || [];
+
+    getPermissions(allowedPermissions, (err, docs) => {
+      if (err) {
+        return cb && cb(err);
+      }
+      doc.allowedPermissions = docs;
+
+      getPermissions(deniedPermissions, (err, docs) => {
+        if (err) {
+          return cb && cb(err);
+        }
+
+        doc.deniedPermissions = docs;
+
+        return cb && cb(null, doc);
+      });
+    });
   });
 };
 

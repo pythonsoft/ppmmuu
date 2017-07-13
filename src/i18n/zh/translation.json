@@ -47,6 +47,10 @@
     "code": "-2015",
     "message": "启用或禁用权限参数status不正确"
   },
+  "canNotFindRole": {
+    "code": "-2016",
+    "message": "找不到角色"
+  },
   "loginCannotFindUser": {
     "code": "-3001",
     "message": "登录时找不到用户"
@@ -198,9 +202,5 @@
   "fieldIsNotExistError": {
     "code": "-10004",
     "message": "{{field}} 字段不在实体类中，无法进行存取操作"
-  },
-  "uniqueError": {
-    "code": "-10005",
-    "message": "{{field}} 已经被使用了"
   }
 }
