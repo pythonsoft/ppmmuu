@@ -105,7 +105,7 @@ class DB {
         if (defaultType !== 'undefined') {
           doc[k] = defaultType === 'function' ? temp.default() : temp.default;
         } else if (temp.type && typeof defaultValue[temp.type] !== 'undefined') {
-          if (getValueType(temp.type) === 'function') {
+          if (getValueType(defaultValue[temp.type]) === 'function') {
             doc[k] = defaultValue[temp.type]();
           } else {
             doc[k] = defaultValue[temp.type];
@@ -136,25 +136,6 @@ class DB {
 
     const err = validation(doc, struct);
     return { err, doc };
-  }
-
-  getUniqueFields() {
-    const struct = this.struct;
-    const uniqueFields = {};
-    let hasUniqueFields = false;
-
-    for (const k in struct) {
-      if (struct[k].unique) {
-        uniqueFields[k] = 1;
-        hasUniqueFields = true;
-      }
-    }
-
-    if (!hasUniqueFields) {
-      return null;
-    }
-
-    return uniqueFields;
   }
 
   assignMany(infos) {

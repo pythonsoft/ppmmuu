@@ -48,8 +48,7 @@ const config = require('../../config');
  */
 class GroupInfo extends DB {
   constructor() {
-    const indexes = [{ key:{name: 1, type: 1, parentId: 1}, unique: true }];
-    super(config.dbInstance.umpDB, 'GroupInfo');
+    super(config.dbInstance.umpDB, 'GroupInfo', [{ key: { name: 1, type: 1, parentId: 1 }, unique: true }]);
 
     this.struct = {
       _id: { type: 'string' },
