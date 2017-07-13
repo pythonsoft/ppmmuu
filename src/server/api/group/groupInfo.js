@@ -51,10 +51,13 @@ class GroupInfo extends DB {
     super(config.dbInstance.umpDB, 'GroupInfo');
 
     this.struct = {
-      _id: { type: 'string', default: '', validation: 'require' },
-      name: { type: 'string', default: '', validation: 'require', allowUpdate: true },
-      logo: { type: 'string', default: '', allowUpdate: true },
-      creator: { type: 'object', default: {} },
+      _id: { type: 'string' },
+      name: { type: 'string', validation: 'require' },
+      logo: { type: 'string' },
+      creator: { type: 'object', default: {
+        _id: '',
+        name: ''
+      }, allowUpdate: false },
       parentId: { type: 'string', default: '' },
       contact: { type: 'object',
         default: {
@@ -64,14 +67,25 @@ class GroupInfo extends DB {
           email: '',
         },
         allowUpdate: true },
-      memberCount: { type: 'number', default: 0, allowUpdate: true },
-      ad: { type: 'string', default: '', allowUpdate: true }, // 域控设置
-      type: { type: 'string', default: GroupInfo.TYPE.COMPANY, allowUpdate: true },
-      createdTime: { type: 'date', default() { return new Date(); } },
-      modifyTime: { type: 'date', default() { return new Date(); }, allowUpdate: true },
-      description: { type: 'string', default: '', allowUpdate: true },
-      deleteDeny: { type: 'string', default: GroupInfo.DELETE_DENY.YES, allowUpdate: true }, // 删除保护，创建后默认为保护状态
-      detail: { type: 'object', default: {}, allowUpdate: true },
+      memberCount: { type: 'number', default: 0 },
+      ad: { type: 'string' }, // 域控设置
+      type: { type: 'string', default: GroupInfo.TYPE.COMPANY, validation: function(v) {
+        let flag = false;
+        for (const key in GroupInfo.TYPE) {
+          if (GroupInfo.TYPE[key] === type) {
+            flag = true;
+            break;
+          }
+        }
+        return flag;
+      }},
+      createdTime: { type: 'date', default() { return new Date(); }, allowUpdate: false },
+      modifyTime: { type: 'date', default() { return new Date(); } },
+      description: { type: 'string' },
+      deleteDeny: { type: 'string', default: GroupInfo.DELETE_DENY.YES, validation: function(v) {
+        return GroupInfo.DELETE_DENY.YES === v || GroupInfo.DELETE_DENY.NO === v;
+      }}, // 删除保护，创建后默认为保护状态
+      detail: { type: 'object' },
     };
   }
 

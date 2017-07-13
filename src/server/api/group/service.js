@@ -116,7 +116,7 @@ service.getGroup = function getGroup(id, cb) {
   });
 };
 
-service.addGroup = function addGroup(parentId, info, cb) {
+service.addGroup = function addGroup(parentId, creatorId, creatorName, info, cb) {
   if (!groupInfo.validateType(info.type)) {
     return cb && cb(i18n.t('groupTypeIsUnValidate'));
   }
@@ -130,10 +130,6 @@ service.addGroup = function addGroup(parentId, info, cb) {
   }
 
   info._id = info._id || uuid.v1();
-  info.count = info.count ? info.count * 1 : 0;
-  if (typeof info.count !== 'number') {
-    info.count = 0;
-  }
 
   if (!info.parentId) {
     info.parentId = parentId;
