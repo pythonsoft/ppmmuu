@@ -67,26 +67,29 @@ const uuid = require('uuid');
  */
 class UserInfo extends DB {
   constructor() {
-    const indexes = [{ key: { name: 1 }, unique: true }, { key: { email: 1 }, unique: true }, { key: { phone: 1 }, unique: true }];
-    super(config.dbInstance.umpDB, 'UserInfo', indexes);
+    super(config.dbInstance.umpDB, 'UserInfo', [
+      { key: { name: 1 }, unique: true },
+      { key: { email: 1 }, unique: true },
+      { key: { phone: 1 }, unique: true }
+    ]);
 
     this.struct = {
       _id: { type: 'string', default() { return uuid.v1(); }, validation: 'require' },
       name: { type: 'string', validation: 'require' },
       displayName: { type: 'string' },
       password: { type: 'string' },
-      title: { type: 'string', default: '', allowUpdate: true },
-      verifyType: { type: 'string', default: UserInfo.VERIFY_TYPE.PASSWORD },
+      title: { type: 'string' },
+      verifyType: { type: 'string', default: UserInfo.VERIFY_TYPE.PASSWORD, validation: (v) => utils.isValueInObject(v, UserInfo.VERIFY_TYPE) },
       company: { type: 'object', default: { _id: '', name: '' } },
       department: { type: 'object', default: { _id: '', name: '' } },
       team: { type: 'object', default: { _id: '', name: '' } },
-      createdTime: { type: 'date' },
+      createdTime: { type: 'date', validation: 'require', allowUpdate: false },
       description: { type: 'string' },
       employeeId: { type: 'string' },
       email: { type: 'string', validation: utils.checkEmail },
       phone: { type: 'string', validation: utils.checkPhone },
       photo: { type: 'string' },
-      status: { type: 'string', default: UserInfo.STATUS.NORMAL },
+      status: { type: 'string', default: UserInfo.STATUS.NORMAL, validation: (v) => utils.isValueInObject(v, UserInfo.STATUS)},
       detail: { type: 'object' },
     };
   }

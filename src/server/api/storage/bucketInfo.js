@@ -6,6 +6,7 @@
 
 const DB = require('../../common/db');
 const config = require('../../config');
+const utils = require('../../common/utils');
 
 /**
  * @swagger
@@ -36,21 +37,18 @@ class BucketInfo extends DB {
 
     this.doc = {
       _id: { type: 'string' },
-      name: { type: 'string' },
-      type: { type: 'string', default: BucketInfo.TYPE.STANDARD, validation: function (v) {
-
-      }},
-      permission: BucketInfo.PERMISSION.PUBLIC_READ_WRITE,
-      creator: { _id: '', name: '' },
-      status: BucketInfo.STATUS.NORMAL,
-      createdTime: new Date(),
-      modifyTime: new Date(),
-      deleteDeny: BucketInfo.DELETE_DENY.YES, // 删除保护，创建后默认为保护状态
-      description: '',
-      detail: {},
+      name: { type: 'string', validation: 'require' },
+      type: { type: 'string', default: BucketInfo.TYPE.STANDARD, validation: (v) => utils.isValueInObject(v, BucketInfo.TYPE) },
+      permission: { type: 'string', default: BucketInfo.PERMISSION.PUBLIC_READ_WRITE, validation: (v) => utils.isValueInObject(v, BucketInfo.PERMISSION) },
+      creator: { type: 'object', default: { _id: '', name: '' }, allowUpdate: false },
+      status: { type: 'string', default: BucketInfo.STATUS.NORMAL, validation: (v) => utils.isValueInObject(v, BucketInfo.STATUS) },
+      createdTime: { type: 'date', allowUpdate: false },
+      modifyTime: { type: 'date' },
+      deleteDeny: { type: 'string', default: BucketInfo.DELETE_DENY.YES, validation: (v) => utils.isValueInObject(v, BucketInfo.DELETE_DENY) }, // 删除保护，创建后默认为保护状态
+      description: { type: 'string' },
+      detail: { type: 'object' },
     };
 
-    this.updateDoc = { name: 1, status: 1, modifyTime: 1, description: 1, detail: 1 };
   }
 
 }
