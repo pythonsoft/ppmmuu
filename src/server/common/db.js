@@ -230,6 +230,22 @@ class DB {
     });
   }
 
+  findOneAndUpdate(query, info, options = null, cb) {
+    const result = this.updateAssign(info);
+
+    if (result.err) {
+      return cb & cb(result.err);
+    }
+
+    this.collection.findOneAndUpdate(query, info, options, (err, r) => {
+      if (err) {
+        return cb && cb(err);
+      }
+
+      return cb && cb(null, r);
+    });
+  }
+
   /**
    * 分页组件
    * @param query 查询条件

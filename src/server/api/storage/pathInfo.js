@@ -4,7 +4,10 @@
 
 'use strict';
 
+const uuid = require('uuid');
+
 const DB = require('../../common/db');
+const utils = require('../../common/utils');
 const config = require('../../config');
 
 /**
@@ -54,25 +57,22 @@ class PathInfo extends DB {
     super(config.dbInstance.umpDB, 'PathInfo');
 
     this.doc = {
-      _id: '',
-      name: '',
-      path: '',
-      bucket: {
-        _id: '',
-        name: '',
-      },
-      creator: { _id: '', name: '' },
-      status: PathInfo.STATUS.NORMAL,
-      type: PathInfo.TYPE.LOCAL,
-      maxSize: 0,
-      usage: 0,
-      triggerLine: -1,
-      warningLine: -1,
-      minLine: -1,
-      createdTime: new Date(),
-      modifyTime: new Date(),
-      description: '',
-      detail: {},
+      _id: { type: 'string', default() { return uuid.v1(); } },
+      name: { type: 'string', validation: 'require' },
+      path: { type: 'string', validation: 'require' },
+      bucket: { type: 'object', default: { _id: '', name: '' }, validation: 'require' },
+      creator: { type: 'object', default: { _id: '', name: '' }, validation: 'require', allowUpdate: false },
+      status: { type: 'string', default: PathInfo.STATUS.NORMAL, validation: (v) => utils.isValueInObject(v, PathInfo.STATUS) },
+      type: { type: 'string', default: PathInfo.TYPE.LOCAL, validation: (v) => utils.isValueInObject(v, PathInfo.TYPE) },
+      maxSize: { type: 'number' },
+      usage: { type: 'number' },
+      triggerLine: { type: 'number', default: -1 },
+      warningLine: { type: 'number', default: -1 },
+      minLine: { type: 'number', default: -1 },
+      createdTime: { type: 'date', validation: 'require', allowUpdate: false },
+      modifyTime: { type: 'date', validation: 'require' },
+      description: { type: 'string' },
+      detail: { type: 'object' },
     };
   }
 }
