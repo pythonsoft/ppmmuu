@@ -47,13 +47,49 @@ service.getRoleDetail = function getRoleDetail(id, cb) {
     return cb && cb(i18n.t('getRoleNoId'));
   }
 
+  const getPermissions = function getPermissions(arr, callback){
+    if(!arr || arr.length === 0){
+      return callback && callback(null, []);
+    }
+    permissionInfo.collection.find({path : {$in:  arr}}).toArray(function(err, docs){
+      if(err){
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      return callback && callback(null, docs);
+    })
+  }
+
   roleInfo.collection.findOne({ _id: id }, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
 
-    return cb && cb(null, doc);
+    if(!doc){
+      return cb && cb(i18n.t('canNotFindRole'));
+    }
+
+    const allowedPermissions = doc.allowedPermissions || [];
+    const deniedPermissions = doc.deniedPermissions || [];
+
+    getPermissions(allowedPermissions, function(err, docs){
+      if(err){
+        return cb && cb(err);
+      }
+      doc.allowedPermissions = docs;
+
+      getPermissions(allowedPermissions, function(err, docs) {
+        if (err) {
+          return cb && cb(err);
+        }
+
+        doc.deniedPermissions = docs;
+
+        return cb && cb(null, doc);
+      });
+    })
   });
 };
 
