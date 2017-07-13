@@ -95,11 +95,11 @@ class DB {
     const struct = this.struct;
     const doc = {};
     let temp = null;
-
-    for (const k in struct) {
-      temp = struct[k];
-      if (info[k] !== undefined) {
-        if (typeof temp.allowUpdate === 'undefined' || temp.allowUpdate) {
+    
+    for (const k in info) {
+      const temp = struct[k];
+      if (temp !== undefined) {
+        if (typeof temp.allowUpdate === 'undefined' || temp.allowUpdate ) {
           doc[k] = info[k];
         }
       }
@@ -292,7 +292,7 @@ class DB {
           q[attr]['$in'].push(info[attr]);
         }
       }
-
+      
       if(isUpdate && info['_id']) {
         if(!query._id) {
           query._id = { $nin: [] };
