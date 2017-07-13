@@ -47,11 +47,11 @@ class RoleInfo extends DB {
       _id: { type: 'string', validation: 'require'},
       name: { type: 'string', validation: 'require'},
       creator: { type: 'object', default: { _id: '', name: '' }, allowUpdate: false },
-      allowedPermissions: { type: 'array', allowUpdate: true }, // PermissionInfo path
-      deniedPermissions: { type: 'array', allowUpdate: true }, // PermissionInfo path
+      allowedPermissions: { type: 'array' }, // PermissionInfo path
+      deniedPermissions: { type: 'array' }, // PermissionInfo path
       createdTime: { type: 'date', allowUpdate: false },
       modifyTime: { type: 'date' },
-      description: { type: 'string', default: '' },
+      description: { type: 'string' },
       detail: { type: 'object'},
     };
   }
