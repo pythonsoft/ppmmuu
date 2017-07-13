@@ -66,11 +66,13 @@ const utils = require('../../common/utils');
  */
 class UserInfo extends DB {
   constructor() {
-    super(config.dbInstance.umpDB, 'UserInfo');
+
+    const indexes = [{ key:{name: 1}, unique: true },{ key: { email: 1}, unique: true}, { key: {phone: 1}, unique: true}];
+    super(config.dbInstance.umpDB, 'UserInfo', indexes);
 
     this.struct = {
-      _id: { type: 'string', default: '', validation: utils.checkEmail, unique: true, allowUpdate: true },
-      name: { type: 'string', default: '', validation: 'require', allowUpdate: true, unique: true },
+      _id: { type: 'string', default: '', validation: utils.checkEmail, allowUpdate: true },
+      name: { type: 'string', default: '', validation: 'require', allowUpdate: true},
       displayName: { type: 'string', default: '', allowUpdate: true, unique: true },
       password: { type: 'string', default: '', validation: utils.checkPassword, allowUpdate: true },
       title: { type: 'string', default: '', allowUpdate: true },

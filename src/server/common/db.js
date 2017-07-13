@@ -6,10 +6,18 @@
 
 const utils = require('../common/utils');
 const i18n = require('i18next');
+const logger = require('./log')('error');
 
 // { createdTime: { type: 'string', default: function() { return new Date() }, validation: function(v) {} || 'require' }, allowUpdate: true , unique: true}
 // validation = function() { ... return result.fail(i18n.t()) || result.success() }
 
+/*
+*
+* type 必须写
+* default 可以不写
+* allowpdate 默认 true，所有model的_id的allowUpdate都必须是true
+*
+ */
 /**
  *
  * @param info
@@ -55,9 +63,17 @@ const defaultValue = {
 };
 
 class DB {
-  constructor(dbInstance, collectionName) {
+  constructor(dbInstance, collectionName, indexes) {
     this.collection = dbInstance.collection(collectionName);
     this.struct = {};
+
+    if(indexes){
+      try {
+        this.collection.createIndexes(indexes);
+      }catch(e){
+        logger.error(e.message);
+      }
+    }
   }
 
   assign(info) {
@@ -96,10 +112,10 @@ class DB {
     const doc = {};
     let temp = null;
 
-    for (const k in struct) {
-      temp = struct[k];
-      if (info[k] !== undefined) {
-        if (typeof temp.allowUpdate === 'undefined' || temp.allowUpdate) {
+    for (const k in info) {
+      const temp = struct[k];
+      if (temp !== undefined) {
+        if (typeof temp.allowUpdate === 'undefined' || temp.allowUpdate ) {
           doc[k] = info[k];
         }
       }
@@ -169,20 +185,13 @@ class DB {
     }
 
     const doc = result.doc;
-    const me = this;
 
-    this.checkUnique(doc, false, (err) => {
+    this.collection.insertOne(doc, (err, r) => {
       if (err) {
-        return cb && cb(err);
+        return cb && cb(i18n.t('databaseError'));
       }
 
-      me.collection.insertOne(doc, (err, r) => {
-        if (err) {
-          return cb && cb(i18n.t('databaseError'));
-        }
-
-        return cb && cb(null, r);
-      });
+      return cb && cb(null, r);
     });
   }
 
@@ -193,21 +202,15 @@ class DB {
       return cb & cb(result.err);
     }
 
-    const me = this;
     const docs = result.docs;
 
-    this.checkUnique(docs, false, (err) => {
+    this.collection.insertMany(docs, (err, r) => {
       if (err) {
-        return cb && cb(err);
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
       }
 
-      me.collection.insertMany(docs, (err, r) => {
-        if (err) {
-          return cb && cb(i18n.t('databaseError'));
-        }
-
-        return cb && cb(null, r);
-      });
+      return cb && cb(null, r);
     });
   }
 
@@ -218,21 +221,14 @@ class DB {
       return cb & cb(result.err);
     }
 
-    const me = this;
     const doc = result.doc;
 
-    this.checkUnique(doc, true, (err) => {
+    this.collection.updateOne(query, { $set: doc }, (err, r) => {
       if (err) {
         return cb && cb(err);
       }
 
-      me.collection.updateOne(query, { $set: doc }, (err, r) => {
-        if (err) {
-          return cb && cb(err);
-        }
-
-        return cb && cb(null, r);
-      });
+      return cb && cb(null, r);
     });
   }
 
@@ -242,22 +238,14 @@ class DB {
     if (result.err) {
       return cb & cb(result.err);
     }
-
-    const me = this;
     const doc = result.doc;
 
-    this.checkUnique(doc, true, (err) => {
+    this.collection.updateMany(query, { $set: doc }, (err, r) => {
       if (err) {
         return cb && cb(err);
       }
 
-      me.collection.updateMany(query, { $set: doc }, (err, r) => {
-        if (err) {
-          return cb && cb(err);
-        }
-
-        return cb && cb(null, r);
-      });
+      return cb && cb(null, r);
     });
   }
 
@@ -285,6 +273,9 @@ class DB {
       const info = docs[i];
 
       for(const attr in info) {
+        if(len > 1 && uniqueFields[attr]){
+          return cb && cb(i18n.t('uniqueError', {field: attr}));
+        }
         if(uniqueFields[attr]) {
           if(!q[attr]) {
             q[attr] = { $in: [] };
@@ -323,6 +314,7 @@ class DB {
 
     this.collection.find(query).project(uniqueFields).toArray((err, findDocs) => {
       if (err) {
+        logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
 
