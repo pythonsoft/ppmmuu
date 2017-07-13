@@ -18,6 +18,11 @@ const logger = require('./log')('error');
 * allowpdate 默认 true，所有model的_id的allowUpdate都必须是true
 *
  */
+
+const getValueType = function getValueType(val) {
+  return typeof val === 'undefined' ? 'undefined' : val.constructor.name.toLocaleLowerCase();
+};
+
 /**
  *
  * @param info
@@ -33,10 +38,8 @@ const validation = function validation(info, struct) {
       return i18n.t('fieldIsNotExistError', { field: k });
     }
 
-    if (typeof temp.type !== 'undefined' && info[k].constructor !== temp.type) {
-      if (!temp.type === Date || !info[k].constructor === String) {
-        return i18n.t('typeError', { field: k });
-      }
+    if (typeof temp.type !== 'undefined' && getValueType(info[k]) !== temp.type) {
+      return i18n.t('typeError', { field: k });
     }
 
     if (temp.validation) {
@@ -64,12 +67,12 @@ const whichFieldIsSame = function whichFieldIsSame(source, target, fields) {
 };
 
 const defaultValue = {
-  String: '',
-  Array: [],
-  Number: 0,
-  Object: {},
-  Boolean: true,
-  Date() { return new Date(); },
+  string: '',
+  array: [],
+  number: 0,
+  object: {},
+  boolean: true,
+  date() { return new Date(); },
 };
 
 class DB {
@@ -98,11 +101,11 @@ class DB {
       if (typeof info[k] !== 'undefined') {
         doc[k] = info[k];
       } else {
-        defaultType = typeof temp.default;
+        defaultType = getValueType(temp.default);
         if (defaultType !== 'undefined') {
           doc[k] = defaultType === 'function' ? temp.default() : temp.default;
         } else if (temp.type && typeof defaultValue[temp.type] !== 'undefined') {
-          if (typeof defaultValue[temp.type] === 'function') {
+          if (getValueType(temp.type) === 'function') {
             doc[k] = defaultValue[temp.type]();
           } else {
             doc[k] = defaultValue[temp.type];
@@ -125,7 +128,7 @@ class DB {
     for (const k in info) {
       const temp = struct[k];
       if (temp !== undefined) {
-        if (typeof temp.allowUpdate === 'undefined' || temp.allowUpdate ) {
+        if (getValueType(temp.allowUpdate) === 'undefined' || temp.allowUpdate ) {
           doc[k] = info[k];
         }
       }
@@ -256,88 +259,6 @@ class DB {
       }
 
       return cb && cb(null, r);
-    });
-  }
-
-  checkUnique(infos, isUpdate = false, cb) {
-    const uniqueFields = this.getUniqueFields();
-
-    if (!uniqueFields) {
-      return cb && cb(null, infos);
-    }
-
-    let docs = [];
-
-    if (infos.constructor !== Array) {
-      docs.push(infos);
-    }else {
-      const temp = [];
-      temp.push(infos);
-      docs = temp;
-    }
-
-    const q = {};
-    const query = { $or: [] };
-
-    for (let i = 0, len = docs.length; i < len; i++) {
-      const info = docs[i];
-
-      for(const attr in info) {
-        if(len > 1 && uniqueFields[attr]){
-          return cb && cb(i18n.t('uniqueError', {field: attr}));
-        }
-        if(uniqueFields[attr]) {
-          if(!q[attr]) {
-            q[attr] = { $in: [] };
-          }
-          q[attr]['$in'].push(info[attr]);
-        }
-      }
-
-      if(isUpdate && info['_id']) {
-        if(!query._id) {
-          query._id = { $nin: [] };
-        }
-        query['_id']['$nin'].push(info['_id']);
-      }
-    }
-
-    if(!utils.isEmptyObject(q)) {
-      return cb && cb(null, infos);
-    }
-
-    for (const qk in q) {
-      const temp = {};
-      temp[qk] = q[qk];
-      query.$or.push(temp);
-    }
-
-    this.collection.find(query).project(uniqueFields).toArray((err, findDocs) => {
-      if (err) {
-        logger.error(err.message);
-        return cb && cb(i18n.t('databaseError'));
-      }
-
-      if (!findDocs || findDocs.length === 0) {
-        return cb && cb(null, findDocs);
-      }
-
-      let findDoc = null;
-      let doc = null;
-      let flag = '';
-
-      for(let i = 0, len = findDocs.length; i < len; i++) {
-        findDoc = findDocs[i];
-        for(let j = 0, l = docs.length; j < l; j++) {
-          doc = docs[i];
-          flag = whichFieldIsSame(findDoc, doc, uniqueFields);
-          if(flag) {
-            return cb && cb(flag);
-          }
-        }
-      }
-
-      return cb && cb(null);
     });
   }
 
