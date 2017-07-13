@@ -5,8 +5,7 @@
 'use strict';
 
 const logger = require('../../common/log')('error');
-const uuid = require('uuid');
-const utils = require('../../common/utils');
+
 const i18n = require('i18next');
 
 const AssignPermission = require('./permissionAssignmentInfo');
@@ -21,17 +20,17 @@ const PermissionInfo = require('./permissionInfo');
 
 const permissionInfo = new PermissionInfo();
 
-const config = require('../../config');
-
-const redisClient = config.redisClient;
-
 const groupService = require('../group/service');
 
 const service = {};
 
 /* role */
-service.listRole = function listRole(page, pageSize, cb) {
-  roleInfo.pagination({}, page, pageSize, (err, docs) => {
+service.listRole = function listRole(page, pageSize, keyword, cb) {
+  const query = {};
+  if (keyword) {
+    query.$or = [{ _id: { $regex: keyword, $options: 'i' } }, { name: { $regex: keyword, $options: 'i' } }];
+  }
+  roleInfo.pagination(query, page, pageSize, (err, docs) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -56,67 +55,23 @@ service.getRoleDetail = function getRoleDetail(id, cb) {
   });
 };
 
-service.addRole = function addRole(_roleInfo = {}, cb) {
-  if (!_roleInfo.name) {
-    return cb && cb(i18n.t('addRoleNoName'));
-  }
-
-  _roleInfo._id = _roleInfo._id || uuid.v1();
-  _roleInfo.allowedPermissions = _roleInfo.allowedPermissions || '';
-  _roleInfo.deniedPermissions = _roleInfo.deniedPermissions || '';
-  _roleInfo.allowedPermissions = utils.trim(_roleInfo.allowedPermissions.split(','));
-  _roleInfo.deniedPermissions = utils.trim(_roleInfo.deniedPermissions.split(','));
-
-  roleInfo.collection.findOne({ name: _roleInfo.name }, { fields: { _id: 1 } }, (err, doc) => {
+service.addRole = function addRole(_roleInfo, cb) {
+  roleInfo.insertOne(_roleInfo, (err) => {
     if (err) {
-      logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
+      return cb && cb(err);
     }
 
-    if (doc) {
-      return cb && cb(i18n.t('addRoleNameIsExist'));
-    }
-
-    roleInfo.collection.insertOne(roleInfo.assign(_roleInfo), (err, r) => {
-      if (err) {
-        logger.error(err.message);
-        return cb && cb(i18n.t('databaseError'));
-      }
-
-      return cb && cb(null, r);
-    });
+    return cb && cb(null, {});
   });
 };
 
-service.updateRole = function updateRole(id, _roleInfo, cb) {
-  if (!id) {
-    return cb && cb(i18n.t('updateRoleNoId'));
-  }
-
-  const updateDoc = roleInfo.updateAssign(_roleInfo);
-  updateDoc.allowedPermissions = updateDoc.allowedPermissions || '';
-  updateDoc.deniedPermissions = updateDoc.deniedPermissions || '';
-
-  updateDoc.allowedPermissions = utils.trim(updateDoc.allowedPermissions.split(','));
-  updateDoc.deniedPermissions = utils.trim(updateDoc.deniedPermissions.split(','));
-
-  roleInfo.collection.findOne({ _id: { $ne: id }, name: _roleInfo.name }, { fields: { _id: 1 } }, (err, doc) => {
+service.updateRole = function updateRole(_roleInfo, cb) {
+  roleInfo.updateOne({ _id: _roleInfo._id }, _roleInfo, (err, doc) => {
     if (err) {
-      logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
-    }
-    if (doc) {
-      return cb && cb(i18n.t('updateRoleNameIsAlreadyExist'));
+      return cb && cb(err);
     }
 
-    roleInfo.collection.updateOne({ _id: id }, { $set: updateDoc }, (err, r) => {
-      if (err) {
-        logger.error(err.message);
-        return cb && cb(i18n.t('databaseError'));
-      }
-
-      return cb && cb(null, r);
-    });
+    return cb && cb(null, doc);
   });
 };
 
@@ -136,29 +91,12 @@ service.deleteRoles = function deleteRoles(ids, cb) {
 };
 
 service.assignRole = function assignRole(updateDoc, cb) {
-  const _id = updateDoc._id;
-  if (!_id) {
-    return cb && cb(i18n.t('assignRoleNoId'));
-  }
-
-  updateDoc = assignPermission.updateAssign(updateDoc);
-
-  updateDoc.roles = updateDoc.roles || '';
-  updateDoc.allowedPermissions = updateDoc.allowedPermissions || '';
-  updateDoc.deniedPermissions = updateDoc.deniedPermissions || '';
-
-  updateDoc.roles = utils.trim(updateDoc.roles.split(','));
-  updateDoc.allowedPermissions = utils.trim(updateDoc.allowedPermissions.split(','));
-  updateDoc.deniedPermissions = utils.trim(updateDoc.deniedPermissions.split(','));
-
-  assignPermission.collection.updateOne({ _id }, { $set: updateDoc }, { upsert: true }, (err, r) => {
+  assignPermission.udpateOne({ _id: updateDoc._id }, updateDoc, (err, doc) => {
     if (err) {
-      logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
+      return cb && cb(err);
     }
 
-    redisClient.del(_id);
-    return cb && cb(null, r);
+    return cb && cb(null, doc);
   });
 };
 
@@ -192,8 +130,8 @@ service.listPermission = function lPermission(roleId, status, name, page, pageSi
     if (status) {
       query.status = status;
     }
-    if(name){
-      query.name = { $regex: name, $options: 'i'};
+    if (name) {
+      query.name = { $regex: name, $options: 'i' };
     }
     listPermission(query, page, pageSize, sortFields, fieldsNeed, (err, docs) => cb && cb(err, docs));
   }
@@ -398,22 +336,22 @@ service.enablePermission = function enablePermission(info, cb) {
   let _ids = info._ids || '';
   const status = info.status;
 
-  if(!_ids){
+  if (!_ids) {
     return cb && cb(i18n.t('enablePermissionNoIds'));
   }
 
-  if(!permissionInfo.validateStatus(status)){
+  if (!permissionInfo.validateStatus(status)) {
     return cb && cb(i18n.t('enablePermissionStatusNotCorrect'));
   }
 
   _ids = _ids.split(',');
-  permissionInfo.collection.updateMany({_id: { $in: _ids}}, {$set: { status: status}}, function(err, r){
-    if(err){
+  permissionInfo.collection.updateMany({ _id: { $in: _ids } }, { $set: { status } }, (err) => {
+    if (err) {
       return cb && cb(err);
     }
 
     return cb && cb(null, {});
-  })
-}
+  });
+};
 
 module.exports = service;

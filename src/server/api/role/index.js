@@ -10,7 +10,7 @@ const router = express.Router();
 
 const result = require('../../common/result');
 
-const isLogin = require('../../middleware/login');
+// const isLogin = require('../../middleware/login');
 
 // router.use(isLogin.middleware);
 // router.use(isLogin.hasAccessMiddleware);
@@ -55,8 +55,9 @@ const service = require('./service');
 router.get('/list', (req, res) => {
   const page = req.query.page || 1;
   const pageSize = req.query.pageSize || 30;
+  const keyword = req.query.keyword || '';
 
-  service.listRole(page, pageSize, (err, docs) => res.json(result.json(err, docs)));
+  service.listRole(page, pageSize, keyword, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
@@ -126,11 +127,15 @@ router.get('/getDetail', (req, res) => {
  *               type: string
  *               example: admin
  *             allowedPermissions:
- *               type: string
- *               example: "/role/list,/role/getDetail"
+ *               type: array
+ *               items:
+ *                 type: string
+ *               example: ["/role/list","/role/getDetail"]
  *             deniedPermissions:
- *               type: string
- *               example: "/role/add,/role/update"
+ *               type: array
+ *               items:
+ *                 type: string
+ *               example: ["/role/add","/role/update"]
  *     responses:
  *       200:
  *         description: RoleInfo
@@ -179,18 +184,22 @@ router.post('/add', (req, res) => {
  *           required:
  *            - _id
  *           properties:
+ *             _id:
+ *               type: string
+ *               example: admin
  *             name:
  *               type: string
  *               example: admin
  *             allowedPermissions:
- *               type: string
- *               example: "/role/list,/role/getDetail,/role/delete,/role/listPermissions"
+ *               type: array
+ *               items:
+ *                 type: string
+ *               example: ["/role/list","/role/getDetail"]
  *             deniedPermissions:
- *               type: string
- *               example: "/role/update"
- *             _id:
- *               type: string
- *               example: "1c6ad690-5583-11e7-b784-69097aa4b384"
+ *               type: array
+ *               items:
+ *                 type: string
+ *               example: ["/role/ ","/role/update"]
  *     responses:
  *       200:
  *         description: RoleInfo
@@ -209,7 +218,7 @@ router.post('/add', (req, res) => {
  *
  */
 router.post('/update', (req, res) => {
-  service.updateRole(req.body._id, req.body, (err) => {
+  service.updateRole(req.body, (err) => {
     res.json(result.json(err, {}));
   });
 });
@@ -492,6 +501,7 @@ router.post('/enablePermission', (req, res) => {
  */
 router.get('/getUserOrDepartmentRoleAndPermissions', (req, res) => {
   const _id = req.query._id || '';
+
 
   service.getUserOrDepartmentRoleAndPermissions(_id, (err, r) => {
     res.json(result.json(err, r));

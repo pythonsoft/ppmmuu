@@ -15,34 +15,6 @@
     "code": "-1004",
     "message": "cannot find user"
   },
-  "addRoleNoName": {
-    "code": "-2001",
-    "message": "parameter name required"
-  },
-  "addRoleNoPermissions": {
-    "code": "-2002",
-    "message": "parameter permissions required"
-  },
-  "addRoleNameIsExist": {
-    "code": "-2003",
-    "message": "add role parameter name is already exist"
-  },
-  "updateRoleNoId": {
-    "code": "-2004",
-    "message": "update role parameter _id required"
-  },
-  "updateRoleNoName": {
-    "code": "-2011",
-    "message": "parameter name required"
-  },
-  "updateRoleNoPermissions": {
-    "code": "-2012",
-    "message": "parameter permissions required"
-  },
-  "updateRoleNameIsAlreadyExist": {
-    "code": "-2013",
-    "message": "update role name is already exist"
-  },
   "getRoleNoId": {
     "code": "-2005",
     "message": "get role parameter _id required"
@@ -166,5 +138,9 @@
   "parentIdIsNull": {
     "code": "-8003",
     "message": "parent taskId is null"
+  },
+  "typeError": {
+    "code": "-10001",
+    "message": "{{field}} 输入类型错误"
   }
 }

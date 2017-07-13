@@ -198,18 +198,9 @@ const updateGroupDetail = function updateGroupDetail(id, updateDoc, cb) {
   });
 };
 
-service.updateGroup = function updateGroup(id, updateInfo, cb) {
+service.updateGroup = function updateGroup(id, updateDoc, cb) {
   if (!id) {
     return cb && cb(i18n.t('groupIdIsNull'));
-  }
-
-  const updateDoc = groupInfo.updateAssign(updateInfo);
-
-  if (updateDoc.count) {
-    updateDoc.count *= 1;
-    if (typeof updateDoc.count !== 'number') {
-      updateDoc.count = 0;
-    }
   }
 
   if (updateDoc.parentId) {

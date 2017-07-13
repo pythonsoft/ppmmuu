@@ -68,42 +68,25 @@ class UserInfo extends DB {
   constructor() {
     super(config.dbInstance.umpDB, 'UserInfo');
 
-    this.doc = {
-      _id: '',
-      name: '',
-      displayName: '', // 英文名
-      password: '',
-      title: '',
-      verifyType: UserInfo.VERIFY_TYPE.PASSWORD, // 密码验证方式
-      company: {
-        _id: '',
-        name: '',
-      },
-      department: {
-        _id: '',
-        name: '',
-      },
-      team: {
-        _id: '',
-        name: '',
-      },
-      createdTime: new Date(),
-      description: '',
-      employeeId: '',
-      email: '',
-      phone: '',
-      photo: '', // path
-      status: UserInfo.STATUS.NORMAL,
-      Detail: {},
+    this.struct = {
+      _id: { type: 'string', default: '', validation: utils.checkEmail, unique: true, allowUpdate: true },
+      name: { type: 'string', default: '', validation: 'require', allowUpdate: true, unique: true },
+      displayName: { type: 'string', default: '', allowUpdate: true, unique: true },
+      password: { type: 'string', default: '', validation: utils.checkPassword, allowUpdate: true },
+      title: { type: 'string', default: '', allowUpdate: true },
+      verifyType: { type: 'string', default: UserInfo.VERIFY_TYPE.PASSWORD, allowUpdate: true },
+      company: { type: 'object', default: { _id: '', name: '' }, allowUpdate: true },
+      department: { type: 'object', default: { _id: '', name: '' }, allowUpdate: true },
+      team: { type: 'object', default: { _id: '', name: '' }, allowUpdate: true },
+      createdTime: { type: 'date', default() { return new Date(); }, allowUpdate: true },
+      description: { type: 'string', default: '', allowUpdate: true },
+      employeeId: { type: 'string', default: '', allowUpdate: true },
+      email: { type: 'string', default: '', validation: utils.checkEmail, unique: true, allowUpdate: true },
+      phone: { type: 'string', default: '', validation: utils.checkPhone, unique: true, allowUpdate: true },
+      photo: { type: 'string', default: '', allowUpdate: true },
+      status: { type: 'string', default: UserInfo.STATUS.NORMAL, allowUpdate: true },
+      detail: { type: 'object', default: {}, allowUpdate: true },
     };
-
-    this.updateDoc = this.doc;
-
-    this.createNeedValidateFields = { email: 1, phone: 1, name: 1, displayName: 1, password: 1 };
-    this.updateNeedValidateFields = { _id: 1, email: 1, phone: 1, name: 1, displayName: 1, password: 1 };
-    this.createGroupUserNeedValidateFields = { email: 1, phone: 1, name: 1, displayName: 1, password: 1, companyId: 1 };
-    this.validateFunc = { email: utils.checkEmail, phone: utils.checkPhone, password: utils.checkPassword };
-    this.uniqueFields = { email: 1, phone: 1, name: 1 };
   }
 
   getUserInfo(_id, fields, cb) {

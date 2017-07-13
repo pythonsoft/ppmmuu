@@ -50,37 +50,29 @@ class TaskInfo extends DB {
   constructor() {
     super(config.dbInstance.umpDB, 'TaskInfo');
 
-    this.doc = {
-      _id: '',
-      target: {
-        _id: '',
-        name: '',
-        type: '',
-      },
-      creator: {
-        _id: '',
-        name: '',
-        type: TaskInfo.CREATOR_TYPE.USER,
-      },
-      category: '',
-      command: '',
-      parentId: '', // 父结点
-      status: TaskInfo.STATUS.READY,
-      progress: '0',
-      createdTime: new Date(),
-      modifyTime: new Date(),
-      message: '',
-      details: {},
-    };
-
-    this.updateDoc = {
-      category: 1,
-      command: 1,
-      status: 1,
-      progress: 1,
-      modifyTime: 1,
-      message: 1,
-      details: 1,
+    this.struct = {
+      _id: { type: 'string', default: '', validation: 'require', unique: true },
+      target: { type: 'object',
+        default: {
+          _id: '',
+          name: '',
+          type: '',
+        } },
+      creator: { type: 'object',
+        default: {
+          _id: '',
+          name: '',
+          type: TaskInfo.CREATOR_TYPE.USER,
+        } },
+      category: { type: 'string', default: '', allowUpdate: true },
+      command: { type: 'string', default: '', allowUpdate: true },
+      parentId: { type: 'string', default: '', allowUpdate: true }, // 父结点
+      status: { type: 'string', default: TaskInfo.STATUS.READY, allowUpdate: true },
+      progress: { type: 'string', default: '0', allowUpdate: true },
+      createdTime: { type: 'date', default() { return new Date(); } },
+      modifyTime: { type: 'date', default() { return new Date(); }, allowUpdate: true },
+      message: { type: 'string', default: '0', allowUpdate: true },
+      details: { type: 'object', default: {}, allowUpdate: true },
     };
   }
 

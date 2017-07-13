@@ -101,16 +101,16 @@ const initPermissionInfo = function initPermissionInfo() {
       }
       console.log('mongodb connect utils!');
       const permissionInfo = db.collection('PermissionInfo');
-      permissionInfo.find().toArray(function(err, docs) {
-        if(err){
+      permissionInfo.find().toArray((err, docs) => {
+        if (err) {
           console.log(err);
           return false;
         }
 
-        if(docs && docs.length){
-          for(let i = 0, len = docs.length; i < len; i++){
-            const index = permissionPaths.indexOf(docs[i].path)
-            if(index !== -1){
+        if (docs && docs.length) {
+          for (let i = 0, len = docs.length; i < len; i++) {
+            const index = permissionPaths.indexOf(docs[i].path);
+            if (index !== -1) {
               permissionPaths.splice(index, 1);
               permissionNames.splice(index, 1);
             }
@@ -128,15 +128,15 @@ const initPermissionInfo = function initPermissionInfo() {
             status: '0',
           });
         }
-        if(info.length) {
-          permissionInfo.insert(info, {w: 1}, (err) => {
+        if (info.length) {
+          permissionInfo.insert(info, { w: 1 }, (err) => {
             if (err) {
               throw new Error(`权限表初始化有问题:${err.message}`);
             }
             return true;
           });
         }
-      })
+      });
     });
     /* eslint-enable consistent-return */
   } else if (nLength !== pLength) {

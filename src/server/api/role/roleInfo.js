@@ -42,19 +42,17 @@ class RoleInfo extends DB {
   constructor() {
     super(config.dbInstance.umpDB, 'RoleInfo');
 
-    this.doc = {
-      _id: '',
-      name: '',
-      creator: { _id: '', name: '' },
-      allowedPermissions: [], // PermissionInfo path
-      deniedPermissions: [], // PermissionInfo path
-      createdTime: new Date(),
-      modifyTime: new Date(),
-      description: '',
-      detail: {},
+    this.struct = {
+      _id: { type: String, default: '', validation: 'require', unique: true },
+      name: { type: String, default: '', validation: 'require', unique: true, allowUpdate: true },
+      creator: { type: Object, default: { _id: '', name: '' } },
+      allowedPermissions: { type: Array, default: [], allowUpdate: true }, // PermissionInfo path
+      deniedPermissions: { type: Array, default: [], allowUpdate: true }, // PermissionInfo path
+      createdTime: { type: Date, default() { return new Date(); } },
+      modifyTime: { type: Date, default() { return new Date(); }, allowUpdate: true },
+      description: { type: String, default: '', allowUpdate: true },
+      detail: { type: Object, default: {}, allowUpdate: true },
     };
-
-    this.updateDoc = { name: 1, allowedPermissions: 1, deniedPermissions: 1, description: 1, detail: 1, modifyTime: 1 };
   }
 }
 

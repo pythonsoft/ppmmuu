@@ -50,38 +50,28 @@ class GroupInfo extends DB {
   constructor() {
     super(config.dbInstance.umpDB, 'GroupInfo');
 
-    this.doc = {
-      _id: '',
-      name: '',
-      logo: '',
-      creator: {},
-      parentId: '',
-      contact: {
-        _id: '',
-        name: '',
-        phone: '',
-        email: '',
-      },
-      memberCount: 0,
-      ad: '', // 域控设置
-      type: GroupInfo.TYPE.COMPANY,
-      createdTime: new Date(),
-      modifyTime: new Date(),
-      description: '',
-      deleteDeny: GroupInfo.DELETE_DENY.YES, // 删除保护，创建后默认为保护状态
-      detail: {},
-    };
-
-    this.updateDoc = {
-      name: 1,
-      logo: 1,
-      parentId: 1,
-      contact: 1,
-      count: 1,
-      ad: 1,
-      type: 1,
-      modifyTime: 1,
-      detail: 1,
+    this.struct = {
+      _id: { type: 'string', default: '', validation: 'require' },
+      name: { type: 'string', default: '', validation: 'require', allowUpdate: true },
+      logo: { type: 'string', default: '', allowUpdate: true },
+      creator: { type: 'object', default: {} },
+      parentId: { type: 'string', default: '' },
+      contact: { type: 'object',
+        default: {
+          _id: '',
+          name: '',
+          phone: '',
+          email: '',
+        },
+        allowUpdate: true },
+      memberCount: { type: 'number', default: 0, allowUpdate: true },
+      ad: { type: 'string', default: '', allowUpdate: true }, // 域控设置
+      type: { type: 'string', default: GroupInfo.TYPE.COMPANY, allowUpdate: true },
+      createdTime: { type: 'date', default() { return new Date(); } },
+      modifyTime: { type: 'date', default() { return new Date(); }, allowUpdate: true },
+      description: { type: 'string', default: '', allowUpdate: true },
+      deleteDeny: { type: 'string', default: GroupInfo.DELETE_DENY.YES, allowUpdate: true }, // 删除保护，创建后默认为保护状态
+      detail: { type: 'object', default: {}, allowUpdate: true },
     };
   }
 
