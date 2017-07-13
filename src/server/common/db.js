@@ -142,22 +142,6 @@ class DB {
     return { err, docs };
   }
 
-  updateAssignMany(infos) {
-    const newInfos = [];
-    let err = null;
-
-    for (let i = 0, len = infos.length; i < len; i++) {
-      const result = this.updateAssign(infos[i]);
-      if (result.err) {
-        err = result.err;
-        break;
-      }
-      newInfos.push(result.doc);
-    }
-
-    return { err, docs: newInfos };
-  }
-
   insertOne(info, cb) {
     const result = this.assign(info);
 
