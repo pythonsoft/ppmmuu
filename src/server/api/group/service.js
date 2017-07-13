@@ -79,7 +79,7 @@ service.listAllParentGroup = function listAllParentGroup(parentId, fields, cb) {
   fields = fields ? { fields: utils.formatSortOrFieldsParams(fields) } : null;
 
   const listGroup = function listGroup(parentId) {
-    groupInfo.collection.findOne({ _id: parentId }, fields,  (err, doc) => {
+    groupInfo.collection.findOne({ _id: parentId }, fields, (err, doc) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));

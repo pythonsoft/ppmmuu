@@ -50,7 +50,7 @@ const utils = require('../../common/utils');
 class GroupInfo extends DB {
   constructor() {
     super(config.dbInstance.umpDB, 'GroupInfo', [
-      { key: {name: 1, type: 1, parentId: 1}, unique: true }
+      { key: { name: 1, type: 1, parentId: 1 }, unique: true },
     ]);
 
     this.struct = {
@@ -73,17 +73,11 @@ class GroupInfo extends DB {
         } },
       memberCount: { type: 'number' },
       ad: { type: 'string' }, // 域控设置
-      type: { type: 'string', default: GroupInfo.TYPE.COMPANY, validation: function(v) {
-        return utils.isValueInObject(v, GroupInfo.TYPE);
-      }},
+      type: { type: 'string', default: GroupInfo.TYPE.COMPANY, validation: v => utils.isValueInObject(v, GroupInfo.TYPE) },
       createdTime: { type: 'date', allowUpdate: false },
       modifyTime: { type: 'date' },
       description: { type: 'string' },
-      deleteDeny: { type: 'string',
-        default: GroupInfo.DELETE_DENY.YES,
-        validation(v) {
-          return GroupInfo.DELETE_DENY.YES === v || GroupInfo.DELETE_DENY.NO === v;
-        } }, // 删除保护，创建后默认为保护状态
+      deleteDeny: { type: 'string', default: GroupInfo.DELETE_DENY.YES, validation: v => utils.isValueInObject(v, GroupInfo.DELETE_DENY) }, // 删除保护，创建后默认为保护状态
       detail: { type: 'object' },
     };
   }

@@ -5,7 +5,6 @@
 'use strict';
 
 const logger = require('../../common/log')('error');
-const uuid = require('uuid');
 const utils = require('../../common/utils');
 const i18n = require('i18next');
 // const config = require('../../config');
@@ -261,7 +260,7 @@ service.listTactics = function listTactics(sourceId, status, page, pageSize, sor
   }
 
   if (status) {
-    q['status'] = status;
+    q.status = status;
   }
 
   tacticsInfo.pagination(q, page, pageSize, (err, docs) => {
@@ -308,7 +307,7 @@ service.addTactics = function addTactics(creatorId, creatorName, info = {}, cb) 
   if (info.source.type === TacticsInfo.SOURCE_TYPE.BUCKET) {
     col = bucketInfo;
     sourceTypeName = 'bucket';
-  }else if (info.source.type === TacticsInfo.SOURCE_TYPE.BUCKET) {
+  } else if (info.source.type === TacticsInfo.SOURCE_TYPE.BUCKET) {
     col = pathInfo;
     sourceTypeName = 'path';
   }
@@ -322,11 +321,11 @@ service.addTactics = function addTactics(creatorId, creatorName, info = {}, cb) 
     }
 
     if (!doc) {
-      return cb && cb(i18n.t(sourceTypeName + 'InfoIsNull'));
+      return cb && cb(i18n.t(`${sourceTypeName}InfoIsNull`));
     }
 
     if (utils.isEmptyObject(info)) {
-      return cb && cb(i18n.t(sourceTypeName + 'InfoIsNull'));
+      return cb && cb(i18n.t(`${sourceTypeName}InfoIsNull`));
     }
 
     info.source = { _id: doc._id, name: doc.name, type: info.source.type };
