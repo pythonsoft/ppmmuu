@@ -94,6 +94,8 @@ const initPermissionInfo = function initPermissionInfo() {
   const pLength = permissionPaths.length;
   if (nLength && nLength === pLength) {
     /* eslint-disable consistent-return */
+    permissionNames.push('所有权限');
+    permissionPaths.push('all');
     mongodb.MongoClient.connect(config.mongodb.umpURL, (err, db) => {
       if (err) {
         console.log(err);

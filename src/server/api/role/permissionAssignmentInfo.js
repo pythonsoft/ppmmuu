@@ -36,14 +36,21 @@ class PermissionAssignmentInfo extends DB {
     super(config.dbInstance.umpDB, 'PermissionAssignmentInfo');
 
     this.struct = {
-      _id: { type: 'string', default: '', validation: 'require', unique: true }, // userId or departmentId or teamId
-      roles: { type: 'array', default: [], allowUpdate: true },
-      allowedPermissions: { type: 'array', default: [], allowUpdate: true }, // 允许权限
-      deniedPermissions: { type: 'array', default: [], allowUpdate: true }, // 拒绝权限
-      createdTime: { type: 'date', default() { return new Date(); }, allowUpdate: false },
-      modifyTime: { type: 'date', default() { return new Date(); }, allowUpdate: true },
+      _id: { type: 'string', validation: 'require', allowUpdate: false }, // userId or departmentId or teamId
+      type: {type: 'string', validation: 'require', allowUpdate: false},
+      roles: { type: 'array' },
+      allowedPermissions: { type: 'array'}, // 允许权限
+      deniedPermissions: { type: 'array'}, // 拒绝权限
+      createdTime: { type: 'date', allowUpdate: false },
+      modifyTime: { type: 'date'},
     };
   }
+}
+
+PermissionAssignmentInfo.TYPE = {
+  USER: '0',
+  DEPARTMENT: '1',
+  TEAM: '2'
 }
 
 module.exports = PermissionAssignmentInfo;
