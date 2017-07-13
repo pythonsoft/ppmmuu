@@ -105,7 +105,7 @@ class DB {
         if (defaultType !== 'undefined') {
           doc[k] = defaultType === 'function' ? temp.default() : temp.default;
         } else if (temp.type && typeof defaultValue[temp.type] !== 'undefined') {
-          if (getValueType(temp.type) === 'function') {
+          if (getValueType(defaultValue[temp.type]) === 'function') {
             doc[k] = defaultValue[temp.type]();
           } else {
             doc[k] = defaultValue[temp.type];
