@@ -33,7 +33,7 @@ const isLogin = require('../../middleware/login');
  *     parameters:
  *       - in: query
  *         name: type
- *         description: "0" stands for user, "1" stands for group
+ *         description: '"0" stands for user, "1" stands for group'
  *         required: true
  *         type: string
  *       - in: query

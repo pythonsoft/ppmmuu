@@ -32,7 +32,7 @@ service.searchUserOrGroup = function searchUserOrGroup(info, cb){
   }
 
   if(keyword){
-    query.name = {$regex: name, $options: 'i'};
+    query.name = {$regex: keyword, $options: 'i'};
   }
 
   const searchUser = function searchUser(query){

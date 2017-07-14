@@ -8,6 +8,8 @@ const logger = require('../../common/log')('error');
 
 const i18n = require('i18next');
 
+const utils = require('../../common/utils');
+
 const AssignPermission = require('./permissionAssignmentInfo');
 
 const assignPermission = new AssignPermission();
@@ -136,14 +138,30 @@ service.deleteRoles = function deleteRoles(ids, cb) {
   });
 };
 
-service.assignRole = function assignRole(updateDoc, cb) {
-  assignPermission.udpateOne({ _id: updateDoc._id }, updateDoc, (err, doc) => {
-    if (err) {
-      return cb && cb(err);
+service.assignRole = function assignRole(info, cb) {
+  let roles = info.roles;
+  info.roles = roles.split(',');
+  const rs = assignPermission.assign(info);
+  const _id = info._id;
+  if(rs.err){
+    return cb && cb(err);
+  }
+
+  assignPermission.collection.insertOne(rs.doc, function(err){
+    if(!err){
+      return cb && cb(null);
     }
 
-    return cb && cb(null, doc);
-  });
+    assignPermission.collection.updateOne({_id: _id}, {$addToSet: { roles: roles}, $set:{ modifyTime: new Date()}}, function(err){
+      if(err){
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      return cb && cb(null);
+    })
+  })
+
 };
 
 const listPermission = function listPermission(q, page, pageSize, sortFields, fieldsNeed, cb) {
@@ -496,6 +514,44 @@ service.getRoleOwners = function getRoleOwners(info, cb){
         result = result.concat(rs);
         return cb && cb(null, result);
       })
+    })
+  })
+
+}
+
+service.deleteOwnerRole = function deleteOwnerRole(info, cb){
+  const _id = info._id;
+  let roles = info.roles;
+  roles = roles.split(',');
+  info.roles = roles;
+
+  if(!_id){
+    return cb & cb(i18n.t('delteRoleOwnersNoId'));
+  }
+
+  if(!roles){
+    return cb & cb(i18n.t('deleteRoleOwnersNoRoles'));
+  }
+
+  assignPermission.collection.findOne({_id: _id}, function(err, doc){
+    if(err){
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if(!doc){
+      return cb && cb(i18n.t('canNotFindRoleAssign'));
+    }
+
+    roles = utils.minusArray(doc.roles, roles);
+
+    assignPermission.collection.updateOne({_id: _id}, {$set: {roles: roles, modifyTime: new Date()}}, function(err){
+      if(err){
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      return cb && cb(null);
     })
   })
 

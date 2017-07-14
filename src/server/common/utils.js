@@ -177,4 +177,13 @@ utils.isValueInObject = function isValueInObject(val, obj) {
   return flag;
 };
 
+utils.minusArray = function minusArray(arr1, arr2){
+  for(let i = 0, len = arr1.length; i < len; i++){
+    if(arr2.indexOf(arr1[i]) !== -1){
+      arr1.splice(i, 1);
+    }
+  }
+  return arr1;
+}
+
 module.exports = utils;

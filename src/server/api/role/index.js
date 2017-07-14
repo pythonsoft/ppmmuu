@@ -343,7 +343,7 @@ router.get('/listPermission', (req, res) => {
 });
 
 /**
- * @permissionName: 分配角色和权限
+ * @permissionName: 分配角色给用户或组织
  * @permissionPath: /role/assignRole
  * @apiName: postAssignRole
  * @apiFuncType: post
@@ -365,22 +365,19 @@ router.get('/listPermission', (req, res) => {
  *         schema:
  *           type: object
  *           required:
- *            - _id
- *            - roleId
- *            - type
+ *             - _id
+ *             - roles
+ *             - type
  *           properties:
- *             roleId:
+ *             roles:
  *               type: string
- *               example: admin,guest,support
+ *               example: "admin,guest,support"
  *             _id:
  *               type: string
  *               example: xuyawen@phoenixtv.com
- *             allowedPermissions:
+ *             type:
  *               type: string
- *               example: "/role/list,/role/add"
- *             deniedPermissions:
- *               type: string
- *               example: "/role/update,/role/delete"
+ *               example: '"0" stand for user, "1" stand for company'
  *     responses:
  *       200:
  *         description: RoleInfo
@@ -399,11 +396,66 @@ router.get('/listPermission', (req, res) => {
  *
  */
 router.post('/assignRole', (req, res) => {
-  service.assignRole(req.body, (err, r) => {
-    res.json(result.json(err, r));
+  service.assignRole(req.body, (err) => {
+    res.json(result.json(err, {}));
   });
 });
- 
+
+/**
+ * @permissionName: 删除用户或组织的角色
+ * @permissionPath: /role/deleteOwnerRole
+ * @apiName: postDeleteOwnerRole
+ * @apiFuncType: post
+ * @apiFuncUrl: /role/deleteOwnerRole
+ * @swagger
+ * /role/deleteOwnerRole:
+ *   post:
+ *     description: delete owner role
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - RoleInfo
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: delete owner role
+ *         schema:
+ *           type: object
+ *           required:
+ *             - _id
+ *             - roles
+ *           properties:
+ *             roles:
+ *               type: string
+ *               example: "admin,guest,support"
+ *             _id:
+ *               type: string
+ *               example: xuyawen@phoenixtv.com
+ *     responses:
+ *       200:
+ *         description: RoleInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *
+ */
+router.post('/deleteOwnerRole', (req, res) => {
+  service.deleteOwnerRole(req.body, (err) => {
+    res.json(result.json(err, {}));
+  });
+});
+
 /**
  * @permissionName: 启用或禁用权限
  * @permissionPath: /role/enablePermission
