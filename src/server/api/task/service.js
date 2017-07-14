@@ -5,7 +5,6 @@
 'use strict';
 
 const logger = require('../../common/log')('error');
-const uuid = require('uuid');
 const utils = require('../../common/utils');
 const i18n = require('i18next');
 
@@ -80,49 +79,43 @@ const componentChildTaskInfo = function componentChildTaskInfo(parentId, creator
   const ts = [];
 
   if (!utils.isEmptyObject(childTasksInfo)) {
-    if (childTasksInfo.constructor === Array) {
-      for (let i = 0, len = childTasksInfo.length; i < len; i++) {
-        if (!childTasksInfo[i]._id) {
-          childTasksInfo[i]._id = uuid.v1();
-        }
-        childTasksInfo[i].parentId = parentId;
-        childTasksInfo[i].createdTime = new Date();
-        childTasksInfo[i].creator = creator;
-        ts.push(taskInfo.assign(childTasksInfo[i]));
-      }
+    let arr = [];
+
+    if (childTasksInfo.constructor !== Array) {
+      arr.push(childTasksInfo);
+    } else {
+      arr = childTasksInfo;
+    }
+
+    for (let i = 0, len = arr.length; i < len; i++) {
+      arr[i].parentId = parentId;
+      arr[i].creator = creator;
+      ts.push(arr[i]);
     }
   }
 
   return ts;
 };
 
-service.addTask = function addTask(parentTaskInfo, childTasksInfo, cb) {
+service.addTask = function addTask(creatorId, creatorName, creatorType, parentTaskInfo, childTasksInfo, cb) {
+  if (!creatorId || !creatorName || !creatorType) {
+    return cb && cb(i18n.t('taskCreatorIdNameTypeIsNull'));
+  }
+
   if (utils.isEmptyObject(parentTaskInfo)) {
     return cb && cb(i18n.t('parentTaskInfoIsNull'));
   }
 
-  if (utils.isEmptyObject(parentTaskInfo.creator)) {
-    return cb && cb(i18n.t('taskCreatorIsNull'));
-  }
-
-  const pInfo = taskInfo.assign(parentTaskInfo);
-
-  if (!pInfo.target) {
+  if (!parentTaskInfo.target) {
     return cb && cb(i18n.t('taskTargetIsNull'));
   }
 
-  const time = new Date();
-  pInfo.createdTime = time;
-  pInfo.modifyTime = time;
+  parentTaskInfo.creator = { _id: creatorId, name: creatorName, type: creatorType };
 
-  if (!pInfo._id) {
-    pInfo._id = uuid.v1();
-  }
+  const ts = componentChildTaskInfo(parentTaskInfo._id, parentTaskInfo.creator, childTasksInfo);
+  ts.push(parentTaskInfo);
 
-  const ts = componentChildTaskInfo(pInfo._id, pInfo.creator, childTasksInfo);
-  ts.push(pInfo);
-
-  taskInfo.collection.insertMany(ts, (err, r) => {
+  taskInfo.insertMany(ts, (err, r) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -132,12 +125,12 @@ service.addTask = function addTask(parentTaskInfo, childTasksInfo, cb) {
   });
 };
 
-service.addChildTasks = function addChildTasks(parentId, childTasksInfo, cb) {
+service.addChildTasks = function addChildTasks(creatorId, creatorName, creatorType, parentId, childTasksInfo, cb) {
   if (!parentId) {
     return cb && cb(i18n.t('parentIdIsNull'));
   }
 
-  taskInfo.collection.findOne({ _id: parentId }, { fields: { _id: 1, creator: 1 } }, (err, doc) => {
+  taskInfo.collection.findOne({ _id: parentId }, { fields: { _id: 1 } }, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -147,9 +140,10 @@ service.addChildTasks = function addChildTasks(parentId, childTasksInfo, cb) {
       return cb && cb(i18n.t('taskInfoIsNull'));
     }
 
-    const ts = componentChildTaskInfo(parentId, doc.creator, childTasksInfo);
+    const creator = { _id: creatorId, name: creatorName, type: creatorType };
+    const ts = componentChildTaskInfo(parentId, creator, childTasksInfo);
 
-    taskInfo.collection.insertMany(ts, (err, r) => {
+    taskInfo.insertMany(ts, (err, r) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
@@ -175,7 +169,9 @@ service.updateTask = function updateTask(id, info, cb) {
       return cb && cb(i18n.t('taskInfoIsNull'));
     }
 
-    taskInfo.collection.updateOne({ _id: id }, taskInfo.updateAssign(info), (err, r) => {
+    info.modifyTime = new Date();
+
+    taskInfo.updateOne({ _id: id }, info, (err, r) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));

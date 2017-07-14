@@ -125,25 +125,6 @@ class DB {
     return { err, doc };
   }
 
-  getUniqueFields() {
-    const struct = this.struct;
-    const uniqueFields = {};
-    let hasUniqueFields = false;
-
-    for (const k in struct) {
-      if (struct[k].unique) {
-        uniqueFields[k] = 1;
-        hasUniqueFields = true;
-      }
-    }
-
-    if (!hasUniqueFields) {
-      return null;
-    }
-
-    return uniqueFields;
-  }
-
   assignMany(infos) {
     const docs = [];
     let err = null;
@@ -159,22 +140,6 @@ class DB {
       docs.push(result.doc);
     }
     return { err, docs };
-  }
-
-  updateAssignMany(infos) {
-    const newInfos = [];
-    let err = null;
-
-    for (let i = 0, len = infos.length; i < len; i++) {
-      const result = this.updateAssign(infos[i]);
-      if (result.err) {
-        err = result.err;
-        break;
-      }
-      newInfos.push(result.doc);
-    }
-
-    return { err, docs: newInfos };
   }
 
   insertOne(info, cb) {
@@ -241,6 +206,22 @@ class DB {
     const doc = result.doc;
 
     this.collection.updateMany(query, { $set: doc }, (err, r) => {
+      if (err) {
+        return cb && cb(err);
+      }
+
+      return cb && cb(null, r);
+    });
+  }
+
+  findOneAndUpdate(query, info, options = null, cb) {
+    const result = this.updateAssign(info);
+
+    if (result.err) {
+      return cb & cb(result.err);
+    }
+
+    this.collection.findOneAndUpdate(query, info, options, (err, r) => {
       if (err) {
         return cb && cb(err);
       }
