@@ -20,6 +20,14 @@ const PermissionInfo = require('./permissionInfo');
 
 const permissionInfo = new PermissionInfo();
 
+const GroupInfo = require('../group/groupInfo');
+
+const groupInfo = new GroupInfo();
+
+const UserInfo = require('../user/userInfo');
+
+const userInfo = new UserInfo();
+
 const groupService = require('../group/service');
 
 const service = {};
@@ -391,5 +399,106 @@ service.enablePermission = function enablePermission(info, cb) {
     return cb && cb(null, {});
   });
 };
+
+service.getRoleOwners = function getRoleOwners(info, cb){
+  const _id = info._id || '';
+  const keyword = info.keyword;
+  const limit = info.limit || 20;
+  const query = {};
+
+  const getUserInfos = function getUserInfos(userIds, callback){
+    if(!userIds || userIds.length === 0){
+      return callback && callback(null, []);
+    }
+
+    userInfo.collection.find({_id: {$in: userIds}}, { fields: {name: 1, photo: 1}}).toArray(function(err, docs){
+      if(err){
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+      const rs = [];
+      for(let i = 0; i < docs.length; i++){
+        docs[i].type = AssignPermission.TYPE.USER;
+        rs.push(docs[i]);
+      }
+
+      return callback && callback(null, rs);
+    })
+  }
+
+  const getGroupInfos = function getGroupInfos(groupIds, callback){
+    if(!groupIds || groupIds.length === 0){
+      return callback && callback(null, []);
+    }
+
+    groupInfo.collection.find({_id: {$in: groupIds}}, { fields: {name: 1, logo: 1, type: 1}}).toArray(function(err, docs){
+      if(err){
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+      const rs = [];
+      for(let i = 0; i < docs.length; i++){
+        const type = docs[i].type;
+        if(type === GroupInfo.TYPE.COMPANY) {
+          docs[i].type = AssignPermission.TYPE.COMPANY;
+        }else if(type === GroupInfo.TYPE.DEPARTMENT){
+          docs[i].type = AssignPermission.TYPE.DEPARTMENT;
+        }else if(type === GroupInfo.TYPE.TEAM){
+          docs[i].type = AssignPermission.TYPE.TEAM;
+        }
+        rs.push(docs[i]);
+      }
+
+      return callback && callback(null, rs);
+    })
+  }
+
+  if(!_id){
+    return cb & cb(i18n.t('getRoleOwnersNoId'));
+  }
+
+  query.roles = _id;
+
+  if(keyword){
+    query.name = {$regex: keyword, $options: 'i'};
+  }
+
+  assignPermission.collection.find(query, {fields: {_id: 1, type: 1}}).limit(limit).toArray(function(err, docs){
+    if(err){
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if(!docs || docs.length === 0){
+      return cb && cb(null, []);
+    }
+
+    const userIds = [];
+    const groupIds = [];
+    for(let i = 0; i< docs.length; i++){
+      if(docs[i].type === AssignPermission.TYPE.USER){
+        userIds.push(docs[i]._id);
+      }else{
+        groupIds.push(docs[i]._id);
+      }
+    }
+
+    let result = [];
+    getUserInfos(userIds, function(err, rs){
+      if(err){
+        return cb && cb(err);
+      }
+      result = result.concat(rs);
+      getGroupInfos(groupIds, function(err, rs){
+        if(err){
+          return cb && cb(err);
+        }
+        result = result.concat(rs);
+        return cb && cb(null, result);
+      })
+    })
+  })
+
+}
 
 module.exports = service;

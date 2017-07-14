@@ -366,8 +366,10 @@ router.get('/listPermission', (req, res) => {
  *           type: object
  *           required:
  *            - _id
+ *            - roleId
+ *            - type
  *           properties:
- *             roleIds:
+ *             roleId:
  *               type: string
  *               example: admin,guest,support
  *             _id:
@@ -401,7 +403,7 @@ router.post('/assignRole', (req, res) => {
     res.json(result.json(err, r));
   });
 });
-
+ 
 /**
  * @permissionName: 启用或禁用权限
  * @permissionPath: /role/enablePermission
@@ -463,7 +465,7 @@ router.post('/enablePermission', (req, res) => {
  * @permissionName: 用户或部门角色权限详情
  * @permissionPath: /role/getUserOrDepartmentRoleAndPermissions
  * @apiName: getUserOrDepartmentRoleAndPermissions
- * @apiFuncType: post
+ * @apiFuncType: get
  * @apiFuncUrl: /role/getUserOrDepartmentRoleAndPermissions
  * @swagger
  * /role/getUserOrDepartmentRoleAndPermissions:
@@ -507,5 +509,60 @@ router.get('/getUserOrDepartmentRoleAndPermissions', (req, res) => {
     res.json(result.json(err, r));
   });
 });
+
+
+/**
+ * @permissionName: 搜索拥有特定角色的用户,组织,部门,小组
+ * @permissionPath: /role/getRoleOwners
+ * @apiName: getRoleOwners
+ * @apiFuncType: get
+ * @apiFuncUrl: /role/getRoleOwners
+ * @swagger
+ * /role/getRoleOwners:
+ *   get:
+ *     description: get user or department role and permissions
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - RoleInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: _id
+ *         description: role _id
+ *         required: true
+ *         type: string
+ *         default: "043741f0-5cac-11e7-9a4a-5b43dc9cf567"
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: keyword
+ *         description: user or group name
+ *         required: true
+ *         type: string
+ *         default: "xuyawen"
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: RoleInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.get('/getRoleOwners', (req, res) => {
+  service.getRoleOwners(req.query, (err, r) => {
+    res.json(result.json(err, r));
+  });
+});
+
 
 module.exports = router;
