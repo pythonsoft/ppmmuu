@@ -5,7 +5,6 @@
 'use strict';
 
 const logger = require('../../common/log')('error');
-const uuid = require('uuid');
 const utils = require('../../common/utils');
 const i18n = require('i18next');
 
@@ -121,8 +120,6 @@ service.addGroup = function addGroup(parentId, creatorId, creatorName, info, cb)
     return cb && cb(i18n.t('groupIdIsNull'));
   }
 
-  info._id = info._id || uuid.v1();
-
   if (!info.parentId) {
     info.parentId = parentId;
   }
@@ -144,6 +141,7 @@ service.addGroup = function addGroup(parentId, creatorId, creatorName, info, cb)
       if (type === GroupInfo.TYPE.COMPANY) {
         return cb && cb(null);
       }
+
       groupInfo.collection.findOne({ _id: parentId }, { fields: { _id: 1 } }, (err, doc) => {
         if (err) {
           logger.error(err.message);
@@ -164,7 +162,7 @@ service.addGroup = function addGroup(parentId, creatorId, creatorName, info, cb)
       return cb && cb(err);
     }
 
-    groupInfo.collection.insertOne(groupInfo.assign(info), (err) => {
+    groupInfo.insertOne(info, (err) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
@@ -176,7 +174,7 @@ service.addGroup = function addGroup(parentId, creatorId, creatorName, info, cb)
 };
 
 const updateGroupDetail = function updateGroupDetail(id, updateDoc, cb) {
-  groupInfo.collection.updateOne({ _id: id }, { $set: updateDoc }, (err, r) => {
+  groupInfo.updateOne({ _id: id }, updateDoc, (err, r) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -191,22 +189,28 @@ service.updateGroup = function updateGroup(id, updateDoc, cb) {
     return cb && cb(i18n.t('groupIdIsNull'));
   }
 
-  if (updateDoc.parentId) {
-    groupInfo.collection.findOne(
-      { _id: updateDoc.parentId }, { fields: { _id: 1 } }, (err, doc) => {
+  groupInfo.collection.findOne({ _id: id }, { fields: { _id: 1, parentId: 1 } }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if (updateDoc.parentId && updateDoc.parentId !== doc.parentId) {
+      groupInfo.collection.findOne({ _id: updateDoc.parentId }, { fields: { _id: 1 } }, (err, doc) => {
         if (err) {
           logger.error(err.message);
           return cb && cb(i18n.t('databaseError'));
         }
 
         if (!doc) {
-          delete updateDoc.parentId;
+          return cb && cb(i18n.t('parentGroupInfoIsNotExist'));
         }
         updateGroupDetail(id, updateDoc, cb);
       });
-  } else {
-    updateGroupDetail(id, updateDoc, cb);
-  }
+    } else {
+      updateGroupDetail(id, updateDoc, cb);
+    }
+  });
 };
 
 service.deleteGroup = function deleteGroup(id, cb) {
