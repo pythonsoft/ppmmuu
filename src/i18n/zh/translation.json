@@ -121,7 +121,11 @@
   },
   "cannotFindGroup": {
     "code": "-5008",
-    "message": "找不到组"
+    "message": "找不到组织"
+  },
+  "parentGroupInfoIsNotExist": {
+    "code": "-5009",
+    "message": "上一级组织信息不存在"
   },
   "getUserOrDepartmentRoleAndPermissionsNoId": {
     "code": "-6001",
@@ -154,6 +158,10 @@
   "taskCreatorIsNull": {
     "code": "-8005",
     "message": "任务创建者信息不完整"
+  },
+  "taskCreatorIdNameTypeIsNull": {
+    "code": "-8006",
+    "message": "任务创建者信息不完全，请检查，id，name, type"
   },
   "bucketIdIsNull": {
     "code": "-9001",

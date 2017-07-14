@@ -4,6 +4,8 @@
 
 'use strict';
 
+const uuid = require('uuid');
+
 const DB = require('../../common/db');
 const config = require('../../config');
 const utils = require('../../common/utils');
@@ -54,23 +56,12 @@ class GroupInfo extends DB {
     ]);
 
     this.struct = {
-      _id: { type: 'string' },
+      _id: { type: 'string', default() { return uuid.v1(); } },
       name: { type: 'string', validation: 'require' },
       logo: { type: 'string' },
-      creator: { type: 'object',
-        default: {
-          _id: '',
-          name: '',
-        },
-        allowUpdate: false },
-      parentId: { type: 'string', default: '', validation: 'require' },
-      contact: { type: 'object',
-        default: {
-          _id: '',
-          name: '',
-          phone: '',
-          email: '',
-        } },
+      creator: { type: 'object', default: { _id: '', name: '' }, allowUpdate: false },
+      parentId: { type: 'string', validation: 'require' },
+      contact: { type: 'object', default: { _id: '', name: '', phone: '', email: '' } },
       memberCount: { type: 'number' },
       ad: { type: 'string' }, // 域控设置
       type: { type: 'string', default: GroupInfo.TYPE.COMPANY, validation: v => utils.isValueInObject(v, GroupInfo.TYPE) },
