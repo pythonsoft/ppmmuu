@@ -43,6 +43,45 @@ utils.merge = function merge(source, target) {
   return s;
 };
 
+/**
+ * @description 去重合并
+ * @param arr1
+ * @param arr2
+ * @returns []
+ */
+utils.hardMerge = function hardMerge(arr1, arr2) {
+  for (let i = 0; i < arr1.length; i++) {
+    for (let j = 0; j < arr2.length; j++) {
+      if (arr1[i] === arr2[j]) {
+        arr1.splice(i, 1);
+      }
+    }
+  }
+  for (let i = 0; i < arr2.length; i++) {
+    arr1.push(arr2[i]);
+  }
+  return arr1;
+};
+
+/**
+ * @description 数组相减
+ * @param arr1
+ * @param arr2
+ * @returns []
+ */
+utils.minusArr = function minusArr(arr1, arr2) {
+  for (let i = 0; i < arr1.length; i++) {
+    for (let j = 0; j < arr2.length; j++) {
+      if (arr1[i] === arr2[j]) {
+        arr1.splice(i, 1);
+      }
+    }
+  }
+  return arr1;
+};
+
+
+
 utils.cipher = function cipher(str, password) {
   const cipher = crypto.createCipher('aes-256-cbc', password);
   let crypted = cipher.update(str, 'utf8', 'hex');
@@ -176,5 +215,14 @@ utils.isValueInObject = function isValueInObject(val, obj) {
   }
   return flag;
 };
+
+utils.minusArray = function minusArray(arr1, arr2){
+  for(let i = 0, len = arr1.length; i < len; i++){
+    if(arr2.indexOf(arr1[i]) !== -1){
+      arr1.splice(i, 1);
+    }
+  }
+  return arr1;
+}
 
 module.exports = utils;

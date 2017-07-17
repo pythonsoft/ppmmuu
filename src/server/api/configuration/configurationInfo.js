@@ -13,16 +13,16 @@ const config = require('../../config');
  *       - genre
  *     properties:
  *       key:
- *         type: String
+ *         type: string
  *         example: "testKey"
  *       value:
- *         type: String
+ *         type: string
  *         example: "testValue"
  *       genre:
- *         type: String
+ *         type: string
  *         example: "testGenre"
  *       description:
- *         type: String
+ *         type: string
  *         example: "A simple description"
  */
 class ConfigurationInfo extends DB {

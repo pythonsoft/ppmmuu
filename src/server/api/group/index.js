@@ -282,6 +282,8 @@ router.post('/update', (req, res) => {
  *           required:
  *            - _id
  *           properties:
+ *             _id:
+ *               type: string
  *             name:
  *               type: string
  *               example: "043741f0-5cac-11e7-9a4a-5b43dc9cf567"

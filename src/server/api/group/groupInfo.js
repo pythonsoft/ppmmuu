@@ -27,11 +27,6 @@ const utils = require('../../common/utils');
  *         type: string
  *       contact:
  *         type: object
- *         properties:
- *           _id: string
- *           name: string
- *           phone: string
- *           email: string
  *       memberCount:
  *         type: integer
  *       ad:

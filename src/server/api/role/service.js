@@ -8,6 +8,8 @@ const logger = require('../../common/log')('error');
 
 const i18n = require('i18next');
 
+const utils = require('../../common/utils');
+
 const AssignPermission = require('./permissionAssignmentInfo');
 
 const assignPermission = new AssignPermission();
@@ -19,6 +21,14 @@ const roleInfo = new RoleInfo();
 const PermissionInfo = require('./permissionInfo');
 
 const permissionInfo = new PermissionInfo();
+
+const GroupInfo = require('../group/groupInfo');
+
+const groupInfo = new GroupInfo();
+
+const UserInfo = require('../user/userInfo');
+
+const userInfo = new UserInfo();
 
 const groupService = require('../group/service');
 
@@ -103,7 +113,11 @@ service.addRole = function addRole(_roleInfo, cb) {
   });
 };
 
-service.updateRole = function updateRole(_roleInfo, cb) {
+service.updateRole = function updateRole(info, cb) {
+  const _roleInfo = {};
+  _roleInfo._id = info._id;
+  _roleInfo.name = info.name;
+  _roleInfo.description = info.description;
   roleInfo.updateOne({ _id: _roleInfo._id }, _roleInfo, (err, doc) => {
     if (err) {
       return cb && cb(err);
@@ -128,14 +142,30 @@ service.deleteRoles = function deleteRoles(ids, cb) {
   });
 };
 
-service.assignRole = function assignRole(updateDoc, cb) {
-  assignPermission.udpateOne({ _id: updateDoc._id }, updateDoc, (err, doc) => {
-    if (err) {
-      return cb && cb(err);
+service.assignRole = function assignRole(info, cb) {
+  let roles = info.roles;
+  info.roles = roles.split(',');
+  const rs = assignPermission.assign(info);
+  const _id = info._id;
+  if(rs.err){
+    return cb && cb(err);
+  }
+
+  assignPermission.collection.insertOne(rs.doc, function(err){
+    if(!err){
+      return cb && cb(null);
     }
 
-    return cb && cb(null, doc);
-  });
+    assignPermission.collection.updateOne({_id: _id}, {$addToSet: { roles: roles}, $set:{ modifyTime: new Date()}}, function(err){
+      if(err){
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      return cb && cb(null);
+    })
+  })
+
 };
 
 const listPermission = function listPermission(q, page, pageSize, sortFields, fieldsNeed, cb) {
@@ -391,5 +421,187 @@ service.enablePermission = function enablePermission(info, cb) {
     return cb && cb(null, {});
   });
 };
+
+service.getRoleOwners = function getRoleOwners(info, cb){
+  const _id = info._id || '';
+  const keyword = info.keyword;
+  const limit = info.limit || 20;
+  const query = {};
+
+  const getUserInfos = function getUserInfos(userIds, callback){
+    if(!userIds || userIds.length === 0){
+      return callback && callback(null, []);
+    }
+
+    userInfo.collection.find({_id: {$in: userIds}}, { fields: {name: 1, photo: 1}}).toArray(function(err, docs){
+      if(err){
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+      const rs = [];
+      for(let i = 0; i < docs.length; i++){
+        docs[i].type = AssignPermission.TYPE.USER;
+        rs.push(docs[i]);
+      }
+
+      return callback && callback(null, rs);
+    })
+  }
+
+  const getGroupInfos = function getGroupInfos(groupIds, callback){
+    if(!groupIds || groupIds.length === 0){
+      return callback && callback(null, []);
+    }
+
+    groupInfo.collection.find({_id: {$in: groupIds}}, { fields: {name: 1, logo: 1, type: 1}}).toArray(function(err, docs){
+      if(err){
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+      const rs = [];
+      for(let i = 0; i < docs.length; i++){
+        const type = docs[i].type;
+        if(type === GroupInfo.TYPE.COMPANY) {
+          docs[i].type = AssignPermission.TYPE.COMPANY;
+        }else if(type === GroupInfo.TYPE.DEPARTMENT){
+          docs[i].type = AssignPermission.TYPE.DEPARTMENT;
+        }else if(type === GroupInfo.TYPE.TEAM){
+          docs[i].type = AssignPermission.TYPE.TEAM;
+        }
+        rs.push(docs[i]);
+      }
+
+      return callback && callback(null, rs);
+    })
+  }
+
+  if(!_id){
+    return cb & cb(i18n.t('getRoleOwnersNoId'));
+  }
+
+  query.roles = _id;
+
+  if(keyword){
+    query.name = {$regex: keyword, $options: 'i'};
+  }
+
+  assignPermission.collection.find(query, {fields: {_id: 1, type: 1}}).limit(limit).toArray(function(err, docs){
+    if(err){
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if(!docs || docs.length === 0){
+      return cb && cb(null, []);
+    }
+
+    const userIds = [];
+    const groupIds = [];
+    for(let i = 0; i< docs.length; i++){
+      if(docs[i].type === AssignPermission.TYPE.USER){
+        userIds.push(docs[i]._id);
+      }else{
+        groupIds.push(docs[i]._id);
+      }
+    }
+
+    let result = [];
+    getUserInfos(userIds, function(err, rs){
+      if(err){
+        return cb && cb(err);
+      }
+      result = result.concat(rs);
+      getGroupInfos(groupIds, function(err, rs){
+        if(err){
+          return cb && cb(err);
+        }
+        result = result.concat(rs);
+        return cb && cb(null, result);
+      })
+    })
+  })
+
+}
+
+service.deleteOwnerRole = function deleteOwnerRole(info, cb){
+  const _id = info._id;
+  let roles = info.roles;
+  roles = roles.split(',');
+  info.roles = roles;
+
+  if(!_id){
+    return cb & cb(i18n.t('delteRoleOwnersNoId'));
+  }
+
+  if(!roles){
+    return cb & cb(i18n.t('deleteRoleOwnersNoRoles'));
+  }
+
+  assignPermission.collection.findOne({_id: _id}, function(err, doc){
+    if(err){
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if(!doc){
+      return cb && cb(i18n.t('canNotFindRoleAssign'));
+    }
+
+    roles = utils.minusArray(doc.roles, roles);
+
+    assignPermission.collection.updateOne({_id: _id}, {$set: {roles: roles, modifyTime: new Date()}}, function(err){
+      if(err){
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      return cb && cb(null);
+    })
+  })
+
+}
+
+service.updateRolePermission = function updateRoleAddPermission(info, isAdd, cb) {
+  const _id = info._id;
+  const allowedPermissions = info.allowedPermissions || [];
+  const deniedPermissions = info.deniedPermissions || [];
+
+  if(!_id){
+    return cb & cb(i18n.t('updateRoleNoId'));
+  }
+
+  if(deniedPermissions.length === 0 && allowedPermissions.length === 0){
+    return cb & cb(null);
+  }
+
+  roleInfo.collection.findOne({_id: _id}, function(err, doc){
+    if(err){
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if(!doc){
+      return cb && cb(i18n.t('canNotFindRole'));
+    }
+
+    let func = utils.minusArr;
+
+    if(isAdd){
+      func = utils.hardMerge;
+    }
+
+    doc.allowedPermissions = func(doc.allowedPermissions, allowedPermissions);
+    doc.deniedPermissions = func(doc.deniedPermissions, deniedPermissions);
+
+    roleInfo.collection.updateOne({_id: _id}, {$set: doc}, function(err){
+      if(err){
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+      return cb && cb(null);
+    })
+  })
+}
+
 
 module.exports = service;

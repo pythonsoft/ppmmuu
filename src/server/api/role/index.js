@@ -160,7 +160,7 @@ router.post('/add', (req, res) => {
 });
 
 /**
- * @permissionName: 更新角色
+ * @permissionName: 编辑角色
  * @permissionPath: /role/update
  * @apiName: postUpdateRole
  * @apiFuncType: post
@@ -190,6 +190,58 @@ router.post('/add', (req, res) => {
  *             name:
  *               type: string
  *               example: admin
+ *     responses:
+ *       200:
+ *         description: RoleInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *
+ */
+router.post('/update', (req, res) => {
+  service.updateRole(req.body, (err) => {
+    res.json(result.json(err, {}));
+  });
+});
+
+
+/**
+ * @permissionName: 编辑角色中增加权限
+ * @permissionPath: /role/updateRoleAddPermission
+ * @apiName: postUpdateRoleAddPermission
+ * @apiFuncType: post
+ * @apiFuncUrl: /role/updateRoleAddPermission
+ * @swagger
+ * /role/updateRoleAddPermission:
+ *   post:
+ *     description: update role
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - RoleInfo
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: update role
+ *         schema:
+ *           type: object
+ *           required:
+ *            - _id
+ *           properties:
+ *             _id:
+ *               type: string
+ *               example: admin
  *             allowedPermissions:
  *               type: array
  *               items:
@@ -217,11 +269,75 @@ router.post('/add', (req, res) => {
  *                  type: string
  *
  */
-router.post('/update', (req, res) => {
-  service.updateRole(req.body, (err) => {
+router.post('/updateRoleAddPermission', (req, res) => {
+  service.updateRolePermission(req.body, true, (err) => {
     res.json(result.json(err, {}));
   });
 });
+
+/**
+ * @permissionName: 编辑角色中删除权限
+ * @permissionPath: /role/updateRoleDeletePermission
+ * @apiName: postUpdateRoleDeletePermission
+ * @apiFuncType: post
+ * @apiFuncUrl: /role/updateRoleDeletePermission
+ * @swagger
+ * /role/updateRoleDeletePermission:
+ *   post:
+ *     description: update role
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - RoleInfo
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: update role
+ *         schema:
+ *           type: object
+ *           required:
+ *            - _id
+ *           properties:
+ *             _id:
+ *               type: string
+ *               example: admin
+ *             allowedPermissions:
+ *               type: array
+ *               items:
+ *                 type: string
+ *               example: ["/role/list","/role/getDetail"]
+ *             deniedPermissions:
+ *               type: array
+ *               items:
+ *                 type: string
+ *               example: ["/role/ ","/role/update"]
+ *     responses:
+ *       200:
+ *         description: RoleInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *
+ */
+router.post('/updateRoleDeletePermission', (req, res) => {
+  service.updateRolePermission(req.body, false, (err) => {
+    res.json(result.json(err, {}));
+  });
+});
+
+
+
 
 /**
  * @permissionName: 删除角色
@@ -343,7 +459,7 @@ router.get('/listPermission', (req, res) => {
 });
 
 /**
- * @permissionName: 分配角色和权限
+ * @permissionName: 分配角色给用户或组织
  * @permissionPath: /role/assignRole
  * @apiName: postAssignRole
  * @apiFuncType: post
@@ -365,20 +481,19 @@ router.get('/listPermission', (req, res) => {
  *         schema:
  *           type: object
  *           required:
- *            - _id
+ *             - _id
+ *             - roles
+ *             - type
  *           properties:
- *             roleIds:
+ *             roles:
  *               type: string
- *               example: admin,guest,support
+ *               example: "admin,guest,support"
  *             _id:
  *               type: string
  *               example: xuyawen@phoenixtv.com
- *             allowedPermissions:
+ *             type:
  *               type: string
- *               example: "/role/list,/role/add"
- *             deniedPermissions:
- *               type: string
- *               example: "/role/update,/role/delete"
+ *               example: '"0" stand for user, "1" stand for company'
  *     responses:
  *       200:
  *         description: RoleInfo
@@ -397,8 +512,63 @@ router.get('/listPermission', (req, res) => {
  *
  */
 router.post('/assignRole', (req, res) => {
-  service.assignRole(req.body, (err, r) => {
-    res.json(result.json(err, r));
+  service.assignRole(req.body, (err) => {
+    res.json(result.json(err, {}));
+  });
+});
+
+/**
+ * @permissionName: 删除用户或组织的角色
+ * @permissionPath: /role/deleteOwnerRole
+ * @apiName: postDeleteOwnerRole
+ * @apiFuncType: post
+ * @apiFuncUrl: /role/deleteOwnerRole
+ * @swagger
+ * /role/deleteOwnerRole:
+ *   post:
+ *     description: delete owner role
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - RoleInfo
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: delete owner role
+ *         schema:
+ *           type: object
+ *           required:
+ *             - _id
+ *             - roles
+ *           properties:
+ *             roles:
+ *               type: string
+ *               example: "admin,guest,support"
+ *             _id:
+ *               type: string
+ *               example: xuyawen@phoenixtv.com
+ *     responses:
+ *       200:
+ *         description: RoleInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *
+ */
+router.post('/deleteOwnerRole', (req, res) => {
+  service.deleteOwnerRole(req.body, (err) => {
+    res.json(result.json(err, {}));
   });
 });
 
@@ -463,7 +633,7 @@ router.post('/enablePermission', (req, res) => {
  * @permissionName: 用户或部门角色权限详情
  * @permissionPath: /role/getUserOrDepartmentRoleAndPermissions
  * @apiName: getUserOrDepartmentRoleAndPermissions
- * @apiFuncType: post
+ * @apiFuncType: get
  * @apiFuncUrl: /role/getUserOrDepartmentRoleAndPermissions
  * @swagger
  * /role/getUserOrDepartmentRoleAndPermissions:
@@ -507,5 +677,60 @@ router.get('/getUserOrDepartmentRoleAndPermissions', (req, res) => {
     res.json(result.json(err, r));
   });
 });
+
+
+/**
+ * @permissionName: 搜索拥有特定角色的用户,组织,部门,小组
+ * @permissionPath: /role/getRoleOwners
+ * @apiName: getRoleOwners
+ * @apiFuncType: get
+ * @apiFuncUrl: /role/getRoleOwners
+ * @swagger
+ * /role/getRoleOwners:
+ *   get:
+ *     description: get user or department role and permissions
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - RoleInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: _id
+ *         description: role _id
+ *         required: true
+ *         type: string
+ *         default: "043741f0-5cac-11e7-9a4a-5b43dc9cf567"
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: keyword
+ *         description: user or group name
+ *         required: true
+ *         type: string
+ *         default: "xuyawen"
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: RoleInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.get('/getRoleOwners', (req, res) => {
+  service.getRoleOwners(req.query, (err, r) => {
+    res.json(result.json(err, r));
+  });
+});
+
 
 module.exports = router;

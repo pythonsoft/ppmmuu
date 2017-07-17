@@ -23,7 +23,7 @@ const config = require('../../config');
  *         type: object
  *         properties:
  *           _id: string
- *           name: string,
+ *           name: string
  *           type: string
  *       type:
  *         type: string

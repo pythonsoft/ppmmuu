@@ -112,7 +112,6 @@ const initPermissionInfo = function initPermissionInfo() {
         if (docs && docs.length) {
           for (let i = 0, len = docs.length; i < len; i++) {
             const index = permissionPaths.indexOf(docs[i].path);
-            console.log(docs[i].path);
             if (index !== -1) {
               permissionPaths.splice(index, 1);
               permissionNames.splice(index, 1);
