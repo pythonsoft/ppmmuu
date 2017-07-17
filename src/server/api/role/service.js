@@ -143,29 +143,28 @@ service.deleteRoles = function deleteRoles(ids, cb) {
 };
 
 service.assignRole = function assignRole(info, cb) {
-  let roles = info.roles;
+  const roles = info.roles;
   info.roles = roles.split(',');
   const rs = assignPermission.assign(info);
   const _id = info._id;
-  if(rs.err){
-    return cb && cb(err);
+  if (rs.err) {
+    return cb && cb(rs.err);
   }
 
-  assignPermission.collection.insertOne(rs.doc, function(err){
-    if(!err){
+  assignPermission.collection.insertOne(rs.doc, (err) => {
+    if (!err) {
       return cb && cb(null);
     }
 
-    assignPermission.collection.updateOne({_id: _id}, {$addToSet: { roles: roles}, $set:{ modifyTime: new Date()}}, function(err){
-      if(err){
+    assignPermission.collection.updateOne({ _id }, { $addToSet: { roles }, $set: { modifyTime: new Date() } }, (err) => {
+      if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
 
       return cb && cb(null);
-    })
-  })
-
+    });
+  });
 };
 
 const listPermission = function listPermission(q, page, pageSize, sortFields, fieldsNeed, cb) {
@@ -422,186 +421,224 @@ service.enablePermission = function enablePermission(info, cb) {
   });
 };
 
-service.getRoleOwners = function getRoleOwners(info, cb){
+service.getRoleOwners = function getRoleOwners(info, cb) {
   const _id = info._id || '';
   const keyword = info.keyword;
   const limit = info.limit || 20;
   const query = {};
 
-  const getUserInfos = function getUserInfos(userIds, callback){
-    if(!userIds || userIds.length === 0){
+  const getUserInfos = function getUserInfos(userIds, callback) {
+    if (!userIds || userIds.length === 0) {
       return callback && callback(null, []);
     }
 
-    userInfo.collection.find({_id: {$in: userIds}}, { fields: {name: 1, photo: 1}}).toArray(function(err, docs){
-      if(err){
+    userInfo.collection.find({ _id: { $in: userIds } }, { fields: { name: 1, photo: 1 } }).toArray((err, docs) => {
+      if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
       const rs = [];
-      for(let i = 0; i < docs.length; i++){
+      for (let i = 0; i < docs.length; i++) {
         docs[i].type = AssignPermission.TYPE.USER;
         rs.push(docs[i]);
       }
 
       return callback && callback(null, rs);
-    })
-  }
+    });
+  };
 
-  const getGroupInfos = function getGroupInfos(groupIds, callback){
-    if(!groupIds || groupIds.length === 0){
+  const getGroupInfos = function getGroupInfos(groupIds, callback) {
+    if (!groupIds || groupIds.length === 0) {
       return callback && callback(null, []);
     }
 
-    groupInfo.collection.find({_id: {$in: groupIds}}, { fields: {name: 1, logo: 1, type: 1}}).toArray(function(err, docs){
-      if(err){
+    groupInfo.collection.find({ _id: { $in: groupIds } }, { fields: { name: 1, logo: 1, type: 1 } }).toArray((err, docs) => {
+      if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
       const rs = [];
-      for(let i = 0; i < docs.length; i++){
+      for (let i = 0; i < docs.length; i++) {
         const type = docs[i].type;
-        if(type === GroupInfo.TYPE.COMPANY) {
+        if (type === GroupInfo.TYPE.COMPANY) {
           docs[i].type = AssignPermission.TYPE.COMPANY;
-        }else if(type === GroupInfo.TYPE.DEPARTMENT){
+        } else if (type === GroupInfo.TYPE.DEPARTMENT) {
           docs[i].type = AssignPermission.TYPE.DEPARTMENT;
-        }else if(type === GroupInfo.TYPE.TEAM){
+        } else if (type === GroupInfo.TYPE.TEAM) {
           docs[i].type = AssignPermission.TYPE.TEAM;
         }
         rs.push(docs[i]);
       }
 
       return callback && callback(null, rs);
-    })
-  }
+    });
+  };
 
-  if(!_id){
+  if (!_id) {
     return cb & cb(i18n.t('getRoleOwnersNoId'));
   }
 
   query.roles = _id;
 
-  if(keyword){
-    query.name = {$regex: keyword, $options: 'i'};
+  if (keyword) {
+    query.name = { $regex: keyword, $options: 'i' };
   }
 
-  assignPermission.collection.find(query, {fields: {_id: 1, type: 1}}).limit(limit).toArray(function(err, docs){
-    if(err){
+  assignPermission.collection.find(query, { fields: { _id: 1, type: 1 } }).limit(limit).toArray((err, docs) => {
+    if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
 
-    if(!docs || docs.length === 0){
+    if (!docs || docs.length === 0) {
       return cb && cb(null, []);
     }
 
     const userIds = [];
     const groupIds = [];
-    for(let i = 0; i< docs.length; i++){
-      if(docs[i].type === AssignPermission.TYPE.USER){
+    for (let i = 0; i < docs.length; i++) {
+      if (docs[i].type === AssignPermission.TYPE.USER) {
         userIds.push(docs[i]._id);
-      }else{
+      } else {
         groupIds.push(docs[i]._id);
       }
     }
 
     let result = [];
-    getUserInfos(userIds, function(err, rs){
-      if(err){
+    getUserInfos(userIds, (err, rs) => {
+      if (err) {
         return cb && cb(err);
       }
       result = result.concat(rs);
-      getGroupInfos(groupIds, function(err, rs){
-        if(err){
+      getGroupInfos(groupIds, (err, rs) => {
+        if (err) {
           return cb && cb(err);
         }
         result = result.concat(rs);
         return cb && cb(null, result);
-      })
-    })
-  })
+      });
+    });
+  });
+};
 
-}
-
-service.deleteOwnerRole = function deleteOwnerRole(info, cb){
+service.deleteOwnerRole = function deleteOwnerRole(info, cb) {
   const _id = info._id;
   let roles = info.roles;
   roles = roles.split(',');
   info.roles = roles;
 
-  if(!_id){
+  if (!_id) {
     return cb & cb(i18n.t('delteRoleOwnersNoId'));
   }
 
-  if(!roles){
+  if (!roles) {
     return cb & cb(i18n.t('deleteRoleOwnersNoRoles'));
   }
 
-  assignPermission.collection.findOne({_id: _id}, function(err, doc){
-    if(err){
+  assignPermission.collection.findOne({ _id }, (err, doc) => {
+    if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
 
-    if(!doc){
+    if (!doc) {
       return cb && cb(i18n.t('canNotFindRoleAssign'));
     }
 
     roles = utils.minusArray(doc.roles, roles);
 
-    assignPermission.collection.updateOne({_id: _id}, {$set: {roles: roles, modifyTime: new Date()}}, function(err){
-      if(err){
+    assignPermission.collection.updateOne({ _id }, { $set: { roles, modifyTime: new Date() } }, (err) => {
+      if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
 
       return cb && cb(null);
-    })
-  })
-
-}
+    });
+  });
+};
 
 service.updateRolePermission = function updateRoleAddPermission(info, isAdd, cb) {
   const _id = info._id;
   const allowedPermissions = info.allowedPermissions || [];
   const deniedPermissions = info.deniedPermissions || [];
 
-  if(!_id){
+  if (!_id) {
     return cb & cb(i18n.t('updateRoleNoId'));
   }
 
-  if(deniedPermissions.length === 0 && allowedPermissions.length === 0){
+  if (deniedPermissions.length === 0 && allowedPermissions.length === 0) {
     return cb & cb(null);
   }
 
-  roleInfo.collection.findOne({_id: _id}, function(err, doc){
-    if(err){
+  roleInfo.collection.findOne({ _id }, (err, doc) => {
+    if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
 
-    if(!doc){
+    if (!doc) {
       return cb && cb(i18n.t('canNotFindRole'));
     }
 
     let func = utils.minusArr;
 
-    if(isAdd){
+    if (isAdd) {
       func = utils.hardMerge;
     }
 
     doc.allowedPermissions = func(doc.allowedPermissions, allowedPermissions);
     doc.deniedPermissions = func(doc.deniedPermissions, deniedPermissions);
-
-    roleInfo.collection.updateOne({_id: _id}, {$set: doc}, function(err){
-      if(err){
+    
+    roleInfo.collection.updateOne({ _id }, { $set: doc }, (err) => {
+      if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
       return cb && cb(null);
-    })
-  })
-}
+    });
+  });
+};
 
+service.searchUserOrGroup = function searchUserOrGroup(info, cb) {
+  const type = info.type;
+  const keyword = info.keyword || '';
+  const limit = info.limit || 10;
+  const query = {};
+
+  if (type !== '0' && type !== '1') {
+    return cb && cb(i18n.t('searchUserOrGroupTypeNotCorrect'));
+  }
+
+  if (keyword) {
+    query.name = { $regex: keyword, $options: 'i' };
+  }
+
+  const searchUser = function searchUser(query) {
+    userInfo.collection.find(query, { fields: { name: 1, photo: 1 } }).limit(limit).toArray((err, docs) => {
+      if (err) {
+        return cb && cb(err);
+      }
+
+      return cb && cb(null, docs);
+    });
+  };
+
+  const searchGroup = function searchGroup(query) {
+    groupInfo.collection.find(query, { fields: { name: 1, logo: 1 } }).limit(limit).toArray((err, docs) => {
+      if (err) {
+        return cb && cb(err);
+      }
+
+      return cb && cb(null, docs);
+    });
+  };
+
+  if (type === '0') {
+    searchUser(query);
+  } else {
+    searchGroup(query);
+  }
+};
 
 module.exports = service;
