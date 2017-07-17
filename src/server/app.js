@@ -22,7 +22,7 @@ const corsOptions = {
   },
 };
 
-app.use(cors(corsOptions));
+//app.use(cors(corsOptions));
 
 app.use(cookieParser());
 app.use(bodyParser.json()); // for parsing application/json

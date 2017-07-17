@@ -160,7 +160,7 @@ router.post('/add', (req, res) => {
 });
 
 /**
- * @permissionName: 更新角色
+ * @permissionName: 编辑角色
  * @permissionPath: /role/update
  * @apiName: postUpdateRole
  * @apiFuncType: post
@@ -190,6 +190,58 @@ router.post('/add', (req, res) => {
  *             name:
  *               type: string
  *               example: admin
+ *     responses:
+ *       200:
+ *         description: RoleInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *
+ */
+router.post('/update', (req, res) => {
+  service.updateRole(req.body, (err) => {
+    res.json(result.json(err, {}));
+  });
+});
+
+
+/**
+ * @permissionName: 编辑角色中增加权限
+ * @permissionPath: /role/updateRoleAddPermission
+ * @apiName: postUpdateRoleAddPermission
+ * @apiFuncType: post
+ * @apiFuncUrl: /role/updateRoleAddPermission
+ * @swagger
+ * /role/updateRoleAddPermission:
+ *   post:
+ *     description: update role
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - RoleInfo
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: update role
+ *         schema:
+ *           type: object
+ *           required:
+ *            - _id
+ *           properties:
+ *             _id:
+ *               type: string
+ *               example: admin
  *             allowedPermissions:
  *               type: array
  *               items:
@@ -217,11 +269,75 @@ router.post('/add', (req, res) => {
  *                  type: string
  *
  */
-router.post('/update', (req, res) => {
-  service.updateRole(req.body, (err) => {
+router.post('/updateRoleAddPermission', (req, res) => {
+  service.updateRolePermission(req.body, true, (err) => {
     res.json(result.json(err, {}));
   });
 });
+
+/**
+ * @permissionName: 编辑角色中删除权限
+ * @permissionPath: /role/updateRoleDeletePermission
+ * @apiName: postUpdateRoleDeletePermission
+ * @apiFuncType: post
+ * @apiFuncUrl: /role/updateRoleDeletePermission
+ * @swagger
+ * /role/updateRoleDeletePermission:
+ *   post:
+ *     description: update role
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - RoleInfo
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: update role
+ *         schema:
+ *           type: object
+ *           required:
+ *            - _id
+ *           properties:
+ *             _id:
+ *               type: string
+ *               example: admin
+ *             allowedPermissions:
+ *               type: array
+ *               items:
+ *                 type: string
+ *               example: ["/role/list","/role/getDetail"]
+ *             deniedPermissions:
+ *               type: array
+ *               items:
+ *                 type: string
+ *               example: ["/role/ ","/role/update"]
+ *     responses:
+ *       200:
+ *         description: RoleInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *
+ */
+router.post('/updateRoleDeletePermission', (req, res) => {
+  service.updateRolePermission(req.body, false, (err) => {
+    res.json(result.json(err, {}));
+  });
+});
+
+
+
 
 /**
  * @permissionName: 删除角色

@@ -10,45 +10,7 @@ const DB = require('../../common/db');
 const utils = require('../../common/utils');
 const config = require('../../config');
 
-/**
- * @swagger
- * definitions:
- *   TaskInfo:
- *     required:
- *       - target:
- *       - creator:
- *     properties:
- *       target:
- *         type: object
- *         properties:
- *          _id: string
- *          name: string
- *          type: string
- *       creator:
- *         type: object
- *         properties:
- *          _id: string
- *          name: string
- *          type: string
- *       category:
- *         type: string
- *       command:
- *         type: string
- *       parentId:
- *         type: string
- *       status:
- *         type: string
- *       progress:
- *         type: string
- *       createdTime:
- *         type: date
- *       modifyTime:
- *         type: date
- *       message:
- *         type: string
- *       Detail:
- *         type: object
- */
+
 class TaskInfo extends DB {
   constructor() {
     super(config.dbInstance.umpDB, 'TaskInfo');

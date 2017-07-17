@@ -113,7 +113,11 @@ service.addRole = function addRole(_roleInfo, cb) {
   });
 };
 
-service.updateRole = function updateRole(_roleInfo, cb) {
+service.updateRole = function updateRole(info, cb) {
+  const _roleInfo = {};
+  _roleInfo._id = info._id;
+  _roleInfo.name = info.name;
+  _roleInfo.description = info.description;
   roleInfo.updateOne({ _id: _roleInfo._id }, _roleInfo, (err, doc) => {
     if (err) {
       return cb && cb(err);
@@ -556,5 +560,48 @@ service.deleteOwnerRole = function deleteOwnerRole(info, cb){
   })
 
 }
+
+service.updateRolePermission = function updateRoleAddPermission(info, isAdd, cb) {
+  const _id = info._id;
+  const allowedPermissions = info.allowedPermissions || [];
+  const deniedPermissions = info.deniedPermissions || [];
+
+  if(!_id){
+    return cb & cb(i18n.t('updateRoleNoId'));
+  }
+
+  if(deniedPermissions.length === 0 && allowedPermissions.length === 0){
+    return cb & cb(null);
+  }
+
+  roleInfo.collection.findOne({_id: _id}, function(err, doc){
+    if(err){
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if(!doc){
+      return cb && cb(i18n.t('canNotFindRole'));
+    }
+
+    let func = utils.minusArr;
+
+    if(isAdd){
+      func = utils.hardMerge;
+    }
+
+    doc.allowedPermissions = func(doc.allowedPermissions, allowedPermissions);
+    doc.deniedPermissions = func(doc.deniedPermissions, deniedPermissions);
+
+    roleInfo.collection.updateOne({_id: _id}, {$set: doc}, function(err){
+      if(err){
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+      return cb && cb(null);
+    })
+  })
+}
+
 
 module.exports = service;
