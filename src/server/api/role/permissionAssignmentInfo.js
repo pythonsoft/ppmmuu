@@ -38,7 +38,7 @@ class PermissionAssignmentInfo extends DB {
 
     this.struct = {
       _id: { type: 'string', validation: 'require', allowUpdate: false }, // userId or departmentId or teamId
-      type: { type: 'string', validation: function(v){return utils.isValueInObject(v, PermissionAssignmentInfo.TYPE)} , allowUpdate: false },
+      type: { type: 'string', validation(v) { return utils.isValueInObject(v, PermissionAssignmentInfo.TYPE); }, allowUpdate: false },
       roles: { type: 'array' },
       allowedPermissions: { type: 'array' }, // 允许权限
       deniedPermissions: { type: 'array' }, // 拒绝权限

@@ -337,8 +337,6 @@ router.post('/updateRoleDeletePermission', (req, res) => {
 });
 
 
-
-
 /**
  * @permissionName: 删除角色
  * @permissionPath: /role/delete
@@ -732,5 +730,53 @@ router.get('/getRoleOwners', (req, res) => {
   });
 });
 
+
+/**
+ * @permissionName: 角色中搜索用户或组织
+ * @permissionPath: /role/search/userOrGroup
+ * @apiName: getRoleSearchUserOrGroup
+ * @apiFuncType: get
+ * @apiFuncUrl: /role/search/userOrGroup
+ * @swagger
+ * /role/search/userOrGroup:
+ *   get:
+ *     description: search user or group
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - Search
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: type
+ *         description: '"0" stands for user, "1" stands for group'
+ *         required: true
+ *         type: string
+ *       - in: query
+ *         name: keyword
+ *         description: group name or user name
+ *         required: false
+ *         type: string
+ *     responses:
+ *       200:
+ *         description: RoleInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.get('/search/userOrGroup', (req, res) => {
+  service.searchUserOrGroup(req.query, (err, docs) =>
+    res.json(result.json(err, docs)));
+});
 
 module.exports = router;
