@@ -15,95 +15,58 @@ const configurationGroupInfo = new ConfigurationGroupInfo();
 const service = {};
 
 service.addConfigGroup = function addConfigGroup(o = {}, cb) {
-  const err = configurationGroupInfo.validateCreateError(configurationGroupInfo.createNeedValidateFields, o);
-
-  if (err) {
-    return cb && cb(err);
-  }
-
-  configurationGroupInfo.checkUnique(o, false, (err) => {
+  configurationGroupInfo.insertOne(o, (err, r) => {
     if (err) {
-      return cb && cb(err);
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
     }
-    configurationGroupInfo.collection.insertOne(configurationGroupInfo.assign(o), (err, r) => {
+    if (!o.parent) {
+      return cb && cb(null, r);
+    }
+    configurationGroupInfo.collection.updateOne({ _id: o.parent }, { $addToSet: { children: r.insertedId } }, (err, r) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
-      if (!o.parent) {
-        return cb && cb(null, r);
-      }
-      configurationGroupInfo.collection.updateOne({ _id: o.parent }, { $addToSet: { children: r.insertedId } }, (err, r) => {
-        if (err) {
-          logger.error(err.message);
-          return cb && cb(i18n.t('databaseError'));
-        }
 
-        return cb && cb(null, r);
-      });
+      return cb && cb(null, r);
     });
   });
 };
 
 service.addConfig = function addConfig(o = {}, cb) {
-  const err = configurationInfo.validateCreateError(configurationInfo.createNeedValidateFields, o);
-
-  if (err) {
-    return cb && cb(err);
-  }
-
-  configurationInfo.checkUnique(o, false, (err) => {
+  configurationInfo.insertOne(o, (err, r) => {
     if (err) {
-      return cb && cb(err);
+      return cb && cb(i18n.t('databaseError'));
     }
-    configurationInfo.collection.insertOne(configurationInfo.assign(o), (err, r) => {
-      if (err) {
-        return cb && cb(i18n.t('databaseError'));
-      }
 
-      return cb && cb(null, r);
-    });
+    return cb && cb(null, r);
   });
 };
 
 service.updateConfigGroup = function updateConfigGroup(id, o = {}, cb) {
-  const err = configurationGroupInfo.validateUpdateError(configurationGroupInfo.updateNeedValidateFields, o);
-  if (err) {
-    return cb && cb(err);
+  if (o.children) {
+    o.children = [...new Set(o.children.split(','))];
   }
-  configurationGroupInfo.checkUnique(o, true, () => {
+  configurationInfo.updateOne({ _id: id }, o, (err, r) => {
     if (err) {
-      return cb && cb(err);
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
     }
-    if (o.children) {
-      o.children = [...new Set(o.children.split(','))];
-    }
-    configurationInfo.collection.updateOne({ _id: id }, { $set: o }, (err, r) => {
-      if (err) {
-        logger.error(err.message);
-        return cb && cb(i18n.t('databaseError'));
-      }
-      return cb && cb(null, r);
-    });
+    return cb && cb(null, r);
   });
 };
 
 service.updateConfig = function updateConfig(id, o = {}, cb) {
-  const err = configurationInfo.validateUpdateError(configurationInfo.updateNeedValidateFields, o);
-  if (err) {
-    return cb && cb(err);
+  if (o.id) {
+    delete o.id;
   }
-  configurationInfo.checkUnique(o, true, () => {
+  configurationInfo.updateOne({ _id: id }, o, (err, r) => {
     if (err) {
-      return cb && cb(err);
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
     }
-    configurationInfo.collection.updateOne({ _id: id }, { $set: o }, (err, r) => {
-      if (err) {
-        logger.error(err.message);
-        return cb && cb(i18n.t('databaseError'));
-      }
-      return cb && cb(null, r);
-    });
+    return cb && cb(null, r);
   });
 };
 
@@ -147,10 +110,16 @@ service.listConfigGroup = function listConfigGroup(parent, type = 'plain', cb) {
   });
 };
 
-service.listConfig = function listConfig(page, pageSize, groupId, cb) {
+service.listConfig = function listConfig(page, pageSize, groupId, keyword, cb) {
   const query = {};
   if (groupId !== undefined) {
     query.genre = groupId;
+  }
+  if (keyword !== undefined) {
+    query.$or = [
+      { key: { $regex: keyword, $options: 'i' } },
+      { value: { $regex: keyword, $options: 'i' } }
+    ];
   }
   configurationInfo.pagination(query, page, pageSize, (err, docs) => {
     if (err) {

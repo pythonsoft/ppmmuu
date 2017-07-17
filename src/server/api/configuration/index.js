@@ -76,7 +76,7 @@ router.post('/add', (req, res) => {
  *           $ref: '#/definitions/ResultInfo'
  */
 router.post('/update', (req, res) => {
-  service.updateConfig(req.body._id, req.body, err => res.json(result.json(err, {})));
+  service.updateConfig(req.body.id, req.body, err => res.json(result.json(err, {})));
 });
 
 /**
@@ -104,7 +104,7 @@ router.post('/update', (req, res) => {
 router.get('/list', (req, res) => {
   const page = req.query.page || 1;
   const pageSize = req.query.pageSize || 999;
-  service.listConfig(page, pageSize, req.query.groupId, (err, docs) => {
+  service.listConfig(page, pageSize, req.query.groupId, req.query.name, (err, docs) => {
     res.json(result.json(err, docs));
   });
 });
@@ -132,7 +132,7 @@ router.get('/list', (req, res) => {
  *           $ref: '#/definitions/ResultInfo'
  */
 router.post('/delete', (req, res) => {
-  service.deleteConfig(req.body._id, err => res.json(result.json(err, {})));
+  service.deleteConfig(req.body.id, err => res.json(result.json(err, {})));
 });
 
 /**

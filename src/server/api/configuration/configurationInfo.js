@@ -27,23 +27,18 @@ const config = require('../../config');
  */
 class ConfigurationInfo extends DB {
   constructor() {
-    super(config.dbInstance.umpDB, 'ConfigurationInfo');
+    const indexes = [{ key: { key: 1 }, unique: true }];
+    super(config.dbInstance.umpDB, 'ConfigurationInfo', indexes);
 
-    this.doc = {
-      _id: { type: 'string', default: '', validation: 'require', allowUpdate: true },
+    this.struct = {
+      _id: { type: 'string', validation: 'require' },
       createdTime: { type: 'date' },
-      updatedTime: { type: 'date', allowUpdate: true },
-      key: { type: 'string', allowUpdate: true, unique: true },
-      value: { type: 'string', allowUpdate: true },
-      description: { type: 'string', allowUpdate: true },
-      genre: { type: 'string', allowUpdate: true },
+      updatedTime: { type: 'date' },
+      key: { type: 'string', validation: 'require' },
+      value: { type: 'string', validation: 'require' },
+      description: { type: 'string' },
+      genre: { type: 'string', validation: 'require' },
     };
-
-    this.updateDoc = this.doc;
-
-    this.createNeedValidateFields = { key: 1, value: 1, genre: 1 };
-    this.updateNeedValidateFields = this.doc;
-    this.uniqueFields = { _id: 1, key: 1 };
   }
 }
 
