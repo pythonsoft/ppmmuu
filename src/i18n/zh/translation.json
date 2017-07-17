@@ -121,7 +121,11 @@
   },
   "cannotFindGroup": {
     "code": "-5008",
-    "message": "找不到组"
+    "message": "找不到组织"
+  },
+  "parentGroupInfoIsNotExist": {
+    "code": "-5009",
+    "message": "上一级组织信息不存在"
   },
   "getUserOrDepartmentRoleAndPermissionsNoId": {
     "code": "-6001",
@@ -155,6 +159,10 @@
     "code": "-8005",
     "message": "任务创建者信息不完整"
   },
+  "taskCreatorIdNameTypeIsNull": {
+    "code": "-8006",
+    "message": "任务创建者信息不完全，请检查，id，name, type"
+  },
   "bucketIdIsNull": {
     "code": "-9001",
     "message": "存储区Id不存在"
@@ -175,17 +183,37 @@
     "code": "-9005",
     "message": "请输入路径Id"
   },
-  "PathInfoIsNull": {
+  "pathInfoIsNull": {
     "code": "-9006",
     "message": "路径信息不存在"
   },
-  "PathNameIsNull": {
+  "pathNameIsNull": {
     "code": "-9007",
     "message": "请填写路径名称"
   },
-  "PathCreatorIsNull": {
+  "pathCreatorIsNull": {
     "code": "-9007",
     "message": "请填写路径创建人"
+  },
+  "tacticsIdIsNull": {
+    "code": "-9008",
+    "message": "策略Id不存在"
+  },
+  "tacticsInfoIsNull": {
+    "code": "-9009",
+    "message": "策略信息不存在"
+  },
+  "sourceIdIsNull": {
+    "code": "-9010",
+    "message": "添加策略的目标Id不存在"
+  },
+  "sourceTypeIsNull": {
+    "code": "-9011",
+    "message": "添加策略的目标类型不存在"
+  },
+  "sourceTypeIsNotExist": {
+    "code": "-9011",
+    "message": "策略类型不存在"
   },
   "typeError": {
     "code": "-10001",

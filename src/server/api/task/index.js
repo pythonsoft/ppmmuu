@@ -43,25 +43,23 @@ router.get('/getTaskDetail', (req, res) => {
 
 router.post('/addParentTask', (req, res) => {
   const info = req.body;
+  const creatorId = req.ex.userInfo._id;
+  const creatorName = req.ex.userInfo.name;
+  const creatorType = TaskInfo.CREATOR_TYPE.USER;
 
-  if (!(info.creator && [TaskInfo.CREATOR_TYPE.TEAM, TaskInfo.CREATOR_TYPE.SYSTEM].indexOf(info.creator.type) !== -1)) {
-    info.creator = {
-      _id: req.ex.userInfo._id,
-      name: req.ex.userInfo.name,
-      type: TaskInfo.CREATOR_TYPE.USER,
-    };
-  }
-
-  service.addTask(info, null, err => res.json(result.json(err, 'ok')));
+  service.addTask(creatorId, creatorName, creatorType, info, null, err => res.json(result.json(err, 'ok')));
 });
 
 router.post('/addChildTask', (req, res) => {
   const parentId = req.body.parentId;
   const childTasks = req.body.childTasks;
+  const creatorId = req.ex.userInfo._id;
+  const creatorName = req.ex.userInfo.name;
+  const creatorType = TaskInfo.CREATOR_TYPE.USER;
 
   try {
     const tasks = JSON.parse(childTasks);
-    service.addChildTasks(parentId, tasks, err => res.json(result.json(err, 'ok')));
+    service.addChildTasks(creatorId, creatorName, creatorType, parentId, tasks, err => res.json(result.json(err, 'ok')));
   } catch (e) {
     return res.json(result.fail(i18n.t('jsonParseError')));
   }

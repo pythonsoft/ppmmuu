@@ -5,7 +5,6 @@
 'use strict';
 
 const logger = require('../../common/log')('error');
-const uuid = require('uuid');
 const utils = require('../../common/utils');
 const i18n = require('i18next');
 // const config = require('../../config');
@@ -70,15 +69,7 @@ service.addBucket = function addBucket(info = {}, cb) {
     return cb && cb(i18n.t('bucketNameIsNull'));
   }
 
-  const time = new Date();
-  info.createdTime = time;
-  info.modifyTime = time;
-
-  if (!info._id) {
-    info._id = uuid.v1();
-  }
-
-  bucketInfo.collection.insertOne(bucketInfo.assign(info), (err, r) => {
+  bucketInfo.insertOne(info, (err, r) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -88,15 +79,14 @@ service.addBucket = function addBucket(info = {}, cb) {
   });
 };
 
-service.updateBucket = function updateBucket(id, info, cb) {
+service.updateBucket = function updateBucket(id, info = {}, cb) {
   if (!id) {
     return cb && cb(i18n.t('bucketIdIsNull'));
   }
 
-  const updateDoc = bucketInfo.updateAssign(info);
-  updateDoc.modifyTime = new Date();
+  info.modifyTime = new Date();
 
-  bucketInfo.collection.findOneAndUpdate({ _id: id }, updateDoc, { projection: { _id: 1 } }, (err, r) => {
+  bucketInfo.findOneAndUpdate({ _id: id }, { $set: info }, { projection: { _id: 1 } }, (err, r) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -192,9 +182,9 @@ service.getPathDetail = function getPathDetail(pathId, cb) {
   });
 };
 
-service.addPath = function addPath(bucketId, info, cb) {
+service.addPath = function addPath(bucketId, info = {}, cb) {
   if (!bucketId) {
-    return cb && cb(i18n.t('pathIdIsNull'));
+    return cb && cb(i18n.t('bucketIdIsNull'));
   }
 
   bucketInfo.collection.findOne({ _id: bucketId }, { fields: { _id: 1, name: 1 } }, (err, doc) => {
@@ -208,34 +198,12 @@ service.addPath = function addPath(bucketId, info, cb) {
     }
 
     if (utils.isEmptyObject(info)) {
-      return cb && cb(i18n.t('PathInfoIsNull'));
-    }
-
-    if (!info.name) {
-      return cb && cb(i18n.t('PathNameIsNull'));
-    }
-
-    if (!info.creator || utils.isEmptyObject(info.creator) || !info.creator._id || !info.creator.name) {
-      return cb && cb(i18n.t('PathNameIsNull'));
-    }
-
-    if (!info._id) {
-      info._id = uuid.v1();
-    }
-
-    const time = new Date();
-
-    if (!info.createdTime) {
-      info.createdTime = time;
-    }
-
-    if (!info.modifyTime) {
-      info.modifyTime = time;
+      return cb && cb(i18n.t('pathInfoIsNull'));
     }
 
     info.bucket = { _id: doc._id, name: doc.name };
 
-    pathInfo.collection.insertOne(pathInfo.assign(info), (err, r) => {
+    pathInfo.insertOne(info, (err, r) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
@@ -243,6 +211,165 @@ service.addPath = function addPath(bucketId, info, cb) {
 
       return cb && cb(null, r);
     });
+  });
+};
+
+service.updatePath = function updatePath(pathId, info = {}, cb) {
+  if (!pathId) {
+    return cb && cb(i18n.t('pathIdIsNull'));
+  }
+
+  info.modifyTime = new Date();
+
+  pathInfo.updateOne({ _id: pathId }, info, (err, r) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, r);
+  });
+};
+
+service.deletePath = function deletePath(pathId, cb) {
+  if (!pathId) {
+    return cb && cb(i18n.t('pathIdIsNull'));
+  }
+
+  pathInfo.collection.removeOne({ _id: pathId }, (err, r) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, r);
+  });
+};
+
+/* tactics */
+
+service.listTactics = function listTactics(sourceId, status, page, pageSize, sortFields, fieldsNeed, cb) {
+  const q = {};
+
+  if (sourceId) {
+    if (sourceId.indexOf(',')) {
+      q['source._id'] = { $in: utils.trim(sourceId.split(',')) };
+    } else {
+      q['source._id'] = sourceId;
+    }
+  }
+
+  if (status) {
+    q.status = status;
+  }
+
+  tacticsInfo.pagination(q, page, pageSize, (err, docs) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, docs);
+  }, sortFields, fieldsNeed);
+};
+
+service.getTacticsDetail = function getTacticsDetail(tacticsId, cb) {
+  if (!tacticsId) {
+    return cb && cb(i18n.t('tacticsIdIsNull'));
+  }
+
+  tacticsInfo.collection.findOne({ _id: tacticsId }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, doc);
+  });
+};
+
+service.addTactics = function addTactics(creatorId, creatorName, info = {}, cb) {
+  if (!info.source || info.source._id) {
+    return cb && cb(i18n.t('sourceIdIsNull'));
+  }
+
+  if (!info.source || info.source.type) {
+    return cb && cb(i18n.t('sourceTypeIsNull'));
+  }
+
+  if (!utils.isValueInObject(info.source.type, TacticsInfo.SOURCE_TYPE)) {
+    return cb && cb(i18n.t('sourceTypeIsNotExist'));
+  }
+
+  let col = null;
+  let sourceTypeName = '';
+
+  if (info.source.type === TacticsInfo.SOURCE_TYPE.BUCKET) {
+    col = bucketInfo;
+    sourceTypeName = 'bucket';
+  } else if (info.source.type === TacticsInfo.SOURCE_TYPE.BUCKET) {
+    col = pathInfo;
+    sourceTypeName = 'path';
+  }
+
+  info.creator = { _id: creatorId, name: creatorName };
+
+  col.collection.findOne({ _id: info.source._id }, { fields: { _id: 1, name: 1 } }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if (!doc) {
+      return cb && cb(i18n.t(`${sourceTypeName}InfoIsNull`));
+    }
+
+    if (utils.isEmptyObject(info)) {
+      return cb && cb(i18n.t(`${sourceTypeName}InfoIsNull`));
+    }
+
+    info.source = { _id: doc._id, name: doc.name, type: info.source.type };
+
+    tacticsInfo.insertOne(info, (err, r) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      return cb && cb(null, r);
+    });
+  });
+};
+
+service.updateTactics = function updateTactics(tacticsId, info = {}, cb) {
+  if (!tacticsId) {
+    return cb && cb(i18n.t('tacticsIdIsNull'));
+  }
+
+  info.modifyTime = new Date();
+
+  tacticsInfo.updateOne({ _id: tacticsId }, info, (err, r) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, r);
+  });
+};
+
+service.deleteTactics = function deleteTactics(tacticsId, cb) {
+  if (!tacticsId) {
+    return cb && cb(i18n.t('tacticsIdIsNull'));
+  }
+
+  tacticsInfo.collection.removeOne({ _id: tacticsId }, (err, r) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, r);
   });
 };
 

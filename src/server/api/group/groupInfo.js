@@ -4,8 +4,11 @@
 
 'use strict';
 
+const uuid = require('uuid');
+
 const DB = require('../../common/db');
 const config = require('../../config');
+const utils = require('../../common/utils');
 
 /**
  * @swagger
@@ -48,49 +51,24 @@ const config = require('../../config');
  */
 class GroupInfo extends DB {
   constructor() {
-    const indexes = [{ key: { name: 1, type: 1, parentId: 1 }, unique: true }];
-    super(config.dbInstance.umpDB, 'GroupInfo', indexes);
+    super(config.dbInstance.umpDB, 'GroupInfo', [
+      { key: { name: 1, type: 1, parentId: 1 }, unique: true },
+    ]);
 
     this.struct = {
-      _id: { type: 'string' },
+      _id: { type: 'string', default() { return uuid.v1(); } },
       name: { type: 'string', validation: 'require' },
       logo: { type: 'string' },
-      creator: { type: 'object',
-        default: {
-          _id: '',
-          name: '',
-        },
-        allowUpdate: false },
-      parentId: { type: 'string', default: '', validation: 'require' },
-      contact: { type: 'object',
-        default: {
-          _id: '',
-          name: '',
-          phone: '',
-          email: '',
-        } },
+      creator: { type: 'object', default: { _id: '', name: '' }, allowUpdate: false },
+      parentId: { type: 'string', validation: 'require' },
+      contact: { type: 'object', default: { _id: '', name: '', phone: '', email: '' } },
       memberCount: { type: 'number' },
       ad: { type: 'string' }, // 域控设置
-      type: { type: 'string',
-        default: GroupInfo.TYPE.COMPANY,
-        validation(v) {
-          let flag = false;
-          for (const key in GroupInfo.TYPE) {
-            if (GroupInfo.TYPE[key] === v) {
-              flag = true;
-              break;
-            }
-          }
-          return flag;
-        } },
+      type: { type: 'string', default: GroupInfo.TYPE.COMPANY, validation: v => utils.isValueInObject(v, GroupInfo.TYPE) },
       createdTime: { type: 'date', allowUpdate: false },
       modifyTime: { type: 'date' },
       description: { type: 'string' },
-      deleteDeny: { type: 'string',
-        default: GroupInfo.DELETE_DENY.YES,
-        validation(v) {
-          return GroupInfo.DELETE_DENY.YES === v || GroupInfo.DELETE_DENY.NO === v;
-        } }, // 删除保护，创建后默认为保护状态
+      deleteDeny: { type: 'string', default: GroupInfo.DELETE_DENY.YES, validation: v => utils.isValueInObject(v, GroupInfo.DELETE_DENY) }, // 删除保护，创建后默认为保护状态
       detail: { type: 'object' },
     };
   }
