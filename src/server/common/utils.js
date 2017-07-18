@@ -6,6 +6,7 @@
 
 const crypto = require('crypto');
 const os = require('os');
+const i18n = require('i18next');
 
 const utils = {};
 
@@ -41,6 +42,20 @@ utils.merge = function merge(source, target) {
   }
 
   return s;
+};
+
+/**
+ * 合并2个object
+ * @param source
+ * @param target
+ * @returns {*}
+ */
+utils.softMerge = function merge(source, target) {
+  for (const k in target) {
+    source[k] = target[k];
+  }
+
+  return source;
 };
 
 /**
@@ -220,6 +235,45 @@ utils.minusArray = function minusArray(arr1, arr2) {
     }
   }
   return arr1;
+};
+
+
+utils.getValueType = function getValueType(val) {
+  return typeof val === 'undefined' ? 'undefined' : val.constructor.name.toLocaleLowerCase();
+};
+
+
+/**
+ *
+ * @param info
+ * @param struct {Object}
+ */
+utils.validation = function validation(info, struct) {
+  let temp = null;
+
+  for (const k in struct) {
+    temp = struct[k];
+
+    if (!info[k]) {
+      return i18n.t('fieldIsNotExistError', { field: k });
+    }
+
+    if (typeof temp.type !== 'undefined' && utils.getValueType(info[k]) !== temp.type) {
+      return i18n.t('typeError', { field: k });
+    }
+
+    if (temp.validation) {
+      if (temp.validation === 'require') {
+        if (info[k] !== 0 && !info[k]) {
+          return i18n.t('requireError', { field: k });
+        }
+      } else if (typeof temp.validation === 'function' && !temp.validation(info[k])) {
+        return i18n.t('validationError', { field: k });
+      }
+    }
+  }
+
+  return null;
 };
 
 module.exports = utils;

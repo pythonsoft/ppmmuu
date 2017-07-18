@@ -5,7 +5,7 @@
 'use strict';
 
 /* eslint-disable no-undef */
-config.host = 'localhost:8080';
+config.host = '10.0.15.105:8080';
 config.domain = `http://${config.host}`;
 config.mongodb = {
   umpURL: 'mongodb://10.0.15.62:27017/ump_v1',
@@ -26,4 +26,4 @@ config.logPath = path.join(__dirname, '../logs/');
 config.uploadPath = path.join(__dirname, '../uploads/');
 
 // 允许跨域访问的地址列表
-config.whitelist = ['http://localhost:8000', 'http://10.0.15.68:8000', 'http://10.0.15.105:8000'];
+config.whitelist = ['http://localhost:8000', 'http://10.0.15.68:8000', 'http://10.0.15.105:8000', 'http://10.0.15.105:8080'];

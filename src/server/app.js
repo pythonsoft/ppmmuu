@@ -14,11 +14,12 @@ const app = express();
 
 const corsOptions = {
   origin(origin, callback) {
-    if (config.whitelist.indexOf(origin) !== -1) {
+    callback(null, true);
+ /*   if (typeof origin === 'undefined' || config.whitelist.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
-    }
+    }*/
   },
 };
 
