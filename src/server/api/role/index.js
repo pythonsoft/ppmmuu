@@ -151,7 +151,6 @@ router.get('/getDetail', (req, res) => {
  *              properties:
  *                message:
  *                  type: string
- *
  */
 router.post('/add', (req, res) => {
   service.addRole(req.body, (err) => {
