@@ -51,6 +51,26 @@
     "code": "-2016",
     "message": "找不到角色"
   },
+  "getRoleOwnersNoId": {
+    "code": "-2017",
+    "message": "获取角色拥有者需要参数_id"
+  },
+  "deleteRoleOwnersNoRoles": {
+    "code": "-2018",
+    "message": "删除用户角色需要参数_id"
+  },
+  "deleteRoleOwnersNoRoles": {
+    "code": "-2019",
+    "message": "删除用户角色需要参数roles"
+  },
+  "canNotFindRoleAssign": {
+    "code": "-2020",
+    "message": "找不到角色分配记录"
+  },
+  "updateRoleNoId": {
+    "code": "-2021",
+    "message": "更新角色需要参数_id"
+  },
   "loginCannotFindUser": {
     "code": "-3001",
     "message": "登录时找不到用户"
@@ -230,5 +250,9 @@
   "fieldIsNotExistError": {
     "code": "-10004",
     "message": "{{field}} 字段不在实体类中，无法进行存取操作"
+  },
+  "searchUserOrGroupTypeNotCorrect": {
+    "code": "-11001",
+    "message": "搜索用户或组织参数type不正确"
   }
 }
