@@ -95,8 +95,14 @@ class UserInfo extends DB {
   }
 
   getUserInfo(_id, fields, cb) {
-    fields = utils.formatSortOrFieldsParams(fields);
-    this.collection.findOne({ _id }, { fields }, (err, doc) => {
+    if (fields) {
+      fields = utils.formatSortOrFieldsParams(fields);
+      fields.password = 0;
+      fields = { fields };
+    } else {
+      fields = { fields: { password: 0 } };
+    }
+    this.collection.findOne({ _id }, fields, (err, doc) => {
       if (err) {
         return cb && cb(i18n.t('databaseError'));
       }
@@ -109,8 +115,8 @@ class UserInfo extends DB {
 }
 
 UserInfo.STATUS = {
-  NORMAL: '0',
-  UNACTIVE: '1',
+  NORMAL: '1',
+  UNACTIVE: '0',
   DELETE: '2',
 };
 

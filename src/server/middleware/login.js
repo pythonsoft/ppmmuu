@@ -74,6 +74,7 @@ Login.getUserInfo = function getUserInfo(req, cb) {
 
 Login.middleware = function middleware(req, res, next) {
   const decodeTicket = Login.isLogin(req);
+  console.log(decodeTicket);
 
   if (decodeTicket) {
     const now = new Date().getTime();

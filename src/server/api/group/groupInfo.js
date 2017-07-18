@@ -55,7 +55,7 @@ class GroupInfo extends DB {
       name: { type: 'string', validation: 'require' },
       logo: { type: 'string' },
       creator: { type: 'object', default: { _id: '', name: '' }, allowUpdate: false },
-      parentId: { type: 'string', validation: 'require' },
+      parentId: { type: 'string' },
       contact: { type: 'object', default: { _id: '', name: '', phone: '', email: '' } },
       memberCount: { type: 'number' },
       ad: { type: 'string' }, // 域控设置

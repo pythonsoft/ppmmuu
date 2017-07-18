@@ -204,43 +204,6 @@ service.listPermission = function lPermission(roleId, status, name, page, pageSi
   }
 };
 
-const getRoles = function getRoles(roles, cb) {
-  if (roles) {
-    roleInfo.collection.find({ _id: { $in: roles } }).toArray((err, docs) => {
-      if (err) {
-        logger.error(err.message);
-        return cb && cb(i18n.t('databaseError'));
-      }
-
-      return cb && cb(err, docs);
-    });
-  } else {
-    return cb && cb(null, []);
-  }
-};
-
-service.getUserOrDepartmentRoleAndPermissions = function getUserOrDepartmentRoleAndPermissions(_id, cb) {
-  if (!_id) {
-    return cb && cb(i18n.t('getUserOrDepartmentRoleAndPermissionsNoId'));
-  }
-
-  assignPermission.collection.findOne({ _id }, (err, doc) => {
-    if (err) {
-      logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
-    }
-
-    getRoles(doc.roles, (err, roles) => {
-      if (err) {
-        return cb && cb(err);
-      }
-
-      doc.roles = roles;
-      return cb && cb(err, doc);
-    });
-  });
-};
-
 const getAssignPermission = function getAssignPermission(_id, cb) {
   const getRolesPermissions = function getRolesPermissions(roles, cb) {
     if (roles && roles.length) {
@@ -589,7 +552,7 @@ service.updateRolePermission = function updateRoleAddPermission(info, isAdd, cb)
 
     doc.allowedPermissions = func(doc.allowedPermissions, allowedPermissions);
     doc.deniedPermissions = func(doc.deniedPermissions, deniedPermissions);
-    
+
     roleInfo.collection.updateOne({ _id }, { $set: doc }, (err) => {
       if (err) {
         logger.error(err.message);

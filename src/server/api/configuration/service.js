@@ -101,8 +101,8 @@ service.listConfigGroup = function listConfigGroup(parent, type = 'plain', cb) {
 
     if (type === 'plain') {
       docs.forEach((o) => {
-        o['id'] = o['_id'];
-        delete o['_id'];
+        o.id = o._id;
+        delete o._id;
       });
     }
 
@@ -118,7 +118,7 @@ service.listConfig = function listConfig(page, pageSize, groupId, keyword, cb) {
   if (keyword !== undefined) {
     query.$or = [
       { key: { $regex: keyword, $options: 'i' } },
-      { value: { $regex: keyword, $options: 'i' } }
+      { value: { $regex: keyword, $options: 'i' } },
     ];
   }
   configurationInfo.pagination(query, page, pageSize, (err, docs) => {
