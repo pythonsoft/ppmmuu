@@ -171,9 +171,7 @@ router.get('/getDetail', (req, res) => {
  *         description: add group
  *         schema:
  *           type: object
- *           required:
- *            - name
- *            - type
+ *           required: [name]
  *           properties:
  *             name:
  *               type: string
