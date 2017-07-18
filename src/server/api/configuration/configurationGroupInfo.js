@@ -1,5 +1,7 @@
 'use strict';
 
+const uuid = require('uuid');
+
 const DB = require('../../common/db');
 const config = require('../../config');
 
@@ -17,20 +19,14 @@ class ConfigurationGroupInfo extends DB {
   constructor() {
     super(config.dbInstance.umpDB, 'ConfigurationGroupInfo');
 
-    this.doc = {
-      _id: '',
-      createdTime: new Date(),
-      updatedTime: new Date(),
-      name: '',
-      parent: '',
-      children: [],
+    this.struct = {
+      _id: { type: 'string', validation: 'require', default: uuid },
+      createdTime: { type: 'date', default: new Date() },
+      updatedTime: { type: 'date', default: new Date() },
+      name: { type: 'string', validation: 'require' },
+      parent: { type: 'string', default: '' },
+      children: { type: 'array', default: [] },
     };
-
-    this.updateDoc = this.doc;
-
-    this.createNeedValidateFields = { name: 1 };
-    this.updateNeedValidateFields = { updatedTime: 1, name: 1 };
-    this.uniqueFields = { _id: 1 };
   }
 }
 
