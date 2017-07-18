@@ -29,8 +29,7 @@ app.use(cookieParser());
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 app.use('/', express.static(path.resolve('build', 'public')));
-app.set('views', path.resolve('build', 'views'));
-app.set('view engine', 'pug');
+app.use('/uploads', express.static(config.uploadPath));
 
 app.use(i18nMiddleware);
 
@@ -113,4 +112,3 @@ if (process.env.NODE_ENV === 'development') {
 } else {
   runServer();
 }
-
