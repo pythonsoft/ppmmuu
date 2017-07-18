@@ -1,5 +1,5 @@
 /**
- * Created by steven on 17/5/5.
+ * Created by chaoningx on 2017/7/17.
  */
 
 'use strict';
@@ -282,8 +282,6 @@ router.post('/update', (req, res) => {
  *           required:
  *            - _id
  *           properties:
- *             _id:
- *               type: string
  *             name:
  *               type: string
  *               example: "043741f0-5cac-11e7-9a4a-5b43dc9cf567"
@@ -309,6 +307,41 @@ router.post('/delete', (req, res) => {
   service.deleteGroup(_id, (err, docs) => res.json(result.json(err, docs)));
 });
 
+/**
+ * @permissionName: 查看成员详情
+ * @permissionPath: /group/userDetail
+ * @apiName: getGroupUserDetail
+ * @apiFuncType: post
+ * @apiFuncUrl: /group/userDetail
+ * @swagger
+ * /group/userDetail:
+ *   get:
+ *     description: get group user detail
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - GroupInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: _id
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: "xuyawen@phoenixtv.com"
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: fields
+ *         description:
+ *         required: false
+ *         type: string
+ *         default: "name,_id,createdTime"
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: GroupInfo
+ */
 router.get('/userDetail', (req, res) => {
   const _id = req.query._id || '';
   const fields = req.query.fields || '';
