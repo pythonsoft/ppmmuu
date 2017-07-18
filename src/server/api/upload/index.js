@@ -14,14 +14,21 @@ const upload = require('../../common/multer').upload;
  * @apiFuncType: post
  * @apiFuncUrl: /upload
  * @swagger
- * /upload/:
+ * /upload:
  *   post:
  *     description: upload image
  *     tags:
  *       - v1
  *       - Upload
+ *     consumes:
+ *       - multipart/form-data
  *     produces:
  *       - application/json
+ *     parameters:
+ *       - in: formData
+ *         name: image
+ *         type: file
+ *         description: The file to upload
  *     responses:
  *       200:
  *         description: UploadResult
