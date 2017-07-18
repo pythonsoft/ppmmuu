@@ -311,7 +311,7 @@ service.getOwnerPermission = function getOwnerPermission(info, cb) {
     if (!roles || roles.length === 0) {
       return callback && callback(null, []);
     }
-    roleInfo.collection.find({ _id: { $in: roles }}, { fields: {name: 1}}).toArray((err, docs) => {
+    roleInfo.collection.find({ _id: { $in: roles } }, { fields: { name: 1 } }).toArray((err, docs) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
