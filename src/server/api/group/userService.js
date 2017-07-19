@@ -391,6 +391,17 @@ service.getOwnerPermission = function getOwnerPermission(info, cb) {
   });
 };
 
+service.getOwnerEffectivePermission = function getOwnerEffectivePermission(info, cb){
+  const struct = {
+    _id: { type: 'string', validation: 'require' },
+  };
+  const err = utils.validation(info, struct);
+  
+  if (err) {
+    return cb && cb(err);
+  }
+}
+
 service.searchUser = function searchUser(info, cb) {
   const struct = {
     companyId: { type: 'string', validation: 'require' },

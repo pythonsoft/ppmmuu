@@ -20,6 +20,7 @@ const Login = {};
 Login.isLogin = function isLogin(req) {
   const query = utils.trim(req.query);
   const ticket = query.ticket || (req.cookies.ticket || req.header('token'));
+  console.log("ticket===>", ticket);
 
   if (!ticket) {
     return false;
