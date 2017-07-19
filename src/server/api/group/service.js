@@ -40,12 +40,12 @@ service.listGroup = function listGroup(parentId, type, page, pageSize, cb) {
     }
     const listArr = docs.docs;
     const rs = [];
-    for(let i = 0, len = listArr.length; i < len; i++){
+    for (let i = 0, len = listArr.length; i < len; i++) {
       const temp = listArr[i];
       temp.children = [];
-      for(let j = 0; j < len; j++){
+      for (let j = 0; j < len; j++) {
         const temp1 = listArr[j];
-        if(temp1.parentId === temp._id){
+        if (temp1.parentId === temp._id) {
           temp.children.push(temp1._id);
         }
       }
