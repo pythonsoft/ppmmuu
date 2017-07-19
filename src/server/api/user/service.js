@@ -39,7 +39,7 @@ service.login = function login(res, username, password, cb) {
 
     const expires = Date.now() + config.cookieExpires;
     const token = Token.create(doc._id, expires, config.KEY);
-    console.log("token===>", token);
+    console.log('token===>', token);
 
     res.cookie('ticket', token, {
       expires: new Date(expires),
