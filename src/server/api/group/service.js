@@ -38,7 +38,20 @@ service.listGroup = function listGroup(parentId, type, page, pageSize, cb) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
-
+    const listArr = docs.docs;
+    const rs = [];
+    for(let i = 0, len = listArr.length; i < len; i++){
+      const temp = listArr[i];
+      temp.children = [];
+      for(let j = 0; j < len; j++){
+        const temp1 = listArr[j];
+        if(temp1.parentId === temp._id){
+          temp.children.push(temp1._id);
+        }
+      }
+      rs.push(temp);
+    }
+    docs.docs = rs;
     return cb && cb(null, docs);
   });
 };

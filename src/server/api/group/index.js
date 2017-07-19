@@ -10,7 +10,7 @@ const router = express.Router();
 const result = require('../../common/result');
 const service = require('./service');
 // const isLogin = require('../../middleware/login');
-
+//
 // router.use(isLogin.middleware);
 // router.use(isLogin.hasAccessMiddleware);
 
@@ -71,48 +71,6 @@ router.get('/list', (req, res) => {
 
   service.listGroup(parentId, type, page, pageSize, (err, docs) =>
     res.json(result.json(err, docs)));
-});
-
-/**
- * @permissionName: 组的所有子组列表
- * @permissionPath: /group/listAllChildGroup
- * @apiName: getAllChildGroupList
- * @apiFuncType: get
- * @apiFuncUrl: /group/listAllChildGroup
- * @swagger
- * /group/listAllChildGroup:
- *   get:
- *     description: get list allChildGroups
- *     version: 1.0.0
- *     tags:
- *       - v1
- *       - GroupInfo
- *     produces:
- *       - application/json
- *     parameters:
- *       - in: query
- *         name: _id
- *         description:
- *         required: false
- *         type: string
- *         default: "043741f0-5cac-11e7-9a4a-5b43dc9cf567"
- *         collectionFormat: csv
- *       - in: query
- *         name: fields
- *         description:
- *         required: false
- *         type: string
- *         default: "name,creator,type"
- *         collectionFormat: csv
- *     responses:
- *       200:
- *         description: GroupInfo
- */
-router.get('/listAllChildGroup', (req, res) => {
-  const _id = req.query._id || '';
-  const fields = req.query.fields || '';
-
-  service.listAllChildGroup(_id, fields, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
@@ -743,6 +701,38 @@ router.post('/updateUser', (req, res) => {
  */
 router.get('/getOwnerPermission', (req, res) => {
   service.getOwnerPermission(req.query, (err, docs) => res.json(result.json(err, docs)));
+});
+
+/**
+ * @permissionName: 获取公司或部门或小组或成员生效权限
+ * @permissionPath: /group/getOwnerEffectivePermission
+ * @apiName: getOwnerEffectivePermission
+ * @apiFuncType: get
+ * @apiFuncUrl: /group/getOwnerEffectivePermission
+ * @swagger
+ * /group/getOwnerEffectivePermission:
+ *   get:
+ *     description: get owner effective permission
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - GroupInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: _id
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: "bea711c0-67ae-11e7-8b13-c506d97b38b0"
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: GroupInfo
+ */
+router.get('/getOwnerEffectivePermission', (req, res) => {
+  service.getOwnerEffectivePermission(req.query, (err, docs) => res.json(result.json(err, docs)));
 });
 
 
