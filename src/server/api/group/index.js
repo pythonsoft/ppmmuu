@@ -680,7 +680,7 @@ router.post('/updateUser', (req, res) => {
  * @swagger
  * /group/getOwnerPermission:
  *   get:
- *     description: get owner permission
+ *     description: 获取公司或部门或小组或成员权限
  *     version: 1.0.0
  *     tags:
  *       - v1
@@ -712,7 +712,7 @@ router.get('/getOwnerPermission', (req, res) => {
  * @swagger
  * /group/getOwnerEffectivePermission:
  *   get:
- *     description: get owner effective permission
+ *     description: 获取公司或部门或小组或成员生效权限
  *     version: 1.0.0
  *     tags:
  *       - v1
@@ -726,6 +726,13 @@ router.get('/getOwnerPermission', (req, res) => {
  *         required: true
  *         type: string
  *         default: "bea711c0-67ae-11e7-8b13-c506d97b38b0"
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: type
+ *         description: "'0'表示公司,'1'表示部门,'2'表示小组,'3'表示用户"
+ *         required: true
+ *         type: string
+ *         default: "3"
  *         collectionFormat: csv
  *     responses:
  *       200:
@@ -745,7 +752,7 @@ router.get('/getOwnerEffectivePermission', (req, res) => {
  * @swagger
  * /group/updateOwnerPermission:
  *   post:
- *     description: update owner permission
+ *     description: 更新公司或部门或小组或成员的权限
  *     version: 1.0.0
  *     tags:
  *       - v1
@@ -771,7 +778,7 @@ router.get('/getOwnerEffectivePermission', (req, res) => {
  *             type:
  *               type: string
  *               description: "'0'表示公司,'1'表示部门,'2'表示小组,'3'表示用户"
- *               example: "0"
+ *               example: "3"
  *             roles:
  *               type: array
  *               items:

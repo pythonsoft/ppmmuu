@@ -287,14 +287,53 @@ service.updateOwnerPermission = function updateOwnerPermission(info, cb) {
     modifyTime: new Date(),
   };
 
-  permissionAssignmentInfo.collection.updateOne({ _id: info._id }, { $set: updateInfo }, { upsert: true }, (err) => {
-    if (err) {
-      logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
+  const checkType = function checkType(_id, type, callback){
+    if(type === PermissionAssignmentInfo.TYPE.USER){
+      userInfo.collection.findOne({_id: _id}, function(err, doc){
+        if(err){
+          logger.error(err.message);
+          return cb && cb(err);
+        }
+        if(!doc){
+          return cb && cb(i18n.t('userNotFind'));
+        }
+        return callback && callback(null);
+      })
+    }else{
+      if(type == PermissionAssignmentInfo.TYPE.COMPANY){
+        type = GroupInfo.TYPE.COMPANY;
+      }else if(type == PermissionAssignmentInfo.TYPE.DEPARTMENT){
+        type = GroupInfo.TYPE.DEPARTMENT;
+      }else{
+        type = GroupInfo.TYPE.TEAM;
+      }
+      groupInfo.collection.findOne({_id: _id, type: type}, function(err, doc){
+        if(err){
+          logger.error(err.message);
+          return cb && cb(err);
+        }
+        if(!doc){
+          return cb && cb(i18n.t('cannotFindGroup'));
+        }
+        return callback && callback(null);
+      })
     }
+  }
 
-    return cb & cb(null);
-  });
+  checkType(info._id, info.type, function(err){
+    if(err){
+      return cb && cb(err);
+    }
+    
+    permissionAssignmentInfo.collection.updateOne({ _id: info._id, type: info.type }, { $set: updateInfo }, { upsert: true }, (err) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      return cb & cb(null);
+    });
+  })
 };
 
 service.getOwnerPermission = function getOwnerPermission(info, cb) {
@@ -391,15 +430,218 @@ service.getOwnerPermission = function getOwnerPermission(info, cb) {
   });
 };
 
+service.listAllParentGroup = function listAllParentGroup(parentId, fields, cb) {
+  let groups = [];
+  fields = fields ? { fields: utils.formatSortOrFieldsParams(fields) } : { fields: null};
+
+  const listGroup = function listGroup(parentId) {
+    groupInfo.collection.findOne({ _id: parentId }, fields, (err, doc) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      if (!doc) {
+        return cb && cb(null, groups);
+      }
+
+      groups = groups.concat(doc);
+      listGroup(doc.parentId);
+    });
+  };
+
+  listGroup(parentId);
+};
+
+const getRolesPermissions = function getRolesPermissions(roles, cb) {
+  const permissions = {allowedPermissions: [], deniedPermissions: []};
+  if (roles && roles.length) {
+    roleInfo.collection.find({_id: {$in: roles}}).toArray((err, docs) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+      for(let i = 0, len = docs.length; i < len; i++){
+        permissions.allowedPermissions = permissions.allowedPermissions.concat(docs[i].allowedPermissions);
+        permissions.deniedPermissions = permissions.deniedPermissions.concat(docs[i].deniedPermissions);
+      }
+      return cb && cb(null, permissions);
+    });
+  } else {
+    return cb && cb(null, permissions);
+  }
+}
+
+const getAssignPermissionByIds = function getAssignPermissionByIds(ids, cb) {
+  const assignPermissionArr = [];
+
+  permissionAssignmentInfo.collection.find({_id: {$in: ids}}).toArray(function(err, docs){
+    if(err){
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if(docs && docs.length){
+      for(let i = 0, len = ids.length; i < len; i++){
+        for(let j = 0, len1 = docs.length; j < len1; j++){
+          if(ids[i] === docs[j]._id){
+            assignPermissionArr.push(docs[j]);
+          }
+        }
+      }
+    }
+
+    return cb && cb(null, assignPermissionArr);
+  })
+};
+
+const getPermissionAssignIds = function getPermissionAssignIds(type, _id, callback){
+  const permissionAssignIds = [];
+  if(type === PermissionAssignmentInfo.TYPE.USER){
+    userInfo.collection.findOne({_id: _id}, function(err, doc){
+      if(err){
+        logger.error(err.message);
+        return callback && callback(i18n.t('databaseError'));
+      }
+      if(!doc){
+        return callback && callback(i18n.t('userNotFind'));
+      }
+      permissionAssignIds.push(_id);
+      let groupId = "";
+      if(doc.team && doc.team._id){
+        groupId = doc.team._id;
+      }else if(doc.department && doc.department._id){
+        groupId = doc.department._id;
+      }else if(doc.company && doc.company._id){
+        groupId = doc.company._id;
+      }
+
+      if(groupId){
+        service.listAllParentGroup(groupId, '_id', function(err, groups){
+          if(err){
+            return callback && callback(err);
+          }
+          permissionAssignIds.push(groupId);
+          for(let i = 0, len = groups.length; i < len; i++){
+            permissionAssignIds.push(groups[i]._id);
+          }
+
+          return callback && callback(null, permissionAssignIds);
+        })
+      }else{
+        return callback && callback(null, permissionAssignIds);
+      }
+    })
+  }else{
+    service.listAllParentGroup(_id, '_id', function(err, groups){
+      if(err){
+        return callback && callback(err);
+      }
+      permissionAssignIds.push(_id);
+      for(let i = 0, len = groups.length; i < len; i++){
+        permissionAssignIds.push(groups[i]._id);
+      }
+
+      return callback && callback(null, permissionAssignIds);
+    })
+  }
+}
+
+const getAllPermissionArr = function getAllPermissionArr(assignPermissionArr, cb){
+  const allPermissionArr = [];
+  const getPermissions = function getPermissions(index){
+    if(index >= assignPermissionArr.length){
+      return cb && cb(null, allPermissionArr);
+    }
+    const temp = assignPermissionArr[index];
+    temp.allowedPermissions = temp.allowedPermissions || [];
+    temp.deniedPermissions = temp.deniedPermissions || [];
+    if(temp.allowedPermissions.length || temp.deniedPermissions.length){
+      allPermissionArr.push({
+        allowedPermissions: temp.allowedPermissions,
+        deniedPermissions: temp.deniedPermissions
+      })
+    }
+    const roles = temp.roles || [];
+    getRolesPermissions(roles, function(err, doc){
+      if(err){
+        return cb && cb(err);
+      }
+      allPermissionArr.push(doc);
+      getPermissions(index+1);
+    })
+  }
+  getPermissions(0);
+}
+
+const getAllowedPermissions = function getAllowedPermissions(docs) {
+  const length = docs.length;
+  let allowed = [];
+
+  const filterPermission = function filterPermission(allowed, denied) {
+    const result = [];
+    for (let i = 0; i < allowed.length; i++) {
+      if (denied.indexOf(allowed[i]) === -1) {
+        result.push(allowed[i]);
+      }
+    }
+    return result;
+  };
+
+
+  for (let i = length - 1; i >= 0; i--) {
+    let denied = docs[i].deniedPermissions || [];
+    for (let j = i - 1; j >= 0; j--) {
+      const tempDenied = docs[j].deniedPermissions || [];
+      denied = denied.concat(tempDenied);
+    }
+    allowed = allowed.concat(filterPermission(docs[i].allowedPermissions, denied));
+  }
+  return allowed;
+};
+
 service.getOwnerEffectivePermission = function getOwnerEffectivePermission(info, cb) {
   const struct = {
     _id: { type: 'string', validation: 'require' },
+    type: {type: 'string', validation: function(v){ return utils.isValueInObject(v, PermissionAssignmentInfo.TYPE)}}
   };
   const err = utils.validation(info, struct);
 
   if (err) {
     return cb && cb(err);
   }
+
+  getPermissionAssignIds(info.type, info._id, function(err, permissionAssignIds){
+    if(err){
+      return cb && cb(err);
+    }
+
+    getAssignPermissionByIds(permissionAssignIds, function(err, assignPermissionArr){
+      if(err){
+        return cb && cb(err);
+      }
+
+      getAllPermissionArr(assignPermissionArr, function(err, allPermissionArr){
+        if(err){
+          return cb & cb(err);
+        }
+
+        const allowedPermissions = getAllowedPermissions(allPermissionArr);
+        permissionInfo.collection.find({ path: { $in: allowedPermissions }}).toArray((err, docs) => {
+          if (err) {
+            logger.error(err.message);
+            return cb && cb(i18n.t('databaseError'));
+          }
+          for(let i = 0, len = docs.length; i < len; i++){
+            docs[i].action = '允许';
+          }
+          return cb && cb(null, docs);
+        });
+
+      })
+    })
+
+  })
 };
 
 service.searchUser = function searchUser(info, cb) {

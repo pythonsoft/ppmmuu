@@ -88,29 +88,6 @@ service.listAllChildGroup = function listAllChildGroup(id, fields, cb) {
   listGroup(ids);
 };
 
-service.listAllParentGroup = function listAllParentGroup(parentId, fields, cb) {
-  let groups = [];
-  fields = fields ? { fields: utils.formatSortOrFieldsParams(fields) } : null;
-
-  const listGroup = function listGroup(parentId) {
-    groupInfo.collection.findOne({ _id: parentId }, fields, (err, doc) => {
-      if (err) {
-        logger.error(err.message);
-        return cb && cb(i18n.t('databaseError'));
-      }
-
-      if (!doc) {
-        return cb && cb(null, groups);
-      }
-
-      groups = groups.concat(doc);
-      listGroup(doc.parentId);
-    });
-  };
-
-  listGroup(parentId);
-};
-
 service.getGroup = function getGroup(id, cb) {
   if (!id) {
     return cb && cb(i18n.t('groupIdIsNull'));
