@@ -54,7 +54,7 @@ service.listGroup = function listGroup(parentId, type, page, pageSize, cb) {
         }
         temp.children = [];
         for (let j = 0, len = r.length; j < len; j++) {
-          const temp1 = listArr[j];
+          const temp1 = r[j];
           temp.children.push(temp1._id);
         }
         rs.push(temp);
