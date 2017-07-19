@@ -16,7 +16,7 @@ const Token = {
       throw new Error('Token.create method key,expires and security must exist.');
     }
 
-    const session = `${key}-${expires}`;
+    const session = `${key},${expires}`;
     return utils.cipher(session, security);
   },
   /**
@@ -33,11 +33,11 @@ const Token = {
 
     const decodeSession = utils.decipher(token, security);
 
-    if (decodeSession.indexOf('-') === -1) {
+    if (decodeSession.indexOf(',') === -1) {
       return false;
     }
 
-    const p = decodeSession.split('-');
+    const p = decodeSession.split(',');
     const exp = p[1] * 1;
     const now = new Date().getTime();
 
@@ -67,11 +67,11 @@ const Token = {
       return false;
     }
 
-    if (decodeSession.indexOf('-') === -1) {
+    if (decodeSession.indexOf(',') === -1) {
       return false;
     }
 
-    return decodeSession.split('-');
+    return decodeSession.split(',');
   },
 };
 
