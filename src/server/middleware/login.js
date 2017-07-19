@@ -11,6 +11,7 @@ const token = require('../common/token');
 const config = require('../config');
 const UserInfo = require('../api/user/userInfo');
 const PermissionInfo = require('../api/role/permissionInfo');
+const PermissionAssignmentInfo = require('../api/role/permissionAssignmentInfo');
 const groupService = require('../api/group/service');
 
 const userInfo = new UserInfo();
@@ -21,7 +22,6 @@ const Login = {};
 Login.isLogin = function isLogin(req) {
   const query = utils.trim(req.query);
   const ticket = query.ticket || (req.cookies.ticket || req.header('token'));
-  console.log('ticket===>', ticket);
 
   if (!ticket) {
     return false;
@@ -59,8 +59,8 @@ Login.getUserInfo = function getUserInfo(req, cb) {
       if (!doc) {
         return cb && cb(i18n.t('loginCannotFindUser'));
       }
-  
-      groupService.getAllPermissions(doc, (err, result) => {
+
+      groupService.getOwnerEffectivePermission({_id: doc._id, type: PermissionAssignmentInfo.TYPE.USER}, (err, result) => {
         if (err) {
           return cb && cb(err);
         }
@@ -76,7 +76,6 @@ Login.getUserInfo = function getUserInfo(req, cb) {
 
 Login.middleware = function middleware(req, res, next) {
   const decodeTicket = Login.isLogin(req);
-  console.log(decodeTicket);
 
   if (decodeTicket) {
     const now = new Date().getTime();
@@ -102,7 +101,7 @@ Login.middleware = function middleware(req, res, next) {
       return res.json(result.fail(req.t('loginExpired')));
     }
   } else {
-    res.redirect('/login');
+    return res.json(result.fail(req.t('notLogin')));
   }
 };
 
@@ -130,7 +129,7 @@ Login.hasAccessMiddleware = function hasAccessMiddleware(req, res, next) {
         break;
       }
     }
-    
+
     if(flag === 0){
       return res.json(result.fail(req.t('noAccess')));
     }else if(flag === 1){

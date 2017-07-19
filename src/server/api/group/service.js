@@ -40,19 +40,28 @@ service.listGroup = function listGroup(parentId, type, page, pageSize, cb) {
     }
     const listArr = docs.docs;
     const rs = [];
-    for (let i = 0, len = listArr.length; i < len; i++) {
-      const temp = listArr[i];
-      temp.children = [];
-      for (let j = 0; j < len; j++) {
-        const temp1 = listArr[j];
-        if (temp1.parentId === temp._id) {
+    const getChildren = function getChildren(index){
+      if(index >= listArr.length){
+        docs.docs = rs;
+        return cb && cb(null, rs);
+      }
+
+      const temp = listArr[index];
+      groupInfo.collection.find({parentId: temp._id}, {fields: {_id: 1}}).toArray(function(err, r){
+        if(err){
+          logger.error(err.message);
+          return cb && cb(i18n.t('databaseError'));
+        }
+        temp.children = [];
+        for (let j = 0, len = r.length; j < len; j++) {
+          const temp1 = listArr[j];
           temp.children.push(temp1._id);
         }
-      }
-      rs.push(temp);
+        rs.push(temp);
+        getChildren(index+1);
+      })
     }
-    docs.docs = rs;
-    return cb && cb(null, docs);
+    getChildren(0);
   });
 };
 
