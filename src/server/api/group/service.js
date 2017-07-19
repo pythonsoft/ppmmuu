@@ -43,7 +43,7 @@ service.listGroup = function listGroup(parentId, type, page, pageSize, cb) {
     const getChildren = function getChildren(index){
       if(index >= listArr.length){
         docs.docs = rs;
-        return cb && cb(null, rs);
+        return cb && cb(null, docs);
       }
 
       const temp = listArr[index];
