@@ -33,8 +33,50 @@ const config = require('../../config');
 const service = {};
 
 
-service.getGroupUserDetail = function getGroupUserDetail(_id, fields, cb) {
-  userInfo.getUserInfo(_id, fields, (err, doc) => cb && cb(err, doc));
+service.getGroupUserDetail = function getGroupUserDetail(_id, cb) {
+  userInfo.getUserInfo(_id, "", function(err, doc){
+    if(err){
+      return cb && cb(err);
+    }
+
+    const companyId = doc.company ? doc.company._id : "";
+    const departmentId = doc.department ? doc.department._id : "";
+    const teamId = doc.team ? doc.team._id : "";
+    const groupIds = [];
+    if(companyId){
+      groupIds.push(companyId);
+    }
+    if(departmentId){
+      groupIds.push(departmentId);
+    }
+    if(teamId){
+      groupIds.push(teamId);
+    }
+    const getGroups = function getGroups(){
+      if(groupIds.length === 0){
+        return cb && cb(null, doc);
+      }
+      groupInfo.collection.find({_id: {$in: groupIds}}, {fields: {name: 1}}).toArray(function(err, docs){
+        if(err){
+          logger.error(err.message);
+          return cb && cb(i18n.t('databaseError'));
+        }
+
+        for(let i = 0, len = docs.length; i< len; i++){
+          const temp = docs[i];
+          if(temp._id === companyId){
+            doc.company = temp;
+          }else if(temp._id === departmentId){
+            doc.department = temp;
+          }else if(temp._id === teamId){
+            doc.team = temp;
+          }
+        }
+        return cb && cb(null, doc);
+      })
+    };
+    getGroups();
+  })
 };
 
 const getGroups = function getGroupUsers(query, cb) {

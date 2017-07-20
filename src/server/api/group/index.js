@@ -300,22 +300,14 @@ router.get('/listUser', (req, res) => {
  *         type: string
  *         default: "bea711c0-67ae-11e7-8b13-c506d97b38b0"
  *         collectionFormat: csv
- *       - in: query
- *         name: fields
- *         description:
- *         required: false
- *         type: string
- *         default: "name,_id,createdTime"
- *         collectionFormat: csv
  *     responses:
  *       200:
  *         description: GroupInfo
  */
 router.get('/userDetail', (req, res) => {
   const _id = req.query._id || '';
-  const fields = req.query.fields || '';
 
-  service.getGroupUserDetail(_id, fields, (err, docs) => res.json(result.json(err, docs)));
+  service.getGroupUserDetail(_id, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
