@@ -27,7 +27,7 @@ describe('role', () => {
       }
       userInfo = db.collection('UserInfo');
       roleInfo = db.collection('RoleInfo');
-      userInfo.findOne({ _id: 'xuyawen@phoenixtv.com' }, (err, doc) => {
+      userInfo.findOne({ email: 'xuyawen@phoenixtv.com' }, (err, doc) => {
         if (err) {
           console.log(err);
           done();

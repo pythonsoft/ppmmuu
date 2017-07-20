@@ -12,9 +12,9 @@ const result = require('../../common/result');
 
 const isLogin = require('../../middleware/login');
 
-router.use(isLogin.middleware);
-router.use(isLogin.hasAccessMiddleware);
-
+// router.use(isLogin.middleware);
+// router.use(isLogin.hasAccessMiddleware);
+//
 const service = require('./service');
 
 /**
