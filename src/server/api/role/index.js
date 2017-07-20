@@ -56,8 +56,9 @@ router.get('/list', (req, res) => {
   const page = req.query.page || 1;
   const pageSize = req.query.pageSize || 30;
   const keyword = req.query.keyword || '';
+  const fields = req.query.fields || '_id,name,description';
 
-  service.listRole(page, pageSize, keyword, (err, docs) => res.json(result.json(err, docs)));
+  service.listRole(page, pageSize, keyword, fields, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
@@ -437,6 +438,12 @@ router.post('/delete', (req, res) => {
  *         type: string
  *         default: '-name,createdTime'
  *         collectionFormat: csv
+ *       - in: query
+ *         name: keyword
+ *         description:
+ *         required: false
+ *         type: string
+ *         collectionFormat: csv
  *     responses:
  *       200:
  *         description: PermissionInfo
@@ -448,7 +455,7 @@ router.get('/listPermission', (req, res) => {
   const pageSize = req.query.pageSize;
   const sortFields = req.query.sortFields || '-createdTime';
   const fieldsNeed = req.query.fieldsNeed;
-  const name = req.query.name || '';
+  const name = req.query.keyword || '';
 
   service.listPermission(roleId, status, name, page, pageSize, sortFields, fieldsNeed, (err, docs) => {
     res.json(result.json(err, docs));

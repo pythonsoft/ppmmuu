@@ -35,7 +35,7 @@ const groupService = require('../group/service');
 const service = {};
 
 /* role */
-service.listRole = function listRole(page, pageSize, keyword, cb) {
+service.listRole = function listRole(page, pageSize, keyword, fields, cb) {
   const query = {};
 
   if (keyword) {
@@ -49,7 +49,7 @@ service.listRole = function listRole(page, pageSize, keyword, cb) {
     }
 
     return cb && cb(null, docs);
-  });
+  }, "", fields);
 };
 
 service.getRoleDetail = function getRoleDetail(id, cb) {
