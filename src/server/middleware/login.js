@@ -60,7 +60,7 @@ Login.getUserInfo = function getUserInfo(req, cb) {
         return cb && cb(i18n.t('loginCannotFindUser'));
       }
 
-      groupService.getOwnerEffectivePermission({_id: doc._id, type: PermissionAssignmentInfo.TYPE.USER}, (err, result) => {
+      groupService.getOwnerEffectivePermission({ _id: doc._id, type: PermissionAssignmentInfo.TYPE.USER }, (err, result) => {
         if (err) {
           return cb && cb(err);
         }
@@ -109,32 +109,32 @@ Login.hasAccessMiddleware = function hasAccessMiddleware(req, res, next) {
   const permissions = req.ex.userInfo.permissions || [];
   let url = req.originalUrl;
   url = url.split('?')[0];
-  for(let i = 0, len = permissions.length; i < len; i++){
+  for (let i = 0, len = permissions.length; i < len; i++) {
     const permission = permissions[i];
     const permissionPath = permission.path;
     const status = permission.status;
     let flag = 0;
-    if(permissionPath === 'all'){    //'all'是辅助条件
-      if(status === PermissionInfo.STATUS.UNACTIVE){
+    if (permissionPath === 'all') {    // 'all'是辅助条件
+      if (status === PermissionInfo.STATUS.UNACTIVE) {
         flag = 2;
-      }else{
+      } else {
         flag = 1;
       }
-    }else if(permissionPath === url){   //这个是决定性条件
-      if(status === PermissionInfo.STATUS.UNACTIVE){
+    } else if (permissionPath === url) {   // 这个是决定性条件
+      if (status === PermissionInfo.STATUS.UNACTIVE) {
         flag = 2;
         break;
-      }else{
+      } else {
         flag = 1;
         break;
       }
     }
 
-    if(flag === 0){
+    if (flag === 0) {
       return res.json(result.fail(req.t('noAccess')));
-    }else if(flag === 1){
+    } else if (flag === 1) {
       next();
-    }else{
+    } else {
       return res.json(result.fail(req.t('permissionIsUnActive')));
     }
   }

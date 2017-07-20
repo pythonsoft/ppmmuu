@@ -1,5 +1,5 @@
 /**
- * Created by steven on 2017/6/20.
+ * Created by chaoningx on 2017/7/17.
  */
 
 'use strict';
@@ -8,7 +8,7 @@ const logger = require('../../common/log')('error');
 const utils = require('../../common/utils');
 const i18n = require('i18next');
 
-const GroupInfo = require('./groupInfo');
+const GroupInfo = require('./engineGroupInfo');
 
 const groupInfo = new GroupInfo();
 
@@ -16,11 +16,9 @@ const UserInfo = require('../user/userInfo');
 
 const userInfo = new UserInfo();
 
-const userService = require('./userService');
+const config = require('../../config');
 
-let service = {};
-
-service = utils.softMerge(service, userService);
+const service = {};
 
 service.listGroup = function listGroup(parentId, type, page, pageSize, cb) {
   const q = {};
@@ -38,30 +36,8 @@ service.listGroup = function listGroup(parentId, type, page, pageSize, cb) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
-    const listArr = docs.docs;
-    const rs = [];
-    const getChildren = function getChildren(index) {
-      if (index >= listArr.length) {
-        docs.docs = rs;
-        return cb && cb(null, docs);
-      }
 
-      const temp = listArr[index];
-      groupInfo.collection.find({ parentId: temp._id }, { fields: { _id: 1 } }).toArray((err, r) => {
-        if (err) {
-          logger.error(err.message);
-          return cb && cb(i18n.t('databaseError'));
-        }
-        temp.children = [];
-        for (let j = 0, len = r.length; j < len; j++) {
-          const temp1 = r[j];
-          temp.children.push(temp1._id);
-        }
-        rs.push(temp);
-        getChildren(index + 1);
-      });
-    };
-    getChildren(0);
+    return cb && cb(null, docs);
   });
 };
 
@@ -97,6 +73,29 @@ service.listAllChildGroup = function listAllChildGroup(id, fields, cb) {
   listGroup(ids);
 };
 
+service.listAllParentGroup = function listAllParentGroup(parentId, fields, cb) {
+  let groups = [];
+  fields = fields ? { fields: utils.formatSortOrFieldsParams(fields) } : null;
+
+  const listGroup = function listGroup(parentId) {
+    groupInfo.collection.findOne({ _id: parentId }, fields, (err, doc) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      if (!doc) {
+        return cb && cb(null, groups);
+      }
+
+      groups = groups.concat(doc);
+      listGroup(doc.parentId);
+    });
+  };
+
+  listGroup(parentId);
+};
+
 service.getGroup = function getGroup(id, cb) {
   if (!id) {
     return cb && cb(i18n.t('groupIdIsNull'));
@@ -116,8 +115,7 @@ service.getGroup = function getGroup(id, cb) {
   });
 };
 
-service.addGroup = function addGroup(info, cb) {
-  const parentId = info.parentId || '';
+service.addGroup = function addGroup(parentId, creatorId, creatorName, info, cb) {
   if (!parentId && info.type !== GroupInfo.TYPE.COMPANY) {
     return cb && cb(i18n.t('groupIdIsNull'));
   }
@@ -170,19 +168,19 @@ service.addGroup = function addGroup(info, cb) {
         return cb && cb(i18n.t('databaseError'));
       }
 
-      return cb && cb(null, 'ok');
+      return cb && cb(null, {});
     });
   });
 };
 
 const updateGroupDetail = function updateGroupDetail(id, updateDoc, cb) {
-  groupInfo.updateOne({ _id: id }, updateDoc, (err) => {
+  groupInfo.updateOne({ _id: id }, updateDoc, (err, r) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
 
-    return cb && cb(null, 'ok');
+    return cb && cb(null, r);
   });
 };
 
@@ -247,13 +245,13 @@ service.deleteGroup = function deleteGroup(id, cb) {
         return cb && cb(i18n.t('databaseError'));
       }
 
-      groupInfo.collection.removeMany({ _id: { $in: groupIds } }, (err) => {
+      groupInfo.collection.removeMany({ _id: { $in: groupIds } }, (err, r) => {
         if (err) {
           logger.error(err.message);
           return cb && cb(i18n.t('databaseError'));
         }
 
-        return callback && callback(null);
+        return callback && callback(r);
       });
     });
   };
@@ -305,31 +303,152 @@ service.deleteGroup = function deleteGroup(id, cb) {
 
   getRootGroup((doc) => {
     listAllChildGroup((groupIds) => {
-      removeGroup(doc.type, groupIds, err => cb && cb(err, 'ok'));
+      removeGroup(doc.type, groupIds, r => cb && cb(null, r));
     });
   });
 };
 
-service.updateGroupInfo = function updateGroupInfo(info, cb) {
-  const struct = {
-    _id: { type: 'string', validation: 'require' },
-    name: { type: 'string', validation: 'require' },
-    deleteDeny: { type: 'string', validation: 'require' },
-  };
-  const err = utils.validation(info, struct);
-  if (err) {
-    return cb && cb(err);
-  }
+service.getGroupUserDetail = function getGroupUserDetail(_id, fields, cb) {
+  userInfo.getUserInfo(_id, fields, (err, doc) => cb && cb(err, doc));
+};
 
-  groupInfo.collection.updateOne({ _id: info._id }, { $set: info }, (err) => {
+const getGroups = function getGroupUsers(query, cb) {
+  groupInfo.collection.find(query).toArray((err, docs) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
 
-    return cb && cb(null, 'ok');
+    if (!docs || docs.length === 0) {
+      return cb && cb(i18n.t('cannotFindGroup'));
+    }
+
+    return cb && cb(null, docs);
   });
 };
 
+const fillUserInfo = function fillUserInfo(_ids, info, cb) {
+  if (info.password) {
+    info.password = utils.cipher(info.password, config.KEY);
+  }
+
+  if (!_ids || _ids.length === 0) {
+    return cb && cb(null, info);
+  }
+  getGroups({ _id: { $in: _ids } }, (err, docs) => {
+    if (err) {
+      return cb && cb(err);
+    }
+
+    if (docs.length !== _ids.length) {
+      return cb && cb(i18n.t('cannotFindGroup'));
+    }
+
+    for (let i = 0; i < docs.length; i++) {
+      const group = docs[i];
+      if (group.type === GroupInfo.TYPE.COMPANY) {
+        info.company = {
+          _id: group._id,
+          name: group.name,
+        };
+      } else if (group.type === GroupInfo.TYPE.DEPARTMENT) {
+        info.department = {
+          _id: group._id,
+          name: group.name,
+        };
+      } else if (group.type === GroupInfo.TYPE.TEAM) {
+        info.team = {
+          _id: group._id || '',
+          name: group.name || '',
+        };
+      }
+    }
+    return cb && cb(null, info);
+  });
+};
+
+service.addGroupUser = function addGroupUser(info, cb) {
+  const _ids = [];
+
+  if (!utils.checkPassword(info.password)) {
+    return cb && cb(i18n.t('validationError', { field: 'password' }));
+  }
+
+  _ids.push(info.companyId);
+
+  if (info.departmentId) {
+    _ids.push(info.departmentId);
+  }
+
+  if (info.teamId) {
+    _ids.push(info.teamId);
+  }
+
+  fillUserInfo(_ids, info, (err, info) => {
+    if (err) {
+      return cb && cb(err);
+    }
+
+    userInfo.insertOne(info, (err) => {
+      if (err) {
+        return cb && cb(err);
+      }
+
+      return cb && cb(null, {});
+    });
+  });
+};
+
+service.updateGroupUser = function updateGroupUser(info, cb) {
+  const _ids = [];
+
+  if (info.password) {
+    if (!utils.checkPassword(info.password)) {
+      return cb && cb(i18n.t('validationError', { field: 'password' }));
+    }
+  }
+
+  if (info.companyId) {
+    _ids.push(info.companyId);
+  } else if (info.companyId === '') {
+    info.company = {
+      _id: '',
+      name: '',
+    };
+  }
+
+  if (info.departmentId) {
+    _ids.push(info.departmentId);
+  } else if (info.departmentId === '') {
+    info.department = {
+      _id: '',
+      name: '',
+    };
+  }
+
+  if (info.teamId) {
+    _ids.push(info.teamId);
+  } else if (info.teamId === '') {
+    info.team = {
+      _id: '',
+      name: '',
+    };
+  }
+
+  fillUserInfo(_ids, info, (err, info) => {
+    if (err) {
+      return cb && cb(err);
+    }
+
+    userInfo.updateOne(
+      { _id: info._id }, info, (err, r) => {
+        if (err) {
+          return cb && cb(err);
+        }
+
+        return cb && cb(null, r);
+      });
+  });
+};
 
 module.exports = service;
