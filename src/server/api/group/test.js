@@ -29,7 +29,7 @@ describe('group', () => {
       }
       userInfo = db.collection('UserInfo');
       groupInfo = db.collection('GroupInfo');
-      userInfo.findOne({ _id: 'xuyawen@phoenixtv.com' }, (err, doc) => {
+      userInfo.findOne({ email: 'xuyawen@phoenixtv.com' }, (err, doc) => {
         if (err) {
           console.log(err);
           done();
@@ -120,7 +120,7 @@ describe('group', () => {
         .post('/group/update')
         .set('Cookie', userCookie)
         .set('Content-Type', 'application/json;charset=utf-8')
-        .send({ name: '宣传部', type: '1', _id: groupId })
+        .send({ name: '宣传部test', type: '1', _id: groupId })
         .expect('Content-Type', /json/)
         .expect(200) // Status code
         .end((err, res) => {
@@ -148,26 +148,6 @@ describe('group', () => {
             throw err;
           }
           // Should.js fluent syntax applied
-          res.body.status.should.equal('0');
-          done();
-        });
-    });
-  });
-
-  describe('#listAllChildGroup', () => {
-    it('/group/listAllChildGroup', (done) => {
-      request(url)
-        .get('/group/listAllChildGroup')
-        .set('Cookie', userCookie)
-        .query({ _id: parentId })
-        .expect('Content-Type', /json/)
-        .expect(200) // Status code
-        .end((err, res) => {
-          if (err) {
-            throw err;
-          }
-          // Should.js fluent syntax applied
-
           res.body.status.should.equal('0');
           done();
         });

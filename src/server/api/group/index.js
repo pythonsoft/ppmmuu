@@ -216,7 +216,7 @@ router.post('/add', (req, res) => {
  *                  type: string
  */
 router.post('/update', (req, res) => {
-  service.updateGroup(req.body, (err, docs) => res.json(result.json(err, docs)));
+  service.updateGroup(req.body._id, req.body, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
