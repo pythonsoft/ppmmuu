@@ -169,57 +169,6 @@ router.post('/add', (req, res) => {
 });
 
 /**
- * @permissionName: 更新组
- * @permissionPath: /group/update
- * @apiName: postUpdateGroup
- * @apiFuncType: post
- * @apiFuncUrl: /group/update
- * @swagger
- * /group/update:
- *   post:
- *     description: "更新组织名字"
- *     version: 1.0.0
- *     tags:
- *       - v1
- *       - GroupInfo
- *     consumes:
- *       - application/json
- *     parameters:
- *       - in: body
- *         name: body
- *         description: update group
- *         schema:
- *           type: object
- *           required:
- *            - name
- *            - _id
- *           properties:
- *             name:
- *               type: string
- *               example: "中国凤凰卫视"
- *             _id:
- *               type: string
- *     responses:
- *       200:
- *         description: GroupInfo
- *         schema:
- *           type: object
- *           properties:
- *            status:
- *              type: string
- *            data:
- *              type: object
- *            statusInfo:
- *              type: object
- *              properties:
- *                message:
- *                  type: string
- */
-router.post('/update', (req, res) => {
-  service.updateGroup(req.body._id, req.body, (err, docs) => res.json(result.json(err, docs)));
-});
-
-/**
  * @permissionName: 删除组
  * @permissionPath: /group/delete
  * @apiName: postDeleteGroup

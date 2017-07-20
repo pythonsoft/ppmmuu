@@ -68,7 +68,24 @@ router.post('/add', (req, res) => {
  *         name: body
  *         description: update config
  *         schema:
- *           $ref: '#/definitions/ConfigurationInfo'
+ *           type: object
+ *           required:
+ *             - _id
+ *           properties:
+ *             _id:
+ *               type: string
+ *             key:
+ *               type: string
+ *               example: testKey
+ *             value:
+ *               type: string
+ *               example: testValue
+ *             genre:
+ *               type: string
+ *               example: testGenre
+ *             description:
+ *               type: string
+ *               example: A simple description
  *     responses:
  *       200:
  *         description: ConfigInfo
@@ -88,7 +105,7 @@ router.post('/update', (req, res) => {
  * @swagger
  * /configuration/list:
  *   get:
- *     description: list configuration
+ *     descrition: list configuration
  *     version: 1.0.0
  *     tags:
  *       - v1
@@ -132,7 +149,7 @@ router.get('/list', (req, res) => {
  *           $ref: '#/definitions/ResultInfo'
  */
 router.post('/delete', (req, res) => {
-  service.deleteConfig(req.body.id, err => res.json(result.json(err, {})));
+  service.deleteConfig(req.body._id, err => res.json(result.json(err, {})));
 });
 
 /**
