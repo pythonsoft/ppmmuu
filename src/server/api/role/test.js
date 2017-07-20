@@ -16,6 +16,7 @@ describe('role', () => {
   const url = config.domain;
   let userCookie = '';
   let userIds = '';
+  let adminRoleId = '';
   let userInfo = '';
   let roleInfo = '';
 
@@ -33,7 +34,15 @@ describe('role', () => {
           done();
         }
         userIds = doc._id;
-        done();
+
+        roleInfo.findOne({ name: 'admin' }, (err, doc) => {
+          if (err) {
+            console.log(err);
+            done();
+          }
+          adminRoleId = doc._id;
+          done();
+        });
       });
     });
   });
@@ -82,7 +91,7 @@ describe('role', () => {
         .post('/role/add')
         .set('Cookie', userCookie)
         .set('Content-Type', 'application/json;charset=utf-8')
-        .send({ name: 'test', allowedPermissions: '/role/list' })
+        .send({ name: 'test', allowedPermissions: ['/role/list'], _id: "test"})
         .expect('Content-Type', /json/)
         .expect(200) // Status code
         .end((err, res) => {
@@ -130,7 +139,7 @@ describe('role', () => {
         .post('/role/update')
         .set('Cookie', userCookie)
         .set('Content-Type', 'application/json;charset=utf-8')
-        .send({ _id: _roleId, name: 'test1', allowedPermissions: '/role/list' })
+        .send({ _id: _roleId, name: 'test'})
         .expect('Content-Type', /json/)
         .expect(200) // Status code
         .end((err, res) => {
@@ -189,7 +198,7 @@ describe('role', () => {
         .post('/role/assignRole')
         .set('Cookie', userCookie)
         .set('Content-Type', 'application/json;charset=utf-8')
-        .send({ _id: userIds, roles: 'admin' })
+        .send({ _id: userIds, roles: adminRoleId, type: "3"})
         .expect('Content-Type', /json/)
         .expect(200) // Status code
         .end((err, res) => {
@@ -203,12 +212,92 @@ describe('role', () => {
     });
   });
 
-  describe('#getUserOrDepartmentRoleAndPermissions', () => {
-    it('/role/getUserOrDepartmentRoleAndPermissions', (done) => {
+  describe('#getRoleOwners', () => {
+    it('/role/getRoleOwners', (done) => {
       request(url)
-        .get('/role/getUserOrDepartmentRoleAndPermissions')
+        .get('/role/getRoleOwners')
         .set('Cookie', userCookie)
-        .query({ _id: userIds })
+        .query({ _id: adminRoleId })
+        .expect('Content-Type', /json/)
+        .expect(200) // Status code
+        .end((err, res) => {
+          if (err) {
+            throw err;
+          }
+          // Should.js fluent syntax applied
+          res.body.status.should.equal('0');
+          done();
+        });
+    });
+  });
+
+  describe('#deleteOwnerRole', () => {
+    it('/role/delete', (done) => {
+      request(url)
+        .post('/role/deleteOwnerRole')
+        .set('Cookie', userCookie)
+        .set('Content-Type', 'application/json;charset=utf-8')
+        .send({ _id: userIds, roles: adminRoleId})
+        .expect('Content-Type', /json/)
+        .expect(200) // Status code
+        .end((err, res) => {
+          if (err) {
+            throw err;
+          }
+          // Should.js fluent syntax applied
+          res.body.status.should.equal('0');
+          done();
+        });
+    });
+  });
+
+  describe('#updateRoleAddPermission', () => {
+    it('/role/updateRoleAddPermission', (done) => {
+      request(url)
+        .post('/role/updateRoleAddPermission')
+        .set('Cookie', userCookie)
+        .set('Content-Type', 'application/json;charset=utf-8')
+        .send({ _id: adminRoleId,
+          "allowedPermissions": [
+          "/role/list",
+          "/role/getDetail",
+          "all"
+          ],
+          "deniedPermissions": [
+            "/role/ ",
+            "/role/update"
+           ]
+        })
+        .expect('Content-Type', /json/)
+        .expect(200) // Status code
+        .end((err, res) => {
+          if (err) {
+            throw err;
+          }
+          // Should.js fluent syntax applied
+          res.body.status.should.equal('0');
+          done();
+        });
+    });
+  });
+
+
+  describe('#updateRoleDeletePermission', () => {
+    it('/role/updateRoleDeletePermission', (done) => {
+      request(url)
+        .post('/role/updateRoleDeletePermission')
+        .set('Cookie', userCookie)
+        .set('Content-Type', 'application/json;charset=utf-8')
+        .send({ _id: adminRoleId,
+          "allowedPermissions": [
+            "/role/list",
+            "/role/getDetail"
+          ],
+          "deniedPermissions": [
+            "/role/ ",
+            "/role/update"
+          ]
+        })
         .expect('Content-Type', /json/)
         .expect(200) // Status code
         .end((err, res) => {

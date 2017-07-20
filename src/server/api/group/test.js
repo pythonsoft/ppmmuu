@@ -20,6 +20,7 @@ describe('group', () => {
   let groupInfo = '';
   let parentId = '';
   let groupId = '';
+  let departmentId = '';
 
   before((done) => {
     mongodb.MongoClient.connect(config.mongodb.umpURL, (err, db) => {
@@ -44,7 +45,17 @@ describe('group', () => {
             throw new Error('请先创建(中国凤凰卫视)这个公司');
           }
           parentId = doc._id;
-          done();
+          groupInfo.findOne({ name: '宣传部', type: "1" }, (err, doc) => {
+            if (err) {
+              console.log(err);
+              done();
+            }
+            if (!doc) {
+              throw new Error('请先创建宣传部这个部门');
+            }
+            departmentId = doc._id;
+            done();
+          })
         });
       });
     });
@@ -110,26 +121,6 @@ describe('group', () => {
             groupId = doc._id;
             done();
           });
-        });
-    });
-  });
-
-  describe('#update', () => {
-    it('/group/update', (done) => {
-      request(url)
-        .post('/group/update')
-        .set('Cookie', userCookie)
-        .set('Content-Type', 'application/json;charset=utf-8')
-        .send({ name: '宣传部test', type: '1', _id: groupId })
-        .expect('Content-Type', /json/)
-        .expect(200) // Status code
-        .end((err, res) => {
-          if (err) {
-            throw err;
-          }
-          // Should.js fluent syntax applied
-          res.body.status.should.equal('0');
-          done();
         });
     });
   });
@@ -240,12 +231,204 @@ describe('group', () => {
           }
           // Should.js fluent syntax applied
           res.body.status.should.equal('0');
-          userInfo.deleteOne({ _id: 'test@phoenixtv.com' }, (err) => {
+          userInfo.deleteOne({ email: 'test@phoenixtv.com' }, (err) => {
             if (err) {
               throw err;
             }
             done();
           });
+        });
+    });
+  });
+
+  describe('#listUser', () => {
+    it('/group/listUser', (done) => {
+      request(url)
+        .get('/group/listUser')
+        .set('Cookie', userCookie)
+        .set('Content-Type', 'application/json;charset=utf-8')
+        .query({ _id: parentId, type: '0'})
+        .expect('Content-Type', /json/)
+        .expect(200) // Status code
+        .end((err, res) => {
+          if (err) {
+            throw err;
+          }
+          // Should.js fluent syntax applied
+          res.body.status.should.equal('0');
+          done();
+        });
+    });
+  });
+
+  describe('#justifyUserGroup', () => {
+    it('/group/justifyUserGroup', (done) => {
+      request(url)
+        .post('/group/justifyUserGroup')
+        .set('Cookie', userCookie)
+        .set('Content-Type', 'application/json;charset=utf-8')
+        .send({
+          _ids: userIds,
+          departmentId: departmentId,
+          teamId: '',
+        })
+        .expect('Content-Type', /json/)
+        .expect(200) // Status code
+        .end((err, res) => {
+          if (err) {
+            throw err;
+          }
+          // Should.js fluent syntax applied
+          res.body.status.should.equal('0');
+          done();
+        });
+    });
+  });
+
+  describe('#enableUser', () => {
+    it('/group/enableUser', (done) => {
+      request(url)
+        .post('/group/enableUser')
+        .set('Cookie', userCookie)
+        .set('Content-Type', 'application/json;charset=utf-8')
+        .send({
+          _ids: userIds,
+          status: '1'
+        })
+        .expect('Content-Type', /json/)
+        .expect(200) // Status code
+        .end((err, res) => {
+          if (err) {
+            throw err;
+          }
+          // Should.js fluent syntax applied
+          res.body.status.should.equal('0');
+          done();
+        });
+    });
+  });
+
+  describe('#updateOwnerPermission', () => {
+    it('/group/updateOwnerPermission', (done) => {
+      request(url)
+        .post('/group/updateOwnerPermission')
+        .set('Cookie', userCookie)
+        .set('Content-Type', 'application/json;charset=utf-8')
+        .send({
+          _id: userIds,
+          type: '3',
+          roles: [],
+          permissions: [
+            {
+              "path": "/role/list",
+              "action": "允许"
+            },
+            {
+              "path": "/role/update",
+              "action": "拒绝"
+            }
+          ]
+        })
+        .expect('Content-Type', /json/)
+        .expect(200) // Status code
+        .end((err, res) => {
+          if (err) {
+            throw err;
+          }
+          // Should.js fluent syntax applied
+          res.body.status.should.equal('0');
+          done();
+        });
+    });
+  });
+
+  describe('#updateGroupInfo', () => {
+    it('/group/updateGroupInfo', (done) => {
+      request(url)
+        .post('/group/updateGroupInfo')
+        .set('Cookie', userCookie)
+        .set('Content-Type', 'application/json;charset=utf-8')
+        .send({
+          "_id": parentId,
+          "name": "中国凤凰卫视",
+          "memberCount": 50,
+          "contact": {
+            "_id": "asfasf",
+            "name": "xuyawen",
+            "phone": "18719058667",
+            "email": "asfasf@qq.com"
+          },
+          "deleteDeny": "1"
+        })
+        .expect('Content-Type', /json/)
+        .expect(200) // Status code
+        .end((err, res) => {
+          if (err) {
+            throw err;
+          }
+          // Should.js fluent syntax applied
+          res.body.status.should.equal('0');
+          done();
+        });
+    });
+  });
+
+  describe('#getOwnerPermission', () => {
+    it('/group/getOwnerPermission', (done) => {
+      request(url)
+        .get('/group/getOwnerPermission')
+        .set('Cookie', userCookie)
+        .set('Content-Type', 'application/json;charset=utf-8')
+        .query({ _id: userIds})
+        .expect('Content-Type', /json/)
+        .expect(200) // Status code
+        .end((err, res) => {
+          if (err) {
+            throw err;
+          }
+          // Should.js fluent syntax applied
+          res.body.status.should.equal('0');
+          done();
+        });
+    });
+  });
+
+  describe('#getOwnerEffectivePermission', () => {
+    it('/group/getOwnerEffectivePermission', (done) => {
+      request(url)
+        .get('/group/getOwnerEffectivePermission')
+        .set('Cookie', userCookie)
+        .set('Content-Type', 'application/json;charset=utf-8')
+        .query({ _id: userIds, type: '3'})
+        .expect('Content-Type', /json/)
+        .expect(200) // Status code
+        .end((err, res) => {
+          if (err) {
+            throw err;
+          }
+          // Should.js fluent syntax applied
+          res.body.status.should.equal('0');
+          done();
+        });
+    });
+  });
+
+  describe('#searchUser', () => {
+    it('/group/searchUser', (done) => {
+      request(url)
+        .get('/group/searchUser')
+        .set('Cookie', userCookie)
+        .set('Content-Type', 'application/json;charset=utf-8')
+        .query({ companyId: parentId})
+        .expect('Content-Type', /json/)
+        .expect(200) // Status code
+        .end((err, res) => {
+          if (err) {
+            throw err;
+          }
+          // Should.js fluent syntax applied
+          res.body.status.should.equal('0');
+          done();
         });
     });
   });
