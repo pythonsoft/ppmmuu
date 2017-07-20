@@ -40,15 +40,15 @@ service.listGroup = function listGroup(parentId, type, page, pageSize, cb) {
     }
     const listArr = docs.docs;
     const rs = [];
-    const getChildren = function getChildren(index){
-      if(index >= listArr.length){
+    const getChildren = function getChildren(index) {
+      if (index >= listArr.length) {
         docs.docs = rs;
         return cb && cb(null, docs);
       }
 
       const temp = listArr[index];
-      groupInfo.collection.find({parentId: temp._id}, {fields: {_id: 1}}).toArray(function(err, r){
-        if(err){
+      groupInfo.collection.find({ parentId: temp._id }, { fields: { _id: 1 } }).toArray((err, r) => {
+        if (err) {
           logger.error(err.message);
           return cb && cb(i18n.t('databaseError'));
         }
@@ -58,9 +58,9 @@ service.listGroup = function listGroup(parentId, type, page, pageSize, cb) {
           temp.children.push(temp1._id);
         }
         rs.push(temp);
-        getChildren(index+1);
-      })
-    }
+        getChildren(index + 1);
+      });
+    };
     getChildren(0);
   });
 };

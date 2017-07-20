@@ -55,7 +55,7 @@ class EngineInfo extends DB {
 
     this.struct = {
       _id: { type: 'string', default() { return uuid.v1(); } },
-      code: { type: 'string', validation: 'require' }, //编号
+      code: { type: 'string', validation: 'require' }, // 编号
       name: { type: 'string', validation: 'require' },
       creator: { type: 'object', default: { _id: '', name: '' }, allowUpdate: false },
       belong: { type: 'string' },
@@ -65,7 +65,7 @@ class EngineInfo extends DB {
       createdTime: { type: 'date', allowUpdate: false },
       modifyTime: { type: 'date' },
       description: { type: 'string' },
-      configuration: { type: 'object' }, //配置项
+      configuration: { type: 'object' }, // 配置项
       detail: { type: 'object' },
     };
   }
