@@ -49,10 +49,10 @@ class PermissionAssignmentInfo extends DB {
 }
 
 PermissionAssignmentInfo.TYPE = {
-  USER: '0',
-  COMPANY: '1',
-  DEPARTMENT: '2',
-  TEAM: '3',
+  COMPANY: '0',
+  DEPARTMENT: '1',
+  TEAM: '2',
+  USER: '3',
 };
 
 module.exports = PermissionAssignmentInfo;

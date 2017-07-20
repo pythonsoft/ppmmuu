@@ -51,39 +51,35 @@ const utils = require('../../common/utils');
  */
 class EngineInfo extends DB {
   constructor() {
-    super(config.dbInstance.umpDB, 'EngineInfo', [
-      { key: { name: 1, type: 1, parentId: 1 }, unique: true },
-    ]);
+    super(config.dbInstance.umpDB, 'EngineInfo');
 
     this.struct = {
       _id: { type: 'string', default() { return uuid.v1(); } },
+      code: { type: 'string', validation: 'require' }, //编号
       name: { type: 'string', validation: 'require' },
-      logo: { type: 'string' },
       creator: { type: 'object', default: { _id: '', name: '' }, allowUpdate: false },
-      parentId: { type: 'string', validation: 'require' },
-      contact: { type: 'object', default: { _id: '', name: '', phone: '', email: '' } },
-      memberCount: { type: 'number' },
-      ad: { type: 'string' }, // 域控设置
-      type: { type: 'string', default: EngineInfo.TYPE.COMPANY, validation: v => utils.isValueInObject(v, EngineInfo.TYPE) },
+      belong: { type: 'string' },
+      area: { type: 'string', validation: 'require' },
+      isVirtual: { type: 'string', default: EngineInfo.IS_VIRTURAL.NO, validation: v => utils.isValueInObject(v, EngineInfo.IS_VIRTURAL) },
+      isTest: { type: 'string', default: EngineInfo.IS_TEST.NO, validation: v => utils.isValueInObject(v, EngineInfo.IS_TEST) },
       createdTime: { type: 'date', allowUpdate: false },
       modifyTime: { type: 'date' },
       description: { type: 'string' },
-      deleteDeny: { type: 'string', default: EngineInfo.DELETE_DENY.YES, validation: v => utils.isValueInObject(v, EngineInfo.DELETE_DENY) }, // 删除保护，创建后默认为保护状态
+      configuration: { type: 'object' }, //配置项
       detail: { type: 'object' },
     };
   }
 
 }
 
-EngineInfo.TYPE = {
-  COMPANY: '0',
-  DEPARTMENT: '1',
-  TEAM: '2',
+EngineInfo.IS_VIRTURAL = {
+  NO: '0',
+  YES: '1',
 };
 
-EngineInfo.DELETE_DENY = {
-  YES: '1',
+EngineInfo.IS_TEST = {
   NO: '0',
+  YES: '1',
 };
 
 module.exports = EngineInfo;

@@ -10,7 +10,9 @@ const result = require('../common/result');
 const token = require('../common/token');
 const config = require('../config');
 const UserInfo = require('../api/user/userInfo');
-const roleService = require('../api/role/service');
+const PermissionInfo = require('../api/role/permissionInfo');
+const PermissionAssignmentInfo = require('../api/role/permissionAssignmentInfo');
+const groupService = require('../api/group/service');
 
 const userInfo = new UserInfo();
 const redisClient = config.redisClient;
@@ -58,7 +60,7 @@ Login.getUserInfo = function getUserInfo(req, cb) {
         return cb && cb(i18n.t('loginCannotFindUser'));
       }
 
-      roleService.getAllPermissions(doc, (err, result) => {
+      groupService.getOwnerEffectivePermission({_id: doc._id, type: PermissionAssignmentInfo.TYPE.USER}, (err, result) => {
         if (err) {
           return cb && cb(err);
         }
@@ -99,24 +101,42 @@ Login.middleware = function middleware(req, res, next) {
       return res.json(result.fail(req.t('loginExpired')));
     }
   } else {
-    res.redirect('/login');
+    return res.json(result.fail(req.t('notLogin')));
   }
 };
 
 Login.hasAccessMiddleware = function hasAccessMiddleware(req, res, next) {
   const permissions = req.ex.userInfo.permissions || [];
-  const allowedPermissions = permissions.allowedPermissions || [];
-  const unActivePermissions = permissions.unActivePermissions || [];
   let url = req.originalUrl;
   url = url.split('?')[0];
+  for(let i = 0, len = permissions.length; i < len; i++){
+    const permission = permissions[i];
+    const permissionPath = permission.path;
+    const status = permission.status;
+    let flag = 0;
+    if(permissionPath === 'all'){    //'all'是辅助条件
+      if(status === PermissionInfo.STATUS.UNACTIVE){
+        flag = 2;
+      }else{
+        flag = 1;
+      }
+    }else if(permissionPath === url){   //这个是决定性条件
+      if(status === PermissionInfo.STATUS.UNACTIVE){
+        flag = 2;
+        break;
+      }else{
+        flag = 1;
+        break;
+      }
+    }
 
-  if (allowedPermissions.indexOf(url) !== -1 || allowedPermissions.indexOf('all') !== -1) {
-    if (unActivePermissions.indexOf(url) !== -1) {
+    if(flag === 0){
+      return res.json(result.fail(req.t('noAccess')));
+    }else if(flag === 1){
+      next();
+    }else{
       return res.json(result.fail(req.t('permissionIsUnActive')));
     }
-    next();
-  } else {
-    return res.json(result.fail(req.t('noAccess')));
   }
 };
 

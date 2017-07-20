@@ -10,10 +10,10 @@ const router = express.Router();
 
 const result = require('../../common/result');
 
-// const isLogin = require('../../middleware/login');
+const isLogin = require('../../middleware/login');
 
-// router.use(isLogin.middleware);
-// router.use(isLogin.hasAccessMiddleware);
+router.use(isLogin.middleware);
+router.use(isLogin.hasAccessMiddleware);
 
 const service = require('./service');
 
@@ -490,7 +490,7 @@ router.get('/listPermission', (req, res) => {
  *               example: xuyawen@phoenixtv.com
  *             type:
  *               type: string
- *               example: '"0" stand for user, "1" stand for company'
+ *               example: '"0"表示公司, "1"表示部门, "2"表示小组, "3"表示用户 '
  *     responses:
  *       200:
  *         description: RoleInfo
@@ -625,56 +625,6 @@ router.post('/enablePermission', (req, res) => {
     res.json(result.json(err, r));
   });
 });
-
-/**
- * @permissionName: 用户或部门角色权限详情
- * @permissionPath: /role/getUserOrDepartmentRoleAndPermissions
- * @apiName: getUserOrDepartmentRoleAndPermissions
- * @apiFuncType: get
- * @apiFuncUrl: /role/getUserOrDepartmentRoleAndPermissions
- * @swagger
- * /role/getUserOrDepartmentRoleAndPermissions:
- *   get:
- *     description: get user or department role and permissions
- *     version: 1.0.0
- *     tags:
- *       - v1
- *       - RoleInfo
- *     produces:
- *       - application/json
- *     parameters:
- *       - in: query
- *         name: _id
- *         description:
- *         required: true
- *         type: string
- *         default: "043741f0-5cac-11e7-9a4a-5b43dc9cf567"
- *         collectionFormat: csv
- *     responses:
- *       200:
- *         description: RoleInfo
- *         schema:
- *           type: object
- *           properties:
- *            status:
- *              type: string
- *            data:
- *              type: object
- *            statusInfo:
- *              type: object
- *              properties:
- *                message:
- *                  type: string
- */
-router.get('/getUserOrDepartmentRoleAndPermissions', (req, res) => {
-  const _id = req.query._id || '';
-
-
-  service.getUserOrDepartmentRoleAndPermissions(_id, (err, r) => {
-    res.json(result.json(err, r));
-  });
-});
-
 
 /**
  * @permissionName: 搜索拥有特定角色的用户,组织,部门,小组

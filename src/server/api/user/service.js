@@ -37,7 +37,7 @@ service.login = function login(res, username, password, cb) {
       return cb && cb(i18n.t('usernameOrPasswordIsWrong'));
     }
 
-    const expires = Date.now() + config.cookieExpires;
+    const expires = new Date().getTime() + config.cookieExpires;
     const token = Token.create(doc._id, expires, config.KEY);
 
     res.cookie('ticket', token, {
