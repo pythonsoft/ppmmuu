@@ -12,9 +12,9 @@ const result = require('../../common/result');
 
 const isLogin = require('../../middleware/login');
 
-// router.use(isLogin.middleware);
-// router.use(isLogin.hasAccessMiddleware);
-//
+router.use(isLogin.middleware);
+router.use(isLogin.hasAccessMiddleware);
+
 const service = require('./service');
 
 /**
@@ -47,6 +47,13 @@ const service = require('./service');
  *         required: false
  *         type: integer
  *         default: 999
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: keyword
+ *         description:
+ *         required: false
+ *         type: string
+ *         example: "添加"
  *         collectionFormat: csv
  *     responses:
  *       200:
@@ -270,8 +277,8 @@ router.post('/update', (req, res) => {
  *
  */
 router.post('/updateRoleAddPermission', (req, res) => {
-  service.updateRolePermission(req.body, true, (err) => {
-    res.json(result.json(err, {}));
+  service.updateRolePermission(req.body, true, (err, r) => {
+    res.json(result.json(err, r));
   });
 });
 
@@ -331,8 +338,8 @@ router.post('/updateRoleAddPermission', (req, res) => {
  *
  */
 router.post('/updateRoleDeletePermission', (req, res) => {
-  service.updateRolePermission(req.body, false, (err) => {
-    res.json(result.json(err, {}));
+  service.updateRolePermission(req.body, false, (err, r) => {
+    res.json(result.json(err, r));
   });
 });
 
@@ -517,8 +524,8 @@ router.get('/listPermission', (req, res) => {
  *
  */
 router.post('/assignRole', (req, res) => {
-  service.assignRole(req.body, (err) => {
-    res.json(result.json(err, {}));
+  service.assignRole(req.body, (err, r) => {
+    res.json(result.json(err, r));
   });
 });
 
@@ -572,8 +579,8 @@ router.post('/assignRole', (req, res) => {
  *
  */
 router.post('/deleteOwnerRole', (req, res) => {
-  service.deleteOwnerRole(req.body, (err) => {
-    res.json(result.json(err, {}));
+  service.deleteOwnerRole(req.body, (err, r) => {
+    res.json(result.json(err, r));
   });
 });
 
@@ -600,12 +607,12 @@ router.post('/deleteOwnerRole', (req, res) => {
  *         schema:
  *           type: object
  *           required:
- *            - _id
+ *            - paths
  *            - status
  *           properties:
- *             _id:
+ *             paths:
  *               type: string
- *               example: "cf46cd70-6512-11e7-904d-edfdde914c9e"
+ *               example: "/role/list,/role/udpate"
  *             status:
  *               type: string
  *               example: "0"

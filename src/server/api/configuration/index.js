@@ -15,7 +15,7 @@ const result = require('../../common/result');
 const service = require('./service');
 
 /**
- * @permissionName: Add Configuration
+ * @permissionName: 添加配置项
  * @permissionPath: /configuration/add
  * @apiName: postAddConfig
  * @apiFuncType: post
@@ -48,7 +48,7 @@ router.post('/add', (req, res) => {
 });
 
 /**
- * @permissionName: Update configuration
+ * @permissionName: 更新配置项
  * @permissionPath: /configuration/update
  * @apiName: postUpdateConfig
  * @apiFuncType: post
@@ -97,7 +97,7 @@ router.post('/update', (req, res) => {
 });
 
 /**
- * @permissionName: list configuration
+ * @permissionName: 配置项列表
  * @permissionPath: /configuration/list
  * @apiName: getListConfig
  * @apiFuncType: get
@@ -127,7 +127,7 @@ router.get('/list', (req, res) => {
 });
 
 /**
- * @permissionName: delete configuration
+ * @permissionName: 删除配置项
  * @permissionPath: /configuration/delete
  * @apiName: postDeleteConfig
  * @apiFuncType: post
@@ -153,7 +153,7 @@ router.post('/delete', (req, res) => {
 });
 
 /**
- * @permissionName: add config group
+ * @permissionName: 添加配置组
  * @permissionPath: /configuration/addGroup
  * @apiName: postAddGroup
  * @apiFuncType: post
@@ -180,7 +180,7 @@ router.post('/addGroup', (req, res) => {
 });
 
 /**
- * @permissionName: update config group
+ * @permissionName: 更新配置组
  * @permissionPath: /configuration/updateGroup
  * @apiName: postUpdateGroup
  * @apiFuncType: post
@@ -206,7 +206,7 @@ router.post('/updateGroup', (req, res) => {
 });
 
 /**
- * @permissionName: list config group
+ * @permissionName: 配置组列表
  * @permissionPath: /configuration/listGroup
  * @apiName: getListGroup
  * @apiFuncType: get
@@ -234,7 +234,7 @@ router.get('/listGroup', (req, res) => {
 });
 
 /**
- * @permissionName: delete config group
+ * @permissionName: 删除配置组
  * @permissionPath: /configuration/deleteGroup
  * @apiName: postDeleteGroup
  * @apiFuncType: post

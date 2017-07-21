@@ -14,6 +14,8 @@ const UserInfo = require('./userInfo');
 
 const userInfo = new UserInfo();
 
+const groupUserService = require('../group/userService');
+
 const service = {};
 
 service.login = function login(res, username, password, cb) {
@@ -61,12 +63,12 @@ service.setCookie = function setCookie(res, id) {
   return token;
 };
 
-service.getUserDetail = function getUserDetail(_id, fields, cb) {
+service.getUserDetail = function getUserDetail(_id, cb) {
   if (!_id) {
     return cb && cb(i18n.t('userIdIsNull'));
   }
-
-  fields = utils.formatSortOrFieldsParams(fields);
+  const fields = utils.formatSortOrFieldsParams('_id,name,photo,displayName,company,department,team,phone,email');
+  fields.password = 0;
 
   userInfo.collection.findOne({ _id }, { fields }, (err, doc) => {
     if (err) {
@@ -75,8 +77,36 @@ service.getUserDetail = function getUserDetail(_id, fields, cb) {
     if (!doc) {
       return cb && cb(i18n.t('userNotFind'));
     }
-    return cb && cb(null, doc);
+
+    groupUserService.getUserGroups(doc, cb);
   });
+};
+
+service.updateUser = function updateUser(_id, info, cb) {
+  if (!_id) {
+    return cb && cb(i18n.t('userIdIsNull'));
+  }
+
+  const updateInfo = utils.getAllowedUpdateObj('name,displayName,phone,email,photo', info);
+
+  userInfo.collection.updateOne({ _id }, { $set: updateInfo }, (err) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, 'ok');
+  });
+};
+
+service.logout = function logout(_id, res, cb) {
+  if (!_id) {
+    return cb && cb(i18n.t('userIdIsNull'));
+  }
+
+  res.cookie('ticket', '');
+  config.redisClient.del([_id]);
+  return cb && cb(null, 'ok');
 };
 
 module.exports = service;

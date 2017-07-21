@@ -10,6 +10,8 @@ const i18n = require('i18next');
 
 const utils = require('../../common/utils');
 
+const config = require('../../config');
+
 const AssignPermission = require('./permissionAssignmentInfo');
 
 const assignPermission = new AssignPermission();
@@ -49,7 +51,7 @@ service.listRole = function listRole(page, pageSize, keyword, fields, cb) {
     }
 
     return cb && cb(null, docs);
-  }, "", fields);
+  }, '', fields);
 };
 
 service.getRoleDetail = function getRoleDetail(id, cb) {
@@ -117,7 +119,7 @@ service.updateRole = function updateRole(info, cb) {
   const _roleInfo = {};
   _roleInfo._id = info._id;
   _roleInfo.name = info.name;
-  _roleInfo.description = info.description || "";
+  _roleInfo.description = info.description || '';
   roleInfo.updateOne({ _id: _roleInfo._id }, _roleInfo, (err, doc) => {
     if (err) {
       return cb && cb(err);
@@ -138,7 +140,7 @@ service.deleteRoles = function deleteRoles(ids, cb) {
       return cb && cb(i18n.t('databaseError'));
     }
 
-    return cb && cb(null, r);
+    service.clearRedisCacheByRoles(ids, err => cb && cb(null, 'ok'));
   });
 };
 
@@ -161,9 +163,123 @@ service.assignRole = function assignRole(info, cb) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
-
-      return cb && cb(null);
+      service.clearRedisCache(_id, err => cb && cb(null, 'ok'));
     });
+  });
+};
+
+/**
+ * @description clear redis cache by _id
+ * @param _id
+ */
+service.clearRedisCache = function clearRedisCache(_id, cb) {
+  let query = {};
+  if (typeof _id === 'string') {
+    query = { $or: [{ _id }, { 'company._id': _id }, { 'department._id': _id }, { 'team._id': _id }] };
+  } else {
+    query = { $or: [{ _id: { $in: _id } }, { 'company._id': { $in: _id } }, { 'department._id': { $in: _id } }, { 'team._id': { $in: _id } }] };
+  }
+
+  service.clearRedisCacheByUserQuery(query, cb);
+};
+
+service.clearRedisCacheByUserQuery = function (q, cb) {
+  userInfo.collection.find(q, { fields: { _id: 1 } }).toArray((err, docs) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+    if (docs.length) {
+      const idsArr = [];
+      docs.forEach((item) => {
+        idsArr.push(item._id);
+      });
+      config.redisClient.del(idsArr);
+    }
+    return cb && cb(null);
+  });
+};
+
+/**
+ * @description clear redis cache by permissions
+ * @param permissions
+ */
+service.clearRedisCacheByPermissions = function clearRedisCache(permissions, cb) {
+  const orArr = [];
+  if (typeof permissions === 'string') {
+    permissions = permissions.split(',');
+  }
+  permissions.forEach((permission) => {
+    orArr.push({ allowedPermissions: permission });
+    orArr.push({ deniedPermissions: permission });
+  });
+
+  const getRolesAndClearRedis = function getRolesAndClearRedis() {
+    roleInfo.collection.find({ $or: orArr }, { fields: { _id: 1 } }).toArray((err, docs) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+      if (docs.length) {
+        const idsArr = [];
+        docs.forEach((item) => {
+          idsArr.push(item._id);
+        });
+        service.clearRedisCacheByRoles(idsArr, cb);
+      } else {
+        return cb && cb(null);
+      }
+    });
+  };
+
+  assignPermission.collection.find({ $or: orArr }, { fields: { _id: 1 } }).toArray((err, docs) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+    if (docs.length) {
+      const idsArr = [];
+      docs.forEach((item) => {
+        idsArr.push(item._id);
+      });
+      service.clearRedisCache(idsArr, (err) => {
+        if (err) {
+          return cb && cb(err);
+        }
+        getRolesAndClearRedis();
+      });
+    } else {
+      getRolesAndClearRedis();
+    }
+  });
+};
+
+/**
+ * @description clear redis cache by roles
+ * @param role
+ */
+service.clearRedisCacheByRoles = function clearRedisCache(roles, cb) {
+  const orArr = [];
+  if (typeof roles === 'string') {
+    roles = roles.split(',');
+  }
+  roles.forEach((role) => {
+    orArr.push({ roles: role });
+  });
+  assignPermission.collection.find({ $or: orArr }, { fields: { _id: 1 } }).toArray((err, docs) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+    if (docs.length) {
+      const idsArr = [];
+      docs.forEach((item) => {
+        idsArr.push(item._id);
+      });
+      service.clearRedisCache(idsArr, cb);
+    } else {
+      return cb && cb(null);
+    }
   });
 };
 
@@ -205,30 +321,36 @@ service.listPermission = function lPermission(roleId, status, name, page, pageSi
 };
 
 service.enablePermission = function enablePermission(info, cb) {
-  let _ids = info._ids || '';
+  let paths = info.paths || '';
   const status = info.status;
 
-  if (!_ids) {
-    return cb && cb(i18n.t('enablePermissionNoIds'));
+  const struct = {
+    status: { type: 'string', validation(v) { return permissionInfo.validateStatus(v); } },
+    paths: { type: 'string', validation: 'require' },
+  };
+  const err = utils.validation(info, struct);
+
+  if (err) {
+    return cb && cb(err);
   }
 
-  if (!permissionInfo.validateStatus(status)) {
-    return cb && cb(i18n.t('enablePermissionStatusNotCorrect'));
+  paths = paths.split(',');
+  if (paths.indexOf('all') !== -1) {
+    return cb && cb(i18n.t('canNotDisableAllPermission'));
   }
 
-  _ids = _ids.split(',');
-  permissionInfo.collection.updateMany({ _id: { $in: _ids } }, { $set: { status } }, (err) => {
+  permissionInfo.collection.updateMany({ path: { $in: paths } }, { $set: { status } }, (err) => {
     if (err) {
       return cb && cb(err);
     }
 
-    return cb && cb(null, {});
+    service.clearRedisCacheByPermissions(paths, err => cb && cb(null, 'ok'));
   });
 };
 
 service.getRoleOwners = function getRoleOwners(info, cb) {
   const _id = info._id || '';
-  const keyword = info.keyword;
+  const keyword = info.keyword || '';
   const limit = info.limit || 20;
   const query = {};
 
@@ -236,8 +358,11 @@ service.getRoleOwners = function getRoleOwners(info, cb) {
     if (!userIds || userIds.length === 0) {
       return callback && callback(null, []);
     }
-
-    userInfo.collection.find({ _id: { $in: userIds } }, { fields: { name: 1, photo: 1 } }).toArray((err, docs) => {
+    const query = { _id: { $in: userIds } };
+    if (keyword) {
+      query.name = { $regex: keyword, $options: 'i' };
+    }
+    userInfo.collection.find(query, { fields: { name: 1, photo: 1 } }).toArray((err, docs) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
@@ -285,10 +410,6 @@ service.getRoleOwners = function getRoleOwners(info, cb) {
 
   query.roles = _id;
 
-  if (keyword) {
-    query.name = { $regex: keyword, $options: 'i' };
-  }
-
   assignPermission.collection.find(query, { fields: { _id: 1, type: 1 } }).limit(limit).toArray((err, docs) => {
     if (err) {
       logger.error(err.message);
@@ -333,7 +454,7 @@ service.deleteOwnerRole = function deleteOwnerRole(info, cb) {
   info.roles = roles;
 
   if (!_id) {
-    return cb & cb(i18n.t('delteRoleOwnersNoId'));
+    return cb & cb(i18n.t('deleteRoleOwnersNoId'));
   }
 
   if (!roles) {
@@ -358,7 +479,7 @@ service.deleteOwnerRole = function deleteOwnerRole(info, cb) {
         return cb && cb(i18n.t('databaseError'));
       }
 
-      return cb && cb(null);
+      service.clearRedisCache(_id, err => cb && cb(null, 'ok'));
     });
   });
 };
@@ -400,7 +521,7 @@ service.updateRolePermission = function updateRoleAddPermission(info, isAdd, cb)
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
-      return cb && cb(null);
+      service.clearRedisCacheByRoles(_id, err => cb && cb(null, 'ok'));
     });
   });
 };

@@ -30,8 +30,8 @@ const service = require('./service');
  *         schema:
  *           type: object
  *           required:
- *            - username
- *            - password
+ *             - username
+ *             - password
  *           properties:
  *             username:
  *               type: string
@@ -65,5 +65,143 @@ router.post('/login', (req, res) => {
 
   service.login(res, username, password, (err, data) => res.json(result.json(err, data)));
 });
+
+const isLogin = require('../../middleware/login');
+
+router.use(isLogin.middleware);
+
+/**
+ * @apiName: postUserUpdate
+ * @apiFuncType: post
+ * @apiFuncUrl: /user/update
+ * @swagger
+ * /user/update/:
+ *   post:
+ *     description: 个人中心
+ *     tags:
+ *       - v1
+ *       - UserInfo
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: user update
+ *         schema:
+ *           type: object
+ *           properties:
+ *             name:
+ *               type: string
+ *               example: "xuyawen"
+ *             displayName:
+ *               type: string
+ *               example: "steven"
+ *             photo:
+ *               type: string
+ *               example: ""
+ *             phone:
+ *               type: string
+ *               example: "18719058667"
+ *             email:
+ *               type: string
+ *               example: "xuyawen@phoenixtv.com"
+ *     responses:
+ *       200:
+ *         description: UserInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *              properties:
+ *                token:
+ *                  type: string
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *
+ */
+router.post('/update', (req, res) => {
+  const _id = req.ex.userInfo._id;
+  service.updateUser(_id, req.body, (err, data) => res.json(result.json(err, data)));
+});
+
+
+/**
+ * @apiName: getUserDetail
+ * @apiFuncType: get
+ * @apiFuncUrl: /user/detail
+ * @swagger
+ * /user/detail:
+ *   get:
+ *     description: get user detail
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - UserInfo
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: RoleInfo
+ */
+router.get('/detail', (req, res) => {
+  const _id = req.ex.userInfo._id;
+  service.getUserDetail(_id, (err, doc) => res.json(result.json(err, doc)));
+});
+
+/**
+ * @apiName: postUserLogout
+ * @apiFuncType: post
+ * @apiFuncUrl: /user/logout
+ * @swagger
+ * /user/logout/:
+ *   post:
+ *     description: 个人中心
+ *     tags:
+ *       - v1
+ *       - UserInfo
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: user logout
+ *         schema:
+ *           type: object
+ *     responses:
+ *       200:
+ *         description: UserInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *              properties:
+ *                token:
+ *                  type: string
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *
+ */
+router.post('/logout', (req, res) => {
+  const _id = req.ex.userInfo._id;
+  service.logout(_id, res, (err, data) => res.json(result.json(err, data)));
+});
+
+router.get('/logout', (req, res) => {
+  const _id = req.ex.userInfo._id;
+  service.logout(_id, res, (err, data) => res.json(result.json(err, data)));
+});
+
 
 module.exports = router;
