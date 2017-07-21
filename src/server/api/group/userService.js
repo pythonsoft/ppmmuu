@@ -48,7 +48,7 @@ service.getUserGroups = function getUserGroups(doc, cb) {
   if (teamId) {
     groupIds.push(teamId);
   }
-  
+
   if (groupIds.length === 0) {
     return cb && cb(null, doc);
   }
@@ -257,6 +257,10 @@ service.justifyUserGroup = function justifyUserGroup(info, cb) {
 };
 
 service.getGroupUserList = function getGroupUserList(info, cb) {
+  if(info.status === 'all'){
+    delete info.status;
+  }
+
   const struct = {
     _id: { type: 'string', validation: 'require' },
     type: { type: 'string', validation(v) { return utils.isValueInObject(v, GroupInfo.TYPE); } },
@@ -284,6 +288,10 @@ service.getGroupUserList = function getGroupUserList(info, cb) {
 
   if (keyword) {
     query.name = { $regex: keyword, $options: 'i' };
+  }
+
+  if(info.status){
+    query.status = info.status;
   }
 
   userInfo.pagination(query, page, pageSize, (err, docs) => {

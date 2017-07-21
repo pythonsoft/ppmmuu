@@ -162,7 +162,7 @@ router.get('/getDetail', (req, res) => {
  */
 router.post('/add', (req, res) => {
   const info = req.body;
-  const creator = { _id: '', name: '' };
+  const creator = { _id: req.ex.userInfo._id, name: req.ex.userInfo.name };
   info.creator = creator;
 
   service.addGroup(info, (err, docs) => res.json(result.json(err, docs)));
@@ -236,7 +236,7 @@ router.post('/delete', (req, res) => {
  *     parameters:
  *       - in: query
  *         name: _id
- *         description:
+ *         description: "组织_id"
  *         required: true
  *         type: string
  *         example: "bea711c0-67ae-11e7-8b13-c506d97b38b0"
@@ -245,6 +245,12 @@ router.post('/delete', (req, res) => {
  *         name: type
  *         description: "'0'表示公司,'1'表示部门,'2'表示小组"
  *         required: true
+ *         type: string
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: status
+ *         description: "'1'表示启用,'0'表示禁用,'all'表示全部"
+ *         required: false
  *         type: string
  *         collectionFormat: csv
  *       - in: query
