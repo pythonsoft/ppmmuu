@@ -57,7 +57,7 @@ class EngineGroupInfo extends DB {
       _id: { type: 'string', default() { return uuid.v1(); } },
       name: { type: 'string', validation: 'require' },
       creator: { type: 'object', default: { _id: '', name: '' }, allowUpdate: false },
-      parentId: { type: 'string', },
+      parentId: { type: 'string' },
       createdTime: { type: 'date', allowUpdate: false },
       modifyTime: { type: 'date' },
       description: { type: 'string' },

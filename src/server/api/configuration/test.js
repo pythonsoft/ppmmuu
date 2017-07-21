@@ -15,7 +15,7 @@ const mongodb = require('mongodb');
 describe('configuration', () => {
   const url = config.domain;
   let userCookie = '';
-  let userIds = '';
+  const userIds = '';
   let configurationInfo = '';
   let configurationGroupInfo = '';
 
@@ -35,7 +35,7 @@ describe('configuration', () => {
     it('/user/login', (done) => {
       request(url)
         .post('/user/login')
-        .send({username: 'xuyawen', password: '123123'})
+        .send({ username: 'xuyawen', password: '123123' })
         .expect('Content-Type', /json/)
         .expect(200) // Status code
         .end((err, res) => {
@@ -76,10 +76,10 @@ describe('configuration', () => {
         .set('Cookie', userCookie)
         .set('Content-Type', 'application/json;charset=utf-8')
         .send({
-          "key": "testKey",
-          "value": "testValue",
-          "genre": "testGenre",
-          "description": "A simple description"
+          key: 'testKey',
+          value: 'testValue',
+          genre: 'testGenre',
+          description: 'A simple description',
         })
         .expect('Content-Type', /json/)
         .expect(200) // Status code
@@ -109,11 +109,11 @@ describe('configuration', () => {
         .set('Cookie', userCookie)
         .set('Content-Type', 'application/json;charset=utf-8')
         .send({
-          _id: _id,
-          "key": "testKey",
-          "value": "testValue",
-          "genre": "testGenre",
-          "description": "A simple description"
+          _id,
+          key: 'testKey',
+          value: 'testValue',
+          genre: 'testGenre',
+          description: 'A simple description',
         })
         .expect('Content-Type', /json/)
         .expect(200) // Status code
@@ -136,7 +136,7 @@ describe('configuration', () => {
         .set('Cookie', userCookie)
         .set('Content-Type', 'application/json;charset=utf-8')
         .send({
-          _id: _id
+          _id,
         })
         .expect('Content-Type', /json/)
         .expect(200) // Status code
@@ -152,7 +152,7 @@ describe('configuration', () => {
     });
   });
 
-  let groupId = "";
+  let groupId = '';
   describe('#addGroup', () => {
     it('/configuration/addGroup', (done) => {
       request(url)
@@ -160,8 +160,8 @@ describe('configuration', () => {
         .set('Cookie', userCookie)
         .set('Content-Type', 'application/json;charset=utf-8')
         .send({
-          name: "testGroup",
-          parent: ""
+          name: 'testGroup',
+          parent: '',
         })
         .expect('Content-Type', /json/)
         .expect(200) // Status code
@@ -172,14 +172,14 @@ describe('configuration', () => {
           // Should.js fluent syntax applied
 
           res.body.status.should.equal('0');
-          configurationGroupInfo.findOne({name: "testGroup"}, function(err, doc){
-            if(err){
+          configurationGroupInfo.findOne({ name: 'testGroup' }, (err, doc) => {
+            if (err) {
               throw err;
             }
 
             groupId = doc._id;
             done();
-          })
+          });
         });
     });
   });
@@ -210,7 +210,7 @@ describe('configuration', () => {
         .set('Content-Type', 'application/json;charset=utf-8')
         .send({
           _id: groupId,
-          name: "testGroup1"
+          name: 'testGroup1',
         })
         .expect('Content-Type', /json/)
         .expect(200) // Status code
@@ -246,4 +246,4 @@ describe('configuration', () => {
         });
     });
   });
-})
+});
