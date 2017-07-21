@@ -125,7 +125,7 @@
   },
   "cannotDeleteProtectGroup": {
     "code": "-5004",
-    "message": "以下组织设置了删除保持，不能执行删除操作，请取消保护后再进行偿试，{{groupNames}}"
+    "message": "以下组织设置了删除保护，不能执行删除操作，请取消保护后再进行偿试，{{groupNames}}"
   },
   "groupTypeIsUnValidate": {
     "code": "-5005",
@@ -254,5 +254,21 @@
   "searchUserOrGroupTypeNotCorrect": {
     "code": "-11001",
     "message": "搜索用户或组织参数type不正确"
-  }
+  },
+  "engineGroupIdIsNull": {
+    "code": "-12001",
+    "message": "请输入引擎组Id."
+  },
+  "engineGroupInfoIsNull": {
+    "code": "-12002",
+    "message": "引擎组信息不存在."
+  },
+  "parentEngineGroupInfoIsNull": {
+    "code": "-12003",
+    "message": "上级引擎组信息不存在."
+  },
+  "engineGroupDeleteDenyIsYes": {
+    "code": "-12004",
+    "message": "该引擎组设置了删除保护，不能将该引擎组删除."
+  },
 }
