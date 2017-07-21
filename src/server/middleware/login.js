@@ -110,7 +110,7 @@ Login.hasAccessMiddleware = function hasAccessMiddleware(req, res, next) {
   let url = req.originalUrl;
   let flag = 0;
   url = url.split('?')[0];
-  console.log(permissions);
+
   for (let i = 0, len = permissions.length; i < len; i++) {
     const permission = permissions[i];
     const permissionPath = permission.path;

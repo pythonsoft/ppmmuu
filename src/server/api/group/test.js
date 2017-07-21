@@ -317,7 +317,7 @@ describe('group', () => {
         .send({
           _id: userIds,
           type: '3',
-          roles: ['admin'],
+          roles: [{_id: 'admin'}],
           permissions: [
             {
               path: '/role/list',
