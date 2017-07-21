@@ -162,7 +162,7 @@ router.get('/getDetail', (req, res) => {
  */
 router.post('/add', (req, res) => {
   const info = req.body;
-  const creator = { _id: '', name: '' };
+  const creator = { _id: req.ex.userInfo._id, name: req.ex.userInfo.name };
   info.creator = creator;
 
   service.addGroup(info, (err, docs) => res.json(result.json(err, docs)));

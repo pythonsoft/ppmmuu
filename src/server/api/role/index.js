@@ -161,6 +161,7 @@ router.get('/getDetail', (req, res) => {
  *                  type: string
  */
 router.post('/add', (req, res) => {
+  req.body.creator = { _id: req.ex.userInfo._id, name: req.ex.userInfo.name };
   service.addRole(req.body, (err) => {
     res.json(result.json(err, {}));
   });
