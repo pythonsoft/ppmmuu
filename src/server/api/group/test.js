@@ -322,7 +322,7 @@ describe('group', () => {
             {
               path: '/role/list',
               action: '允许',
-            },
+            }
           ],
         })
         .expect('Content-Type', /json/)

@@ -7,6 +7,7 @@
 const uuid = require('uuid');
 
 const DB = require('../../common/db');
+const utils = require('../../common/utils');
 const config = require('../../config');
 
 /**
@@ -56,14 +57,20 @@ class EngineGroupInfo extends DB {
       _id: { type: 'string', default() { return uuid.v1(); } },
       name: { type: 'string', validation: 'require' },
       creator: { type: 'object', default: { _id: '', name: '' }, allowUpdate: false },
-      parentId: { type: 'string', validation: 'require' },
+      parentId: { type: 'string' },
       createdTime: { type: 'date', allowUpdate: false },
       modifyTime: { type: 'date' },
       description: { type: 'string' },
+      deleteDeny: { type: 'string', default: EngineGroupInfo.DELETE_DENY.YES, validation: v => utils.isValueInObject(v, EngineGroupInfo.DELETE_DENY) }, // 删除保护，创建后默认为保护状态
       detail: { type: 'object' },
     };
   }
 
 }
+
+EngineGroupInfo.DELETE_DENY = {
+  YES: '1',
+  NO: '0',
+};
 
 module.exports = EngineGroupInfo;

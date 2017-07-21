@@ -48,7 +48,7 @@ service.getUserGroups = function getUserGroups(doc, cb) {
   if (teamId) {
     groupIds.push(teamId);
   }
-
+  
   if (groupIds.length === 0) {
     return cb && cb(null, doc);
   }
