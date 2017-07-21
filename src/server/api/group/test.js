@@ -45,7 +45,7 @@ describe('group', () => {
             throw new Error('请先创建(中国凤凰卫视)这个公司');
           }
           parentId = doc._id;
-          groupInfo.findOne({ name: '宣传部', type: "1" }, (err, doc) => {
+          groupInfo.findOne({ name: '宣传部', type: '1' }, (err, doc) => {
             if (err) {
               console.log(err);
               done();
@@ -55,7 +55,7 @@ describe('group', () => {
             }
             departmentId = doc._id;
             done();
-          })
+          });
         });
       });
     });
@@ -247,7 +247,7 @@ describe('group', () => {
         .get('/group/listUser')
         .set('Cookie', userCookie)
         .set('Content-Type', 'application/json;charset=utf-8')
-        .query({ _id: parentId, type: '0'})
+        .query({ _id: parentId, type: '0' })
         .expect('Content-Type', /json/)
         .expect(200) // Status code
         .end((err, res) => {
@@ -269,7 +269,7 @@ describe('group', () => {
         .set('Content-Type', 'application/json;charset=utf-8')
         .send({
           _ids: userIds,
-          departmentId: departmentId,
+          departmentId,
           teamId: '',
         })
         .expect('Content-Type', /json/)
@@ -293,7 +293,7 @@ describe('group', () => {
         .set('Content-Type', 'application/json;charset=utf-8')
         .send({
           _ids: userIds,
-          status: '1'
+          status: '1',
         })
         .expect('Content-Type', /json/)
         .expect(200) // Status code
@@ -320,14 +320,14 @@ describe('group', () => {
           roles: [],
           permissions: [
             {
-              "path": "/role/list",
-              "action": "允许"
+              path: '/role/list',
+              action: '允许',
             },
             {
-              "path": "/role/update",
-              "action": "拒绝"
-            }
-          ]
+              path: '/role/update',
+              action: '拒绝',
+            },
+          ],
         })
         .expect('Content-Type', /json/)
         .expect(200) // Status code
@@ -349,16 +349,16 @@ describe('group', () => {
         .set('Cookie', userCookie)
         .set('Content-Type', 'application/json;charset=utf-8')
         .send({
-          "_id": parentId,
-          "name": "中国凤凰卫视",
-          "memberCount": 50,
-          "contact": {
-            "_id": "asfasf",
-            "name": "xuyawen",
-            "phone": "18719058667",
-            "email": "asfasf@qq.com"
+          _id: parentId,
+          name: '中国凤凰卫视',
+          memberCount: 50,
+          contact: {
+            _id: 'asfasf',
+            name: 'xuyawen',
+            phone: '18719058667',
+            email: 'asfasf@qq.com',
           },
-          "deleteDeny": "1"
+          deleteDeny: '1',
         })
         .expect('Content-Type', /json/)
         .expect(200) // Status code
@@ -379,7 +379,7 @@ describe('group', () => {
         .get('/group/getOwnerPermission')
         .set('Cookie', userCookie)
         .set('Content-Type', 'application/json;charset=utf-8')
-        .query({ _id: userIds})
+        .query({ _id: userIds })
         .expect('Content-Type', /json/)
         .expect(200) // Status code
         .end((err, res) => {
@@ -399,7 +399,7 @@ describe('group', () => {
         .get('/group/getOwnerEffectivePermission')
         .set('Cookie', userCookie)
         .set('Content-Type', 'application/json;charset=utf-8')
-        .query({ _id: userIds, type: '3'})
+        .query({ _id: userIds, type: '3' })
         .expect('Content-Type', /json/)
         .expect(200) // Status code
         .end((err, res) => {
@@ -419,7 +419,7 @@ describe('group', () => {
         .get('/group/searchUser')
         .set('Cookie', userCookie)
         .set('Content-Type', 'application/json;charset=utf-8')
-        .query({ companyId: parentId})
+        .query({ companyId: parentId })
         .expect('Content-Type', /json/)
         .expect(200) // Status code
         .end((err, res) => {

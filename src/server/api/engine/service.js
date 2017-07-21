@@ -7,7 +7,6 @@
 const logger = require('../../common/log')('error');
 const utils = require('../../common/utils');
 const i18n = require('i18next');
-const config = require('../../config');
 
 const EngineGroupInfo = require('./engineGroupInfo');
 
@@ -36,7 +35,6 @@ service.listGroup = function listGroup(parentId, page, pageSize, sortFields, fie
 
     return cb && cb(null, docs);
   }, sortFields, fieldsNeed);
-
 };
 
 service.listChildGroup = function listChildGroup(id, fields, cb) {
@@ -46,15 +44,15 @@ service.listChildGroup = function listChildGroup(id, fields, cb) {
 
   const q = {};
 
-  if(id.constructor === Array) {
-    g.parentId = { $in: id };
-  }else {
-    g.parentId = id;
+  if (id.constructor === Array) {
+    q.parentId = { $in: id };
+  } else {
+    q.parentId = id;
   }
 
   let cursor = engineGroupInfo.collection.find(q);
 
-  if(fields) {
+  if (fields) {
     cursor = cursor.project(utils.formatSortOrFieldsParams(fields));
   }
 
@@ -66,7 +64,6 @@ service.listChildGroup = function listChildGroup(id, fields, cb) {
 
     return cb && cb(null, docs);
   });
-
 };
 
 service.getGroup = function getGroup(id, cb) {
@@ -100,20 +97,20 @@ const insertGroup = function insertGroup(info, cb) {
 };
 
 service.addGroup = function addGroup(info, cb) {
-  if(info.parentId) {
+  if (info.parentId) {
     engineGroupInfo.collection.findOne({ _id: info.parentId }, { fields: { _id: 1 } }, (err, doc) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
 
-      if(!doc) {
+      if (!doc) {
         return cb && cb(i18n.t('parentEngineGroupInfoIsNull'));
       }
 
       insertGroup(info, cb);
     });
-  }else {
+  } else {
     insertGroup(info, cb);
   }
 };
@@ -123,7 +120,7 @@ service.updateGroup = function updateGroup(id, updateDoc, cb) {
     return cb && cb(i18n.t('engineGroupIdIsNull'));
   }
 
-  if(!updateDoc.modifyTime) {
+  if (!updateDoc.modifyTime) {
     updateDoc.modifyTime = new Date();
   }
 
@@ -142,27 +139,27 @@ service.deleteGroup = function deleteGroup(id, cb) {
     return cb && cb(i18n.t('engineGroupIdIsNull'));
   }
 
-  engineGroupInfo.collection.findOne({ _id }, { fields: { _id: 1, deleteDeny: 1 } }, (err, doc) => {
+  engineGroupInfo.collection.findOne({ _id: id }, { fields: { _id: 1, deleteDeny: 1 } }, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
 
-    if(!doc) {
+    if (!doc) {
       return cb && cb(i18n.t('engineGroupInfoIsNull'));
     }
 
-    if(doc.deleteDeny === EngineGroupInfo.DELETE_DENY.YES) {
+    if (doc.deleteDeny === EngineGroupInfo.DELETE_DENY.YES) {
       return cb && cb(i18n.t('engineGroupDeleteDenyIsYes'));
     }
 
-    engineGroupInfo.collection.removeOne({ _id: doc._id }, (err, r) => {
+    engineGroupInfo.collection.removeOne({ _id: doc._id }, (err) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
 
-      engineGroupInfo.collection.update({ parentId: doc._id }, { $set: { parentId: '' } }, (err, r) => {
+      engineGroupInfo.collection.update({ parentId: doc._id }, { $set: { parentId: '' } }, (err) => {
         if (err) {
           logger.error(err.message);
           return cb && cb(i18n.t('databaseError'));
@@ -175,9 +172,9 @@ service.deleteGroup = function deleteGroup(id, cb) {
           }
 
           return cb && cb(null, r);
-        })
+        });
       });
-    })
+    });
   });
 };
 

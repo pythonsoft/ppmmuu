@@ -49,7 +49,7 @@ service.listRole = function listRole(page, pageSize, keyword, fields, cb) {
     }
 
     return cb && cb(null, docs);
-  }, "", fields);
+  }, '', fields);
 };
 
 service.getRoleDetail = function getRoleDetail(id, cb) {
@@ -117,7 +117,7 @@ service.updateRole = function updateRole(info, cb) {
   const _roleInfo = {};
   _roleInfo._id = info._id;
   _roleInfo.name = info.name;
-  _roleInfo.description = info.description || "";
+  _roleInfo.description = info.description || '';
   roleInfo.updateOne({ _id: _roleInfo._id }, _roleInfo, (err, doc) => {
     if (err) {
       return cb && cb(err);
