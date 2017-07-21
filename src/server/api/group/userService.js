@@ -30,8 +30,47 @@ const permissionAssignmentInfo = new PermissionAssignmentInfo();
 
 const config = require('../../config');
 
+const roleService = require('../role/service');
+
 const service = {};
 
+service.getUserGroups = function getUserGroups(doc, cb) {
+  const companyId = doc.company ? doc.company._id : '';
+  const departmentId = doc.department ? doc.department._id : '';
+  const teamId = doc.team ? doc.team._id : '';
+  const groupIds = [];
+  if (companyId) {
+    groupIds.push(companyId);
+  }
+  if (departmentId) {
+    groupIds.push(departmentId);
+  }
+  if (teamId) {
+    groupIds.push(teamId);
+  }
+  
+  if (groupIds.length === 0) {
+    return cb && cb(null, doc);
+  }
+  groupInfo.collection.find({ _id: { $in: groupIds } }, { fields: { name: 1 } }).toArray((err, docs) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    for (let i = 0, len = docs.length; i < len; i++) {
+      const temp = docs[i];
+      if (temp._id === companyId) {
+        doc.company = temp;
+      } else if (temp._id === departmentId) {
+        doc.department = temp;
+      } else if (temp._id === teamId) {
+        doc.team = temp;
+      }
+    }
+    return cb && cb(null, doc);
+  });
+};
 
 service.getGroupUserDetail = function getGroupUserDetail(_id, cb) {
   userInfo.getUserInfo(_id, '', (err, doc) => {
@@ -39,43 +78,7 @@ service.getGroupUserDetail = function getGroupUserDetail(_id, cb) {
       return cb && cb(err);
     }
 
-    const companyId = doc.company ? doc.company._id : '';
-    const departmentId = doc.department ? doc.department._id : '';
-    const teamId = doc.team ? doc.team._id : '';
-    const groupIds = [];
-    if (companyId) {
-      groupIds.push(companyId);
-    }
-    if (departmentId) {
-      groupIds.push(departmentId);
-    }
-    if (teamId) {
-      groupIds.push(teamId);
-    }
-    const getGroups = function getGroups() {
-      if (groupIds.length === 0) {
-        return cb && cb(null, doc);
-      }
-      groupInfo.collection.find({ _id: { $in: groupIds } }, { fields: { name: 1 } }).toArray((err, docs) => {
-        if (err) {
-          logger.error(err.message);
-          return cb && cb(i18n.t('databaseError'));
-        }
-
-        for (let i = 0, len = docs.length; i < len; i++) {
-          const temp = docs[i];
-          if (temp._id === companyId) {
-            doc.company = temp;
-          } else if (temp._id === departmentId) {
-            doc.department = temp;
-          } else if (temp._id === teamId) {
-            doc.team = temp;
-          }
-        }
-        return cb && cb(null, doc);
-      });
-    };
-    getGroups();
+    service.getUserGroups(doc, cb);
   });
 };
 
@@ -213,7 +216,7 @@ service.updateGroupUser = function updateGroupUser(info, cb) {
           return cb && cb(err);
         }
 
-        return cb && cb(null, 'ok');
+        roleService.clearRedisCache(info._id, () => cb && cb(null, 'ok'));
       });
   });
 };
@@ -373,7 +376,7 @@ service.updateOwnerPermission = function updateOwnerPermission(info, cb) {
         return cb && cb(i18n.t('databaseError'));
       }
 
-      return cb & cb(null);
+      roleService.clearRedisCache(info._id, () => cb & cb(null));
     });
   });
 };
@@ -616,8 +619,10 @@ const getAllPermissionArr = function getAllPermissionArr(assignPermissionArr, cb
   getPermissions(0);
 };
 
-const getAllowedPermissions = function getAllowedPermissions(docs) {
+const getAllowedOrDeniedPermissions = function getAllowedPermissions(docs, isAllowed) {
   const length = docs.length;
+  const key1 = isAllowed ? 'allowedPermissions' : 'deniedPermissions';
+  const key2 = isAllowed ? 'deniedPermissions' : 'allowedPermissions';
   let allowed = [];
 
   const filterPermission = function filterPermission(allowed, denied) {
@@ -632,13 +637,14 @@ const getAllowedPermissions = function getAllowedPermissions(docs) {
 
 
   for (let i = length - 1; i >= 0; i--) {
-    let denied = docs[i].deniedPermissions || [];
+    let denied = docs[i][key2] || [];
     for (let j = i - 1; j >= 0; j--) {
-      const tempDenied = docs[j].deniedPermissions || [];
-      denied = denied.concat(tempDenied);
+      const tempDenied = docs[j][key2] || [];
+      denied = utils.hardMerge(denied, tempDenied);
     }
-    allowed = allowed.concat(filterPermission(docs[i].allowedPermissions, denied));
+    allowed = utils.hardMerge(allowed, (filterPermission(docs[i][key1], denied)));
   }
+
   return allowed;
 };
 
@@ -668,14 +674,20 @@ service.getOwnerEffectivePermission = function getOwnerEffectivePermission(info,
           return cb & cb(err);
         }
 
-        const allowedPermissions = getAllowedPermissions(allPermissionArr);
-        permissionInfo.collection.find({ path: { $in: allowedPermissions } }).toArray((err, docs) => {
+        const allowedPermissions = getAllowedOrDeniedPermissions(allPermissionArr, true);
+        const deniedPermissions = getAllowedOrDeniedPermissions(allPermissionArr, false);
+        const tempArr = allowedPermissions.concat(deniedPermissions);
+        permissionInfo.collection.find({ path: { $in: tempArr } }).toArray((err, docs) => {
           if (err) {
             logger.error(err.message);
             return cb && cb(i18n.t('databaseError'));
           }
           for (let i = 0, len = docs.length; i < len; i++) {
-            docs[i].action = '允许';
+            if (allowedPermissions.indexOf(docs[i].path) !== -1) {
+              docs[i].action = '允许';
+            } else {
+              docs[i].action = '拒绝';
+            }
           }
           return cb && cb(null, docs);
         });
@@ -733,7 +745,7 @@ service.enableGroupUser = function enableGroupUser(info, cb) {
         return cb && cb(i18n.t('databaseError'));
       }
 
-      return cb && cb(null, 'ok');
+      roleService.clearRedisCache(_ids, () => cb && cb(null, 'ok'));
     });
 };
 module.exports = service;

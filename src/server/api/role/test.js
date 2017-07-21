@@ -237,7 +237,7 @@ describe('role', () => {
         .post('/role/deleteOwnerRole')
         .set('Cookie', userCookie)
         .set('Content-Type', 'application/json;charset=utf-8')
-        .send({ _id: userIds, roles: adminRoleId })
+        .send({ _id: userIds, roles: "guest" })
         .expect('Content-Type', /json/)
         .expect(200) // Status code
         .end((err, res) => {

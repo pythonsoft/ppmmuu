@@ -317,16 +317,12 @@ describe('group', () => {
         .send({
           _id: userIds,
           type: '3',
-          roles: [],
+          roles: [{_id: 'admin'}],
           permissions: [
             {
               path: '/role/list',
               action: '允许',
-            },
-            {
-              path: '/role/update',
-              action: '拒绝',
-            },
+            }
           ],
         })
         .expect('Content-Type', /json/)

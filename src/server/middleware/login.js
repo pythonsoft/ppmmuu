@@ -108,35 +108,41 @@ Login.middleware = function middleware(req, res, next) {
 Login.hasAccessMiddleware = function hasAccessMiddleware(req, res, next) {
   const permissions = req.ex.userInfo.permissions || [];
   let url = req.originalUrl;
+  let flag = 0;
   url = url.split('?')[0];
+
   for (let i = 0, len = permissions.length; i < len; i++) {
     const permission = permissions[i];
     const permissionPath = permission.path;
     const status = permission.status;
-    let flag = 0;
+    const action = permission.action;
     if (permissionPath === 'all') {    // 'all'是辅助条件
+      flag = 1;
       if (status === PermissionInfo.STATUS.UNACTIVE) {
-        flag = 2;
-      } else {
-        flag = 1;
+        flag = 0;
+      }
+      if (action === '拒绝') {
+        flag = 0;
       }
     } else if (permissionPath === url) {   // 这个是决定性条件
+      flag = 1;
       if (status === PermissionInfo.STATUS.UNACTIVE) {
         flag = 2;
         break;
-      } else {
-        flag = 1;
+      }
+      if (action === '拒绝') {
+        flag = 0;
         break;
       }
     }
+  }
 
-    if (flag === 0) {
-      return res.json(result.fail(req.t('noAccess')));
-    } else if (flag === 1) {
-      next();
-    } else {
-      return res.json(result.fail(req.t('permissionIsUnActive')));
-    }
+  if (flag === 0) {
+    return res.json(result.fail(req.t('noAccess')));
+  } else if (flag === 1) {
+    next();
+  } else {
+    return res.json(result.fail(req.t('permissionIsUnActive')));
   }
 };
 

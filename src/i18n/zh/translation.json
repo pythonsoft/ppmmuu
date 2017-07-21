@@ -55,7 +55,7 @@
     "code": "-2017",
     "message": "获取角色拥有者需要参数_id"
   },
-  "deleteRoleOwnersNoRoles": {
+  "deleteRoleOwnersNoId": {
     "code": "-2018",
     "message": "删除用户角色需要参数_id"
   },
@@ -70,6 +70,10 @@
   "updateRoleNoId": {
     "code": "-2021",
     "message": "更新角色需要参数_id"
+  },
+  "canNotDisableAllPermission": {
+    "code": "-2022",
+    "message": "不能禁用权限(所有权限)"
   },
   "loginCannotFindUser": {
     "code": "-3001",

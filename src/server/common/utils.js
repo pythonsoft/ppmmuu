@@ -60,11 +60,12 @@ utils.softMerge = function merge(source, target) {
 
 /**
  * @description 去重合并
- * @param arr1
+ * @param arr
  * @param arr2
  * @returns []
  */
-utils.hardMerge = function hardMerge(arr1, arr2) {
+utils.hardMerge = function hardMerge(arr, arr2) {
+  const arr1 = arr.slice();    // clone arr
   for (let j = 0; j < arr2.length; j++) {
     const index = arr1.indexOf(arr2[j]);
     if (index !== -1) {
@@ -274,6 +275,17 @@ utils.validation = function validation(info, struct) {
   }
 
   return null;
+};
+
+utils.getAllowedUpdateObj = function getAllowedUpdateObj(fields, info) {
+  const rs = {};
+  const fieldsArr = fields.split(',');
+  fieldsArr.forEach((item) => {
+    if (typeof info[item] !== 'undefined') {
+      rs[item] = info[item];
+    }
+  });
+  return rs;
 };
 
 module.exports = utils;

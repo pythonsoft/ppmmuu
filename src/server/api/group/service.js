@@ -18,6 +18,8 @@ const userInfo = new UserInfo();
 
 const userService = require('./userService');
 
+const roleService = require('../role/service');
+
 let service = {};
 
 service = utils.softMerge(service, userService);
@@ -253,7 +255,8 @@ service.deleteGroup = function deleteGroup(id, cb) {
           return cb && cb(i18n.t('databaseError'));
         }
 
-        return callback && callback(null);
+        // clear redis cache
+        roleService.clearRedisCacheByUserQuery(q, () => callback && callback(null));
       });
     });
   };
