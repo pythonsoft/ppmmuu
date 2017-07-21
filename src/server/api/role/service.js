@@ -32,8 +32,6 @@ const UserInfo = require('../user/userInfo');
 
 const userInfo = new UserInfo();
 
-const groupService = require('../group/service');
-
 const service = {};
 
 /* role */
@@ -134,13 +132,13 @@ service.deleteRoles = function deleteRoles(ids, cb) {
     return cb && cb(i18n.t('deleteRoleNoIds'));
   }
 
-  roleInfo.collection.removeMany({ _id: { $in: ids.split(',') } }, (err, r) => {
+  roleInfo.collection.removeMany({ _id: { $in: ids.split(',') } }, (err) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
 
-    service.clearRedisCacheByRoles(ids, err => cb && cb(null, 'ok'));
+    service.clearRedisCacheByRoles(ids, () => cb && cb(null, 'ok'));
   });
 };
 
@@ -163,7 +161,7 @@ service.assignRole = function assignRole(info, cb) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
-      service.clearRedisCache(_id, err => cb && cb(null, 'ok'));
+      service.clearRedisCache(_id, () => cb && cb(null, 'ok'));
     });
   });
 };
@@ -183,7 +181,7 @@ service.clearRedisCache = function clearRedisCache(_id, cb) {
   service.clearRedisCacheByUserQuery(query, cb);
 };
 
-service.clearRedisCacheByUserQuery = function (q, cb) {
+service.clearRedisCacheByUserQuery = function clearRedisCacheByUserQuery(q, cb) {
   userInfo.collection.find(q, { fields: { _id: 1 } }).toArray((err, docs) => {
     if (err) {
       logger.error(err.message);
@@ -344,7 +342,7 @@ service.enablePermission = function enablePermission(info, cb) {
       return cb && cb(err);
     }
 
-    service.clearRedisCacheByPermissions(paths, err => cb && cb(null, 'ok'));
+    service.clearRedisCacheByPermissions(paths, () => cb && cb(null, 'ok'));
   });
 };
 
@@ -479,7 +477,7 @@ service.deleteOwnerRole = function deleteOwnerRole(info, cb) {
         return cb && cb(i18n.t('databaseError'));
       }
 
-      service.clearRedisCache(_id, err => cb && cb(null, 'ok'));
+      service.clearRedisCache(_id, () => cb && cb(null, 'ok'));
     });
   });
 };
@@ -521,7 +519,7 @@ service.updateRolePermission = function updateRoleAddPermission(info, isAdd, cb)
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
-      service.clearRedisCacheByRoles(_id, err => cb && cb(null, 'ok'));
+      service.clearRedisCacheByRoles(_id, () => cb && cb(null, 'ok'));
     });
   });
 };

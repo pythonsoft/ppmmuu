@@ -317,15 +317,11 @@ describe('group', () => {
         .send({
           _id: userIds,
           type: '3',
-          roles: [],
+          roles: ['admin'],
           permissions: [
             {
               path: '/role/list',
               action: '允许',
-            },
-            {
-              path: '/role/update',
-              action: '拒绝',
             },
           ],
         })

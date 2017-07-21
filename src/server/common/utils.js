@@ -280,7 +280,7 @@ utils.validation = function validation(info, struct) {
 utils.getAllowedUpdateObj = function getAllowedUpdateObj(fields, info) {
   const rs = {};
   const fieldsArr = fields.split(',');
-  filedsArr.forEach((item) => {
+  fieldsArr.forEach((item) => {
     if (typeof info[item] !== 'undefined') {
       rs[item] = info[item];
     }

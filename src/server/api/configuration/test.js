@@ -15,7 +15,6 @@ const mongodb = require('mongodb');
 describe('configuration', () => {
   const url = config.domain;
   let userCookie = '';
-  const userIds = '';
   let configurationInfo = '';
   let configurationGroupInfo = '';
 
@@ -219,7 +218,7 @@ describe('configuration', () => {
             throw err;
           }
           // Should.js fluent syntax applied
-
+          res.body.status.should.equal('0');
           done();
         });
     });
@@ -241,7 +240,7 @@ describe('configuration', () => {
             throw err;
           }
           // Should.js fluent syntax applied
-
+          res.body.status.should.equal('0');
           done();
         });
     });

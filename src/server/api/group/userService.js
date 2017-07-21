@@ -216,7 +216,7 @@ service.updateGroupUser = function updateGroupUser(info, cb) {
           return cb && cb(err);
         }
 
-        roleService.clearRedisCache(info._id, err => cb && cb(null, 'ok'));
+        roleService.clearRedisCache(info._id, () => cb && cb(null, 'ok'));
       });
   });
 };
@@ -376,7 +376,7 @@ service.updateOwnerPermission = function updateOwnerPermission(info, cb) {
         return cb && cb(i18n.t('databaseError'));
       }
 
-      roleService.clearRedisCache(info._id, err => cb & cb(null));
+      roleService.clearRedisCache(info._id, () => cb & cb(null));
     });
   });
 };
@@ -619,7 +619,7 @@ const getAllPermissionArr = function getAllPermissionArr(assignPermissionArr, cb
   getPermissions(0);
 };
 
-const getAllowedOrDeniedPermissions = function getAllowedPermissions(docs, isAllowed, cb) {
+const getAllowedOrDeniedPermissions = function getAllowedPermissions(docs, isAllowed) {
   const length = docs.length;
   const key1 = isAllowed ? 'allowedPermissions' : 'deniedPermissions';
   const key2 = isAllowed ? 'deniedPermissions' : 'allowedPermissions';
@@ -745,7 +745,7 @@ service.enableGroupUser = function enableGroupUser(info, cb) {
         return cb && cb(i18n.t('databaseError'));
       }
 
-      roleService.clearRedisCache(_ids, err => cb && cb(null, 'ok'));
+      roleService.clearRedisCache(_ids, () => cb && cb(null, 'ok'));
     });
 };
 module.exports = service;

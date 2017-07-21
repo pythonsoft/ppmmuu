@@ -256,7 +256,7 @@ service.deleteGroup = function deleteGroup(id, cb) {
         }
 
         // clear redis cache
-        roleService.clearRedisCacheByUserQuery(q, err => callback && callback(null));
+        roleService.clearRedisCacheByUserQuery(q, () => callback && callback(null));
       });
     });
   };
