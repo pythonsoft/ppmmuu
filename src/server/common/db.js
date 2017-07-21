@@ -246,7 +246,7 @@ class DB {
         return callback && callback(err);
       }
 
-      page = page ? page * 1 : 1;
+      page = page > 0 ? page * 1 : 1;
       pageSize = pageSize ? pageSize * 1 : 30;
 
       let cursor = collection.find(query);
