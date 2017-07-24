@@ -55,12 +55,12 @@ class EngineInfo extends DB {
 
     this.struct = {
       _id: { type: 'string', default() { return uuid.v1(); } },
-      code: { type: 'string', validation: 'require' }, // 编号
+      code: { type: 'string' }, // 编号
       name: { type: 'string', validation: 'require' },
       creator: { type: 'object', default: { _id: '', name: '' }, allowUpdate: false },
       belong: { type: 'string' },
       groupId: { type: 'string' },
-      area: { type: 'string', validation: 'require' },
+      area: { type: 'string' },
       isVirtual: { type: 'string', default: EngineInfo.IS_VIRTURAL.NO, validation: v => utils.isValueInObject(v, EngineInfo.IS_VIRTURAL) },
       isTest: { type: 'string', default: EngineInfo.IS_TEST.NO, validation: v => utils.isValueInObject(v, EngineInfo.IS_TEST) },
       createdTime: { type: 'date', allowUpdate: false },
