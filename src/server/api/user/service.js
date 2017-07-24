@@ -29,7 +29,11 @@ service.login = function login(res, username, password, cb) {
     query._id = username;
   }
 
-  userInfo.collection.findOne(query, { fields: { _id: 1 } }, (err, doc) => {
+  userInfo.collection.findOne(query, {
+    fields: {
+      _id: 1
+    }
+  }, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -47,7 +51,9 @@ service.login = function login(res, username, password, cb) {
       httpOnly: true,
     });
 
-    return cb && cb(null, { token });
+    return cb && cb(null, {
+      token
+    });
   });
 };
 
@@ -67,11 +73,17 @@ service.getUserDetail = function getUserDetail(_id, cb) {
   if (!_id) {
     return cb && cb(i18n.t('userIdIsNull'));
   }
-  const fields = utils.formatSortOrFieldsParams('_id,name,photo,displayName,company,department,team,phone,email');
-  fields.password = 0;
 
-  userInfo.collection.findOne({ _id }, { fields }, (err, doc) => {
+  userInfo.collection.findOne({
+    _id
+  }, {
+    fields: {
+      password: 0
+    }
+  }, (err, doc) => {
     if (err) {
+      logger.error(err.message);
+      console.log(err);
       return cb && cb(i18n.t('databaseError'));
     }
     if (!doc) {
@@ -89,7 +101,11 @@ service.updateUser = function updateUser(_id, info, cb) {
 
   const updateInfo = utils.getAllowedUpdateObj('name,displayName,phone,email,photo', info);
 
-  userInfo.collection.updateOne({ _id }, { $set: updateInfo }, (err) => {
+  userInfo.collection.updateOne({
+    _id
+  }, {
+    $set: updateInfo
+  }, (err) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
