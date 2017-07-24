@@ -138,7 +138,7 @@ const initPermissionInfo = function initPermissionInfo() {
         }
         if (info.length) {
           permissionInfo.insert(info, {
-            w: 1
+            w: 1,
           }, (err) => {
             if (err) {
               throw new Error(`权限表初始化有问题:${err.message}`);
