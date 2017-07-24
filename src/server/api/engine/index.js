@@ -72,9 +72,44 @@ router.get('/listGroup', (req, res) => {
   service.listGroup(parentId, page, pageSize, '-createdTime', fields, (err, docs) => res.json(result.json(err, docs)));
 });
 
-router.post('/createGroup', (req, res) => {
-  const name = req.body.name;
+/**
+ * @permissionName: 添加小组
+ * @permissionPath: /engine/addGroup
+ * @apiName: addGroup
+ * @apiFuncType: post
+ * @apiFuncUrl: /engine/addGroup
+ * @swagger
+ * /engine/addGroup:
+ *   get:
+ *     description: add engine group
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - EngineGroupInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: parentId
+ *         description:
+ *         required: false
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: name
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: EngineGroupInfo
+ */
+router.post('/addGroup', (req, res) => {
   const parentId = req.body.parentId;
+  const name = req.body.name;
 
   const info = {
     parentId: parentId,
@@ -87,11 +122,5 @@ router.post('/createGroup', (req, res) => {
 
   service.addGroup(info, (err, docs) => res.json(result.json(err, 'ok')));
 });
-
-// router.post('/createGroup', (req, res) => {
-//   const info = {
-//     name: req.body.name,
-//   };
-// });
 
 module.exports = router;
