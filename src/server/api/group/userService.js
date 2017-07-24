@@ -140,7 +140,7 @@ const fillUserInfo = function fillUserInfo(_ids, info, cb) {
 service.addGroupUser = function addGroupUser(info, cb) {
   const _ids = [];
 
-  if (!utils.checkPassword(info.password)) {
+  if (!utils.checkPassword(info.password) && info.verifyType === UserInfo.VERIFY_TYPE.PASSWORD) {
     return cb && cb(i18n.t('validationError', { field: 'password' }));
   }
 
@@ -172,10 +172,8 @@ service.addGroupUser = function addGroupUser(info, cb) {
 service.updateGroupUser = function updateGroupUser(info, cb) {
   const _ids = [];
 
-  if (info.password) {
-    if (!utils.checkPassword(info.password)) {
-      return cb && cb(i18n.t('validationError', { field: 'password' }));
-    }
+  if (info.verifyType === UserInfo.VERIFY_TYPE.PASSWORD && !utils.checkPassword(info.password)) {
+    return cb && cb(i18n.t('validationError', { field: 'password' }));
   }
 
   if (info.companyId) {
@@ -257,7 +255,7 @@ service.justifyUserGroup = function justifyUserGroup(info, cb) {
 };
 
 service.getGroupUserList = function getGroupUserList(info, cb) {
-  if(info.status === 'all'){
+  if (info.status === 'all') {
     delete info.status;
   }
 
@@ -290,7 +288,7 @@ service.getGroupUserList = function getGroupUserList(info, cb) {
     query.name = { $regex: keyword, $options: 'i' };
   }
 
-  if(info.status){
+  if (info.status) {
     query.status = info.status;
   }
 

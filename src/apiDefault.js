@@ -3,7 +3,7 @@
  */
 import axios from 'axios';
 
-const api = {};
+const api = {};         //eslint-disable-line
 
 axios.defaults.withCredentials = true;
 

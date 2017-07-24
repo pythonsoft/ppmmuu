@@ -87,7 +87,7 @@ class UserInfo extends DB {
       description: { type: 'string' },
       employeeId: { type: 'string' },
       email: { type: 'string', validation: utils.checkEmail },
-      phone: { type: 'string', validation: utils.checkPhone },
+      phone: { type: 'string' },
       photo: { type: 'string' },
       status: { type: 'string', default: UserInfo.STATUS.NORMAL, validation: v => utils.isValueInObject(v, UserInfo.STATUS) },
       detail: { type: 'object' },

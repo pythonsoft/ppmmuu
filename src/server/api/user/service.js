@@ -31,8 +31,8 @@ service.login = function login(res, username, password, cb) {
 
   userInfo.collection.findOne(query, {
     fields: {
-      _id: 1
-    }
+      _id: 1,
+    },
   }, (err, doc) => {
     if (err) {
       logger.error(err.message);
@@ -52,7 +52,7 @@ service.login = function login(res, username, password, cb) {
     });
 
     return cb && cb(null, {
-      token
+      token,
     });
   });
 };
@@ -75,11 +75,11 @@ service.getUserDetail = function getUserDetail(_id, cb) {
   }
 
   userInfo.collection.findOne({
-    _id
+    _id,
   }, {
     fields: {
-      password: 0
-    }
+      password: 0,
+    },
   }, (err, doc) => {
     if (err) {
       logger.error(err.message);
@@ -102,9 +102,9 @@ service.updateUser = function updateUser(_id, info, cb) {
   const updateInfo = utils.getAllowedUpdateObj('name,displayName,phone,email,photo', info);
 
   userInfo.collection.updateOne({
-    _id
+    _id,
   }, {
-    $set: updateInfo
+    $set: updateInfo,
   }, (err) => {
     if (err) {
       logger.error(err.message);
