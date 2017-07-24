@@ -255,7 +255,7 @@ service.justifyUserGroup = function justifyUserGroup(info, cb) {
 };
 
 service.getGroupUserList = function getGroupUserList(info, cb) {
-  if(info.status === 'all'){
+  if (info.status === 'all') {
     delete info.status;
   }
 
@@ -288,7 +288,7 @@ service.getGroupUserList = function getGroupUserList(info, cb) {
     query.name = { $regex: keyword, $options: 'i' };
   }
 
-  if(info.status){
+  if (info.status) {
     query.status = info.status;
   }
 
