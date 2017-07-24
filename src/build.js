@@ -12,6 +12,7 @@ const config = require('./server/config');
 const apiPathFile = path.join(__dirname, './server/apiPath.js');
 const buildPath = path.join(__dirname, '../build');
 const feApiPath = path.join(buildPath, 'api');
+const apiDefaultFilePath = path.join(__dirname, './apiDefault.js');
 
 let permissionNames = [];
 let permissionPaths = [];
@@ -57,6 +58,7 @@ const generateFeApiFuncFile = function generateFeApiFuncFile() {
   const files = fs.readdirSync(apiRootPath);
   fs.mkdirSync(buildPath);
   fs.mkdirSync(feApiPath);
+  const apiDefaultCodeStr = fs.readFileSync(apiDefaultFilePath, 'utf8');
   files.forEach((filename) => {
     const fullname = path.join(apiRootPath, filename);
     const stats = fs.statSync(fullname);
@@ -79,7 +81,7 @@ const generateFeApiFuncFile = function generateFeApiFuncFile() {
 
       if (funcNameArr.length > 0) {
         const filePath = path.join(feApiPath, `${filename}.js`);
-        fs.appendFileSync(filePath, "import axios from 'axios';\n\nconst api = {};\n\n");
+        fs.appendFileSync(filePath, apiDefaultCodeStr);
         for (let i = 0; i < funcNameArr.length; i++) {
           writeApiFuncFile(filePath, funcNameArr[i], funcTypeArr[i], funcUrlArr[i]);
         }
