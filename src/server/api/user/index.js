@@ -161,7 +161,7 @@ router.get('/detail', (req, res) => {
  * @swagger
  * /user/logout/:
  *   post:
- *     description: 个人中心
+ *     description: 退出登录
  *     tags:
  *       - v1
  *       - UserInfo
@@ -201,6 +201,61 @@ router.post('/logout', (req, res) => {
 router.get('/logout', (req, res) => {
   const _id = req.ex.userInfo._id;
   service.logout(_id, res, (err, data) => res.json(result.json(err, data)));
+});
+
+/**
+ * @apiName: postUserChangePassword
+ * @apiFuncType: post
+ * @apiFuncUrl: /user/changePassword
+ * @swagger
+ * /user/changePassword/:
+ *   post:
+ *     description: 修改密码
+ *     tags:
+ *       - v1
+ *       - UserInfo
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: change password
+ *         schema:
+ *           type: object
+ *           properties:
+ *             password:
+ *               type: string
+ *               example: "123123"
+ *             newPassword:
+ *               type: string
+ *               example: "123456"
+ *             confirmNewPassword:
+ *               type: string
+ *               example: "123456"
+ *     responses:
+ *       200:
+ *         description: UserInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *              properties:
+ *                token:
+ *                  type: string
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *
+ */
+router.post('/changePassword', (req, res) => {
+  const _id = req.ex.userInfo._id;
+  req.body._id = _id;
+  service.changePassword(req.body, res, (err, data) => res.json(result.json(err, data)));
 });
 
 
