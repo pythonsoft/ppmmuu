@@ -35,7 +35,7 @@ class PermissionInfo extends DB {
   constructor() {
     const indexes = [
       { key: { name: 1 }, name: 'permission_name', unique: true },
-      { key: { path: 1 }, name: 'permission_path', unique: true }
+      { key: { path: 1 }, name: 'permission_path', unique: true },
     ];
 
     super(config.dbInstance.umpDB, 'PermissionInfo', indexes);

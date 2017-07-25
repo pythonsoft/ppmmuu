@@ -112,15 +112,15 @@ router.post('/addGroup', (req, res) => {
   const name = req.body.name;
 
   const info = {
-    parentId: parentId,
-    name: name,
+    parentId,
+    name,
     creator: {
       _id: req.ex.userInfo._id,
-      name: req.ex.userInfo.name
-    }
+      name: req.ex.userInfo.name,
+    },
   };
 
-  service.addGroup(info, (err, docs) => res.json(result.json(err, 'ok')));
+  service.addGroup(info, err => res.json(result.json(err, 'ok')));
 });
 
 module.exports = router;
