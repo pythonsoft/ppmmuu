@@ -23,7 +23,7 @@ const service = {};
 service.listGroup = function listGroup(parentId, page, pageSize, sortFields, fieldsNeed, cb, isIncludeChildren) {
   const q = {};
 
-  q.parentId = parentId ? parentId : '';
+  q.parentId = parentId || '';
 
   engineGroupInfo.pagination(q, page, pageSize, (err, docs) => {
     if (err) {
@@ -34,14 +34,14 @@ service.listGroup = function listGroup(parentId, page, pageSize, sortFields, fie
     if (isIncludeChildren && docs.docs.length !== 0) {
       const ids = [];
 
-      for(let i = 0, len = docs.docs.length; i < len; i++) {
+      for (let i = 0, len = docs.docs.length; i < len; i++) {
         ids.push(docs.docs[i]._id);
       }
 
       let cursor = engineGroupInfo.collection.find({ parentId: { $in: ids } });
 
-      if(fieldsNeed) {
-        let fields = utils.formatSortOrFieldsParams(fieldsNeed, false);
+      if (fieldsNeed) {
+        const fields = utils.formatSortOrFieldsParams(fieldsNeed, false);
         fields.parentId = 1;
         cursor = cursor.project(fields);
       }
@@ -52,11 +52,11 @@ service.listGroup = function listGroup(parentId, page, pageSize, sortFields, fie
           return cb && cb(i18n.t('databaseError'));
         }
 
-        for(let i = 0, len = docs.docs.length; i < len; i++) {
+        for (let i = 0, len = docs.docs.length; i < len; i++) {
           docs.docs[i].children = null;
-          for(let j = 0, l = childrenInfo.length; j < l; j++) {
-            if(docs.docs[i]._id === childrenInfo[j].parentId) {
-              if(!docs.docs[i].children) {
+          for (let j = 0, l = childrenInfo.length; j < l; j++) {
+            if (docs.docs[i]._id === childrenInfo[j].parentId) {
+              if (!docs.docs[i].children) {
                 docs.docs[i].children = [];
               }
               docs.docs[i].children.push(childrenInfo[j]);
@@ -66,11 +66,9 @@ service.listGroup = function listGroup(parentId, page, pageSize, sortFields, fie
 
         return cb && cb(null, docs);
       });
-
-    }else {
+    } else {
       return cb && cb(null, docs);
     }
-
   }, sortFields, fieldsNeed);
 };
 
@@ -231,29 +229,29 @@ const insertEngine = function insertGroup(info, cb) {
   });
 };
 
-service.addEngine = function(info, cb) {
-  if(info.groupId) {
+service.addEngine = function addEngine(info, cb) {
+  if (info.groupId) {
     engineGroupInfo.collection.findOne({ _id: info.groupId }, { fields: { _id: 1 } }, (err, doc) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
 
-      if(!doc) {
+      if (!doc) {
         return cb && cb(i18n.t('parentEngineGroupInfoIsNull'));
       }
 
       insertEngine(info, cb);
     });
-  }else {
+  } else {
     insertEngine(info, cb);
   }
 };
 
-service.listEngine = function(keyword, groupId, page, pageSize, sortFields, fieldsNeed, cb) {
+service.listEngine = function listEngine(keyword, groupId, page, pageSize, sortFields, fieldsNeed, cb) {
   const query = {};
 
-  if(keyword) {
+  if (keyword) {
     query.$or = [
       { _id: { $regex: keyword, $options: 'i' } },
       { name: { $regex: keyword, $options: 'i' } },
@@ -262,7 +260,7 @@ service.listEngine = function(keyword, groupId, page, pageSize, sortFields, fiel
     ];
   }
 
-  if(groupId) {
+  if (groupId) {
     query.groupId = groupId;
   }
 

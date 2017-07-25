@@ -75,7 +75,7 @@ router.get('/listGroup', (req, res) => {
   const page = req.query.page || 1;
   const pageSize = req.query.pageSize || 30;
   const fields = req.query.fields || '_id,name,description';
-  const isIncludeChild = req.query.isIncludeChild === '1' ? true : false;
+  const isIncludeChild = req.query.isIncludeChild === '1';
 
   service.listGroup(parentId, page, pageSize, '-createdTime', fields, (err, docs) => res.json(result.json(err, docs)), isIncludeChild);
 });
@@ -204,7 +204,7 @@ router.get('/listEngine', (req, res) => {
   const sortFields = req.query.sort || '-createdTime';
   const fieldsNeed = req.query.fields || '_id,code,name,intranetIp,isTest,isVirtual,modifyTime,isInstallMonitor';
 
-  service.listEngine(keyword, groupId, page, pageSize, sortFields, fieldsNeed, (err, docs) => res.json(result.json(err, docs)))
+  service.listEngine(keyword, groupId, page, pageSize, sortFields, fieldsNeed, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**

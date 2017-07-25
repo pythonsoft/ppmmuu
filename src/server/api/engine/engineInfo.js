@@ -96,7 +96,7 @@ EngineInfo.COMMAND = {
   NORMAL: '0',
   INSTALL_MONITOR: '1',
   STOP: '2',
-  REBOOT: '2'
+  REBOOT: '2',
 };
 
 module.exports = EngineInfo;
