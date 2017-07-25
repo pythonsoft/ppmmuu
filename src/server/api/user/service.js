@@ -125,4 +125,44 @@ service.logout = function logout(_id, res, cb) {
   return cb && cb(null, 'ok');
 };
 
+service.changePassword = function changePassword(info, res, cb) {
+  const _id = info._id;
+  if (!info.password || !utils.checkPassword(info.password)) {
+    return cb && cb(i18n.t('oldPasswordIsNotCorrect'));
+  }
+  if (!info.newPassword || !utils.checkPassword(info.newPassword)) {
+    return cb && cb(i18n.t('newPasswordIsNotCorrect'));
+  }
+  if (info.newPassword !== info.confirmNewPassword) {
+    return cb && cb(i18n.t('confirmNewPasswordIsNotCorrect'));
+  }
+
+  userInfo.collection.findOne({ _id }, { fields: { password: 1 } }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if (!doc) {
+      return cb && cb(i18n.t('userNotFind'));
+    }
+
+    if (utils.cipher(info.password, config.KEY) !== doc.password) {
+      return cb && cb(i18n.t('oldPasswordIsNotCorrect'));
+    }
+
+    const password = utils.cipher(info.newPassword, config.KEY);
+    if (password === doc.password) {
+      return cb && cb(i18n.t('newPasswordIsSameWithOldPassword'));
+    }
+
+    userInfo.collection.updateOne({ _id }, { $set: { password } }, (err) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+      service.logout(_id, res, cb);
+    });
+  });
+};
 module.exports = service;
