@@ -290,5 +290,13 @@
   "engineGroupDeleteDenyIsYes": {
     "code": "-12004",
     "message": "该引擎组设置了删除保护，不能将该引擎组删除."
+  },
+  "systemEngineGroupCannotDelete": {
+    "code": "-12005",
+    "message": "该引擎组为系统级别，不能将该引擎组删除."
+  },
+  "systemEngineGroupName": {
+    "code": "-12006",
+    "message": "引擎组列表"
   }
 }

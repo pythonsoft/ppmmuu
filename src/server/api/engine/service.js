@@ -139,7 +139,7 @@ service.deleteGroup = function deleteGroup(id, cb) {
     return cb && cb(i18n.t('engineGroupIdIsNull'));
   }
 
-  engineGroupInfo.collection.findOne({ _id: id }, { fields: { _id: 1, deleteDeny: 1 } }, (err, doc) => {
+  engineGroupInfo.collection.findOne({ _id: id }, { fields: { _id: 1, deleteDeny: 1, type: 1 } }, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -151,6 +151,10 @@ service.deleteGroup = function deleteGroup(id, cb) {
 
     if (doc.deleteDeny === EngineGroupInfo.DELETE_DENY.YES) {
       return cb && cb(i18n.t('engineGroupDeleteDenyIsYes'));
+    }
+
+    if (doc.type === EngineGroupInfo.TYPE.SYSTEM) {
+      return cb && cb(i18n.t('systemEngineGroupCannotDelete'));
     }
 
     engineGroupInfo.collection.removeOne({ _id: doc._id }, (err) => {

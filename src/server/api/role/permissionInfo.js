@@ -33,7 +33,11 @@ const config = require('../../config');
  */
 class PermissionInfo extends DB {
   constructor() {
-    const indexes = [{ key: { name: 1 }, unique: true }, { key: { path: 1 }, unique: true }];
+    const indexes = [
+      { key: { name: 1 }, name: 'permission_name', unique: true },
+      { key: { path: 1 }, name: 'permission_path', unique: true },
+    ];
+
     super(config.dbInstance.umpDB, 'PermissionInfo', indexes);
 
     this.struct = {
