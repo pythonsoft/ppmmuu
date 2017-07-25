@@ -757,7 +757,7 @@ service.enableGroupUser = function enableGroupUser(info, cb) {
 
 service.deleteGroupUser = function deleteGroupUser(info, cb) {
   const struct = {
-    _ids: { type: 'string', validation: 'require' }
+    _ids: { type: 'string', validation: 'require' },
   };
   const err = utils.validation(info, struct);
 
@@ -765,14 +765,14 @@ service.deleteGroupUser = function deleteGroupUser(info, cb) {
     return cb && cb(err);
   }
 
-  userInfo.collection.removeMany({ _id: {$in: info._ids.split(',') }}, function(err){
-    if(err){
+  userInfo.collection.removeMany({ _id: { $in: info._ids.split(',') } }, (err) => {
+    if (err) {
       logger.error(err.message);
       console.log(err);
       return cb && cb(i18n.t('databaseError'));
     }
 
     return cb && cb(null, 'ok');
-  })
-}
+  });
+};
 module.exports = service;
