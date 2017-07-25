@@ -5,3 +5,4 @@
 'use strict';
 
 require('./initUser');
+require('../api/engine/initScript');
