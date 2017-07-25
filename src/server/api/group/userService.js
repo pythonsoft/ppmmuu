@@ -754,4 +754,25 @@ service.enableGroupUser = function enableGroupUser(info, cb) {
       roleService.clearRedisCache(_ids, () => cb && cb(null, 'ok'));
     });
 };
+
+service.deleteGroupUser = function deleteGroupUser(info, cb) {
+  const struct = {
+    _ids: { type: 'string', validation: 'require' },
+  };
+  const err = utils.validation(info, struct);
+
+  if (err) {
+    return cb && cb(err);
+  }
+
+  userInfo.collection.removeMany({ _id: { $in: info._ids.split(',') } }, (err) => {
+    if (err) {
+      logger.error(err.message);
+      console.log(err);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, 'ok');
+  });
+};
 module.exports = service;

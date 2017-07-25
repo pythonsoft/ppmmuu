@@ -15,6 +15,22 @@
     "code": "-1004",
     "message": "找不到用户"
   },
+  "oldPasswordIsNotCorrect": {
+    "code": "-1005",
+    "message": "旧密码不正确"
+  },
+  "newPasswordIsNotCorrect": {
+    "code": "-1006",
+    "message": "新密码格式不正确"
+  },
+  "confirmNewPasswordIsNotCorrect": {
+    "code": "-1007",
+    "message": "两次输入新密码不相同"
+  },
+  "newPasswordIsSameWithOldPassword": {
+    "code": "-1008",
+    "message": "新密码与旧密码相同"
+  },
   "getRoleNoId": {
     "code": "-2005",
     "message": "获取角色详情需要参数_id"
