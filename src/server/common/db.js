@@ -270,6 +270,8 @@ class DB {
         const pageCount = ((count / pageSize) | 0) + (count % pageSize ? 1 : 0);
         page = page > pageCount ? pageCount : page;
 
+        page = page === 0 ? 1 : page;
+
         return callback && callback(null, { docs: items, page, pageCount, pageSize, total: count });
       });
     });
