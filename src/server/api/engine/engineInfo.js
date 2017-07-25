@@ -63,6 +63,10 @@ class EngineInfo extends DB {
       area: { type: 'string' },
       isVirtual: { type: 'string', default: EngineInfo.IS_VIRTURAL.NO, validation: v => utils.isValueInObject(v, EngineInfo.IS_VIRTURAL) },
       isTest: { type: 'string', default: EngineInfo.IS_TEST.NO, validation: v => utils.isValueInObject(v, EngineInfo.IS_TEST) },
+      ip: { type: 'string' },
+      intranetIp: { type: 'string' },
+      isInstallMonitor: { type: 'string', default: EngineInfo.IS_INSTALL_MONITOR.NO, validation: v => utils.isValueInObject(v, EngineInfo.IS_INSTALL_MONITOR) },
+      command: { type: 'string', default: EngineInfo.COMMAND.NORMAL, validation: v => utils.isValueInObject(v, EngineInfo.COMMAND) },
       createdTime: { type: 'date', allowUpdate: false },
       modifyTime: { type: 'date' },
       description: { type: 'string' },
@@ -81,6 +85,18 @@ EngineInfo.IS_VIRTURAL = {
 EngineInfo.IS_TEST = {
   NO: '0',
   YES: '1',
+};
+
+EngineInfo.IS_INSTALL_MONITOR = {
+  NO: '0',
+  YES: '1',
+};
+
+EngineInfo.COMMAND = {
+  NORMAL: '0',
+  INSTALL_MONITOR: '1',
+  STOP: '2',
+  REBOOT: '2'
 };
 
 module.exports = EngineInfo;
