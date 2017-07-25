@@ -6,6 +6,7 @@ const router = express.Router();
 
 const result = require('../../common/result');
 const upload = require('../../common/multer').upload;
+const config = require('../../config');
 
 /**
  * @permissionName: 上传图片
@@ -33,8 +34,11 @@ const upload = require('../../common/multer').upload;
  *       200:
  *         description: UploadResult
  */
-router.post('/', upload.single('image'), (req, res) => {
-  res.status(200).json(result.json('', req.file));
+router.post('/', upload.single('file'), (req, res) => {
+  let filePath = req.file.path;
+  filePath = filePath.split('/');
+  let fileName = config.domain + '/uploads/' + filePath[filePath.length - 1];
+  res.status(200).json(result.json('', fileName));
 });
 
 module.exports = router;
