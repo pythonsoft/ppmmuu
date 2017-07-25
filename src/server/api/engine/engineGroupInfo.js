@@ -61,6 +61,7 @@ class EngineGroupInfo extends DB {
       createdTime: { type: 'date', allowUpdate: false },
       modifyTime: { type: 'date' },
       description: { type: 'string' },
+      type: { type: 'string', default: EngineGroupInfo.TYPE.USER, validation: v => utils.isValueInObject(v, EngineGroupInfo.TYPE) }, // 删除保护，创建后默认为保护状态,
       deleteDeny: { type: 'string', default: EngineGroupInfo.DELETE_DENY.YES, validation: v => utils.isValueInObject(v, EngineGroupInfo.DELETE_DENY) }, // 删除保护，创建后默认为保护状态
       detail: { type: 'object' },
     };
@@ -72,5 +73,11 @@ EngineGroupInfo.DELETE_DENY = {
   YES: '1',
   NO: '0',
 };
+
+EngineGroupInfo.TYPE = {
+  SYSTEM: '1',
+  USER: '0',
+};
+
 
 module.exports = EngineGroupInfo;
