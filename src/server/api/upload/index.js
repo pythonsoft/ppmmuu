@@ -37,7 +37,7 @@ const config = require('../../config');
 router.post('/', upload.single('file'), (req, res) => {
   let filePath = req.file.path;
   filePath = filePath.split('/');
-  let fileName = config.domain + '/uploads/' + filePath[filePath.length - 1];
+  const fileName = `${config.domain}/uploads/${filePath[filePath.length - 1]}`;
   res.status(200).json(result.json('', fileName));
 });
 

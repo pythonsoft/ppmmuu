@@ -87,9 +87,9 @@ const generateFeApiFuncFile = function generateFeApiFuncFile() {
         const filePath = path.join(feApiPath, `${filename}.js`);
         fs.appendFileSync(filePath, apiDefaultCodeStr);
         for (let i = 0; i < funcNameArr.length; i++) {
-          if(funcUrlArr[i] === '/upload'){
+          if (funcUrlArr[i] === '/upload') {
             writeUploadApiFuncFile(filePath, funcNameArr[i], funcTypeArr[i], funcUrlArr[i]);
-          }else {
+          } else {
             writeApiFuncFile(filePath, funcNameArr[i], funcTypeArr[i], funcUrlArr[i]);
           }
         }
