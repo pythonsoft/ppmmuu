@@ -298,5 +298,13 @@
   "systemEngineGroupName": {
     "code": "-12006",
     "message": "引擎组列表"
+  },
+  "solrSearchFailed": {
+    "code": "-13001",
+    "message": "solr搜索失败"
+  },
+  "solrSearchError": {
+    "code": "-13002",
+    "message": "{{error}}"
   }
 }
