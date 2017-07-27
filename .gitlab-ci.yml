@@ -17,7 +17,7 @@ setup_job:
     when: always
     paths:
       - node_modules/*
-    expire_in: "1 month"
+    expire_in: "1 week"
   tags:
     - test
 
@@ -29,7 +29,7 @@ build_job:
     when: always
     paths:
       - build/*
-    expire_in: "1 month"
+    expire_in: "1 week"
   tags:
     - test
 
