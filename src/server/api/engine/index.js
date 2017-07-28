@@ -137,7 +137,7 @@ router.post('/addGroup', (req, res) => {
  * @permissionName: 引擎列表
  * @permissionPath: /engine/listEngine
  * @apiName: listEngine
- * @apiFuncType: post
+ * @apiFuncType: get
  * @apiFuncUrl: /engine/listEngine
  * @swagger
  * /engine/listEngine:
@@ -202,7 +202,7 @@ router.get('/listEngine', (req, res) => {
   const page = req.query.page || 1;
   const pageSize = req.query.pageSize || 20;
   const sortFields = req.query.sort || '-createdTime';
-  const fieldsNeed = req.query.fields || '_id,code,name,intranetIp,isTest,isVirtual,modifyTime,isInstallMonitor';
+  const fieldsNeed = req.query.fields || '_id,code,name,intranetIp,isTest,isVirtual,modifyTime,isInstallMonitor,command';
 
   service.listEngine(keyword, groupId, page, pageSize, sortFields, fieldsNeed, (err, docs) => res.json(result.json(err, docs)));
 });
@@ -243,19 +243,15 @@ router.get('/listEngine', (req, res) => {
  *         description: EngineGroupInfo
  */
 router.post('/addEngine', (req, res) => {
-  const groupId = req.body.groupId;
-  const name = req.body.name;
+  const info = req.body;
 
-  const info = {
-    groupId,
-    name,
-    creator: {
-      _id: req.ex.userInfo._id,
-      name: req.ex.userInfo.name,
-    },
+  info.creator = {
+    _id: req.ex.userInfo._id,
+    name: req.ex.userInfo.name,
   };
 
   service.addEngine(info, err => res.json(result.json(err, 'ok')));
 });
+
 
 module.exports = router;
