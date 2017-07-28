@@ -94,7 +94,6 @@ utils.minusArr = function minusArr(arr1, arr2) {
   return arr1;
 };
 
-
 utils.cipher = function cipher(str, password) {
   const cipher = crypto.createCipher('aes-256-cbc', password);
   let crypted = cipher.update(str, 'utf8', 'hex');
@@ -238,11 +237,9 @@ utils.minusArray = function minusArray(arr1, arr2) {
   return arr1;
 };
 
-
 utils.getValueType = function getValueType(val) {
   return typeof val === 'undefined' ? 'undefined' : val.constructor.name.toLocaleLowerCase();
 };
-
 
 /**
  *
