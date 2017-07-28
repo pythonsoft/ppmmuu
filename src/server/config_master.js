@@ -20,7 +20,9 @@ config.redisExpires = 1 * 60 * 60 * 12; // redis有效期12小时
 config.port = process.env.NODE_ENV === 'development' ? 8080 : 8080;
 
 // solr搜索地址
-config.solrBaseUrl = 'http://10.0.15.55:8983/solr/';
+config.solrBaseUrl = 'http://10.0.15.57:8983/solr/';
+//香港api地址
+config.hongkongUrl = 'http://w2.phoenixtv.com/mamapi/';
 
 // 日志路径
 config.logPath = path.join(__dirname, '../logs/');

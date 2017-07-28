@@ -306,5 +306,21 @@
   "solrSearchError": {
     "code": "-13002",
     "message": "{{error}}"
-  }
+  },
+  "getIconFailed": {
+    "code": "-13003",
+    "message": "获取缩略图失败"
+  },
+  "getIconError": {
+    "code": "-13004",
+    "message": "{{error}}"
+  },
+  "getObjectFailed": {
+    "code": "-13005",
+    "message": "获取单条详情失败"
+  },
+  "getObjectError": {
+    "code": "-13006",
+    "message": "{{error}}"
+  },
 }
