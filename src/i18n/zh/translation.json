@@ -322,5 +322,5 @@
   "getObjectError": {
     "code": "-13006",
     "message": "{{error}}"
-  },
+  }
 }
