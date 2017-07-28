@@ -709,7 +709,7 @@ router.get('/getRoleOwners', (req, res) => {
  *     version: 1.0.0
  *     tags:
  *       - v1
- *       - Search
+ *       - RoleInfo
  *     produces:
  *       - application/json
  *     parameters:
