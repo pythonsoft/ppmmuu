@@ -163,10 +163,7 @@ router.get('/solrSearch', (req, res) => {
  *                message:
  *                  type: string
  */
-router.get('/getIcon', (req, res) => {
-  return service.getIcon(req.query, res);
-});
-
+router.get('/getIcon', (req, res) => service.getIcon(req.query, res));
 
 
 /**
@@ -206,8 +203,6 @@ router.get('/getIcon', (req, res) => {
  *                  type: string
  *
  */
-router.get('/getObject', (req, res) => {
-  return service.getObject(req.query, res);
-});
+router.get('/getObject', (req, res) => service.getObject(req.query, res));
 
 module.exports = router;

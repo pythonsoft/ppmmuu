@@ -9,16 +9,17 @@ const i18n = require('i18next');
 const utils = require('../../common/utils');
 const config = require('../../config');
 const request = require('request');
+const result = require('../../common/result');
 
 const service = {};
 
 service.solrSearch = function solorSearch(info, cb) {
-  if(!info.wt){
+  if (!info.wt) {
     info.wt = 'json';
   }
   const struct = {
     wt: { type: 'string', validation(v) { v = v.trim().toLowerCase(); if (v !== 'json' && v !== 'xml') { return false; } return true; } },
-    q: { type: 'string', validation: 'require'}
+    q: { type: 'string', validation: 'require' },
   };
   const err = utils.validation(info, struct);
 
@@ -38,18 +39,17 @@ service.solrSearch = function solorSearch(info, cb) {
   request(options, (error, response) => {
     if (!error && response.statusCode === 200) {
       const rs = JSON.parse(response.body);
-      console.log("rs==>", rs.response);
+      console.log('rs==>', rs.response);
       let result = {};
       if (rs.response) {
         result.QTime = rs.responseHeader ? rs.responseHeader.QTime : (new Date().getTime() - t1);
         result = Object.assign(result, rs.response);
         return cb && cb(null, result);
-      }else {
-        return cb && cb(i18n.t('solrSearchError', {error: rs.error.msg}));
       }
+      return cb && cb(i18n.t('solrSearchError', { error: rs.error.msg }));
     } else if (error) {
       logger.error(error);
-      return cb && cb(i18n.t('solrSearchError', { error: error }));
+      return cb && cb(i18n.t('solrSearchError', { error }));
     }
     logger.error(response.body);
     return cb && cb(i18n.t('solrSearchFailed'));
@@ -59,24 +59,30 @@ service.solrSearch = function solorSearch(info, cb) {
 
 service.getIcon = function getIcon(info, res) {
   const struct = {
-    objectid: { type: 'string', validation: 'require'}
+    objectid: { type: 'string', validation: 'require' },
   };
   const err = utils.validation(info, struct);
+  if (err) {
+    res.end(err.message);
+  }
 
   request
     .get(`${config.hongkongUrl}get_preview?objectid=${info.objectid}`)
-    .on('error', function(err) {
+    .on('error', (error) => {
       logger.error(error);
       res.end(error);
     })
     .pipe(res);
-}
+};
 
 service.getObject = function getObject(info, res) {
   const struct = {
-    objectid: { type: 'string', validation: 'require'}
+    objectid: { type: 'string', validation: 'require' },
   };
   const err = utils.validation(info, struct);
+  if (err) {
+    res.end(err.message);
+  }
 
   const options = {
     uri: `${config.hongkongUrl}get_object`,
@@ -89,12 +95,11 @@ service.getObject = function getObject(info, res) {
       return res.json(JSON.parse(response.body));
     } else if (error) {
       logger.error(error);
-      return res.json(result.json(i18n.t('getObjectError', { error: error }), null));
+      return res.json(result.json(i18n.t('getObjectError', { error }), null));
     }
     logger.error(response.body);
     return res.json(result.json(i18n.t('getObjectFailed'), null));
   });
-
-}
+};
 
 module.exports = service;
