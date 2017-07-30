@@ -317,7 +317,7 @@ service.updateEngine = function updateEngine(id, updateDoc = {}, cb) {
   }
 
   if (updateDoc.groupId) {
-    engineGroupInfo.findOne({ _id: updateDoc.groupId }, { fields: { _id: 1, groupId: 1 } }, (err, doc) => {
+    engineGroupInfo.collection.findOne({ _id: updateDoc.groupId }, { fields: { _id: 1, groupId: 1 } }, (err, doc) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
