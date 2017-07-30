@@ -88,7 +88,7 @@ router.get('/listGroup', (req, res) => {
  * @apiFuncUrl: /engine/addGroup
  * @swagger
  * /engine/addGroup:
- *   get:
+ *   post:
  *     description: add engine group
  *     version: 1.0.0
  *     tags:
@@ -129,6 +129,123 @@ router.post('/addGroup', (req, res) => {
   };
 
   service.addGroup(info, err => res.json(result.json(err, 'ok')));
+});
+
+/**
+ * @permissionName: 删除分组
+ * @permissionPath: /engine/removeGroup
+ * @apiName: removeGroup
+ * @apiFuncType: post
+ * @apiFuncUrl: /engine/removeGroup
+ * @swagger
+ * /engine/removeGroup:
+ *   post:
+ *     description: remove engine group
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - EngineGroupInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: groupId
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: EngineGroupInfo
+ */
+router.post('/removeGroup', (req, res) => {
+  service.deleteGroup(req.body.groupId, err => res.json(result.json(err, 'ok')));
+});
+
+/**
+ * @permissionName: 获取分组的详细信息
+ * @permissionPath: /engine/getGroup
+ * @apiName: getGroup
+ * @apiFuncType: get
+ * @apiFuncUrl: /engine/getGroup
+ * @swagger
+ * /engine/getGroup:
+ *   get:
+ *     description: get engine group detail information
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - EngineGroupInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: groupId
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: EngineGroupInfo
+ */
+router.get('/getGroup', (req, res) => {
+  service.getGroup(req.query.groupId, (err, doc) => res.json(result.json(err, doc)));
+});
+
+/**
+ * @permissionName: 更新组信息
+ * @permissionPath: /engine/updateGroup
+ * @apiName: updateGroup
+ * @apiFuncType: post
+ * @apiFuncUrl: /engine/updateGroup
+ * @swagger
+ * /engine/updateGroup:
+ *   post:
+ *     description: update engine group information
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - EngineGroupInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: groupId
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: name
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: description
+ *         description:
+ *         required: false
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: deleteDeny
+ *         description:
+ *         required: false
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: EngineGroupInfo
+ */
+router.post('/updateGroup', (req, res) => {
+  service.updateGroup(req.body.groupId, req.body, (err, doc) => res.json(result.json(err, doc)));
 });
 
 /* engine */
@@ -215,7 +332,7 @@ router.get('/listEngine', (req, res) => {
  * @apiFuncUrl: /engine/addEngine
  * @swagger
  * /engine/addEngine:
- *   get:
+ *   post:
  *     description: add engine
  *     version: 1.0.0
  *     tags:
@@ -253,5 +370,187 @@ router.post('/addEngine', (req, res) => {
   service.addEngine(info, err => res.json(result.json(err, 'ok')));
 });
 
+/**
+ * @permissionName: 获取引擎的详细信息
+ * @permissionPath: /engine/getEngine
+ * @apiName: getEngine
+ * @apiFuncType: get
+ * @apiFuncUrl: /engine/getEngine
+ * @swagger
+ * /engine/getEngine:
+ *   get:
+ *     description: get engine information
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - EngineInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: id
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: fieldsNeed
+ *         description:
+ *         required: false
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: EngineInfo
+ */
+router.get('/getEngine', (req, res) => {
+  const id = req.query.id;
+  const fieldsNeed = req.query.fieldsNeed;
+
+  service.getEngine(id, fieldsNeed, (err, doc) => res.json(result.json(err, doc)));
+});
+
+/**
+ * @permissionName: 更新引擎信息
+ * @permissionPath: /engine/updateEngine
+ * @apiName: updateEngine
+ * @apiFuncType: post
+ * @apiFuncUrl: /engine/updateEngine
+ * @swagger
+ * /engine/updateEngine:
+ *   post:
+ *     description: update engine information
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - EngineGroupInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: _id
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: code
+ *         description:
+ *         required: false,
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: name
+ *         description:
+ *         required: false
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: belong
+ *         description:
+ *         required: false
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: groupId
+ *         description:
+ *         required: false
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: area
+ *         description:
+ *         required: false
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: isVirtual
+ *         description:
+ *         required: false
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: isTest
+ *         description:
+ *         required: false
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: ip
+ *         description:
+ *         required: false
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: intranetIp
+ *         description:
+ *         required: false
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: isInstallMonitor
+ *         description:
+ *         required: false
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: description
+ *         description:
+ *         required: false
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: EngineInfo
+ */
+router.post('/updateEngine', (req, res) => {
+  service.updateEngine(req.body._id, req.body, err => res.json(result.json(err, 'ok')));
+});
+
+/**
+ * @permissionName: 删除引擎
+ * @permissionPath: /engine/removeEngine
+ * @apiName: removeEngine
+ * @apiFuncType: post
+ * @apiFuncUrl: /engine/removeEngine
+ * @swagger
+ * /engine/removeEngine:
+ *   post:
+ *     description: remove engine
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - EngineGroupInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: id
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: EngineInfo
+ */
+router.post('/removeEngine', (req, res) => {
+  service.deleteEngine(req.body.id, err => res.json(result.json(err, 'ok')));
+});
 
 module.exports = router;

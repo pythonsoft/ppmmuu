@@ -54,7 +54,7 @@ class EngineInfo extends DB {
     super(config.dbInstance.umpDB, 'EngineInfo');
 
     this.struct = {
-      _id: { type: 'string', default() { return uuid.v1(); } },
+      _id: { type: 'string', default() { return uuid.v1(); }, allowUpdate: false },
       code: { type: 'string' }, // 编号
       name: { type: 'string', validation: 'require' },
       creator: { type: 'object', default: { _id: '', name: '' }, allowUpdate: false },
