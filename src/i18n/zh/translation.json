@@ -303,6 +303,14 @@
     "code": "-12007",
     "message": "引擎ID不存在"
   },
+  "engineConfigurationParseError": {
+    "code": "-12008",
+    "message": "引擎配置项不符合标准"
+  },
+  "engineConfigurationCanNotBeNull": {
+    "code": "-12008",
+    "message": "引擎配置项不能为空值"
+  },
   "solrSearchFailed": {
     "code": "-13001",
     "message": "solr搜索失败"

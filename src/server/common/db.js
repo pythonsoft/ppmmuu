@@ -114,7 +114,7 @@ class DB {
     const struct = this.struct;
     const doc = {};
     for (const k in info) {
-      if(k === '_id') { continue; }
+      if (k === '_id') { continue; }
       const temp = struct[k];
       if (temp !== undefined) {
         if (getValueType(temp.allowUpdate) === 'undefined' || temp.allowUpdate) {

@@ -425,7 +425,7 @@ router.get('/getEngine', (req, res) => {
  *     version: 1.0.0
  *     tags:
  *       - v1
- *       - EngineGroupInfo
+ *       - EngineInfo
  *     produces:
  *       - application/json
  *     parameters:
@@ -518,6 +518,7 @@ router.get('/getEngine', (req, res) => {
  *         description: EngineInfo
  */
 router.post('/updateEngine', (req, res) => {
+  delete req.body.configuration;
   service.updateEngine(req.body._id, req.body, err => res.json(result.json(err, 'ok')));
 });
 
@@ -534,7 +535,7 @@ router.post('/updateEngine', (req, res) => {
  *     version: 1.0.0
  *     tags:
  *       - v1
- *       - EngineGroupInfo
+ *       - EngineInfo
  *     produces:
  *       - application/json
  *     parameters:
@@ -551,6 +552,45 @@ router.post('/updateEngine', (req, res) => {
  */
 router.post('/removeEngine', (req, res) => {
   service.deleteEngine(req.body.id, err => res.json(result.json(err, 'ok')));
+});
+
+/**
+ * @permissionName: 更新引擎配置信息
+ * @permissionPath: /engine/updateEngineConfiguration
+ * @apiName: updateEngineConfiguration
+ * @apiFuncType: post
+ * @apiFuncUrl: /engine/updateEngineConfiguration
+ * @swagger
+ * /engine/updateEngineConfiguration:
+ *   post:
+ *     description: update engine configuration
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - EngineInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: _id
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: configuration
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: EngineInfo
+ */
+router.post('/updateEngineConfiguration', (req, res) => {
+  service.updateEngineConfiguration(req.body._id, req.body.configuration, err => res.json(result.json(err, 'ok')));
 });
 
 module.exports = router;
