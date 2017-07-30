@@ -150,7 +150,7 @@ service.addGroup = function addGroup(info, cb) {
   }
 };
 
-service.updateGroup = function updateGroup(id, updateDoc, cb) {
+service.updateGroup = function updateGroup(id, updateDoc = {}, cb) {
   if (!id) {
     return cb && cb(i18n.t('engineGroupIdIsNull'));
   }
@@ -272,6 +272,81 @@ service.listEngine = function listEngine(keyword, groupId, page, pageSize, sortF
 
     return cb && cb(null, docs);
   }, sortFields, fieldsNeed);
+};
+
+service.getEngine = function getEngine(id, fieldsNeed, cb) {
+  if (!id) {
+    return cb && cb(i18n.t('engineInfoIdIsNull'));
+  }
+
+  let options = {};
+
+  if (fieldsNeed) {
+    options = { fields: utils.formatSortOrFieldsParams(fieldsNeed, false) };
+  }
+
+  engineInfo.collection.findOne({ _id: id }, options, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, doc);
+  });
+};
+
+const engineUpdate = function engineUpdate(id, updateDoc, cb) {
+  console.log('updateDoc -->', updateDoc);
+  engineInfo.updateOne({ _id: id }, updateDoc, (err, r) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, r);
+  });
+};
+
+service.updateEngine = function updateEngine(id, updateDoc = {}, cb) {
+  if (!id) {
+    return cb && cb(i18n.t('engineInfoIdIsNull'));
+  }
+
+  if (updateDoc.modifyTime) {
+    updateDoc.modifyTime = new Date();
+  }
+
+  if (updateDoc.groupId) {
+    engineGroupInfo.findOne({ _id: updateDoc.groupId }, { fields: { _id: 1, groupId: 1 } }, (err, doc) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      if (!doc) {
+        return cb && cb(i18n.t('engineGroupInfoIsNull'));
+      }
+
+      engineUpdate(id, updateDoc, (err, r) => cb && cb(err, r));
+    });
+  } else {
+    engineUpdate(id, updateDoc, cb);
+  }
+};
+
+service.deleteEngine = function deleteEngine(id, cb) {
+  if (!id) {
+    return cb && cb(i18n.t('engineInfoIdIsNull'));
+  }
+
+  engineInfo.collection.removeOne({ _id: id }, (err, r) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, r);
+  });
 };
 
 module.exports = service;

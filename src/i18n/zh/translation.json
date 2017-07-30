@@ -299,6 +299,10 @@
     "code": "-12006",
     "message": "引擎组列表"
   },
+  "engineInfoIdIsNull": {
+    "code": "-12007",
+    "message": "引擎ID不存在"
+  },
   "solrSearchFailed": {
     "code": "-13001",
     "message": "solr搜索失败"
