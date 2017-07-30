@@ -70,12 +70,18 @@ class EngineInfo extends DB {
       createdTime: { type: 'date', allowUpdate: false },
       modifyTime: { type: 'date' },
       description: { type: 'string' },
-      configuration: { type: 'object' }, // 配置项
+      configuration: { type: 'array' }, // 配置项
       detail: { type: 'object' },
     };
   }
 
 }
+
+EngineInfo.configurationItem = {
+  key: '',
+  value: '',
+  description: '',
+};
 
 EngineInfo.IS_VIRTURAL = {
   NO: '0',

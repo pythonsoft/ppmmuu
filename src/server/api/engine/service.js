@@ -327,6 +327,8 @@ service.updateEngine = function updateEngine(id, updateDoc = {}, cb) {
         return cb && cb(i18n.t('engineGroupInfoIsNull'));
       }
 
+      delete updateDoc.configuration;
+
       engineUpdate(id, updateDoc, (err, r) => cb && cb(err, r));
     });
   } else {
@@ -347,6 +349,53 @@ service.deleteEngine = function deleteEngine(id, cb) {
 
     return cb && cb(null, r);
   });
+};
+
+/**
+ * 更新引擎的配置项
+ * @param id
+ * @param configs
+ * @param cb
+ */
+service.updateEngineConfiguration = function updateEngineConfiguration(id, configs, cb) {
+  if (!id) {
+    return cb && cb(i18n.t('engineInfoIdIsNull'));
+  }
+
+  if (!configs) {
+    return cb && cb(i18n.t('engineConfigurationCanNotBeNull'));
+  }
+
+  try {
+    const infos = JSON.parse(configs);
+    const configurations = [];
+
+    if (infos.constructor !== Array) {
+      return cb && cb(i18n.t('engineConfigurationParseError'));
+    }
+
+    let info = null;
+
+    for (let i = 0, len = infos.length; i < len; i++) {
+      info = infos[i];
+      if (!info.key || typeof info.value === 'undefined') {
+        return cb && cb(i18n.t('engineConfigurationParseError'));
+      }
+
+      configurations.push({ key: (`${info.key}`).trim(), value: info.value, description: info.description || '' });
+    }
+
+    engineInfo.updateOne({ _id: id }, { configuration: configurations }, (err, r) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      return cb && cb(null, r);
+    });
+  } catch (e) {
+    return cb && cb(i18n.t('engineConfigurationParseError'));
+  }
 };
 
 module.exports = service;
