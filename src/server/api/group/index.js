@@ -391,7 +391,7 @@ router.post('/addUser', (req, res) => {
 });
 
 /**
- * @permissionName: 组成员调整部门
+ * @permissionName: 删除组成员
  * @permissionPath: /group/deleteGroupUser
  * @apiName: postDeleteGroupUser
  * @apiFuncType: post
