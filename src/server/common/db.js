@@ -88,7 +88,7 @@ class DB {
     for (const k in struct) {
       temp = struct[k];
 
-      if (typeof info[k] !== 'undefined') {
+      if (typeof info[k] !== 'undefined' && k !== '_id') {
         doc[k] = info[k];
       } else {
         defaultType = getValueType(temp.default);
@@ -114,6 +114,7 @@ class DB {
     const struct = this.struct;
     const doc = {};
     for (const k in info) {
+      if (k === '_id') { continue; }
       const temp = struct[k];
       if (temp !== undefined) {
         if (getValueType(temp.allowUpdate) === 'undefined' || temp.allowUpdate) {

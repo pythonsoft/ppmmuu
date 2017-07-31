@@ -54,7 +54,7 @@ class EngineInfo extends DB {
     super(config.dbInstance.umpDB, 'EngineInfo');
 
     this.struct = {
-      _id: { type: 'string', default() { return uuid.v1(); } },
+      _id: { type: 'string', default() { return uuid.v1(); }, allowUpdate: false },
       code: { type: 'string' }, // 编号
       name: { type: 'string', validation: 'require' },
       creator: { type: 'object', default: { _id: '', name: '' }, allowUpdate: false },
@@ -70,12 +70,18 @@ class EngineInfo extends DB {
       createdTime: { type: 'date', allowUpdate: false },
       modifyTime: { type: 'date' },
       description: { type: 'string' },
-      configuration: { type: 'object' }, // 配置项
+      configuration: { type: 'array' }, // 配置项
       detail: { type: 'object' },
     };
   }
 
 }
+
+EngineInfo.configurationItem = {
+  key: '',
+  value: '',
+  description: '',
+};
 
 EngineInfo.IS_VIRTURAL = {
   NO: '0',
