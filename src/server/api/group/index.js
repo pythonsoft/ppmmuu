@@ -391,7 +391,7 @@ router.post('/addUser', (req, res) => {
 });
 
 /**
- * @permissionName: 组成员调整部门
+ * @permissionName: 删除组成员
  * @permissionPath: /group/deleteGroupUser
  * @apiName: postDeleteGroupUser
  * @apiFuncType: post
@@ -439,6 +439,64 @@ router.post('/addUser', (req, res) => {
 router.post('/deleteGroupUser', (req, res) => {
   service.deleteGroupUser(req.body, (err, docs) => res.json(result.json(err, docs)));
 });
+
+/**
+ * @permissionName: 组成员调整部门
+ * @permissionPath: /group/justifyUserGroup
+ * @apiName: postJustifyUserGroup
+ * @apiFuncType: post
+ * @apiFuncUrl: /group/justifyUserGroup
+ * @swagger
+ * /group/justifyUserGroup:
+ *   post:
+ *     description: 组成员调整部门
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - GroupInfo
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: justify user group
+ *         schema:
+ *           type: object
+ *           required:
+ *            - _ids
+ *            - departmentId
+ *            - teamId
+ *           properties:
+ *             _ids:
+ *               type: string
+ *               example: "60fdcb70-6b84-11e7-932b-57195ad9cf1d,fcf105d0-6b96-11e7-81f0-83705c4b5ed7"
+ *             departmentId:
+ *               type: string
+ *               example: "2c189400-6083-11e7-80d5-61ac588ddf98"
+ *             teamId:
+ *               type: string
+ *               example: ""
+ *               description: "小组可以为空"
+ *     responses:
+ *       200:
+ *         description: GroupInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.post('/justifyUserGroup', (req, res) => {
+  service.justifyUserGroup(req.body, (err, docs) => res.json(result.json(err, docs)));
+});
+
 
 /**
  * @permissionName: 禁用或启用组用户
