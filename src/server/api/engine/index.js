@@ -593,4 +593,116 @@ router.post('/updateEngineConfiguration', (req, res) => {
   service.updateEngineConfiguration(req.body._id, req.body.configuration, err => res.json(result.json(err, 'ok')));
 });
 
+/* 进程 */
+
+/**
+ * @permissionName: 列举引擎进程
+ * @permissionPath: /engine/listProcess
+ * @apiName: listProcess
+ * @apiFuncType: get
+ * @apiFuncUrl: /engine/listProcess
+ * @swagger
+ * /engine/listProcess:
+ *   get:
+ *     description: list engine's process
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - socket request
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: ip
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: list engine's process
+ */
+router.get('/listProcess', (req, res) => {
+  service.listProcess(req.query.ip, (err, docs) => res.json(result.json(err, docs)));
+});
+
+/**
+ * @permissionName: 列举进程命令
+ * @permissionPath: /engine/listAction
+ * @apiName: listAction
+ * @apiFuncType: get
+ * @apiFuncUrl: /engine/listAction
+ * @swagger
+ * /engine/listAction:
+ *   get:
+ *     description: list process' action
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - socket request
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: processId
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: list process' action
+ */
+router.get('/listAction', (req, res) => {
+  service.listAction(req.query.processId, (err, docs) => res.json(result.json(err, docs)));
+});
+
+/**
+ * @permissionName: 执行进程action操作
+ * @permissionPath: /engine/emitAction
+ * @apiName: emitAction
+ * @apiFuncType: post
+ * @apiFuncUrl: /engine/emitAction
+ * @swagger
+ * /engine/emitAction:
+ *   post:
+ *     description: emit action in engine's process
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       -
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: engineId
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: processId
+ *         description:
+ *         required: true,
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: action
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: EngineInfo
+ */
+router.post('/emitAction', (req, res) => {
+  service.emitAction(req.body.engineId, req.body.processId, req.body.action, err => res.json(result.json(err, 'ok')));
+});
+
 module.exports = router;

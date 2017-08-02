@@ -28,6 +28,11 @@ config.cookieExpires = 1000 * 60 * 60 * 24 * 7; // cookie有效期七天
 config.redisExpires = 1 * 60 * 60 * 12; // redis有效期12小时
 config.port = process.env.NODE_ENV === 'development' ? 8080 : 8080;
 
+config.engineCenter = {
+  host: '10.0.15.179',
+  post: 3000,
+};
+
 const init = function init() {
   const redisClient = redis.createClient(config.redis_port, config.redis_host, config.redis_opts);
 

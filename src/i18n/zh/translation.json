@@ -311,6 +311,18 @@
     "code": "-12008",
     "message": "引擎配置项不能为空值"
   },
+  "engineIdCanNotBeNull": {
+    "code": "-12009",
+    "message": "引擎IP不能为空"
+  },
+  "processIdCanNotBeNull": {
+    "code": "-12009",
+    "message": "进程Id不能为空"
+  },
+  "processActionCanNotBeNull": {
+    "code": "-12010",
+    "message": "进程操作(action)不能为空"
+  },
   "solrSearchFailed": {
     "code": "-13001",
     "message": "solr搜索失败"
@@ -334,5 +346,5 @@
   "getObjectError": {
     "code": "-13006",
     "message": "{{error}}"
-  }
+  },
 }
