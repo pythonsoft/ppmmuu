@@ -37,6 +37,7 @@ service.addConfigGroup = function addConfigGroup(o = {}, cb) {
 service.addConfig = function addConfig(o = {}, cb) {
   configurationInfo.insertOne(o, (err, r) => {
     if (err) {
+      logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
 

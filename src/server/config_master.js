@@ -17,6 +17,7 @@ config.redis_opts = { auth_pass: 'phoenixtv2017' };
 config.KEY = 'secret';
 config.cookieExpires = 1000 * 60 * 60 * 24 * 7; // cookie有效期七天
 config.redisExpires = 1 * 60 * 60 * 12; // redis有效期12小时
+config.redisMediaThumbExpires = 60 * 60 * 12 * 30; // 缓存媒体库缩略图有效期30天
 config.port = process.env.NODE_ENV === 'development' ? 8080 : 8080;
 
 // solr搜索地址

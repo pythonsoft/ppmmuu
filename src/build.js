@@ -56,6 +56,10 @@ const writeUploadApiFuncFile = function writeApiFuncFile(filePath, funcName, fun
   fs.appendFileSync(filePath, `api.${funcName} = function ${funcName}(param, config) {\n  return new Promise((resolve, reject) => {\n    axios.${funcType}('${config.domain}${funcUrl}', param, config)\n      .then((response) => {\n        const res = response.data;\n        if (res.status === '0') {\n          resolve(res);\n        }\n        reject(res.statusInfo.message);\n      })\n      .catch((error) => {\n        reject(error);\n      });\n  });\n};\n\n`);
 };
 
+const writeGetIconApiFuncFile = function writeApiFuncFile(filePath, funcName, funcType, funcUrl) {
+  fs.appendFileSync(filePath, `api.${funcName} = function ${funcName}(id) {\n  return 'http://localhost:8080/media/getIcon?objectid=' + id;\n};\n\n`);
+};
+
 // 读取后端接口生成前端调用的函数文件
 const generateFeApiFuncFile = function generateFeApiFuncFile() {
   const apiRootPath = path.join(__dirname, './server/api');
@@ -89,7 +93,9 @@ const generateFeApiFuncFile = function generateFeApiFuncFile() {
         for (let i = 0; i < funcNameArr.length; i++) {
           if (funcUrlArr[i] === '/upload') {
             writeUploadApiFuncFile(filePath, funcNameArr[i], funcTypeArr[i], funcUrlArr[i]);
-          } else {
+          } else if(funcUrlArr[i] === '/media/getIcon') {
+            writeGetIconApiFuncFile(filePath, funcNameArr[i], funcTypeArr[i], funcUrlArr[i]);
+          }else {
             writeApiFuncFile(filePath, funcNameArr[i], funcTypeArr[i], funcUrlArr[i]);
           }
         }
