@@ -5,6 +5,7 @@ const path = require('path');
 const fs = require('fs');
 const utils = require('../../common/utils');
 const clientConnect = require('socket.io-client');
+const config = require('../../config');
 
 class SocketClient {
   constructor(options) {
@@ -21,9 +22,11 @@ class SocketClient {
   connect(cb) {
     let me = this;
 
-    console.log('正在连接服务器('+ me.settings.host + ':' + me.settings.port +')...');
+    const url = this.settings.protocol + '://' + me.settings.host + ':' + me.settings.port + me.settings.path;
 
-    this.socket = clientConnect(this.settings.protocol + '://' + me.settings.host + ':' + me.settings.port + path);
+    console.log('正在连接服务器, ' + url);
+
+    this.socket = clientConnect(url);
 
     this.socket.on('connect', function() {
       console.log('server connected');
@@ -32,7 +35,6 @@ class SocketClient {
 
     this.socket.on('error', function(err) {
       console.log(err);
-      process.exit();
     });
 
     this.socket.on('disconnect', function() {
@@ -46,10 +48,7 @@ class SocketClient {
 
 };
 
-let sc = new SocketClient({
-  host: '10.0.15.179',
-  post: 3000
-});
+const sc = new SocketClient(config.engineCenter);
 
 sc.connect();
 
