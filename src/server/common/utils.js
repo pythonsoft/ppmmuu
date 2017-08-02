@@ -17,7 +17,7 @@ utils.isEmptyObject = function isEmptyObject(obj) {
   if (obj.length === 0) return true;
 
   for (const key in obj) {
-    if (!hasOwnProperty.call(obj, key)) return false;
+    if (hasOwnProperty.call(obj, key)) return false;
   }
 
   return true;

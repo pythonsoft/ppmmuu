@@ -2,6 +2,7 @@
 
 const DB = require('../../common/db');
 const config = require('../../config');
+const uuid = require('uuid');
 
 /**
  * @swagger
@@ -31,7 +32,7 @@ class ConfigurationInfo extends DB {
     super(config.dbInstance.umpDB, 'ConfigurationInfo', indexes);
 
     this.struct = {
-      _id: { type: 'string', validation: 'require' },
+      _id: { type: 'string', default() { return uuid.v1(); }, validation: 'require' },
       createdTime: { type: 'date' },
       updatedTime: { type: 'date' },
       key: { type: 'string', validation: 'require' },
