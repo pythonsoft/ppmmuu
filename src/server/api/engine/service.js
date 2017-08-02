@@ -400,11 +400,11 @@ service.updateEngineConfiguration = function updateEngineConfiguration(id, confi
 
 /* 进程 */
 service.listProcess = function listProcess(ip, cb) {
-  if(!ip) {
+  if (!ip) {
     return cb && cb(i18n.t('engineIdCanNotBeNull'));
-  };
+  }
 
-  //todo
+  // todo
   const docs = [
     { pid: '8856', status: '运行中', name: '/System/Library/PrivateFrameworks/MobileDevice.framework/Versions/A/Resources/usbmuxd -launchd', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
     { pid: '14044', status: '运行中', name: '/System/Library/PrivateFrameworks/GenerationalStorage.framework/Versions/A/Support/revisiond', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
@@ -422,17 +422,34 @@ service.listProcess = function listProcess(ip, cb) {
 };
 
 service.listAction = function listAction(processId, cb) {
-  if(!processId) {
+  if (!processId) {
     return cb && cb(i18n.t('processIdCanNotBeNull'));
-  };
+  }
 
   const docs = [
     { ps_node: { name: 'ps_node', command: 'ps aux | grep node', description: '显示所有的node进程' } },
     { ps_java: { name: 'ps_java', command: 'ps aux | grep java', description: '显示所有的java进程' } },
-    { ps_php: { name: 'ps_php', command: 'ps aux | grep php', description: '显示所有的php进程' } }
+    { ps_php: { name: 'ps_php', command: 'ps aux | grep php', description: '显示所有的php进程' } },
   ];
 
   return cb && cb(null, docs);
+};
+
+service.emitAction = function emitAction(engineId, processId, action, cb) {
+  if (!engineId) {
+    return cb && cb(i18n.t('engineIdCanNotBeNull'));
+  }
+
+  if (!processId) {
+    return cb && cb(i18n.t('processIdCanNotBeNull'));
+  }
+
+  if (!action) {
+    return cb && cb(i18n.t('processActionCanNotBeNull'));
+  }
+
+  // todo
+  return cb && cb(null, 'ok');
 };
 
 module.exports = service;

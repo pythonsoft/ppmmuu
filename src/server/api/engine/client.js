@@ -1,9 +1,9 @@
 /**
  * Created by chaoningxie on 2016/12/10.
  */
-const path = require('path');
-const fs = require('fs');
-const utils = require('../../common/utils');
+
+'use strict';
+
 const clientConnect = require('socket.io-client');
 const config = require('../../config');
 
@@ -20,25 +20,25 @@ class SocketClient {
   }
 
   connect(cb) {
-    let me = this;
+    const me = this;
 
-    const url = this.settings.protocol + '://' + me.settings.host + ':' + me.settings.port + me.settings.path;
+    const url = `${this.settings.protocol}://${me.settings.host}:${me.settings.port}${me.settings.path}`;
 
-    console.log('正在连接服务器, ' + url);
+    console.log(`正在连接服务器, ${url}`);
 
     this.socket = clientConnect(url);
 
-    this.socket.on('connect', function() {
+    this.socket.on('connect', () => {
       console.log('server connected');
-      cb && cb();
+      return cb && cb();
     });
 
-    this.socket.on('error', function(err) {
+    this.socket.on('error', (err) => {
       console.log(err);
     });
 
-    this.socket.on('disconnect', function() {
-      setTimeout(function() {
+    this.socket.on('disconnect', () => {
+      setTimeout(() => {
         me.connect(cb);
       }, 2000);
 
@@ -46,7 +46,7 @@ class SocketClient {
     });
   }
 
-};
+}
 
 const sc = new SocketClient(config.engineCenter);
 
