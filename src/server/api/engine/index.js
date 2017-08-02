@@ -659,4 +659,50 @@ router.get('/listAction', (req, res) => {
   service.listAction(req.query.processId, (err, docs) => res.json(result.json(err, docs)));
 });
 
+/**
+ * @permissionName: 执行进程action操作
+ * @permissionPath: /engine/emitAction
+ * @apiName: emitAction
+ * @apiFuncType: post
+ * @apiFuncUrl: /engine/emitAction
+ * @swagger
+ * /engine/emitAction:
+ *   post:
+ *     description: emit action in engine's process
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       -
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: engineId
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: processId
+ *         description:
+ *         required: true,
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: action
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: EngineInfo
+ */
+router.post('/emitAction', (req, res) => {
+  service.emitAction(req.body.engineId, req.body.processId, req.body.action, err => res.json(result.json(err, 'ok')));
+});
+
 module.exports = router;
