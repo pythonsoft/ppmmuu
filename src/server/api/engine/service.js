@@ -8,7 +8,6 @@ const logger = require('../../common/log')('error');
 const utils = require('../../common/utils');
 const config = require('../../config');
 const i18n = require('i18next');
-const config = require('../../config');
 
 const EngineGroupInfo = require('./engineGroupInfo');
 
@@ -21,11 +20,6 @@ const SocketClient = require('./client');
 
 const sc = new SocketClient(config.engineCenter);
 
-sc.connect();
-
-const SocketClient = require('./client');
-
-const sc = new SocketClient(config.engineCenter);
 sc.connect();
 
 const service = {};

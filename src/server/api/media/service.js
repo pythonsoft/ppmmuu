@@ -128,6 +128,7 @@ service.getObject = function getObject(info, res) {
   request(options, (error, response) => {
     if (!error && response.statusCode === 200) {
       const rs = JSON.parse(response.body);
+      rs.status = '0';
       if (rs.result.detail && rs.result.detail.program) {
         const program = rs.result.detail.program;
         for (const key in program) {
