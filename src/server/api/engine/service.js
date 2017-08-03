@@ -19,7 +19,6 @@ const engineInfo = new EngineInfo();
 const SocketClient = require('./client');
 
 const sc = new SocketClient(config.engineCenter);
-
 sc.connect();
 
 const service = {};
@@ -461,7 +460,7 @@ service.emitAction = function emitAction(engineId, processId, action, cb) {
     return cb && cb(i18n.t('processActionCanNotBeNull'));
   }
 
-  sc.socket.emit('action', { ip, action, process: '' }, (err, result) => cb && cb({ message: err }, result));
+  sc.socket.emit('action', { ip, action, process: '', pid: processId }, (err, result) => cb && cb({ message: err }, result));
 
   return cb && cb(null, 'ok');
 };
@@ -472,11 +471,10 @@ service.installMonitor = function installMonitor(ip, cb) {
   }
 
   sc.socket.emit('setup', { username: 'root', host: ip, password: '4pstvmis' }, (err, stdout, stderr) => {
-    console.log('setup --->', err, stdout, stderr);
-    //todo
-    return cb && cb(null, 'ok');
+    console.log(err, stdout, stderr);
   });
 
+  return cb && cb(null, 'ok');
 };
 
 module.exports = service;
