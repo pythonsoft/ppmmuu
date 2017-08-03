@@ -10,8 +10,8 @@ const config = require('../../config');
 class SocketClient {
   constructor(options) {
     this.settings = Object.assign({
-      host: 'localhost',
-      port: 8090,
+      host: '10.0.15.179',
+      port: 3000,
       protocol: 'http',
       path: '/',
     }, options);
@@ -46,19 +46,12 @@ class SocketClient {
 
       console.log('disconnect');
     });
-
-    this.socket.on('sendSysInfo', function(sysInfo) {
-      console.log('sysInfo ---->', sysInfo);
-    })
-  }
-
-  listProcess() {
-    const me = this;
-    this.socket.emit('action', { name: '10.0.15.179-imacarcher', action: 'getActions', process: 'npm' }, (err) => {
-      debug('err, emitting action', err);
-    });
   }
 
 }
+
+const sc = new SocketClient(config.engineCenter);
+
+sc.connect();
 
 module.exports = SocketClient;
