@@ -734,7 +734,7 @@ router.post('/emitAction', (req, res) => {
  *         description: --
  */
 router.post('/installMonitor', (req, res) => {
-  service.installMonitor(req.body.ip, err => res.json(result.json(err, 'ok')));
+  service.installMonitor(req.body.ip, (err, content) => res.json(result.json(err, 'ok', content)));
 });
 
 module.exports = router;

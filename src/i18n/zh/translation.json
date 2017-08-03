@@ -346,5 +346,13 @@
   "getObjectError": {
     "code": "-13006",
     "message": "{{error}}"
+  },
+  "setupFailed": {
+    "code": "-20001",
+    "message": "Setup for monitor client failed"
+  },
+  "listProcessFailed": {
+    "code": "-20002",
+    "message": "List Process failed"
   }
 }

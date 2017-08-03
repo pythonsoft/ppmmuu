@@ -423,11 +423,7 @@ service.listProcess = function listProcess(ip, cb) {
     { pid: '47192', status: '运行中', name: '/usr/libexec/coreduetd', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
   ];
 
-  console.log('ip', ip);
-
-  sc.socket.emit('action', { ip, action: 'ps', name: 'web', process: '' }, (err, result) => cb && cb({ message: err }, result));
-
-  // return cb && cb(null, docs);
+  sc.socket.emit('action', { ip, action: 'ps', name: 'web', process: '' }, (err, result) => cb && cb(err ? i18n.t('listProcessFailed') : null, err || result));
 };
 
 service.listAction = function listAction(processId, cb) {
@@ -471,10 +467,8 @@ service.installMonitor = function installMonitor(ip, cb) {
   }
 
   sc.socket.emit('setup', { username: 'root', host: ip, password: '4pstvmis' }, (err, stdout, stderr) => {
-    console.log(err, stdout, stderr);
+    return cb && cb(stdout === true ? null : i18n.t('setupFailed'), stderr);
   });
-
-  return cb && cb(null, 'ok');
 };
 
 module.exports = service;
