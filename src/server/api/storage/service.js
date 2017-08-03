@@ -24,8 +24,12 @@ const tacticsInfo = new TacticsInfo();
 const service = {};
 
 /* bucket */
-service.listBucket = function listBucket(status, page, pageSize, sortFields, fieldsNeed, cb) {
+service.listBucket = function listBucket(keyword, status, page, pageSize, sortFields, fieldsNeed, cb) {
   const q = {};
+
+  if(keyword) {
+    q.name = { $regex: keyword, $options: 'i' };
+  }
 
   if (status) {
     if (status.indexOf(',')) {

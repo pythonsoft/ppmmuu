@@ -18,13 +18,14 @@ router.use(isLogin.hasAccessMiddleware);
 const service = require('./service');
 
 router.get('/listBucket', (req, res) => {
+  const keyword = req.query.keyword;
   const status = req.query.status;
-  const page = req.query.page;
+  const page = req.query.page || 1;
   const pageSize = req.query.pageSize;
   const sortFields = req.query.sortFields || '-createdTime';
   const fieldsNeed = req.query.fieldsNeed;
 
-  service.listBucket(status, page, pageSize, sortFields, fieldsNeed, (err, docs) => {
+  service.listBucket(keyword, status, page, pageSize, sortFields, fieldsNeed, (err, docs) => {
     res.json(result.json(err, docs));
   });
 });
