@@ -22,11 +22,6 @@ const sc = new SocketClient(config.engineCenter);
 
 sc.connect();
 
-const SocketClient = require('./client');
-
-const sc = new SocketClient(config.engineCenter);
-sc.connect();
-
 const service = {};
 
 /* group */
