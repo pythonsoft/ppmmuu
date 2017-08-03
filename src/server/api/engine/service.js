@@ -6,6 +6,7 @@
 
 const logger = require('../../common/log')('error');
 const utils = require('../../common/utils');
+const config = require('../../config');
 const i18n = require('i18next');
 const config = require('../../config');
 
@@ -20,6 +21,11 @@ const SocketClient = require('./client');
 
 const sc = new SocketClient(config.engineCenter);
 
+sc.connect();
+
+const SocketClient = require('./client');
+
+const sc = new SocketClient(config.engineCenter);
 sc.connect();
 
 const service = {};
@@ -462,6 +468,15 @@ service.emitAction = function emitAction(engineId, processId, action, cb) {
 
   sc.socket.emit('action', { ip, action, process: '' }, (err, result) => cb && cb({ message: err }, result));
 
+  return cb && cb(null, 'ok');
+};
+
+service.installMonitor = function installMonitor(ip, cb) {
+  if (!ip) {
+    return cb && cb(i18n.t('engineIdCanNotBeNull'));
+  }
+
+  //todo
   return cb && cb(null, 'ok');
 };
 

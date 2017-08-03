@@ -5,6 +5,7 @@
 'use strict';
 
 const clientConnect = require('socket.io-client');
+const config = require('../../config');
 
 class SocketClient {
   constructor(options) {
@@ -16,6 +17,7 @@ class SocketClient {
     }, options);
 
     this.socket = null;
+    this.clientName = 'web';
   }
 
   connect(cb) {
@@ -28,8 +30,8 @@ class SocketClient {
     this.socket = clientConnect(url);
 
     this.socket.on('connect', () => {
-      this.socket.emit('setClientInfo', { name: 'web' });
       console.log('server connected');
+      me.socket.emit('setClientInfo', { name: me.clientName });
       return cb && cb();
     });
 
@@ -47,5 +49,9 @@ class SocketClient {
   }
 
 }
+
+const sc = new SocketClient(config.engineCenter);
+
+sc.connect();
 
 module.exports = SocketClient;
