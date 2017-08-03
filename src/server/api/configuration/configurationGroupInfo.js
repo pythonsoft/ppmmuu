@@ -20,7 +20,7 @@ class ConfigurationGroupInfo extends DB {
     super(config.dbInstance.umpDB, 'ConfigurationGroupInfo');
 
     this.struct = {
-      _id: { type: 'string', validation: 'require', default: uuid },
+      _id: { type: 'string', validation: 'require', default() { return uuid.v1(); } },
       createdTime: { type: 'date', default: new Date() },
       updatedTime: { type: 'date', default: new Date() },
       name: { type: 'string', validation: 'require' },

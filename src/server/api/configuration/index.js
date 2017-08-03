@@ -1,7 +1,6 @@
 'use strict';
 
 const express = require('express');
-const uuid = require('uuid');
 
 const router = express.Router();
 
@@ -43,7 +42,6 @@ const service = require('./service');
  *           $ref: '#/definitions/ResultInfo'
  */
 router.post('/add', (req, res) => {
-  req.body._id = uuid();
   service.addConfig(req.body, err => res.json(result.json(err, {})));
 });
 
@@ -175,7 +173,6 @@ router.post('/delete', (req, res) => {
  *           $ref: '#/definitions/ResultInfo'
  */
 router.post('/addGroup', (req, res) => {
-  req.body._id = uuid();
   service.addConfigGroup(req.body, err => res.json(result.json(err, {})));
 });
 

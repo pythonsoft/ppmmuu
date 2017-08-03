@@ -8,6 +8,7 @@ const path = require('path');
 const fs = require('fs');
 const vm = require('vm');
 const redis = require('redis');
+require('redis-streams')(redis);
 
 const config = {};
 

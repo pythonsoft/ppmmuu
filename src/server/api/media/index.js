@@ -13,9 +13,9 @@ const service = require('./service');
 /**
  * @apiName: solrSearch
  * @apiFuncType: get
- * @apiFuncUrl: /search/solrSearch
+ * @apiFuncUrl: /media/solrSearch
  * @swagger
- * /search/solrSearch:
+ * /media/solrSearch:
  *   get:
  *     description: get solr search
  *     version: 1.0.0
@@ -44,7 +44,28 @@ const service = require('./service');
  *         description: "返回字段过滤,显示部分字段,只显示价格：fl=price ;显示价格和位置：fl=price,location ;显示全部：fl=*"
  *         required: false
  *         type: string
- *         default: "name:*"
+ *         default: "id,duration,name,ccid,program_type,program_name_cn,hd_flag,program_name_en,last_modify"
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: 'hl.fl'
+ *         description: "需要高亮的字段"
+ *         required: false
+ *         type: string
+ *         default: 'name,program_type'
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: 'hl'
+ *         description: "需要高亮时要填写"
+ *         required: false
+ *         type: string
+ *         default: 'on'
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: 'indent'
+ *         description: "需要高亮时要填写"
+ *         required: false
+ *         type: string
+ *         default: 'on'
  *         collectionFormat: csv
  *       - in: query
  *         name: timeAllowed
@@ -64,6 +85,7 @@ const service = require('./service');
  *         description: "排序（变量+空格+排序方式 , 变量+空格+排序方式）,多值字段不可排序"
  *         required: false
  *         type: string
+ *         example: "last_modify desc"
  *         collectionFormat: csv
  *       - in: query
  *         name: rows
@@ -128,11 +150,45 @@ router.get('/solrSearch', (req, res) => {
 });
 
 /**
+ * @apiName: getSearchConfig
+ * @apiFuncType: get
+ * @apiFuncUrl: /media/getSearchConfig
+ * @swagger
+ * /media/getSearchConfig:
+ *   get:
+ *     description: 获取媒体库搜索配置
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - Search
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *
+ */
+router.get('/getSearchConfig', (req, res) => {
+  service.getSearchConfig((err, doc) => res.json(result.json(err, doc)));
+});
+
+/**
  * @apiName: getIcon
  * @apiFuncType: get
- * @apiFuncUrl: /search/getIcon
+ * @apiFuncUrl: /media/getIcon
  * @swagger
- * /search/getIcon:
+ * /media/getIcon:
  *   get:
  *     description: 获取单条缩略图
  *     version: 1.0.0
@@ -169,9 +225,9 @@ router.get('/getIcon', (req, res) => service.getIcon(req.query, res));
 /**
  * @apiName: getObject
  * @apiFuncType: get
- * @apiFuncUrl: /search/getObject
+ * @apiFuncUrl: /media/getObject
  * @swagger
- * /search/getObject:
+ * /media/getObject:
  *   get:
  *     description: 获取单条详情
  *     version: 1.0.0
