@@ -19,7 +19,6 @@ const engineInfo = new EngineInfo();
 const SocketClient = require('./client');
 
 const sc = new SocketClient(config.engineCenter);
-
 sc.connect();
 
 const service = {};
@@ -423,9 +422,10 @@ service.listProcess = function listProcess(ip, cb) {
     { pid: '25860', status: '运行中', name: '/usr/libexec/locationd', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
     { pid: '47192', status: '运行中', name: '/usr/libexec/coreduetd', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
   ];
+
   console.log('ip', ip);
 
-  sc.socket.emit('action', { ip, action: 'ps', process: '' }, (err, result) => cb && cb({ message: err }, result));
+  sc.socket.emit('action', { ip, action: 'ps', name: 'web', process: '' }, (err, result) => cb && cb({ message: err }, result));
 
   // return cb && cb(null, docs);
 };
