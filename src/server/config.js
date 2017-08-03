@@ -29,7 +29,7 @@ config.port = process.env.NODE_ENV === 'development' ? 8080 : 8080;
 
 config.engineCenter = {
   host: '10.0.15.179',
-  post: 3000,
+  port: 3000,
 };
 
 const init = function init() {

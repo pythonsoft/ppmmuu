@@ -17,6 +17,7 @@ class SocketClient {
     }, options);
 
     this.socket = null;
+    this.clientName = 'web';
   }
 
   connect(cb) {
@@ -30,6 +31,7 @@ class SocketClient {
 
     this.socket.on('connect', () => {
       console.log('server connected');
+      me.socket.emit('setClientInfo', { name: me.clientName });
       return cb && cb();
     });
 
@@ -44,12 +46,19 @@ class SocketClient {
 
       console.log('disconnect');
     });
+
+    this.socket.on('sendSysInfo', function(sysInfo) {
+      console.log('sysInfo ---->', sysInfo);
+    })
+  }
+
+  listProcess() {
+    const me = this;
+    this.socket.emit('action', { name: '10.0.15.179-imacarcher', action: 'getActions', process: 'npm' }, (err) => {
+      debug('err, emitting action', err);
+    });
   }
 
 }
-
-const sc = new SocketClient(config.engineCenter);
-
-sc.connect();
 
 module.exports = SocketClient;
