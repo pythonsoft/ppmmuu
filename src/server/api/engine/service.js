@@ -21,6 +21,8 @@ const SocketClient = require('./client');
 const sc = new SocketClient(config.engineCenter);
 sc.connect();
 
+// const sc = {};
+
 const service = {};
 
 /* group */
@@ -406,7 +408,7 @@ service.updateEngineConfiguration = function updateEngineConfiguration(id, confi
 /* 进程 */
 service.listProcess = function listProcess(ip, cb) {
   if (!ip) {
-    return cb && cb(i18n.t('engineIdCanNotBeNull'));
+    return cb && cb(i18n.t('engineIpCanNotBeNull'));
   }
 
   // todo
@@ -423,36 +425,36 @@ service.listProcess = function listProcess(ip, cb) {
     { pid: '47192', status: '运行中', name: '/usr/libexec/coreduetd', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
   ];
 
-  console.log('ip', ip);
-
   sc.socket.emit('action', { ip, action: 'ps', name: 'web', process: '' }, (err, result) => cb && cb({ message: err }, result));
-
-  // return cb && cb(null, docs);
 };
 
-service.listAction = function listAction(processId, cb) {
-  if (!processId) {
-    return cb && cb(i18n.t('processIdCanNotBeNull'));
+service.listAction = function listAction(ip, configProcessName, cb) {
+  if (!ip) {
+    return cb && cb(i18n.t('engineIpCanNotBeNull'));
   }
 
-  const docs = [
-    { ps_node: { name: 'ps_node', command: 'ps aux | grep node', description: '显示所有的node进程' } },
-    { ps_java: { name: 'ps_java', command: 'ps aux | grep java', description: '显示所有的java进程' } },
-    { ps_php: { name: 'ps_php', command: 'ps aux | grep php', description: '显示所有的php进程' } },
-  ];
+  if (!configProcessName) {
+    return cb && cb(i18n.t('configProcessNameCanNotBeNull'));
+  }
+
+  // const docs = [
+  //   { ps_node: { name: 'ps_node', command: 'ps aux | grep node', description: '显示所有的node进程' } },
+  //   { ps_java: { name: 'ps_java', command: 'ps aux | grep java', description: '显示所有的java进程' } },
+  //   { ps_php: { name: 'ps_php', command: 'ps aux | grep php', description: '显示所有的php进程' } },
+  // ];
 
   // processId or process name from config
-  sc.socket.emit('action', { ip, action: 'getActions', process: '' }, (err, result) => cb && cb({ message: err }, result));
+  sc.socket.emit('action', { ip, action: 'getActions', process: configProcessName }, (err, result) => cb && cb({ message: err }, result));
 
   return cb && cb(null, docs);
 };
 
-service.emitAction = function emitAction(engineId, processId, action, cb) {
-  if (!engineId) {
-    return cb && cb(i18n.t('engineIdCanNotBeNull'));
+service.emitAction = function emitAction(ip, configProcessName, pid, action, cb) {
+  if (!ip) {
+    return cb && cb(i18n.t('engineIpCanNotBeNull'));
   }
 
-  if (!processId) {
+  if (!configProcessName) {
     return cb && cb(i18n.t('processIdCanNotBeNull'));
   }
 
@@ -460,18 +462,20 @@ service.emitAction = function emitAction(engineId, processId, action, cb) {
     return cb && cb(i18n.t('processActionCanNotBeNull'));
   }
 
-  sc.socket.emit('action', { ip, action, process: '', pid: processId }, (err, result) => cb && cb({ message: err }, result));
+  sc.socket.emit('action', { ip, action, process: configProcessName, pid: pid }, (err, result) => cb && cb({ message: err }, result));
 
   return cb && cb(null, 'ok');
 };
 
-service.installMonitor = function installMonitor(ip, cb) {
+service.installMonitor = function installMonitor(ip, username='root', password="4pstvmis", cb) {
   if (!ip) {
-    return cb && cb(i18n.t('engineIdCanNotBeNull'));
+    return cb && cb(i18n.t('engineIpCanNotBeNull'));
   }
 
-  sc.socket.emit('setup', { username: 'root', host: ip, password: '4pstvmis' }, (err, stdout, stderr) => {
-    console.log(err, stdout, stderr);
+  console.log('installMonitor =----->', ip, username, password);
+
+  sc.socket.emit('setup', { username, host: ip, password }, (err, stdout, stderr) => {
+    console.log('setup ---->', err, stdout, stderr.toString());
   });
 
   return cb && cb(null, 'ok');

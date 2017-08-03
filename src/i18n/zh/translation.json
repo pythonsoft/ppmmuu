@@ -311,13 +311,17 @@
     "code": "-12008",
     "message": "引擎配置项不能为空值"
   },
-  "engineIdCanNotBeNull": {
+  "engineIpCanNotBeNull": {
     "code": "-12009",
     "message": "引擎IP不能为空"
   },
   "processIdCanNotBeNull": {
     "code": "-12009",
     "message": "进程Id不能为空"
+  },
+  "configProcessNameCanNotBeNull": {
+    "code": "-12010",
+    "message": "配置文件中的进程名称不能为空"
   },
   "processActionCanNotBeNull": {
     "code": "-12010",
