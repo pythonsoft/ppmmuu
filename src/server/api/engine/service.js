@@ -6,7 +6,9 @@
 
 const logger = require('../../common/log')('error');
 const utils = require('../../common/utils');
+const config = require('../../config');
 const i18n = require('i18next');
+const config = require('../../config');
 
 const EngineGroupInfo = require('./engineGroupInfo');
 
@@ -15,6 +17,16 @@ const engineGroupInfo = new EngineGroupInfo();
 const EngineInfo = require('./engineInfo');
 
 const engineInfo = new EngineInfo();
+const SocketClient = require('./client');
+
+const sc = new SocketClient(config.engineCenter);
+
+sc.connect();
+
+const SocketClient = require('./client');
+
+const sc = new SocketClient(config.engineCenter);
+sc.connect();
 
 const service = {};
 
@@ -417,8 +429,11 @@ service.listProcess = function listProcess(ip, cb) {
     { pid: '25860', status: '运行中', name: '/usr/libexec/locationd', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
     { pid: '47192', status: '运行中', name: '/usr/libexec/coreduetd', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
   ];
+  console.log('ip', ip);
 
-  return cb && cb(null, docs);
+  sc.socket.emit('action', { ip, action: 'ps', process: '' }, (err, result) => cb && cb({ message: err }, result));
+
+  // return cb && cb(null, docs);
 };
 
 service.listAction = function listAction(processId, cb) {
@@ -431,6 +446,9 @@ service.listAction = function listAction(processId, cb) {
     { ps_java: { name: 'ps_java', command: 'ps aux | grep java', description: '显示所有的java进程' } },
     { ps_php: { name: 'ps_php', command: 'ps aux | grep php', description: '显示所有的php进程' } },
   ];
+
+  // processId or process name from config
+  sc.socket.emit('action', { ip, action: 'getActions', process: '' }, (err, result) => cb && cb({ message: err }, result));
 
   return cb && cb(null, docs);
 };
@@ -448,7 +466,17 @@ service.emitAction = function emitAction(engineId, processId, action, cb) {
     return cb && cb(i18n.t('processActionCanNotBeNull'));
   }
 
-  // todo
+  sc.socket.emit('action', { ip, action, process: '' }, (err, result) => cb && cb({ message: err }, result));
+
+  return cb && cb(null, 'ok');
+};
+
+service.installMonitor = function installMonitor(ip, cb) {
+  if (!ip) {
+    return cb && cb(i18n.t('engineIdCanNotBeNull'));
+  }
+
+  //todo
   return cb && cb(null, 'ok');
 };
 

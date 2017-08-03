@@ -705,4 +705,36 @@ router.post('/emitAction', (req, res) => {
   service.emitAction(req.body.engineId, req.body.processId, req.body.action, err => res.json(result.json(err, 'ok')));
 });
 
+/**
+ * @permissionName: 安装监控
+ * @permissionPath: /engine/installMonitor
+ * @apiName: installMonitor
+ * @apiFuncType: post
+ * @apiFuncUrl: /engine/installMonitor
+ * @swagger
+ * /engine/installMonitor:
+ *   post:
+ *     description: install monitor to new engine
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       -
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: ip
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: --
+ */
+router.post('/installMonitor', (req, res) => {
+  service.installMonitor(req.body.ip, err => res.json(result.json(err, 'ok')));
+});
+
 module.exports = router;

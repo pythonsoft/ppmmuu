@@ -10,13 +10,14 @@ const config = require('../../config');
 class SocketClient {
   constructor(options) {
     this.settings = Object.assign({
-      host: 'localhost',
-      port: 8090,
+      host: '10.0.15.179',
+      port: 3000,
       protocol: 'http',
       path: '/',
     }, options);
 
     this.socket = null;
+    this.clientName = 'web';
   }
 
   connect(cb) {
@@ -30,6 +31,7 @@ class SocketClient {
 
     this.socket.on('connect', () => {
       console.log('server connected');
+      me.socket.emit('setClientInfo', { name: me.clientName });
       return cb && cb();
     });
 
