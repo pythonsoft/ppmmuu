@@ -645,8 +645,15 @@ router.get('/listProcess', (req, res) => {
  *       - application/json
  *     parameters:
  *       - in: query
- *         name: processId
+ *         name: ip
  *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: configProcessName
+ *         description: monitor config file process name
  *         required: true
  *         type: string
  *         default: ''
@@ -656,7 +663,7 @@ router.get('/listProcess', (req, res) => {
  *         description: list process' action
  */
 router.get('/listAction', (req, res) => {
-  service.listAction(req.query.processId, (err, docs) => res.json(result.json(err, docs)));
+  service.listAction(req.query.ip, req.query.configProcessName, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
@@ -677,16 +684,23 @@ router.get('/listAction', (req, res) => {
  *       - application/json
  *     parameters:
  *       - in: body
- *         name: engineId
+ *         name: ip
  *         description:
  *         required: true
  *         type: string
  *         default: ''
  *         collectionFormat: csv
  *       - in: body
- *         name: processId
+ *         name: configProcessName
  *         description:
  *         required: true,
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: pid
+ *         description:
+ *         required: true
  *         type: string
  *         default: ''
  *         collectionFormat: csv
@@ -702,7 +716,7 @@ router.get('/listAction', (req, res) => {
  *         description: EngineInfo
  */
 router.post('/emitAction', (req, res) => {
-  service.emitAction(req.body.engineId, req.body.processId, req.body.action, err => res.json(result.json(err, 'ok')));
+  service.emitAction(req.body.ip, req.body.configProcessName, req.body.pid, req.body.action, err => res.json(result.json(err, 'ok')));
 });
 
 /**
@@ -729,12 +743,26 @@ router.post('/emitAction', (req, res) => {
  *         type: string
  *         default: ''
  *         collectionFormat: csv
+ *       - in: body
+ *         name: username
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: password
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
  *     responses:
  *       200:
  *         description: --
  */
 router.post('/installMonitor', (req, res) => {
-  service.installMonitor(req.body.ip, (err, content) => res.json(result.json(err, 'ok', content)));
+  service.installMonitor(req.body.ip, req.body.username, req.body.password, err => res.json(result.json(err, 'ok')));
 });
 
 module.exports = router;
