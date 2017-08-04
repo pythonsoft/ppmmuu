@@ -49,7 +49,30 @@ const getArrByPattern = function getArrByPattern(codeStr, pattern) {
 };
 
 const writeApiFuncFile = function writeApiFuncFile(filePath, funcName, funcType, funcUrl) {
-  fs.appendFileSync(filePath, `api.${funcName} = function ${funcName}(data) {\n  return new Promise((resolve, reject) => {\n    axios.${funcType}('${config.domain}${funcUrl}', data)\n      .then((response) => {\n        const res = response.data;\n        if (res.status === '0') {\n          resolve(res);\n        }\n        reject(res.statusInfo.message);\n      })\n      .catch((error) => {\n        reject(error);\n      });\n  });\n};\n\n`);
+  const tpl = `api.${funcName} = function ${funcName} (data, scope) {
+  return new Promise((resolve, reject) => {
+    if(scope) { scope.$progress.start(); }
+    axios.${funcType}('${config.domain}${funcUrl}', data).then((response) => {
+      if(!response) {
+        reject('返回数据格式不正确');
+        return false;
+      }
+      const res = response.data;
+      if (res.status === '0') {
+        if(scope) { scope.$progress.finish(); }
+        resolve(res)
+      }
+      if(scope) { scope.$progress.fail(); }
+      reject(res.statusInfo.message);
+    }).catch(error =>{
+        if(scope) { scope.$progress.fail(); }
+        reject(error);
+     });
+   });
+ };
+ 
+ `;
+  fs.appendFileSync(filePath, tpl);
 };
 
 const writeUploadApiFuncFile = function writeApiFuncFile(filePath, funcName, funcType, funcUrl) {

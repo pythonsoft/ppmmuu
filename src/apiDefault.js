@@ -33,6 +33,6 @@ axios.interceptors.response.use((response) => {
   return response;
 }, error =>
   // Do something with response error
-  Promise.reject(error)
+  Promise.reject(typeof error === 'object' ? error.message ? error.message === 'Network Error' ? '网络连接出错，请检查网络是否连接正常' : error.message : '出错了' : error)
 );
 

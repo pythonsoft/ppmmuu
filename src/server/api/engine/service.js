@@ -18,10 +18,10 @@ const EngineInfo = require('./engineInfo');
 const engineInfo = new EngineInfo();
 const SocketClient = require('./client');
 
-const sc = new SocketClient(config.engineCenter);
-sc.connect();
+// const sc = new SocketClient(config.engineCenter);
+// sc.connect();
 
-// const sc = {};
+const sc = {};
 
 const service = {};
 
