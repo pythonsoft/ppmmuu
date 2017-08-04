@@ -33,6 +33,11 @@ config.engineCenter = {
   port: 3000,
 };
 
+config.TRANSCODE_API_SERVER = {
+  hostname: '10.0.15.57',
+  port: 8080
+};
+
 const init = function init() {
   const redisClient = redis.createClient(config.redis_port, config.redis_host, config.redis_opts);
 
