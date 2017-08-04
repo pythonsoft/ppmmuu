@@ -362,5 +362,9 @@
   "ActionFailed": {
     "code": "-20003",
     "message": "Action失败"
+  },
+  "UpdateConfigFailed": {
+    "code": "-20004",
+    "message": "更新客户端配置文件失败"
   }
 }

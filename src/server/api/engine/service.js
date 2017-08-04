@@ -18,10 +18,8 @@ const EngineInfo = require('./engineInfo');
 const engineInfo = new EngineInfo();
 const SocketClient = require('./client');
 
-// const sc = new SocketClient(config.engineCenter);
-// sc.connect();
-
-const sc = {};
+const sc = new SocketClient(config.engineCenter);
+sc.connect();
 
 const service = {};
 
@@ -364,7 +362,7 @@ service.deleteEngine = function deleteEngine(id, cb) {
  * @param configs
  * @param cb
  */
-service.updateEngineConfiguration = function updateEngineConfiguration(id, configs, cb) {
+service.updateEngineConfiguration = function updateEngineConfiguration(id, configs, ip, cb) {
   if (!id) {
     return cb && cb(i18n.t('engineInfoIdIsNull'));
   }
@@ -398,7 +396,7 @@ service.updateEngineConfiguration = function updateEngineConfiguration(id, confi
         return cb && cb(i18n.t('databaseError'));
       }
 
-      return cb && cb(null, r);
+      sc.socket.emit('updateConfig', { config: configurations[0], ip }, err => cb && cb(err ? i18n.t('UpdateConfigFailed') : null, err + r));
     });
   } catch (e) {
     return cb && cb(i18n.t('engineConfigurationParseError'));
