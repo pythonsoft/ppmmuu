@@ -350,5 +350,17 @@
   "getObjectError": {
     "code": "-13006",
     "message": "{{error}}"
+  },
+  "setupFailed": {
+    "code": "-20001",
+    "message": "安装监控客户端失败"
+  },
+  "listProcessFailed": {
+    "code": "-20002",
+    "message": "进程列表出错"
+  },
+  "ActionFailed": {
+    "code": "-20003",
+    "message": "Action失败"
   }
 }

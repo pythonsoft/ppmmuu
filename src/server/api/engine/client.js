@@ -27,7 +27,11 @@ class SocketClient {
 
     console.log(`正在连接服务器, ${url}`);
 
-    this.socket = clientConnect(url);
+    this.socket = clientConnect(url, {
+      reconnection: true,
+      reconnectionAttempts: Infinity,
+      reconnectionDelay: 500,
+    });
 
     this.socket.on('connect', () => {
       console.log('server connected');
@@ -40,11 +44,6 @@ class SocketClient {
     });
 
     this.socket.on('disconnect', () => {
-      setTimeout(() => {
-        me.connect(cb);
-      }, 2000);
-
-      console.log('disconnect');
     });
   }
 
