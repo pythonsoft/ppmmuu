@@ -54,7 +54,7 @@ const writeApiFuncFile = function writeApiFuncFile(filePath, funcName, funcType,
     if(scope) { scope.$progress.start(); }
     axios.${funcType}('${config.domain}${funcUrl}', data).then((response) => {
       if(!response) {
-        reject('网络连接出错，请检查网络是否连接正常');
+        reject('返回数据格式不正确');
         return false;
       }
       const res = response.data;
