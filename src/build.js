@@ -49,7 +49,7 @@ const getArrByPattern = function getArrByPattern(codeStr, pattern) {
 };
 
 const writeApiFuncFile = function writeApiFuncFile(filePath, funcName, funcType, funcUrl) {
-  fs.appendFileSync(filePath, `api.${funcName} = function ${funcName}(data) {\n  return new Promise((resolve, reject) => {\n    axios.${funcType}('${config.domain}${funcUrl}', data)\n      .then((response) => {\n        const res = response.data;\n        if (res.status === '0') {\n          resolve(res);\n        }\n        reject(res.statusInfo.message);\n      })\n      .catch((error) => {\n        reject(error);\n      });\n  });\n};\n\n`);
+  fs.appendFileSync(filePath, `api.${funcName} = function ${funcName}(data, scope) {\n  return new Promise((resolve, reject) => {\n    if(scope) { scope.$progress.start(); }\n    axios.${funcType}('${config.domain}${funcUrl}', data).then((response) => {\n      const res = response.data;\n      if (res.status === '0') {\n        if(scope) { scope.$progress.finish(); }\n        resolve(res);\n      }\n      if(scope) { scope.$$progress.fail(); }\n      reject(res.statusInfo.message);\n    }).catch((error) => {\n      if(scope) { scope.$progress.fail(); }\n      reject(error);\n    });\n  });\n};\n\n`);
 };
 
 const writeUploadApiFuncFile = function writeApiFuncFile(filePath, funcName, funcType, funcUrl) {
