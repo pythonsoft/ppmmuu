@@ -25,8 +25,7 @@ setup_job:
 build_job:
   stage: build
   script:
-    - pwd
-    - sed -i -re "s/(^\s*config\.host)\s*=.*/\1='https:\/\/api\.szdev\.cn\/'/" ./build/config_master.js
+    - sed -i -re "s/(^\s*config\.host)\s*=.*/\1='https:\/\/api\.szdev\.cn\/'/" src/server/config_master.js
     - npm run build
   artifacts:
     when: always
