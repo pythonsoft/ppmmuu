@@ -425,7 +425,7 @@ service.listProcess = function listProcess(ip, cb) {
     { pid: '47192', status: '运行中', name: '/usr/libexec/coreduetd', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
   ];
 
-  sc.socket.emit('action', { ip, action: 'ps', name: 'web', process: '' }, (err, result) => cb && cb({ message: err }, result));
+  sc.socket.emit('action', { ip, action: 'ps', name: 'web', process: '' }, (err, result) => cb && cb(err ? i18n.t('listProcessFailed') : null, err || result));
 };
 
 service.listAction = function listAction(ip, configProcessName, cb) {
@@ -437,16 +437,21 @@ service.listAction = function listAction(ip, configProcessName, cb) {
     return cb && cb(i18n.t('configProcessNameCanNotBeNull'));
   }
 
-  // const docs = [
-  //   { ps_node: { name: 'ps_node', command: 'ps aux | grep node', description: '显示所有的node进程' } },
-  //   { ps_java: { name: 'ps_java', command: 'ps aux | grep java', description: '显示所有的java进程' } },
-  //   { ps_php: { name: 'ps_php', command: 'ps aux | grep php', description: '显示所有的php进程' } },
-  // ];
+//   const docs = [
+//     { ps_node: { name: 'ps_node', command: 'ps aux | grep node', description: '显示所有的node进程' } },
+//     { ps_java: { name: 'ps_java', command: 'ps aux | grep java', description: '显示所有的java进程' } },
+//     { ps_php: { name: 'ps_php', command: 'ps aux | grep php', description: '显示所有的php进程' } },
+//   ];
 
   // processId or process name from config
-  sc.socket.emit('action', { ip, action: 'getActions', process: configProcessName }, (err, result) => cb && cb({ message: err }, result));
-
-  return cb && cb(null, docs);
+  sc.socket.emit('action', { ip, action: 'getActions', process: configProcessName }, (err, result) => {
+    const res = [];
+    Object.keys(result).forEach((k) => {
+      result[k].name = k;
+      res.push(result[k]);
+    });
+    return cb && cb(err ? i18n.t('ActionFailed') : null, err || res);
+  });
 };
 
 service.emitAction = function emitAction(ip, configProcessName, pid, action, cb) {
@@ -462,23 +467,18 @@ service.emitAction = function emitAction(ip, configProcessName, pid, action, cb)
     return cb && cb(i18n.t('processActionCanNotBeNull'));
   }
 
-  sc.socket.emit('action', { ip, action, process: configProcessName, pid }, (err, result) => cb && cb({ message: err }, result));
-
-  return cb && cb(null, 'ok');
+  sc.socket.emit('action', { ip, action, process: configProcessName, pid: pid }, (err, result) => cb && cb(err ? i18n.t('ActionFailed') : null, err || result));
 };
 
-service.installMonitor = function installMonitor(ip, username = 'root', password = '4pstvmis', cb) {
+service.installMonitor = function installMonitor(ip, username='root', password="4pstvmis", cb) {
   if (!ip) {
     return cb && cb(i18n.t('engineIpCanNotBeNull'));
   }
 
-  console.log('installMonitor =----->', ip, username, password);
-
   sc.socket.emit('setup', { username, host: ip, password }, (err, stdout, stderr) => {
-    console.log('setup ---->', err, stdout, stderr.toString());
+    console.log('setup ---->', err, stdout);
+    return cb && cb(stdout === true ? null : i18n.t('setupFailed'), stderr);
   });
-
-  return cb && cb(null, 'ok');
 };
 
 module.exports = service;
