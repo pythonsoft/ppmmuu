@@ -27,7 +27,7 @@ const service = {};
 service.listBucket = function listBucket(keyword, status, page, pageSize, sortFields, fieldsNeed, cb) {
   const q = {};
 
-  if(keyword) {
+  if (keyword) {
     q.name = { $regex: keyword, $options: 'i' };
   }
 
