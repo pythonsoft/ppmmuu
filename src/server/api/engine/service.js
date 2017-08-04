@@ -396,7 +396,16 @@ service.updateEngineConfiguration = function updateEngineConfiguration(id, confi
         return cb && cb(i18n.t('databaseError'));
       }
 
-      sc.socket.emit('updateConfig', { config: configurations[0], ip }, err => cb && cb(err ? i18n.t('UpdateConfigFailed') : null, err + r));
+      const j = {};
+      for (let i = 0; i < configurations.length; i += 1) {
+        try {
+          const d = JSON.parse(configurations[i].value);
+          j[configurations[i].key] = d;
+        } catch (e) {
+          j[configurations[i].key] = configurations[i].value;
+        }
+      }
+      sc.socket.emit('updateConfig', { config: j, ip }, err => cb && cb(err ? i18n.t('UpdateConfigFailed') : null, err + r));
     });
   } catch (e) {
     return cb && cb(i18n.t('engineConfigurationParseError'));
