@@ -462,12 +462,12 @@ service.emitAction = function emitAction(ip, configProcessName, pid, action, cb)
     return cb && cb(i18n.t('processActionCanNotBeNull'));
   }
 
-  sc.socket.emit('action', { ip, action, process: configProcessName, pid: pid }, (err, result) => cb && cb({ message: err }, result));
+  sc.socket.emit('action', { ip, action, process: configProcessName, pid }, (err, result) => cb && cb({ message: err }, result));
 
   return cb && cb(null, 'ok');
 };
 
-service.installMonitor = function installMonitor(ip, username='root', password="4pstvmis", cb) {
+service.installMonitor = function installMonitor(ip, username = 'root', password = '4pstvmis', cb) {
   if (!ip) {
     return cb && cb(i18n.t('engineIpCanNotBeNull'));
   }

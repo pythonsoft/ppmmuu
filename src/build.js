@@ -49,38 +49,58 @@ const getArrByPattern = function getArrByPattern(codeStr, pattern) {
 };
 
 const writeApiFuncFile = function writeApiFuncFile(filePath, funcName, funcType, funcUrl) {
-  const tpl = `api.${funcName} = function ${funcName} (data, scope) {
+  const tpl = `api.${funcName} = function ${funcName}(data, scope) {
   return new Promise((resolve, reject) => {
-    if(scope) { scope.$progress.start(); }
+    if (scope) { scope.$progress.start(); }
     axios.${funcType}('${config.domain}${funcUrl}', data).then((response) => {
-      if(!response) {
+      if (!response) {
         reject('返回数据格式不正确');
         return false;
       }
       const res = response.data;
       if (res.status === '0') {
-        if(scope) { scope.$progress.finish(); }
-        resolve(res)
+        if (scope) { scope.$progress.finish(); }
+        return resolve(res);
       }
-      if(scope) { scope.$progress.fail(); }
-      reject(res.statusInfo.message);
-    }).catch(error =>{
-        if(scope) { scope.$progress.fail(); }
-        reject(error);
-     });
-   });
- };
- 
- `;
+      if (scope) { scope.$progress.fail(); }
+      return reject(res.statusInfo.message);
+    }).catch((error) => {
+      if (scope) { scope.$progress.fail(); }
+      reject(error);
+    });
+  });
+};
+
+`;
   fs.appendFileSync(filePath, tpl);
 };
 
 const writeUploadApiFuncFile = function writeApiFuncFile(filePath, funcName, funcType, funcUrl) {
-  fs.appendFileSync(filePath, `api.${funcName} = function ${funcName}(param, config) {\n  return new Promise((resolve, reject) => {\n    axios.${funcType}('${config.domain}${funcUrl}', param, config)\n      .then((response) => {\n        const res = response.data;\n        if (res.status === '0') {\n          resolve(res);\n        }\n        reject(res.statusInfo.message);\n      })\n      .catch((error) => {\n        reject(error);\n      });\n  });\n};\n\n`);
+  const tpl = `api.${funcName} = function ${funcName}(param, config) {
+  return new Promise((resolve, reject) => {
+    axios.${funcType}('${config.domain}${funcUrl}', param, config).then((response) => {
+      const res = response.data;
+      if (res.status === '0') {
+        resolve(res);
+      }
+      reject(res.statusInfo.message);
+    }).catch((error) => {
+      reject(error);
+    });
+  });
+};
+
+`;
+  fs.appendFileSync(filePath, tpl);
 };
 
 const writeGetIconApiFuncFile = function writeApiFuncFile(filePath, funcName, funcType, funcUrl) {
-  fs.appendFileSync(filePath, `api.${funcName} = function ${funcName}(id) {\n  return 'http://localhost:8080/media/getIcon?objectid=' + id;\n};\n\n`);
+  const tpl = `api.${funcName} = function ${funcName}(id) {
+  return 'http://localhost:8080/media/getIcon?objectid=' + id;
+};
+
+`;
+  fs.appendFileSync(filePath, tpl);
 };
 
 // 读取后端接口生成前端调用的函数文件
@@ -116,9 +136,9 @@ const generateFeApiFuncFile = function generateFeApiFuncFile() {
         for (let i = 0; i < funcNameArr.length; i++) {
           if (funcUrlArr[i] === '/upload') {
             writeUploadApiFuncFile(filePath, funcNameArr[i], funcTypeArr[i], funcUrlArr[i]);
-          } else if(funcUrlArr[i] === '/media/getIcon') {
+          } else if (funcUrlArr[i] === '/media/getIcon') {
             writeGetIconApiFuncFile(filePath, funcNameArr[i], funcTypeArr[i], funcUrlArr[i]);
-          }else {
+          } else {
             writeApiFuncFile(filePath, funcNameArr[i], funcTypeArr[i], funcUrlArr[i]);
           }
         }
