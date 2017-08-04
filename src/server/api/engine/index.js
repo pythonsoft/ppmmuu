@@ -590,7 +590,7 @@ router.post('/removeEngine', (req, res) => {
  *         description: EngineInfo
  */
 router.post('/updateEngineConfiguration', (req, res) => {
-  service.updateEngineConfiguration(req.body._id, req.body.configuration, err => res.json(result.json(err, 'ok')));
+  service.updateEngineConfiguration(req.body._id, req.body.configuration, req.body.ip, err => res.json(result.json(err, 'ok')));
 });
 
 /* 进程 */
