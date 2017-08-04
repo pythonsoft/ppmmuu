@@ -353,10 +353,14 @@
   },
   "setupFailed": {
     "code": "-20001",
-    "message": "Setup for monitor client failed"
+    "message": "安装监控客户端失败"
   },
   "listProcessFailed": {
     "code": "-20002",
-    "message": "List Process failed"
+    "message": "进程列表出错"
+  },
+  "ActionFailed": {
+    "code": "-20003",
+    "message": "Action失败"
   }
 }
