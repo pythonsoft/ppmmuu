@@ -2,6 +2,7 @@ stages:
   - setup
   - build
   - deploy
+  - restartFE
 
 setup_job:
   stage: setup
@@ -24,6 +25,7 @@ setup_job:
 build_job:
   stage: build
   script:
+    - sed -i -re "s/(^\s*config\.host)\s*=.*/\1='api\.szdev\.cn'/" src/server/config_master.js
     - npm run build
   artifacts:
     when: always
@@ -41,8 +43,25 @@ deploy_to_67_job:
     - at_67 "mkdir -p ${proj_path}-manager/build ${proj_path}-manager/node_modules"
     - scp -r build/* ump@10.0.15.67:"${proj_path}-manager/build"
     - scp -r node_modules/* ump@10.0.15.67:"${proj_path}-manager/node_modules"
-    - at_67 "sed -i -re \"s/(^\s*config\.host)\s*=.*/\1='api\.szdev\.cn\/'/\" ${proj_path}-manager/build/config_master.js"
+    - at_67 "sed -i -re \"s/(^\s*config\.host)\s*=.*/\1='api\.szdev\.cn'/\" ${proj_path}-manager/build/config_master.js"
     - at_67 "killall -q node; nohup node ${proj_path}-manager/build/server.js >/dev/null 2>&1 &"
+
+  environment:
+    name: test
+  tags:
+    - test
+  only:
+    - master
+
+
+restart_to_68_job:
+  stage: restartFE
+  script:
+    - proj_path="/home/ump/"
+    - function at_68 { ssh ump@10.0.15.68 $1; }
+    - scp -r build/api ump@10.0.15.68:"${proj_path}UMP-FE/src/fe"
+    - at_68 "sed -i -re \"s/(^\s*localhost:8080)\s*=.*/\1='api\.szdev\.cn'/" ${proj_path}/src/fe/html/login/index.pug"
+    - at_68 "killall -q node; cd ~/UMP-FE && nohup npm run dev >/dev/null 2>&1 &"
 
   environment:
     name: test
