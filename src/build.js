@@ -51,7 +51,7 @@ const writeApiFuncFile = function writeApiFuncFile(filePath, funcName, funcType,
   const tpl = `api.${funcName} = function ${funcName}(data, scope) {
   return new Promise((resolve, reject) => {
     if (scope) { scope.$progress.start(); }
-    axios.${funcType}(apiDomain + '${funcUrl}', data).then((response) => {
+    axios.${funcType}('${funcUrl}', data).then((response) => {
       if (!response) {
         reject('返回数据格式不正确');
         return false;
@@ -77,7 +77,7 @@ const writeApiFuncFile = function writeApiFuncFile(filePath, funcName, funcType,
 const writeUploadApiFuncFile = function writeApiFuncFile(filePath, funcName, funcType, funcUrl) {
   const tpl = `api.${funcName} = function ${funcName}(param, config) {
   return new Promise((resolve, reject) => {
-    axios.${funcType}(apiDomain + '${funcUrl}', param, config).then((response) => {
+    axios.${funcType}('${funcUrl}', param, config).then((response) => {
       const res = response.data;
       if (res.status === '0') {
         resolve(res);
@@ -95,7 +95,7 @@ const writeUploadApiFuncFile = function writeApiFuncFile(filePath, funcName, fun
 
 const writeGetIconApiFuncFile = function writeApiFuncFile(filePath, funcName, funcType, funcUrl) {
   const tpl = `api.${funcName} = function ${funcName}(id) {
-  return apiDomain + '/media/getIcon?objectid=' + id;
+  return '/media/getIcon?objectid=' + id;
 };
 
 `;
@@ -131,10 +131,8 @@ const generateFeApiFuncFile = function generateFeApiFuncFile() {
 
       if (funcNameArr.length > 0) {
         const filePath = path.join(feApiPath, `${filename}.js`);
-        const tpl = `import axios from 'axios';
-
-const api = {};
-const apiDomain = require('../config');
+        const tpl = `const api = {};
+const axios = require('../config');
 
 `;
         fs.appendFileSync(filePath, tpl);
