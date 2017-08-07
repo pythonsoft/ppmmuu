@@ -12,7 +12,6 @@ const config = require('./server/config');
 const apiPathFile = path.join(__dirname, './server/apiPath.js');
 const buildPath = path.join(__dirname, '../build');
 const feApiPath = path.join(buildPath, 'api');
-const apiDefaultFilePath = path.join(__dirname, './apiDefault.js');
 
 let permissionNames = [];
 let permissionPaths = [];
@@ -52,7 +51,7 @@ const writeApiFuncFile = function writeApiFuncFile(filePath, funcName, funcType,
   const tpl = `api.${funcName} = function ${funcName}(data, scope) {
   return new Promise((resolve, reject) => {
     if (scope) { scope.$progress.start(); }
-    axios.${funcType}('${config.domain}${funcUrl}', data).then((response) => {
+    axios.${funcType}(apiDomain + '${funcUrl}', data).then((response) => {
       if (!response) {
         reject('返回数据格式不正确');
         return false;
@@ -78,7 +77,7 @@ const writeApiFuncFile = function writeApiFuncFile(filePath, funcName, funcType,
 const writeUploadApiFuncFile = function writeApiFuncFile(filePath, funcName, funcType, funcUrl) {
   const tpl = `api.${funcName} = function ${funcName}(param, config) {
   return new Promise((resolve, reject) => {
-    axios.${funcType}('${config.domain}${funcUrl}', param, config).then((response) => {
+    axios.${funcType}(apiDomain + '${funcUrl}', param, config).then((response) => {
       const res = response.data;
       if (res.status === '0') {
         resolve(res);
@@ -96,7 +95,7 @@ const writeUploadApiFuncFile = function writeApiFuncFile(filePath, funcName, fun
 
 const writeGetIconApiFuncFile = function writeApiFuncFile(filePath, funcName, funcType, funcUrl) {
   const tpl = `api.${funcName} = function ${funcName}(id) {
-  return 'http://localhost:8080/media/getIcon?objectid=' + id;
+  return apiDomain + '/media/getIcon?objectid=' + id;
 };
 
 `;
@@ -109,7 +108,7 @@ const generateFeApiFuncFile = function generateFeApiFuncFile() {
   const files = fs.readdirSync(apiRootPath);
   fs.mkdirSync(buildPath);
   fs.mkdirSync(feApiPath);
-  const apiDefaultCodeStr = fs.readFileSync(apiDefaultFilePath, 'utf8');
+
   files.forEach((filename) => {
     const fullname = path.join(apiRootPath, filename);
     const stats = fs.statSync(fullname);
@@ -132,7 +131,13 @@ const generateFeApiFuncFile = function generateFeApiFuncFile() {
 
       if (funcNameArr.length > 0) {
         const filePath = path.join(feApiPath, `${filename}.js`);
-        fs.appendFileSync(filePath, apiDefaultCodeStr);
+        const tpl = `import axios from 'axios';
+
+const api = {};
+const apiDomain = require('../config');
+
+`;
+        fs.appendFileSync(filePath, tpl);
         for (let i = 0; i < funcNameArr.length; i++) {
           if (funcUrlArr[i] === '/upload') {
             writeUploadApiFuncFile(filePath, funcNameArr[i], funcTypeArr[i], funcUrlArr[i]);

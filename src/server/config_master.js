@@ -5,7 +5,7 @@
 'use strict';
 
 /* eslint-disable no-undef */
-config.host = 'localhost:8080';
+config.host = '80';
 config.domain = `http://${config.host}`;
 config.mongodb = {
   umpURL: 'mongodb://10.0.15.62:27017/ump_v1',
@@ -21,7 +21,7 @@ config.redisMediaThumbExpires = 60 * 60 * 12 * 30; // 缓存媒体库缩略图�
 config.port = process.env.NODE_ENV === 'development' ? 8080 : 8080;
 
 // solr搜索地址
-config.solrBaseUrl = 'http://10.0.15.57:8983/solr/';
+config.solrBaseUrl = 'http://solr.szdev.cn/solr/';
 // 香港api地址
 config.hongkongUrl = 'http://w2.phoenixtv.com/mamapi/';
 
