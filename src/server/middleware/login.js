@@ -76,6 +76,7 @@ Login.getUserInfo = function getUserInfo(req, cb) {
 
 Login.middleware = function middleware(req, res, next) {
   const decodeTicket = Login.isLogin(req);
+  console.log("fafasf===>", i18n.t('loginCannotFindUser'));
 
   if (decodeTicket) {
     const now = new Date().getTime();
