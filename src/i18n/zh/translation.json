@@ -366,5 +366,17 @@
   "UpdateConfigFailed": {
     "code": "-20004",
     "message": "更新客户端配置文件失败"
+  },
+  "childTaskParentIdIsNull": {
+    "code": "-30001",
+    "message": "主任务ID不能为空"
+  },
+  "taskTypeIsNotExist": {
+    "code": "-30002",
+    "message": "任务类型不存在"
+  },
+  "childTaskIdIsNotExist": {
+    "code": "-300023",
+    "message": "子任务ID不存在"
   }
 }
