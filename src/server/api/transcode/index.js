@@ -205,7 +205,7 @@ router.get('/stop', (req, res) => {
   const childTaskId = req.query.childTaskId;
   const type = req.query.type;
 
-  service.restart(parentId, childTaskId, type, res);
+  service.stop(parentId, childTaskId, type, res);
 });
 
 module.exports = router;

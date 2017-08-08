@@ -32,7 +32,8 @@ const request = function request(opt, postData, outStream) {
     }
 
     if (error) {
-      console.log(error.message);
+      console.log('error message =>', error.message);
+      logger.error(error.message);
       outStream.end(JSON.stringify({ status: 1, data: {}, statusInfo: { code: '10000', message: error.message } }));
       return;
     }
@@ -59,7 +60,6 @@ const getData = function getData(path, param, outStream) {
   opt.path = path;
 
   const str = [];
-
 
   if (param && !utils.isEmptyObject(param)) {
     const keys = Object.keys(param);
