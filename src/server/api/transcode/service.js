@@ -34,8 +34,7 @@ const request = function request(opt, postData, outStream) {
 
     if (error) {
       console.log(error.message);
-      outStream.write(JSON.stringify({ status: 1, msg: error.message }));
-      res.resume();
+      outStream.end(JSON.stringify({ status: 1, data: {}, statusInfo: { code: '10000', message: error.message }}));
       return;
     }
 
@@ -62,6 +61,7 @@ const getData = function getData(path, param, outStream) {
 
   const str = [];
 
+
   if(param && !utils.isEmptyObject(param)) {
     const keys = Object.keys(param);
     for(let i = 0, len = keys.length; i < len; i++) {
@@ -85,10 +85,10 @@ const postData = function postData(path, param, outStream) {
 const service = {};
 
 const TASK_CONFIG = {
-  index: { stop: '/IndexTask/stop', restart: '/IndexTask/restart', list: '/IndexTask/list' },
-  divide: { stop: '/DivideTask/stop', restart: '/DivideTask/restart', list: '/DivideTask/list' },
-  transcode: { stop: '/TranscodingChildTask/stop', restart: '/TranscodingChildTask/restart', list: '/TranscodingChildTask/list' },
-  merge: { stop: '/MergeTask/stop', restart: '/MergeTask/restart', list: '/MergeTask/list' },
+  generateIndex: { stop: '/IndexTask/stop', restart: '/IndexTask/restart', list: '/IndexTask/list' },
+  divideFile: { stop: '/DivideTask/stop', restart: '/DivideTask/restart', list: '/DivideTask/list' },
+  transcoding: { stop: '/TranscodingChildTask/stop', restart: '/TranscodingChildTask/restart', list: '/TranscodingChildTask/list' },
+  mergeFile: { stop: '/MergeTask/stop', restart: '/MergeTask/restart', list: '/MergeTask/list' },
 };
 
 service.list = function list(status, currentStep, page=1, pageSize=20, res) {
@@ -110,7 +110,7 @@ service.listChildTask = function listChildTask(parentId, res) {
     return res.end(JSON.stringify({ status: 1, data: {}, statusInfo: i18n.t('childTaskParentIdIsNull')}));
   }
 
-  getData('', { parentId: parentId }, res);
+  getData('/TranscodingTask/listChild', { id: parentId }, res);
 };
 
 const execCommand = function execCommand(command, parentTaskId, taskId, type, res) {
