@@ -14,27 +14,26 @@ const options = {
   hostname: config.TRANSCODE_API_SERVER.hostname,
   port: config.TRANSCODE_API_SERVER.port,
   headers: {
-    'Transfer-Encoding': 'chunked'
-  }
+    'Transfer-Encoding': 'chunked',
+  },
 };
 
 const request = function request(opt, postData, outStream) {
-
   const req = http.request(opt, (res) => {
     const statusCode = res.statusCode;
     const contentType = res.headers['content-type'];
 
-    let error;
+    let error = null;
 
     if (statusCode !== 200) {
-      error = new Error('Request Failed.\n' + `Status Code: ${statusCode}`);
+      error = new Error(`Request Failed. Status Code: ${statusCode}`);
     } else if (!/^application\/json/.test(contentType)) {
-      error = new Error('Invalid content-type.\n' + `Expected application/json but received ${contentType}`);
+      error = new Error(`Invalid content-type.Expected application/json but received ${contentType}`);
     }
 
     if (error) {
       console.log(error.message);
-      outStream.end(JSON.stringify({ status: 1, data: {}, statusInfo: { code: '10000', message: error.message }}));
+      outStream.end(JSON.stringify({ status: 1, data: {}, statusInfo: { code: '10000', message: error.message } }));
       return;
     }
 
@@ -43,11 +42,11 @@ const request = function request(opt, postData, outStream) {
 
   req.on('error', (e) => {
     console.log(`problem with request: ${e.message}`);
-    outStream.end(JSON.stringify({ status: 1, data: {}, statusInfo: { code: '10000', message: e.message }}));
+    outStream.end(JSON.stringify({ status: 1, data: {}, statusInfo: { code: '10000', message: e.message } }));
     logger.error(e.message);
   });
 
-  if(opt.method === 'POST') {
+  if (opt.method === 'POST') {
     req.write(JSON.stringify(postData));
   }
 
@@ -62,14 +61,14 @@ const getData = function getData(path, param, outStream) {
   const str = [];
 
 
-  if(param && !utils.isEmptyObject(param)) {
+  if (param && !utils.isEmptyObject(param)) {
     const keys = Object.keys(param);
-    for(let i = 0, len = keys.length; i < len; i++) {
-      str.push(keys[i] + '=' + param[keys[i]]);
+    for (let i = 0, len = keys.length; i < len; i++) {
+      str.push(`${keys[i]}=${param[keys[i]]}`);
     }
   }
 
-  opt.path = opt.path + '?' + str.join('&');
+  opt.path = `${opt.path}?${str.join('&')}`;
 
   request(opt, param, outStream);
 };
@@ -91,14 +90,14 @@ const TASK_CONFIG = {
   mergeFile: { stop: '/MergeTask/stop', restart: '/MergeTask/restart', list: '/MergeTask/list' },
 };
 
-service.list = function list(status, currentStep, page=1, pageSize=20, res) {
+service.list = function list(status, currentStep, page = 1, pageSize = 20, res) {
   const param = { page, pageSize };
 
-  if(status) {
+  if (status) {
     param.status = status;
   }
 
-  if(currentStep) {
+  if (currentStep) {
     param.currentStep = currentStep;
   }
 
@@ -107,29 +106,29 @@ service.list = function list(status, currentStep, page=1, pageSize=20, res) {
 
 service.listChildTask = function listChildTask(parentId, res) {
   if (!parentId) {
-    return res.end(JSON.stringify({ status: 1, data: {}, statusInfo: i18n.t('childTaskParentIdIsNull')}));
+    return res.end(JSON.stringify({ status: 1, data: {}, statusInfo: i18n.t('childTaskParentIdIsNull') }));
   }
 
   getData('/TranscodingTask/listChild', { id: parentId }, res);
 };
 
 const execCommand = function execCommand(command, parentTaskId, taskId, type, res) {
-  if(parentTaskId) {
-    getData('/TranscodingTask/' + command, { taskId: parentTaskId }, res);
+  if (parentTaskId) {
+    getData(`/TranscodingTask/${command}`, { taskId: parentTaskId }, res);
     return false;
   }
 
-  if(!taskId) {
-    return res.end(JSON.stringify({ status: 1, data: {}, statusInfo: i18n.t('childTaskIdIsNotExist')}));
+  if (!taskId) {
+    return res.end(JSON.stringify({ status: 1, data: {}, statusInfo: i18n.t('childTaskIdIsNotExist') }));
   }
 
   const cfg = TASK_CONFIG[type];
 
-  if(!cfg) {
-    return res.end(JSON.stringify({ status: 1, data: {}, statusInfo: i18n.t('taskTypeIsNotExist')}));
+  if (!cfg) {
+    return res.end(JSON.stringify({ status: 1, data: {}, statusInfo: i18n.t('taskTypeIsNotExist') }));
   }
 
-  getData(cfg[command], { taskId: taskId }, res);
+  getData(cfg[command], { taskId }, res);
 };
 
 service.restart = function restart(parentTaskId, taskId, type, res) {

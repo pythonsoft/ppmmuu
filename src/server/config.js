@@ -35,7 +35,7 @@ config.engineCenter = {
 
 config.TRANSCODE_API_SERVER = {
   hostname: '10.0.15.57',
-  port: 8080
+  port: 8080,
 };
 
 const init = function init() {
