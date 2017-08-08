@@ -402,6 +402,7 @@ service.updateEngineConfiguration = function updateEngineConfiguration(id, confi
           const d = JSON.parse(configurations[i].value);
           j[configurations[i].key] = d;
         } catch (e) {
+          console.log('error while parsing', e);
           j[configurations[i].key] = configurations[i].value;
         }
       }
@@ -453,10 +454,12 @@ service.listAction = function listAction(ip, configProcessName, cb) {
   // processId or process name from config
   sc.socket.emit('action', { ip, action: 'getActions', process: configProcessName }, (err, result) => {
     const res = [];
-    Object.keys(result).forEach((k) => {
-      result[k].name = k;
-      res.push(result[k]);
-    });
+    if (result) {
+      Object.keys(result).forEach((k) => {
+        result[k].name = k;
+        res.push(result[k]);
+      });
+    }
     return cb && cb(err ? i18n.t('ActionFailed') : null, err || res);
   });
 };
