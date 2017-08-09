@@ -26,9 +26,13 @@ const service = {};
 /* bucket */
 service.listBucket = function listBucket(keyword, status, page, pageSize, sortFields, fieldsNeed, cb) {
   const q = {};
+  status = status === '-1' ? '' : status;
 
   if (keyword) {
-    q.name = { $regex: keyword, $options: 'i' };
+    q.$or = [
+      { name: { $regex: keyword, $options: 'i' } },
+      { _id: { $regex: keyword, $options: 'i' } },
+    ]
   }
 
   if (status) {
@@ -91,6 +95,29 @@ service.updateBucket = function updateBucket(id, info = {}, cb) {
   info.modifyTime = new Date();
 
   bucketInfo.findOneAndUpdate({ _id: id }, { $set: info }, { projection: { _id: 1 } }, (err, r) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if (!r.value || utils.isEmptyObject(r.value)) {
+      return cb && cb(i18n.t('bucketInfoIsNull'));
+    }
+
+    return cb && cb(null, r.value);
+  });
+};
+
+service.enableBucket = function enableBucket(id, info = {}, cb) {
+  const updateInfo = {};
+  if (!id) {
+    return cb && cb(i18n.t('bucketIdIsNull'));
+  }
+
+  updateInfo.modifyTime = new Date();
+  updateInfo.status = info.status;
+
+  bucketInfo.findOneAndUpdate({ _id: id }, { $set: updateInfo }, { projection: { _id: 1 } }, (err, r) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -235,6 +262,29 @@ service.updatePath = function updatePath(pathId, info = {}, cb) {
   });
 };
 
+service.enablePath = function enablePath(id, info = {}, cb) {
+  const updateInfo = {};
+  if (!id) {
+    return cb && cb(i18n.t('pathIdIsNull'));
+  }
+
+  updateInfo.modifyTime = new Date();
+  updateInfo.status = info.status;
+
+  pathInfo.findOneAndUpdate({ _id: id }, { $set: updateInfo }, { projection: { _id: 1 } }, (err, r) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if (!r.value || utils.isEmptyObject(r.value)) {
+      return cb && cb(i18n.t('pathInfoIsNull'));
+    }
+
+    return cb && cb(null, r.value);
+  });
+};
+
 service.deletePath = function deletePath(pathId, cb) {
   if (!pathId) {
     return cb && cb(i18n.t('pathIdIsNull'));
@@ -292,7 +342,7 @@ service.getTacticsDetail = function getTacticsDetail(tacticsId, cb) {
   });
 };
 
-service.addTactics = function addTactics(creatorId, creatorName, info = {}, cb) {
+service.addTactics = function addTactics(info = {}, cb) {
   if (!info.source || info.source._id) {
     return cb && cb(i18n.t('sourceIdIsNull'));
   }
@@ -315,8 +365,6 @@ service.addTactics = function addTactics(creatorId, creatorName, info = {}, cb) 
     col = pathInfo;
     sourceTypeName = 'path';
   }
-
-  info.creator = { _id: creatorId, name: creatorName };
 
   col.collection.findOne({ _id: info.source._id }, { fields: { _id: 1, name: 1 } }, (err, doc) => {
     if (err) {
@@ -359,6 +407,29 @@ service.updateTactics = function updateTactics(tacticsId, info = {}, cb) {
     }
 
     return cb && cb(null, r);
+  });
+};
+
+service.enableTactics = function enableTactics(id, info = {}, cb) {
+  const updateInfo = {};
+  if (!id) {
+    return cb && cb(i18n.t('tacticsIdIsNull'));
+  }
+
+  updateInfo.modifyTime = new Date();
+  updateInfo.status = info.status;
+
+  tacticsInfo.findOneAndUpdate({ _id: id }, { $set: updateInfo }, { projection: { _id: 1 } }, (err, r) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if (!r.value || utils.isEmptyObject(r.value)) {
+      return cb && cb(i18n.t('tacticsInfoIsNull'));
+    }
+
+    return cb && cb(null, r.value);
   });
 };
 

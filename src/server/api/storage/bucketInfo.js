@@ -4,6 +4,7 @@
 
 'use strict';
 
+const uuid = require('uuid');
 const DB = require('../../common/db');
 const config = require('../../config');
 const utils = require('../../common/utils');
@@ -35,8 +36,8 @@ class BucketInfo extends DB {
   constructor() {
     super(config.dbInstance.umpDB, 'BucketInfo');
 
-    this.doc = {
-      _id: { type: 'string' },
+    this.struct = {
+      _id: { type: 'string', default() { return uuid.v1(); }, validation: 'require' },
       name: { type: 'string', validation: 'require' },
       type: { type: 'string', default: BucketInfo.TYPE.STANDARD, validation: v => utils.isValueInObject(v, BucketInfo.TYPE) },
       permission: { type: 'string', default: BucketInfo.PERMISSION.PUBLIC_READ_WRITE, validation: v => utils.isValueInObject(v, BucketInfo.PERMISSION) },

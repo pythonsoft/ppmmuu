@@ -88,7 +88,7 @@ class DB {
     for (const k in struct) {
       temp = struct[k];
 
-      if (typeof info[k] !== 'undefined' && k !== '_id') {
+      if (typeof info[k] !== 'undefined') {
         doc[k] = info[k];
       } else {
         defaultType = getValueType(temp.default);
