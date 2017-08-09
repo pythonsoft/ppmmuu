@@ -410,18 +410,18 @@ service.listProcess = function listProcess(ip, cb) {
   }
 
   // todo
-  const docs = [
-    { pid: '8856', status: '运行中', name: '/System/Library/PrivateFrameworks/MobileDevice.framework/Versions/A/Resources/usbmuxd -launchd', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
-    { pid: '14044', status: '运行中', name: '/System/Library/PrivateFrameworks/GenerationalStorage.framework/Versions/A/Support/revisiond', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
-    { pid: '29584', status: '运行中', name: '/System/Library/PrivateFrameworks/ApplePushService.framework/apsd', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
-    { pid: '95332', status: '运行中', name: '/System/Library/CoreServices/loginwindow.app/Contents/MacOS/loginwindow console', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
-    { pid: '11060', status: '运行中', name: '/System/Library/CoreServices/coreservices', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
-    { pid: '25000', status: '运行中', name: '/System/Library/Frameworks/CoreMediaIO.framework/Resources/VDC.plugin/Contents/Resources/VDCAssistant', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
-    { pid: '11848', status: '运行中', name: '/System/Library/Frameworks/CoreTelephony.framework/Support/CommCenter -L', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
-    { pid: '14044', status: '运行中', name: '/System/Library/PrivateFrameworks/GenerationalStorage.framework/Versions/A/Support/revisiond', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
-    { pid: '25860', status: '运行中', name: '/usr/libexec/locationd', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
-    { pid: '47192', status: '运行中', name: '/usr/libexec/coreduetd', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
-  ];
+  // const docs = [
+  //   { pid: '8856', status: '运行中', name: '/System/Library/PrivateFrameworks/MobileDevice.framework/Versions/A/Resources/usbmuxd -launchd', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
+  //   { pid: '14044', status: '运行中', name: '/System/Library/PrivateFrameworks/GenerationalStorage.framework/Versions/A/Support/revisiond', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
+  //   { pid: '29584', status: '运行中', name: '/System/Library/PrivateFrameworks/ApplePushService.framework/apsd', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
+  //   { pid: '95332', status: '运行中', name: '/System/Library/CoreServices/loginwindow.app/Contents/MacOS/loginwindow console', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
+  //   { pid: '11060', status: '运行中', name: '/System/Library/CoreServices/coreservices', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
+  //   { pid: '25000', status: '运行中', name: '/System/Library/Frameworks/CoreMediaIO.framework/Resources/VDC.plugin/Contents/Resources/VDCAssistant', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
+  //   { pid: '11848', status: '运行中', name: '/System/Library/Frameworks/CoreTelephony.framework/Support/CommCenter -L', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
+  //   { pid: '14044', status: '运行中', name: '/System/Library/PrivateFrameworks/GenerationalStorage.framework/Versions/A/Support/revisiond', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
+  //   { pid: '25860', status: '运行中', name: '/usr/libexec/locationd', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
+  //   { pid: '47192', status: '运行中', name: '/usr/libexec/coreduetd', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
+  // ];
 
   sc.socket.emit('action', { ip, action: 'ps', name: 'web', process: '' }, (err, result) => cb && cb(err ? i18n.t('listProcessFailed') : null, err || result));
 };
@@ -473,10 +473,7 @@ service.installMonitor = function installMonitor(ip, username = 'root', password
     return cb && cb(i18n.t('engineIpCanNotBeNull'));
   }
 
-  sc.socket.emit('setup', { username, host: ip, password }, (err, stdout, stderr) => {
-    console.log('setup ---->', err, stdout);
-    return cb && cb(stdout === true ? null : i18n.t('setupFailed'), stderr);
-  });
+  sc.socket.emit('setup', { username, host: ip, password }, (err, stdout, stderr) => cb && cb(stdout === true ? null : i18n.t('setupFailed'), stderr));
 };
 
 module.exports = service;
