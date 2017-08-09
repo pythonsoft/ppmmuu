@@ -343,11 +343,11 @@ service.getTacticsDetail = function getTacticsDetail(tacticsId, cb) {
 };
 
 service.addTactics = function addTactics(info = {}, cb) {
-  if (!info.source || info.source._id) {
+  if (!info.source || !info.source._id) {
     return cb && cb(i18n.t('sourceIdIsNull'));
   }
 
-  if (!info.source || info.source.type) {
+  if (!info.source || !info.source.type) {
     return cb && cb(i18n.t('sourceTypeIsNull'));
   }
 
@@ -400,7 +400,7 @@ service.updateTactics = function updateTactics(tacticsId, info = {}, cb) {
 
   info.modifyTime = new Date();
 
-  tacticsInfo.updateOne({ _id: tacticsId }, info, (err, r) => {
+  tacticsInfo.updateOne({ _id: tacticsId },info, (err, r) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));

@@ -875,7 +875,7 @@ router.post('/addTactics', (req, res) => {
  *
  */
 router.post('/updateTactics', (req, res) => {
-  service.updatePath(req.body._id, req.body, (err) => {
+  service.updateTactics(req.body._id, req.body, (err) => {
     res.json(result.json(err, {}));
   });
 });

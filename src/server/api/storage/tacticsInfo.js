@@ -79,8 +79,8 @@ class TacticsInfo extends DB {
       script: { type: 'string' },
       priority: { type: 'string', default: TacticsInfo.PRIORITY.NORMAL, validation: v => utils.isValueInObject(v, TacticsInfo.PRIORITY) }, // less is high
       triggerType: { type: 'string', default: TacticsInfo.TRIGGER_TYPE.LINE, validation: v => utils.isValueInObject(v, TacticsInfo.TRIGGER_TYPE) },
-      scheduleType: { type: 'string', default: TacticsInfo.SCHEDULE_TYPE.EVERY_MONTH, validation: v => utils.isValueInObject(v, TacticsInfo.EVERY_MONTH) },
-      scheduleTime: { type: 'string', validation: v => /[0-9]{4}-[0-9]{2}-[0-9]{2}[\s][0-9]{2}:[0-9]{2}:[0-9]{2}/.test(v) },
+      scheduleType: { type: 'string', default: TacticsInfo.SCHEDULE_TYPE.EVERY_MONTH, validation: v => utils.isValueInObject(v, TacticsInfo.SCHEDULE_TYPE) },
+      scheduleTime: { type: 'string',},
       orderBy: { type: 'string', default: TacticsInfo.ORDER_BY.CREATE_TIME, validation: v => utils.isValueInObject(v, TacticsInfo.ORDER_BY) },
       itemCount: { type: 'number', default: 10 }, // 每次提交对象数
       frequency: { type: 'number', default: 60 }, // 提交频率(秒)
