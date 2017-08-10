@@ -32,7 +32,7 @@ service.listBucket = function listBucket(keyword, status, page, pageSize, sortFi
     q.$or = [
       { name: { $regex: keyword, $options: 'i' } },
       { _id: { $regex: keyword, $options: 'i' } },
-    ]
+    ];
   }
 
   if (status) {
@@ -419,7 +419,7 @@ service.updateTactics = function updateTactics(tacticsId, info = {}, cb) {
 
   info.modifyTime = new Date();
 
-  tacticsInfo.updateOne({ _id: tacticsId },info, (err, r) => {
+  tacticsInfo.updateOne({ _id: tacticsId }, info, (err, r) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));

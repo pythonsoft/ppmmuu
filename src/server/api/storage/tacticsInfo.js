@@ -80,7 +80,7 @@ class TacticsInfo extends DB {
       priority: { type: 'string', default: TacticsInfo.PRIORITY.NORMAL, validation: v => utils.isValueInObject(v, TacticsInfo.PRIORITY) }, // less is high
       triggerType: { type: 'string', default: TacticsInfo.TRIGGER_TYPE.LINE, validation: v => utils.isValueInObject(v, TacticsInfo.TRIGGER_TYPE) },
       scheduleType: { type: 'string', default: TacticsInfo.SCHEDULE_TYPE.EVERY_MONTH, validation: v => utils.isValueInObject(v, TacticsInfo.SCHEDULE_TYPE) },
-      scheduleTime: { type: 'string',},
+      scheduleTime: { type: 'string' },
       orderBy: { type: 'string', default: TacticsInfo.ORDER_BY.CREATE_TIME, validation: v => utils.isValueInObject(v, TacticsInfo.ORDER_BY) },
       itemCount: { type: 'number', default: 10 }, // 每次提交对象数
       frequency: { type: 'number', default: 60 }, // 提交频率(秒)
