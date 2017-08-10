@@ -370,12 +370,14 @@ router.post('/deleteBucket', (req, res) => {
  */
 router.get('/listPath', (req, res) => {
   const bucketId = req.query.bucketId || '';
+  const status = req.query.status || '';
+  const keyword = req.query.keyword || '';
   const page = req.query.page || 1;
   const pageSize = req.query.pageSize;
   const sortFields = req.query.sortFields || '-createdTime';
   const fieldsNeed = req.query.fieldsNeed;
 
-  service.listPath(bucketId, page, pageSize, sortFields, fieldsNeed, (err, docs) => {
+  service.listPath(bucketId, status, keyword, page, pageSize, sortFields, fieldsNeed, (err, docs) => {
     res.json(result.json(err, docs));
   });
 });
@@ -707,12 +709,13 @@ router.post('/deletePath', (req, res) => {
 router.get('/listTactics', (req, res) => {
   const sourceId = req.query.sourceId || '';
   const status = req.query.status || '';
+  const keyword = req.query.keyword || '';
   const page = req.query.page || 1;
   const pageSize = req.query.pageSize;
   const sortFields = req.query.sortFields || '-createdTime';
   const fieldsNeed = req.query.fieldsNeed;
 
-  service.listTactics(sourceId, status, page, pageSize, sortFields, fieldsNeed, (err, docs) => {
+  service.listTactics(sourceId, status, keyword, page, pageSize, sortFields, fieldsNeed, (err, docs) => {
     res.json(result.json(err, docs));
   });
 });

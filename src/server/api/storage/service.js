@@ -177,14 +177,27 @@ service.deleteBucket = function deleteBucket(id, cb) {
 
 /* path */
 
-service.listPath = function listPath(bucketId, page, pageSize, sortFields, fieldsNeed, cb) {
+service.listPath = function listPath(bucketId, status, keyword, page, pageSize, sortFields, fieldsNeed, cb) {
   const q = {};
+  status = status === '-1' ? '' : status;
 
   if (bucketId) {
     if (bucketId.indexOf(',')) {
       q['bucket._id'] = { $in: utils.trim(bucketId.split(',')) };
     } else {
       q['bucket._id'] = bucketId;
+    }
+  }
+
+  if (keyword) {
+    q.name = { $regex: keyword, $options: 'i' };
+  }
+
+  if (status) {
+    if (status.indexOf(',')) {
+      q.status = { $in: utils.trim(status.split(',')) };
+    } else {
+      q.status = status;
     }
   }
 
@@ -302,8 +315,9 @@ service.deletePath = function deletePath(pathId, cb) {
 
 /* tactics */
 
-service.listTactics = function listTactics(sourceId, status, page, pageSize, sortFields, fieldsNeed, cb) {
+service.listTactics = function listTactics(sourceId, status, keyword, page, pageSize, sortFields, fieldsNeed, cb) {
   const q = {};
+  status = status === '-1' ? '' : status;
 
   if (sourceId) {
     if (sourceId.indexOf(',')) {
@@ -316,6 +330,11 @@ service.listTactics = function listTactics(sourceId, status, page, pageSize, sor
   if (status) {
     q.status = status;
   }
+
+  if (keyword) {
+    q.name = { $regex: keyword, $options: 'i' };
+  }
+
 
   tacticsInfo.pagination(q, page, pageSize, (err, docs) => {
     if (err) {
@@ -361,7 +380,7 @@ service.addTactics = function addTactics(info = {}, cb) {
   if (info.source.type === TacticsInfo.SOURCE_TYPE.BUCKET) {
     col = bucketInfo;
     sourceTypeName = 'bucket';
-  } else if (info.source.type === TacticsInfo.SOURCE_TYPE.BUCKET) {
+  } else if (info.source.type === TacticsInfo.SOURCE_TYPE.PATH) {
     col = pathInfo;
     sourceTypeName = 'path';
   }
