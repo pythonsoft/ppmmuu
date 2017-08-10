@@ -221,7 +221,6 @@ router.get('/getSearchConfig', (req, res) => {
  */
 router.get('/getIcon', (req, res) => service.getIcon(req.query, res));
 
-
 /**
  * @apiName: getObject
  * @apiFuncType: get
@@ -259,6 +258,8 @@ router.get('/getIcon', (req, res) => service.getIcon(req.query, res));
  *                  type: string
  *
  */
-router.get('/getObject', (req, res) => service.getObject(req.query, res));
+router.get('/getObject', (req, res) => {
+  service.getObject(req.query, (err, rs) => res.json(result.json(err, rs)));
+});
 
 module.exports = router;
