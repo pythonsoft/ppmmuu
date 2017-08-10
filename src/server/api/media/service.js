@@ -73,7 +73,6 @@ service.solrSearch = function solorSearch(info, cb) {
 
 service.getSearchConfig = function getSearchConfig(cb) {
   configurationInfo.collection.find({ key: { $in: ['category', 'duration'] } }, { fields: { key: 1, value: 1 } }).toArray((err, docs) => {
-
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -131,12 +130,12 @@ service.getObject = function getObject(info, cb) {
   };
 
   request(options, (error, response) => {
-    if(error) {
+    if (error) {
       logger.error(error);
       return cb(i18n.t('getObjectError', { error }));
     }
 
-    if(response.statusCode !== 200) {
+    if (response.statusCode !== 200) {
       logger.error(response.body);
       return cb(i18n.t('getObjectFailed'));
     }
@@ -152,8 +151,7 @@ service.getObject = function getObject(info, cb) {
       }
     }
 
-    return cb (null, rs);
-
+    return cb(null, rs);
   });
 };
 

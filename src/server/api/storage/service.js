@@ -26,9 +26,13 @@ const service = {};
 /* bucket */
 service.listBucket = function listBucket(keyword, status, page, pageSize, sortFields, fieldsNeed, cb) {
   const q = {};
+  status = status === '-1' ? '' : status;
 
   if (keyword) {
-    q.name = { $regex: keyword, $options: 'i' };
+    q.$or = [
+      { name: { $regex: keyword, $options: 'i' } },
+      { _id: { $regex: keyword, $options: 'i' } },
+    ];
   }
 
   if (status) {
@@ -104,6 +108,29 @@ service.updateBucket = function updateBucket(id, info = {}, cb) {
   });
 };
 
+service.enableBucket = function enableBucket(id, info = {}, cb) {
+  const updateInfo = {};
+  if (!id) {
+    return cb && cb(i18n.t('bucketIdIsNull'));
+  }
+
+  updateInfo.modifyTime = new Date();
+  updateInfo.status = info.status;
+
+  bucketInfo.findOneAndUpdate({ _id: id }, { $set: updateInfo }, { projection: { _id: 1 } }, (err, r) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if (!r.value || utils.isEmptyObject(r.value)) {
+      return cb && cb(i18n.t('bucketInfoIsNull'));
+    }
+
+    return cb && cb(null, r.value);
+  });
+};
+
 service.deleteBucket = function deleteBucket(id, cb) {
   if (!id) {
     return cb && cb(i18n.t('deleteRoleNoIds'));
@@ -150,14 +177,27 @@ service.deleteBucket = function deleteBucket(id, cb) {
 
 /* path */
 
-service.listPath = function listPath(bucketId, page, pageSize, sortFields, fieldsNeed, cb) {
+service.listPath = function listPath(bucketId, status, keyword, page, pageSize, sortFields, fieldsNeed, cb) {
   const q = {};
+  status = status === '-1' ? '' : status;
 
   if (bucketId) {
     if (bucketId.indexOf(',')) {
       q['bucket._id'] = { $in: utils.trim(bucketId.split(',')) };
     } else {
       q['bucket._id'] = bucketId;
+    }
+  }
+
+  if (keyword) {
+    q.name = { $regex: keyword, $options: 'i' };
+  }
+
+  if (status) {
+    if (status.indexOf(',')) {
+      q.status = { $in: utils.trim(status.split(',')) };
+    } else {
+      q.status = status;
     }
   }
 
@@ -235,6 +275,29 @@ service.updatePath = function updatePath(pathId, info = {}, cb) {
   });
 };
 
+service.enablePath = function enablePath(id, info = {}, cb) {
+  const updateInfo = {};
+  if (!id) {
+    return cb && cb(i18n.t('pathIdIsNull'));
+  }
+
+  updateInfo.modifyTime = new Date();
+  updateInfo.status = info.status;
+
+  pathInfo.findOneAndUpdate({ _id: id }, { $set: updateInfo }, { projection: { _id: 1 } }, (err, r) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if (!r.value || utils.isEmptyObject(r.value)) {
+      return cb && cb(i18n.t('pathInfoIsNull'));
+    }
+
+    return cb && cb(null, r.value);
+  });
+};
+
 service.deletePath = function deletePath(pathId, cb) {
   if (!pathId) {
     return cb && cb(i18n.t('pathIdIsNull'));
@@ -252,8 +315,9 @@ service.deletePath = function deletePath(pathId, cb) {
 
 /* tactics */
 
-service.listTactics = function listTactics(sourceId, status, page, pageSize, sortFields, fieldsNeed, cb) {
+service.listTactics = function listTactics(sourceId, status, keyword, page, pageSize, sortFields, fieldsNeed, cb) {
   const q = {};
+  status = status === '-1' ? '' : status;
 
   if (sourceId) {
     if (sourceId.indexOf(',')) {
@@ -266,6 +330,11 @@ service.listTactics = function listTactics(sourceId, status, page, pageSize, sor
   if (status) {
     q.status = status;
   }
+
+  if (keyword) {
+    q.name = { $regex: keyword, $options: 'i' };
+  }
+
 
   tacticsInfo.pagination(q, page, pageSize, (err, docs) => {
     if (err) {
@@ -292,12 +361,12 @@ service.getTacticsDetail = function getTacticsDetail(tacticsId, cb) {
   });
 };
 
-service.addTactics = function addTactics(creatorId, creatorName, info = {}, cb) {
-  if (!info.source || info.source._id) {
+service.addTactics = function addTactics(info = {}, cb) {
+  if (!info.source || !info.source._id) {
     return cb && cb(i18n.t('sourceIdIsNull'));
   }
 
-  if (!info.source || info.source.type) {
+  if (!info.source || !info.source.type) {
     return cb && cb(i18n.t('sourceTypeIsNull'));
   }
 
@@ -311,12 +380,10 @@ service.addTactics = function addTactics(creatorId, creatorName, info = {}, cb) 
   if (info.source.type === TacticsInfo.SOURCE_TYPE.BUCKET) {
     col = bucketInfo;
     sourceTypeName = 'bucket';
-  } else if (info.source.type === TacticsInfo.SOURCE_TYPE.BUCKET) {
+  } else if (info.source.type === TacticsInfo.SOURCE_TYPE.PATH) {
     col = pathInfo;
     sourceTypeName = 'path';
   }
-
-  info.creator = { _id: creatorId, name: creatorName };
 
   col.collection.findOne({ _id: info.source._id }, { fields: { _id: 1, name: 1 } }, (err, doc) => {
     if (err) {
@@ -359,6 +426,29 @@ service.updateTactics = function updateTactics(tacticsId, info = {}, cb) {
     }
 
     return cb && cb(null, r);
+  });
+};
+
+service.enableTactics = function enableTactics(id, info = {}, cb) {
+  const updateInfo = {};
+  if (!id) {
+    return cb && cb(i18n.t('tacticsIdIsNull'));
+  }
+
+  updateInfo.modifyTime = new Date();
+  updateInfo.status = info.status;
+
+  tacticsInfo.findOneAndUpdate({ _id: id }, { $set: updateInfo }, { projection: { _id: 1 } }, (err, r) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if (!r.value || utils.isEmptyObject(r.value)) {
+      return cb && cb(i18n.t('tacticsInfoIsNull'));
+    }
+
+    return cb && cb(null, r.value);
   });
 };
 
