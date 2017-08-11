@@ -56,8 +56,8 @@ class PathInfo extends DB {
   constructor() {
     super(config.dbInstance.umpDB, 'PathInfo');
 
-    this.doc = {
-      _id: { type: 'string', default() { return uuid.v1(); } },
+    this.struct = {
+      _id: { type: 'string', default() { return uuid.v1(); }, validation: 'require' },
       name: { type: 'string', validation: 'require' },
       path: { type: 'string', validation: 'require' },
       bucket: { type: 'object', default: { _id: '', name: '' }, validation: 'require' },
