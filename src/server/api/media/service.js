@@ -9,7 +9,6 @@ const i18n = require('i18next');
 const utils = require('../../common/utils');
 const config = require('../../config');
 const request = require('request');
-const result = require('../../common/result');
 const fieldConfig = require('./fieldConfig');
 const ConfigurationInfo = require('../configuration/configurationInfo');
 
@@ -42,13 +41,13 @@ service.solrSearch = function solorSearch(info, cb) {
   request(options, (error, response) => {
     if (!error && response.statusCode === 200) {
       const rs = JSON.parse(response.body);
-      let result = {};
+      let r = {};
       if (rs.response) {
         const highlighting = rs.highlighting || {};
-        result.QTime = rs.responseHeader ? rs.responseHeader.QTime : (new Date().getTime() - t1);
-        result = Object.assign(result, rs.response);
+        r.QTime = rs.responseHeader ? rs.responseHeader.QTime : (new Date().getTime() - t1);
+        r = Object.assign(r, rs.response);
         if (!utils.isEmptyObject(highlighting)) {
-          const docs = result.docs;
+          const docs = r.docs;
           for (let i = 0, len = docs.length; i < len; i++) {
             const doc = docs[i];
             const hl = highlighting[doc.id];
@@ -59,7 +58,7 @@ service.solrSearch = function solorSearch(info, cb) {
             }
           }
         }
-        return cb && cb(null, result);
+        return cb && cb(null, r);
       }
       return cb && cb(i18n.t('solrSearchError', { error: rs.error.msg }));
     } else if (error) {

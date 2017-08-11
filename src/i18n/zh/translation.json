@@ -329,7 +329,7 @@
   },
   "solrSearchFailed": {
     "code": "-13001",
-    "message": "solr搜索失败"
+    "message": "搜索失败"
   },
   "solrSearchError": {
     "code": "-13002",
