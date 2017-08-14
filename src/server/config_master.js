@@ -5,7 +5,7 @@
 'use strict';
 
 /* eslint-disable no-undef */
-config.host = '80';
+config.host = 'localhost:8080';
 config.domain = `http://${config.host}`;
 config.mongodb = {
   umpURL: 'mongodb://10.0.15.62:27017/ump_v1',
