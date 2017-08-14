@@ -194,11 +194,13 @@ router.get('/detail', (req, res) => {
  *
  */
 router.post('/logout', (req, res) => {
+  console.log("hello");
   const _id = req.ex.userInfo._id;
   service.logout(_id, res, (err, data) => res.json(result.json(err, data)));
 });
 
 router.get('/logout', (req, res) => {
+  console.log("hello");
   const _id = req.ex.userInfo._id;
   service.logout(_id, res, (err, data) => res.json(result.json(err, data)));
 });
