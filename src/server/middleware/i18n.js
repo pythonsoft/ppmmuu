@@ -4,7 +4,6 @@
 const i18n = require('i18next');
 const i18nMiddleware = require('i18next-express-middleware');
 const i18nFsBackend = require('i18next-node-fs-backend');
-const path = require('path');
 const en = require('../../i18n/en/translation');
 const zh = require('../../i18n/zh/translation');
 
@@ -17,11 +16,11 @@ i18n
     returnObjects: true,
     resources: {
       en: {
-        translation: en
+        translation: en,
       },
       zh: {
-        translation: zh
-      }
+        translation: zh,
+      },
     },
     ns: ['translation'],
     fallbackNS: 'translation',
