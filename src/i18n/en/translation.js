@@ -1,4 +1,4 @@
-{
+module.exports = {
   "usernameOrPasswordIsWrong": {
     "code": "-1001",
     "message": "username or password is wrong"
