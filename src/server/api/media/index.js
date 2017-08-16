@@ -11,7 +11,7 @@ const result = require('../../common/result');
 const service = require('./service');
 const isLogin = require('../../middleware/login');
 
-router.use(isLogin.middleware);
+//router.use(isLogin.middleware);
 
 /**
  * @apiName: solrSearch
@@ -150,6 +150,49 @@ router.use(isLogin.middleware);
  */
 router.get('/solrSearch', (req, res) => {
   service.solrSearch(req.query, (err, doc) => res.json(result.json(err, doc)));
+});
+
+/**
+ * 用于mobile
+ * @apiName: getMediaList
+ * @apiFuncType: get
+ * @apiFuncUrl: /media/getMediaList
+ * @swagger
+ * /media/getMediaList:
+ *   get:
+ *     description: 获取媒体库手机版首页
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - Search
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: pageSize
+ *         description: "每个分类个数"
+ *         required: true
+ *         type: string
+ *         default: 4
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *
+ */
+router.get('/getMediaList', (req, res) => {
+  service.getMediaList(req.query, (err, doc) => res.json(result.json(err, doc)));
 });
 
 /**
