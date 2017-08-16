@@ -72,7 +72,7 @@ service.solrSearch = function solorSearch(info, cb) {
 
 service.getMediaList = function getMediaList(info, cb) {
   const pageSize = info.pageSize || 4;
-  const result = {};
+  const result = [];
 
   const loopGetCategoryList = function loopGetCategoryList(categories, index) {
     if( index >= categories.length){
@@ -81,7 +81,7 @@ service.getMediaList = function getMediaList(info, cb) {
     const category = categories[index];
     const query = {
       q: 'program_type:' + category,
-      fl: 'id,duration,name,ccid,program_type,program_name_cn,hd_flag,program_name_en,last_modify,f_str_03',
+      fl: 'id,duration,name,ccid,program_type,program_name_cn,hd_flag,program_name_en,last_modify',
       sort: 'last_modify desc',
       start: 0,
       rows: pageSize
@@ -90,7 +90,7 @@ service.getMediaList = function getMediaList(info, cb) {
       if(err){
         return cb && cb(err);
       }
-      result[category] = r.docs;
+      result.push({ category: category, items: r.docs});
       loopGetCategoryList(categories, index + 1);
     })
   }
