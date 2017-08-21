@@ -70,6 +70,46 @@ service.solrSearch = function solorSearch(info, cb) {
   });
 };
 
+service.getMediaList = function getMediaList(info, cb) {
+  const pageSize = info.pageSize || 4;
+  const result = {};
+
+  const loopGetCategoryList = function loopGetCategoryList(categories, index) {
+    if( index >= categories.length){
+      return cb && cb(null, result)
+    }
+    const category = categories[index];
+    const query = {
+      q: 'program_type:' + category,
+      fl: 'id,duration,name,ccid,program_type,program_name_cn,hd_flag,program_name_en,last_modify,f_str_03',
+      sort: 'last_modify desc',
+      start: 0,
+      rows: pageSize
+    };
+    service.solrSearch(query, function(err, r){
+      if(err){
+        return cb && cb(err);
+      }
+      result[category] = r.docs;
+      loopGetCategoryList(categories, index + 1);
+    })
+  }
+
+  service.getSearchConfig(function(err, rs){
+    if(err){
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    const categories = rs.category;
+
+    if(!categories.length){
+      return cb & cb (null, result);
+    }
+
+    loopGetCategoryList(categories, 0);
+  })
+}
+
 service.getSearchConfig = function getSearchConfig(cb) {
   configurationInfo.collection.find({ key: { $in: ['category', 'duration'] } }, { fields: { key: 1, value: 1 } }).toArray((err, docs) => {
     if (err) {
@@ -144,9 +184,23 @@ service.getObject = function getObject(info, cb) {
 
     if (rs.result.detail && rs.result.detail.program) {
       const program = rs.result.detail.program;
+      const files = rs.result.files;
 
       for (const key in program) {
-        program[key] = { value: program[key], cn: fieldConfig[key] ? fieldConfig[key].cn : '' };
+        if(program[key] === '' || program[key] === null){
+          delete program[key];
+        }else {
+          program[key] = {value: program[key], cn: fieldConfig[key] ? fieldConfig[key].cn : ''};
+        }
+      }
+
+      for( let i = 0, len = files.length; i < len; i++){
+        const file = files[i];
+        for( const k in file){
+          if(file[k] === null || file[k] === ''){
+            delete file[k];
+          }
+        }
       }
     }
 
