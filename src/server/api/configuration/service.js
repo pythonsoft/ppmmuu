@@ -49,7 +49,7 @@ service.updateConfigGroup = function updateConfigGroup(id, o = {}, cb) {
   if (o.children) {
     o.children = [...new Set(o.children.split(','))];
   }
-  configurationInfo.updateOne({ _id: id }, o, (err, r) => {
+  configurationGroupInfo.updateOne({ _id: id }, o, (err, r) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -103,7 +103,7 @@ service.listConfigGroup = function listConfigGroup(parent, type = 'plain', cb) {
     if (type === 'plain') {
       docs.forEach((o) => {
         o.id = o._id;
-        delete o._id;
+        o.patentId = o.parent;
       });
     }
 
@@ -210,6 +210,7 @@ service.deleteConfig = function deleteConfig(id, cb) {
   if (!id) {
     return cb && cb(i18n.t('validateError', { param: 'id' }));
   }
+  console.log('_id===>', id);
   configurationInfo.collection.deleteOne({ _id: id }, (err, r) => {
     if (err) {
       logger.error(err.message);
