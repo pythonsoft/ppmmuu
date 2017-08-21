@@ -5,6 +5,7 @@
 'use strict';
 
 const fs = require('fs');
+const ffmpeg = require('fluent-ffmpeg');
 const mergeStream = require('merge2');
 const logger = require('../../common/log')('error');
 const i18n = require('i18next');
@@ -77,40 +78,40 @@ service.getMediaList = function getMediaList(info, cb) {
   const result = [];
 
   const loopGetCategoryList = function loopGetCategoryList(categories, index) {
-    if( index >= categories.length){
-      return cb && cb(null, result)
+    if (index >= categories.length) {
+      return cb && cb(null, result);
     }
     const category = categories[index];
     const query = {
-      q: 'program_type:' + category,
+      q: `program_type:${category}`,
       fl: 'id,duration,name,ccid,program_type,program_name_cn,hd_flag,program_name_en,last_modify',
       sort: 'last_modify desc',
       start: 0,
-      rows: pageSize
+      rows: pageSize,
     };
-    service.solrSearch(query, function(err, r){
-      if(err){
+    service.solrSearch(query, (err, r) => {
+      if (err) {
         return cb && cb(err);
       }
-      result.push({ category: category, items: r.docs});
+      result.push({ category, items: r.docs });
       loopGetCategoryList(categories, index + 1);
-    })
-  }
+    });
+  };
 
-  service.getSearchConfig(function(err, rs){
-    if(err){
+  service.getSearchConfig((err, rs) => {
+    if (err) {
       return cb && cb(i18n.t('databaseError'));
     }
 
     const categories = rs.category;
 
-    if(!categories.length){
-      return cb & cb (null, result);
+    if (!categories.length) {
+      return cb & cb(null, result);
     }
 
     loopGetCategoryList(categories, 0);
-  })
-}
+  });
+};
 
 service.getSearchConfig = function getSearchConfig(cb) {
   configurationInfo.collection.find({ key: { $in: ['category', 'duration'] } }, { fields: { key: 1, value: 1 } }).toArray((err, docs) => {
@@ -189,17 +190,17 @@ service.getObject = function getObject(info, cb) {
       const files = rs.result.files;
 
       for (const key in program) {
-        if(program[key] === '' || program[key] === null){
+        if (program[key] === '' || program[key] === null) {
           delete program[key];
-        }else {
-          program[key] = {value: program[key], cn: fieldConfig[key] ? fieldConfig[key].cn : ''};
+        } else {
+          program[key] = { value: program[key], cn: fieldConfig[key] ? fieldConfig[key].cn : '' };
         }
       }
 
-      for( let i = 0, len = files.length; i < len; i++){
+      for (let i = 0, len = files.length; i < len; i++) {
         const file = files[i];
-        for( const k in file){
-          if(file[k] === null || file[k] === ''){
+        for (const k in file) {
+          if (file[k] === null || file[k] === '') {
             delete file[k];
           }
         }
@@ -212,28 +213,73 @@ service.getObject = function getObject(info, cb) {
 
 service.getVideo = function getVideo(req, res) {
   const a = req.query.a || '1';
-  var path = a === '1' ? '/Users/steven/Downloads/youtube_encoding_long.mp4' : '/Users/steven/Downloads/25fps_transcoded_keyframe.mp4';
-  var stat = fs.statSync(path);
-  var total = stat.size;
-  if (req.headers['range']) {
-    var range = req.headers.range;
-    var parts = range.replace(/bytes=/, "").split("-");
-    var partialstart = parts[0];
-    var partialend = parts[1];
+  const path = a === '1' ? '/Users/steven/Downloads/youtube_encoding_long.mp4' : '/Users/steven/Downloads/25fps_transcoded_keyframe.mp4';
+  const stat = fs.statSync(path);
+  const total = stat.size;
+  if (req.headers.range) {
+    const range = req.headers.range;
+    const parts = range.replace(/bytes=/, '').split('-');
+    const partialstart = parts[0];
+    const partialend = parts[1];
 
-    var start = parseInt(partialstart, 10);
-    var end = partialend ? parseInt(partialend, 10) : total-1;
-    var chunksize = (end-start)+1;
-    console.log('RANGE: ' + start + ' - ' + end + ' = ' + chunksize);
+    const start = parseInt(partialstart, 10);
+    const end = partialend ? parseInt(partialend, 10) : total - 1;
+    const chunksize = (end - start) + 1;
+    console.log(`RANGE: ${start} - ${end} = ${chunksize}`);
 
-    var file = fs.createReadStream(path, {start: start, end: end});
-    res.writeHead(206, { 'Content-Range': 'bytes ' + start + '-' + end + '/' + total, 'Accept-Ranges': 'bytes', 'Content-Length': chunksize, 'Content-Type': 'video/mp4' });
+    const file = fs.createReadStream(path, { start, end });
+    res.writeHead(206, { 'Content-Range': `bytes ${start}-${end}/${total}`, 'Accept-Ranges': 'bytes', 'Content-Length': chunksize, 'Content-Type': 'video/mp4' });
     file.pipe(res);
   } else {
-    console.log('ALL: ' + total);
+    console.log(`ALL: ${total}`);
     res.writeHead(200, { 'Content-Length': total, 'Content-Type': 'video/mp4' });
     fs.createReadStream(path).pipe(res);
   }
+};
+
+service.cutFile = function cutFile(filename, cb) {
+  const timestamps = new Date().getTime();
+  const path = `/Users/steven/Downloads/${filename}`;
+  const tempDir = config.uploadPath;
+  console.log(path);
+  ffmpeg(path)
+    .setStartTime('00:00:50')
+    .setDuration('100')
+    .output(`${tempDir + timestamps}.mp4`)
+    .on('end', (err) => {
+      if (!err) {
+        console.log('conversion Done');
+        return cb && cb(null, `${timestamps}.mp4`);
+      }
+    })
+    .on('error', (err) => {
+      console.log('error===> ', +err);
+      return cb && cb({ code: '-16001', message: err.message });
+    }).run();
+};
+
+service.mergeFile = function mergeFile(filenames, cb) {
+  filenames = filenames.split(',');
+  const tempDir = config.uploadPath;
+  const len = filenames.length;
+  const timestamps = new Date().getTime();
+  if (len <= 0) {
+    return cb && cb(null, null);
+  }
+  const command = ffmpeg(tempDir + filenames[0]);
+  for (let i = 1; i < len; i++) {
+    command.input(tempDir + filenames[1]);
+  }
+  command
+    .on('error', (err) => {
+      console.log(`An error occurred: ${err.message}`);
+      return cb && cb({ code: '-16002', message: err.message });
+    })
+    .on('end', () => {
+      console.log('Merging finished !');
+      return cb && cb(null, `${timestamps}.mp4`);
+    })
+    .mergeToFile(`${tempDir + timestamps}.mp4`, tempDir);
 };
 
 

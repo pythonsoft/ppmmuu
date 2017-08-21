@@ -38,7 +38,7 @@ class ConfigurationInfo extends DB {
       key: { type: 'string', validation: 'require' },
       value: { type: 'string', validation: 'require' },
       description: { type: 'string' },
-      genre: { type: 'string', validation: 'require' },
+      genre: { type: 'string' },
     };
   }
 }
