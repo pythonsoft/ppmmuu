@@ -5,8 +5,6 @@
 'use strict';
 
 const fs = require('fs');
-const ffmpeg = require('fluent-ffmpeg');
-const mergeStream = require('merge2');
 const logger = require('../../common/log')('error');
 const i18n = require('i18next');
 const utils = require('../../common/utils');
@@ -237,50 +235,50 @@ service.getVideo = function getVideo(req, res) {
   }
 };
 
-service.cutFile = function cutFile(filename, cb) {
-  const timestamps = new Date().getTime();
-  const path = `/Users/steven/Downloads/${filename}`;
-  const tempDir = config.uploadPath;
-  console.log(path);
-  ffmpeg(path)
-    .setStartTime('00:00:50')
-    .setDuration('100')
-    .output(`${tempDir + timestamps}.mp4`)
-    .on('end', (err) => {
-      if (!err) {
-        console.log('conversion Done');
-        return cb && cb(null, `${timestamps}.mp4`);
-      }
-    })
-    .on('error', (err) => {
-      console.log('error===> ', +err);
-      return cb && cb({ code: '-16001', message: err.message });
-    }).run();
-};
-
-service.mergeFile = function mergeFile(filenames, cb) {
-  filenames = filenames.split(',');
-  const tempDir = config.uploadPath;
-  const len = filenames.length;
-  const timestamps = new Date().getTime();
-  if (len <= 0) {
-    return cb && cb(null, null);
-  }
-  const command = ffmpeg(tempDir + filenames[0]);
-  for (let i = 1; i < len; i++) {
-    command.input(tempDir + filenames[1]);
-  }
-  command
-    .on('error', (err) => {
-      console.log(`An error occurred: ${err.message}`);
-      return cb && cb({ code: '-16002', message: err.message });
-    })
-    .on('end', () => {
-      console.log('Merging finished !');
-      return cb && cb(null, `${timestamps}.mp4`);
-    })
-    .mergeToFile(`${tempDir + timestamps}.mp4`, tempDir);
-};
+// service.cutFile = function cutFile(filename, cb) {
+//   const timestamps = new Date().getTime();
+//   const path = `/Users/steven/Downloads/${filename}`;
+//   const tempDir = config.uploadPath;
+//   console.log(path);
+//   ffmpeg(path)
+//     .setStartTime('00:00:50')
+//     .setDuration('100')
+//     .output(`${tempDir + timestamps}.mp4`)
+//     .on('end', (err) => {
+//       if (!err) {
+//         console.log('conversion Done');
+//         return cb && cb(null, `${timestamps}.mp4`);
+//       }
+//     })
+//     .on('error', (err) => {
+//       console.log('error===> ', +err);
+//       return cb && cb({ code: '-16001', message: err.message });
+//     }).run();
+// };
+//
+// service.mergeFile = function mergeFile(filenames, cb) {
+//   filenames = filenames.split(',');
+//   const tempDir = config.uploadPath;
+//   const len = filenames.length;
+//   const timestamps = new Date().getTime();
+//   if (len <= 0) {
+//     return cb && cb(null, null);
+//   }
+//   const command = ffmpeg(tempDir + filenames[0]);
+//   for (let i = 1; i < len; i++) {
+//     command.input(tempDir + filenames[1]);
+//   }
+//   command
+//     .on('error', (err) => {
+//       console.log(`An error occurred: ${err.message}`);
+//       return cb && cb({ code: '-16002', message: err.message });
+//     })
+//     .on('end', () => {
+//       console.log('Merging finished !');
+//       return cb && cb(null, `${timestamps}.mp4`);
+//     })
+//     .mergeToFile(`${tempDir + timestamps}.mp4`, tempDir);
+// };
 
 
 module.exports = service;
