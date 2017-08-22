@@ -57,10 +57,9 @@ deploy_to_67_job:
 restart_to_68_job:
   stage: restartFE
   script:
-    - proj_path="/home/ump/"
-    - function at_68 { ssh ump@10.0.15.68 $1; }
-    - scp -r build/api ump@10.0.15.68:"${proj_path}UMP-FE/src/fe"
-    - at_68 "killall -q node && cd ~/UMP-FE && nohup npm run dev >/dev/null 2>&1 &"
+    - proj_path="/home/gitlab-runner/"
+    - cp -r build/api ${proj_path}UMP-FE/src/fe
+    - killall -q node && cd ${proj_path}UMP-FE && nohup npm run dev >/dev/null 2>&1 &
 
   environment:
     name: test
