@@ -8,7 +8,7 @@ setup_job:
   stage: setup
   script:
     - npm config set strict-ssl false
-    - npm config set registry "http://registry.npm.taobao.org/"
+    - npm config set registry "https://registry.npm.taobao.org/"
     - npm install
   cache:
     key: ${CI_BUILD_REF_NAME}
@@ -44,7 +44,7 @@ deploy_to_67_job:
     - scp -r build/* ump@10.0.15.67:"${proj_path}-manager/build"
     - scp -r node_modules/* ump@10.0.15.67:"${proj_path}-manager/node_modules"
     - at_67 "sed -i -re \"s/(^\s*config\.host)\s*=.*/\1='api\.szdev\.cn'/\" ${proj_path}-manager/build/config_master.js"
-    - at_67 "killall -q node; nohup node ${proj_path}-manager/build/server.js >/dev/null 2>&1 &"
+    - at_67 "killall -q node && nohup node ${proj_path}-manager/build/server.js >/dev/null 2>&1 &"
 
   environment:
     name: test
@@ -57,10 +57,9 @@ deploy_to_67_job:
 restart_to_68_job:
   stage: restartFE
   script:
-    - proj_path="/home/ump/"
-    - function at_68 { ssh ump@10.0.15.68 $1; }
-    - scp -r build/api ump@10.0.15.68:"${proj_path}UMP-FE/src/fe"
-    - at_68 "killall -q node; cd ~/UMP-FE && nohup npm run dev >/dev/null 2>&1 &"
+    - proj_path="/home/gitlab-runner/"
+    - cp -r build/api ${proj_path}UMP-FE/src/fe
+    - killall -q node && cd ${proj_path}UMP-FE && nohup npm run dev >/dev/null 2>&1 &
 
   environment:
     name: test

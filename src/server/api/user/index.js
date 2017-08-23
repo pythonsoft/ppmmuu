@@ -204,6 +204,41 @@ router.get('/logout', (req, res) => {
 });
 
 /**
+ * @apiName: getUserAuth
+ * @apiFuncType: get
+ * @apiFuncUrl: /user/auth
+ * @swagger
+ * /user/auth/:
+ *   get:
+ *     description: 获取登录状态
+ *     tags:
+ *       - v1
+ *       - UserInfo
+ *     consumes:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: UserInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *              properties:
+ *                token:
+ *                  type: string
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *
+ */
+router.get('/auth', (req, res) => res.json(result.json(null, 'ok')));
+
+/**
  * @apiName: postUserChangePassword
  * @apiFuncType: post
  * @apiFuncUrl: /user/changePassword
