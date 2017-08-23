@@ -28,7 +28,7 @@ class ProjectInfo extends DB {
 
 ProjectInfo.TYPE = {
   MY_RESOURCE: '0',
-  PROJECT_RESOURCE: '1'
+  PROJECT_RESOURCE: '1',
 };
 
 module.exports = ProjectInfo;

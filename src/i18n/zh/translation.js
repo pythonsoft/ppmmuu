@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = {
   usernameOrPasswordIsWrong: {
     code: '-1001',
@@ -379,31 +381,31 @@ module.exports = {
     code: '-30003',
     message: '子任务ID不存在',
   },
-  movieEditorProjectCreatorIdIsNull: {
+  ivideoProjectCreatorIdIsNull: {
     code: '-40001',
     message: '媒体编辑器项目创建人Id为空',
   },
-  movieEditorProjectInfoIsNotExist: {
+  ivideoProjectInfoIsNotExist: {
     code: '-40002',
     message: '媒体编辑器项目信息不存在',
   },
-  movieEditorParentIdIsNull: {
+  ivideoParentIdIsNull: {
     code: '-40003',
     message: '资源父级Id为空',
   },
-  movieEditorProjectIdIsNull: {
+  ivideoProjectIdIsNull: {
     code: '-40003',
     message: '项目Id为空',
   },
-  movieEditorProjectNameIsNull: {
+  ivideoProjectNameIsNull: {
     code: '-40004',
     message: '项目名为空',
   },
-  movieEditorProjectDefaultName: {
+  ivideoProjectDefaultName: {
     code: '-40005',
     message: '我的资源',
   },
-  movieEditorItemNameIsNull: {
+  ivideoItemNameIsNull: {
     code: '-40006',
     message: '资源名称为空',
   },

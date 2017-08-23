@@ -19,24 +19,24 @@ const itemInfo = new ItemInfo();
 const service = {};
 
 service.ensureMyResource = function ensureMyResource(creatorId, cb) {
-  if(!creatorId) {
-    return cb && cb(i18n.t('movieEditorProjectCreatorIdIsNull'));
+  if (!creatorId) {
+    return cb && cb(i18n.t('ivideoProjectCreatorIdIsNull'));
   }
 
-  projectInfo.collection.findOne({ creatorId: creatorId, type: ProjectInfo.TYPE.MY_RESOURCE }, (err, doc) => {
+  projectInfo.collection.findOne({ creatorId, type: ProjectInfo.TYPE.MY_RESOURCE }, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
 
-    if(doc) {
+    if (doc) {
       return cb(null, doc);
     }
 
     projectInfo.insertOne({
-      name: i18n.t('movieEditorProjectDefaultName').message,
+      name: i18n.t('ivideoProjectDefaultName').message,
       type: ProjectInfo.TYPE.MY_RESOURCE,
-      creatorId: creatorId
+      creatorId,
     }, (err, r, doc) => {
       if (err) {
         logger.error(err.message);
@@ -45,45 +45,42 @@ service.ensureMyResource = function ensureMyResource(creatorId, cb) {
 
       return cb && cb(null, doc);
     });
-
   });
 };
 
-service.createProject = function createProject(creatorId, name, type=ProjectInfo.TYPE.PROJECT_RESOURCE, cb) {
-  if(!creatorId) {
-    return cb && cb(i18n.t('movieEditorProjectCreatorIdIsNull'));
+service.createProject = function createProject(creatorId, name, type = ProjectInfo.TYPE.PROJECT_RESOURCE, cb) {
+  if (!creatorId) {
+    return cb && cb(i18n.t('ivideoProjectCreatorIdIsNull'));
   }
 
-  if(!name) {
-    return cb && cb(i18n.t('movieEditorProjectNameIsNull'));
+  if (!name) {
+    return cb && cb(i18n.t('ivideoProjectNameIsNull'));
   }
 
   const info = { creatorId, name, type };
 
   projectInfo.insertOne(info, (err, r, doc) => {
-
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
 
     return cb && cb(null, r, doc);
-
   });
 };
 
-service.listItem = function listItem(creatorId, parentId, cb, sortFields='createdTime', fieldsNeed) {
-  if(!creatorId) {
-    return cb && cb(i18n.t('movieEditorProjectCreatorIdIsNull'));
+service.listItem = function listItem(creatorId, parentId, cb, sortFields = 'createdTime', fieldsNeed) {
+  if (!creatorId) {
+    return cb && cb(i18n.t('ivideoProjectCreatorIdIsNull'));
   }
 
-  if(!parentId) {
-    return cb && cb(i18n.t('movieEditorParentIdIsNull'));
+  if (!parentId) {
+    return cb && cb(i18n.t('ivideoParentIdIsNull'));
   }
 
-  let cursor = itemInfo.collection.find({ creatorId, parentId });
+  const cursor = itemInfo.collection.find({ creatorId, parentId });
 
-  if(fieldsNeed) {
+  if (fieldsNeed) {
     cursor.project(utils.formatSortOrFieldsParams(fieldsNeed, false));
   }
 
@@ -99,17 +96,17 @@ service.listItem = function listItem(creatorId, parentId, cb, sortFields='create
   });
 };
 
-const createItem = function createItem(creatorId, name, parentId, type=ItemInfo.TYPE.DIRECTORY, snippet={}, details={}, cb) {
-  if(!creatorId) {
-    return cb && cb(i18n.t('movieEditorProjectCreatorIdIsNull'));
+const createItem = function createItem(creatorId, name, parentId, type = ItemInfo.TYPE.DIRECTORY, snippet = {}, details = {}, cb) {
+  if (!creatorId) {
+    return cb && cb(i18n.t('ivideoProjectCreatorIdIsNull'));
   }
 
-  if(!name) {
-    return cb && cb(i18n.t('movieEditorItemNameIsNull'));
+  if (!name) {
+    return cb && cb(i18n.t('ivideoItemNameIsNull'));
   }
 
-  if(!parentId) {
-    return cb && cb(i18n.t('movieEditorParentIdIsNull'));
+  if (!parentId) {
+    return cb && cb(i18n.t('ivideoParentIdIsNull'));
   }
 
   const info = { name, creatorId, parentId, type, snippet, details };
@@ -121,7 +118,7 @@ const createItem = function createItem(creatorId, name, parentId, type=ItemInfo.
     }
 
     return cb && cb(null, r);
-  })
+  });
 };
 
 service.createDirectory = function createDirectory(creatorId, name, parentId, details, cb) {
@@ -133,7 +130,7 @@ service.createItem = function createItem(creatorId, name, parentId, snippet, det
 
   try {
     info = JSON.parse(snippet);
-  }catch (e) {
+  } catch (e) {
     return cb && cb(e.message);
   }
 

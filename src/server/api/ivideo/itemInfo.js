@@ -22,14 +22,13 @@ class ItemInfo extends DB {
       type: { type: 'string', allowUpdate: false, validation: 'require', default: () => ItemInfo.TYPE.DIRECTORY },
       modifyTime: { type: 'date', validation: 'require' },
       description: { type: 'string' },
-      snippet: { type: 'object', default: () => {
-        return {
+      snippet: { type: 'object',
+        default: () => ({
           thumb: '',
           input: 0,
           output: 1,
           duration: 0,
-        }
-      }},
+        }) },
       details: { type: 'object' },
     };
   }
@@ -37,7 +36,7 @@ class ItemInfo extends DB {
 
 ItemInfo.TYPE = {
   DIRECTORY: '0',
-  SNIPPET: '1'
+  SNIPPET: '1',
 };
 
 module.exports = ItemInfo;
