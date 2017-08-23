@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = {
   usernameOrPasswordIsWrong: {
     code: '-1001',
