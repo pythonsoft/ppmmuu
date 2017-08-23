@@ -376,7 +376,35 @@ module.exports = {
     message: '任务类型不存在',
   },
   childTaskIdIsNotExist: {
-    code: '-300023',
+    code: '-30003',
     message: '子任务ID不存在',
+  },
+  movieEditorProjectCreatorIdIsNull: {
+    code: '-40001',
+    message: '媒体编辑器项目创建人Id为空',
+  },
+  movieEditorProjectInfoIsNotExist: {
+    code: '-40002',
+    message: '媒体编辑器项目信息不存在',
+  },
+  movieEditorParentIdIsNull: {
+    code: '-40003',
+    message: '资源父级Id为空',
+  },
+  movieEditorProjectIdIsNull: {
+    code: '-40003',
+    message: '项目Id为空',
+  },
+  movieEditorProjectNameIsNull: {
+    code: '-40004',
+    message: '项目名为空',
+  },
+  movieEditorProjectDefaultName: {
+    code: '-40005',
+    message: '我的资源',
+  },
+  movieEditorItemNameIsNull: {
+    code: '-40006',
+    message: '资源名称为空',
   },
 };

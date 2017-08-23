@@ -12,47 +12,82 @@ const ProjectInfo = require('./projectInfo');
 
 const projectInfo = new ProjectInfo();
 
-const ItemInfo = require('./ItemInfo');
+const ItemInfo = require('./itemInfo');
 
 const itemInfo = new ItemInfo();
 
 const service = {};
 
-service.listAllParentTask = function listAllParentTask(creatorId, status, page, pageSize, cb, sortFields, fieldsNeed) {
-  const q = { parentId: '' };
-
-  if (creatorId) {
-    q.creator._id = creatorId;
+service.ensureMyResource = function ensureMyResource(creatorId, cb) {
+  if(!creatorId) {
+    return cb && cb(i18n.t('movieEditorProjectCreatorIdIsNull'));
   }
 
-  if (status) {
-    q.status = status;
-  }
-
-  taskInfo.pagination(q, page, pageSize, (err, docs) => {
+  projectInfo.collection.findOne({ creatorId: creatorId, type: ProjectInfo.TYPE.MY_RESOURCE }, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
 
-    return cb && cb(null, docs);
-  }, sortFields, fieldsNeed);
+    if(doc) {
+      return cb(null, doc);
+    }
+
+    projectInfo.insertOne({
+      name: i18n.t('movieEditorProjectDefaultName').message,
+      type: ProjectInfo.TYPE.MY_RESOURCE,
+      creatorId: creatorId
+    }, (err, r, doc) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      return cb && cb(null, doc);
+    });
+
+  });
 };
 
-service.listChildTask = function listChildTask(ids, cb, sortFields, fieldsNeed) {
-  if (!ids) {
-    return cb && cb(i18n.t('taskIdIsNull'));
+service.createProject = function createProject(creatorId, name, type=ProjectInfo.TYPE.PROJECT_RESOURCE, cb) {
+  if(!creatorId) {
+    return cb && cb(i18n.t('movieEditorProjectCreatorIdIsNull'));
   }
 
-  const idArray = utils.trim(ids.split(','));
-  let cursor = taskInfo.collection.find({ _id: { $in: idArray } });
-  if (fieldsNeed) {
-    cursor = cursor.project(utils.formatSortOrFieldsParams(fieldsNeed, false));
+  if(!name) {
+    return cb && cb(i18n.t('movieEditorProjectNameIsNull'));
   }
 
-  if (sortFields) {
-    cursor = cursor.sort(utils.formatSortOrFieldsParams(sortFields, true));
+  const info = { creatorId, name, type };
+
+  projectInfo.insertOne(info, (err, r, doc) => {
+
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, r, doc);
+
+  });
+};
+
+service.listItem = function listItem(creatorId, parentId, cb, sortFields='createdTime', fieldsNeed) {
+  if(!creatorId) {
+    return cb && cb(i18n.t('movieEditorProjectCreatorIdIsNull'));
   }
+
+  if(!parentId) {
+    return cb && cb(i18n.t('movieEditorParentIdIsNull'));
+  }
+
+  let cursor = itemInfo.collection.find({ creatorId, parentId });
+
+  if(fieldsNeed) {
+    cursor.project(utils.formatSortOrFieldsParams(fieldsNeed, false));
+  }
+
+  cursor.sort = utils.formatSortOrFieldsParams(sortFields, true);
 
   cursor.toArray((err, docs) => {
     if (err) {
@@ -64,147 +99,52 @@ service.listChildTask = function listChildTask(ids, cb, sortFields, fieldsNeed) 
   });
 };
 
-service.getTaskDetail = function getTaskDetail(id, cb) {
-  if (!id) {
-    return cb && cb(i18n.t('getRoleNoId'));
-  }
-
-  taskInfo.collection.findOne({ _id: id }, (err, doc) => {
-    if (err) {
-      logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
-    }
-
-    return cb && cb(null, doc);
-  });
-};
-
-const componentChildTaskInfo = function componentChildTaskInfo(parentId, creator, childTasksInfo) {
-  const ts = [];
-
-  if (!utils.isEmptyObject(childTasksInfo)) {
-    let arr = [];
-
-    if (childTasksInfo.constructor !== Array) {
-      arr.push(childTasksInfo);
-    } else {
-      arr = childTasksInfo;
-    }
-
-    for (let i = 0, len = arr.length; i < len; i++) {
-      arr[i].parentId = parentId;
-      arr[i].creator = creator;
-      ts.push(arr[i]);
-    }
-  }
-
-  return ts;
-};
-
-service.addTask = function addTask(creatorId, creatorName, creatorType, parentTaskInfo, childTasksInfo, cb) {
-  if (!creatorId || !creatorName || !creatorType) {
-    return cb && cb(i18n.t('taskCreatorIdNameTypeIsNull'));
-  }
-
-  if (utils.isEmptyObject(parentTaskInfo)) {
-    return cb && cb(i18n.t('parentTaskInfoIsNull'));
-  }
-
-  if (!parentTaskInfo.target) {
-    return cb && cb(i18n.t('taskTargetIsNull'));
-  }
-
-  parentTaskInfo.creator = { _id: creatorId, name: creatorName, type: creatorType };
-
-  const ts = componentChildTaskInfo(parentTaskInfo._id, parentTaskInfo.creator, childTasksInfo);
-  ts.push(parentTaskInfo);
-
-  taskInfo.insertMany(ts, (err, r) => {
-    if (err) {
-      logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
-    }
-
-    return cb && cb(null, r);
-  });
-};
-
-service.addChildTasks = function addChildTasks(creatorId, creatorName, creatorType, parentId, childTasksInfo, cb) {
-  if (!parentId) {
-    return cb && cb(i18n.t('parentIdIsNull'));
-  }
-
-  taskInfo.collection.findOne({ _id: parentId }, { fields: { _id: 1 } }, (err, doc) => {
-    if (err) {
-      logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
-    }
-
-    if (!doc) {
-      return cb && cb(i18n.t('taskInfoIsNull'));
-    }
-
-    const creator = { _id: creatorId, name: creatorName, type: creatorType };
-    const ts = componentChildTaskInfo(parentId, creator, childTasksInfo);
-
-    taskInfo.insertMany(ts, (err, r) => {
-      if (err) {
-        logger.error(err.message);
-        return cb && cb(i18n.t('databaseError'));
-      }
-
-      return cb && cb(null, r);
-    });
-  });
-};
-
-service.updateTask = function updateTask(id, info, cb) {
-  if (!id) {
-    return cb && cb(i18n.t('taskIdIsNull'));
-  }
-
-  taskInfo.collection.find({ _id: id }).project({ _id: 1 }).toArray((err, docs) => {
-    if (err) {
-      logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
-    }
-
-    if (docs.length === 0) {
-      return cb && cb(i18n.t('taskInfoIsNull'));
-    }
-
-    info.modifyTime = new Date();
-
-    taskInfo.updateOne({ _id: id }, info, (err, r) => {
-      if (err) {
-        logger.error(err.message);
-        return cb && cb(i18n.t('databaseError'));
-      }
-
-      return cb && cb(null, r);
-    });
-  });
-};
-
-service.deleteTasks = function deleteRoles(ids, cb) {
-  if (!ids) {
-    return cb && cb(i18n.t('taskIdIsNull'));
-  }
-
-  taskInfo.collection.removeMany({ _id: { $in: utils.trim(ids.split(',')) } }, (err, r) => {
-    if (err) {
-      logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
-    }
-
-    return cb && cb(null, r);
-  });
-};
-
-service.listMyResource = function listMyResource(creatorId, cb, sortFields, fieldsNeed) {
+const createItem = function createItem(creatorId, name, parentId, type=ItemInfo.TYPE.DIRECTORY, snippet={}, details={}, cb) {
   if(!creatorId) {
-    return cb && cb(i18n.t('databaseError'));
+    return cb && cb(i18n.t('movieEditorProjectCreatorIdIsNull'));
   }
+
+  if(!name) {
+    return cb && cb(i18n.t('movieEditorItemNameIsNull'));
+  }
+
+  if(!parentId) {
+    return cb && cb(i18n.t('movieEditorParentIdIsNull'));
+  }
+
+  const info = { name, creatorId, parentId, type, snippet, details };
+
+  itemInfo.insertOne(info, (err, r) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, r);
+  })
+};
+
+service.createDirectory = function createDirectory(creatorId, name, parentId, details, cb) {
+  createItem(creatorId, name, parentId, ItemInfo.TYPE.DIRECTORY, {}, {}, cb);
+};
+
+service.createItem = function createItem(creatorId, name, parentId, snippet, details, cb) {
+  let info = {};
+
+  try {
+    info = JSON.parse(snippet);
+  }catch (e) {
+    return cb && cb(e.message);
+  }
+
+  const snippetInfo = utils.merge({
+    thumb: '',
+    input: 0,
+    output: 1,
+    duration: 0,
+  }, info);
+
+  createItem(creatorId, name, parentId, ItemInfo.TYPE.SNIPPET, snippetInfo, {}, cb);
 };
 
 module.exports = service;

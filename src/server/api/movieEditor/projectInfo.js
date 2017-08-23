@@ -16,7 +16,7 @@ class ProjectInfo extends DB {
     this.struct = {
       _id: { type: 'string', default: () => uuid.v1() },
       name: { type: 'string', validation: 'require' },
-      creator: { type: 'object', default: { _id: '', name: '' }, validation: 'require', allowUpdate: false },
+      creatorId: { type: 'string', validation: 'require', allowUpdate: false },
       createdTime: { type: 'date', validation: 'require', allowUpdate: false },
       type: { type: 'string', allowUpdate: false, validation: 'require', default: () => ProjectInfo.TYPE.PROJECT_RESOURCE },
       modifyTime: { type: 'date', validation: 'require' },
