@@ -29,7 +29,7 @@ config.redisExpires = 1 * 60 * 60 * 12; // redis有效期12小时
 config.port = process.env.NODE_ENV === 'development' ? 8080 : 8080;
 
 config.engineCenter = {
-  host: '10.0.15.179',
+  host: '10.0.15.66',
   port: 3000,
 };
 
