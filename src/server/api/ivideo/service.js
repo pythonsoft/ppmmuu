@@ -144,4 +144,58 @@ service.createItem = function createItem(creatorId, name, parentId, snippet, det
   createItem(creatorId, name, parentId, ItemInfo.TYPE.SNIPPET, snippetInfo, {}, cb);
 };
 
+service.removeItem = function removeItem(id, cb) {
+  if(!id) {
+    return cb && cb(i18n.t('ivideoRemoveItemIdIsNull'));
+  }
+
+  itemInfo.collection.removeOne({ _id: id }, (err, r) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, r);
+  });
+};
+
+service.removeProject = function removeProject(id, cb) {
+  if(!id) {
+    return cb && cb(i18n.t('ivideoRemoveProjectIdIsNull'));
+  }
+
+  projectInfo.collection.removeOne({ _id: id }, (err, r) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, r);
+  });
+};
+
+service.listProject = function listProject(creatorId, cb, sortFields = 'createdTime', fieldsNeed) {
+  if (!creatorId) {
+    return cb && cb(i18n.t('ivideoProjectCreatorIdIsNull'));
+  }
+
+  const cursor = projectInfo.collection.find({ creatorId, parentId });
+
+  if (fieldsNeed) {
+    cursor.project(utils.formatSortOrFieldsParams(fieldsNeed, false));
+  }
+
+  cursor.sort = utils.formatSortOrFieldsParams(sortFields, true);
+
+  cursor.toArray((err, docs) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, docs);
+  });
+
+};
+
 module.exports = service;

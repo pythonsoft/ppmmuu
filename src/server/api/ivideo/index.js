@@ -213,4 +213,113 @@ router.post('/createItem', (req, res) => {
   );
 });
 
+/*
+ * @permissionName: 删除资源
+ * @permissionPath: /ivideo/removeItem
+ * @apiName: removeItem
+ * @apiFuncType: post
+ * @apiFuncUrl: /ivideo/removeItem
+ * @swagger
+ * /ivideo/removeItem:
+ *   post:
+ *     description: remove resource from project
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: id
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: ''
+ */
+router.post('/removeItem', (req, res) => {
+  service.removeItem(req.body.id, (err, r) => res.json(result.json(err, r)));
+});
+
+/*
+ * @permissionName: 删除项目
+ * @permissionPath: /ivideo/removeProject
+ * @apiName: removeProject
+ * @apiFuncType: post
+ * @apiFuncUrl: /ivideo/removeProject
+ * @swagger
+ * /ivideo/removeProject:
+ *   post:
+ *     description: remove project
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: id
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: ''
+ */
+router.post('/removeProject', (req, res) => {
+  service.removeProject(req.body.id, (err, r) => res.json(result.json(err, r)));
+});
+
+/*
+ * @permissionName: 列举出当前用户的项目
+ * @permissionPath: /ivideo/listProject
+ * @apiName: listProject
+ * @apiFuncType: get
+ * @apiFuncUrl: /ivideo/listProject
+ * @swagger
+ * /ivideo/listProject
+ *   get:
+ *     description: list user's projects
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: sortFields
+ *         description: sort by this params
+ *         required: false
+ *         type: string
+ *         default: createdTime
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: fieldsNeed
+ *         description: request only you need fields
+ *         required: false
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: ''
+ */
+router.get('/listProject', (req, res) => {
+  const userId = req.ex.userInfo._id;
+  const sortFields = req.query.sortFields || '';
+  const fieldsNeed = req.query.fieldsNeed || '';
+
+  service.listProject(
+    userId,
+    (err, docs) => res.json(result.json(err, docs)),
+    sortFields,
+    fieldsNeed
+  );
+});
+
 module.exports = router;

@@ -409,4 +409,12 @@ module.exports = {
     code: '-40006',
     message: '资源名称为空',
   },
+  ivideoRemoveItemIdIsNull: {
+    code: '-40006',
+    message: '删除的目标对象Id为空',
+  },
+  ivideoRemoveProjectIdIsNull: {
+    code: '-40006',
+    message: '删除的项目Id为空',
+  },
 };
