@@ -396,7 +396,17 @@ service.updateEngineConfiguration = function updateEngineConfiguration(id, confi
         return cb && cb(i18n.t('databaseError'));
       }
 
-      sc.socket.emit('updateConfig', { config: configurations[0], ip }, err => cb && cb(err ? i18n.t('UpdateConfigFailed') : null, err + r));
+      const j = {};
+      for (let i = 0; i < configurations.length; i += 1) {
+        try {
+          const d = JSON.parse(configurations[i].value);
+          j[configurations[i].key] = d;
+        } catch (e) {
+          console.log('error while parsing', e);
+          j[configurations[i].key] = configurations[i].value;
+        }
+      }
+      sc.socket.emit('updateConfig', { config: j, ip }, err => cb && cb(err ? i18n.t('UpdateConfigFailed') : null, err + r));
     });
   } catch (e) {
     return cb && cb(i18n.t('engineConfigurationParseError'));
@@ -412,6 +422,15 @@ service.listProcess = function listProcess(ip, cb) {
   // todo
   // const docs = [
   //   { pid: '8856', status: '运行中', name: '/System/Library/PrivateFrameworks/MobileDevice.framework/Versions/A/Resources/usbmuxd -launchd', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
+  //   { pid: '14044', status: '运行中', name: '/System/Library/PrivateFrameworks/GenerationalStorage.framework/Versions/A/Support/revisiond', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
+  //   { pid: '29584', status: '运行中', name: '/System/Library/PrivateFrameworks/ApplePushService.framework/apsd', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
+  //   { pid: '95332', status: '运行中', name: '/System/Library/CoreServices/loginwindow.app/Contents/MacOS/loginwindow console', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
+  //   { pid: '11060', status: '运行中', name: '/System/Library/CoreServices/coreservices', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
+  //   { pid: '25000', status: '运行中', name: '/System/Library/Frameworks/CoreMediaIO.framework/Resources/VDC.plugin/Contents/Resources/VDCAssistant', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
+  //   { pid: '11848', status: '运行中', name: '/System/Library/Frameworks/CoreTelephony.framework/Support/CommCenter -L', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
+  //   { pid: '14044', status: '运行中', name: '/System/Library/PrivateFrameworks/GenerationalStorage.framework/Versions/A/Support/revisiond', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
+  //   { pid: '25860', status: '运行中', name: '/usr/libexec/locationd', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
+  //   { pid: '47192', status: '运行中', name: '/usr/libexec/coreduetd', cpu: '10%', memory: '12%', disk: '10%', net: '2%', runTime: '400小时' },
   // ];
 
   sc.socket.emit('action', { ip, action: 'ps', name: 'web', process: '' }, (err, result) => cb && cb(err ? i18n.t('listProcessFailed') : null, err || result));
@@ -435,10 +454,12 @@ service.listAction = function listAction(ip, configProcessName, cb) {
   // processId or process name from config
   sc.socket.emit('action', { ip, action: 'getActions', process: configProcessName }, (err, result) => {
     const res = [];
-    Object.keys(result).forEach((k) => {
-      result[k].name = k;
-      res.push(result[k]);
-    });
+    if (result) {
+      Object.keys(result).forEach((k) => {
+        result[k].name = k;
+        res.push(result[k]);
+      });
+    }
     return cb && cb(err ? i18n.t('ActionFailed') : null, err || res);
   });
 };
@@ -463,9 +484,16 @@ service.installMonitor = function installMonitor(ip, username = 'root', password
   if (!ip) {
     return cb && cb(i18n.t('engineIpCanNotBeNull'));
   }
+
   sc.socket.emit('setup', { username, host: ip, password }, (err, stdout, stderr) => cb && cb(stdout === true ? null : i18n.t('setupFailed'), stderr));
 };
 
+service.getSysInfo = function getSysInfo(ips, cb) {
+  if (!ips) {
+    return cb && cb(i18n.t('engineIpCanNotBeNull'));
+  }
 
+  sc.socket.emit('sendSysInfo', ips, (err, result) => cb && cb(err ? i18n.t('getSysInfoFailed') : null, err || result));
+};
 
 module.exports = service;

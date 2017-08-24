@@ -317,6 +317,10 @@ module.exports = {
     code: '-12009',
     message: '引擎IP不能为空',
   },
+  getSysInfoFailed: {
+    code: '-12011',
+    message: '获取引擎信息失败',
+  },
   processIdCanNotBeNull: {
     code: '-12009',
     message: '进程Id不能为空',
