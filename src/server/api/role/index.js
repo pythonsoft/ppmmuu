@@ -550,7 +550,6 @@ router.post('/assignRole', (req, res) => {
  *       - in: body
  *         name: body
  *         description: delete owner role
- *         w
  *     responses:
  *       200:
  *         description: RoleInfo
