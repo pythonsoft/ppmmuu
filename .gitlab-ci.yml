@@ -27,6 +27,11 @@ build_job:
   script:
     - sed -i -re "s/(^\s*config\.host)\s*=.*/\1='api\.szdev\.cn'/" src/server/config_master.js
     - npm run build
+  artifacts:
+    when: always
+    paths:
+      - build/*
+    expire_in: "1 week"
   tags:
     - test
 
