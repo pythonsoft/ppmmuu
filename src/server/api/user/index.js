@@ -236,9 +236,7 @@ router.get('/logout', (req, res) => {
  *                  type: string
  *
  */
-router.get('/auth', (req, res) => {
-  return res.json(result.json(null, 'ok'));
-});
+router.get('/auth', (req, res) => res.json(result.json(null, 'ok')));
 
 /**
  * @apiName: postUserChangePassword
