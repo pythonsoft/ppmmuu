@@ -396,7 +396,17 @@ service.updateEngineConfiguration = function updateEngineConfiguration(id, confi
         return cb && cb(i18n.t('databaseError'));
       }
 
-      sc.socket.emit('updateConfig', { config: configurations[0], ip }, err => cb && cb(err ? i18n.t('UpdateConfigFailed') : null, err + r));
+      const j = {};
+      for (let i = 0; i < configurations.length; i += 1) {
+        try {
+          const d = JSON.parse(configurations[i].value);
+          j[configurations[i].key] = d;
+        } catch (e) {
+          console.log('error while parsing', e);
+          j[configurations[i].key] = configurations[i].value;
+        }
+      }
+      sc.socket.emit('updateConfig', { config: j, ip }, err => cb && cb(err ? i18n.t('UpdateConfigFailed') : null, err + r));
     });
   } catch (e) {
     return cb && cb(i18n.t('engineConfigurationParseError'));
@@ -444,10 +454,12 @@ service.listAction = function listAction(ip, configProcessName, cb) {
   // processId or process name from config
   sc.socket.emit('action', { ip, action: 'getActions', process: configProcessName }, (err, result) => {
     const res = [];
-    Object.keys(result).forEach((k) => {
-      result[k].name = k;
-      res.push(result[k]);
-    });
+    if (result) {
+      Object.keys(result).forEach((k) => {
+        result[k].name = k;
+        res.push(result[k]);
+      });
+    }
     return cb && cb(err ? i18n.t('ActionFailed') : null, err || res);
   });
 };
@@ -474,6 +486,14 @@ service.installMonitor = function installMonitor(ip, username = 'root', password
   }
 
   sc.socket.emit('setup', { username, host: ip, password }, (err, stdout, stderr) => cb && cb(stdout === true ? null : i18n.t('setupFailed'), stderr));
+};
+
+service.getSysInfo = function getSysInfo(ips, cb) {
+  if (!ips) {
+    return cb && cb(i18n.t('engineIpCanNotBeNull'));
+  }
+
+  sc.socket.emit('sendSysInfo', ips, (err, result) => cb && cb(err ? i18n.t('getSysInfoFailed') : null, err || result));
 };
 
 module.exports = service;
