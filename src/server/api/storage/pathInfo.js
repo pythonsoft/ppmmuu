@@ -59,7 +59,11 @@ class PathInfo extends DB {
     this.struct = {
       _id: { type: 'string', default() { return uuid.v1(); }, validation: 'require' },
       name: { type: 'string', validation: 'require' },
-      path: { type: 'string', validation: 'require' },
+      webServerPath: { type: 'string'},
+      webClientPath: { type: 'string' },
+      streamingPath: { type: 'string' },
+      ftpPath: { type: 'string' },
+      reserveCapability: { type: 'number', default: -1 },
       bucket: { type: 'object', default: { _id: '', name: '' }, validation: 'require' },
       creator: { type: 'object', default: { _id: '', name: '' }, validation: 'require', allowUpdate: false },
       status: { type: 'string', default: PathInfo.STATUS.NORMAL, validation: v => utils.isValueInObject(v, PathInfo.STATUS) },

@@ -91,7 +91,7 @@ service.getMediaList = function getMediaList(info, cb) {
       if (err) {
         return cb && cb(err);
       }
-      result.push({ category, items: r.docs });
+      result.push({ category, docs: r.docs });
       loopGetCategoryList(categories, index + 1);
     });
   };
