@@ -14,7 +14,7 @@ const isLogin = require('../../middleware/login');
 router.use(isLogin.middleware);
 router.use(isLogin.hasAccessMiddleware);
 
-/*
+/**
  * @permissionName: 初始化编辑器
  * @permissionPath: /ivideo/init
  * @apiName: init
@@ -33,13 +33,13 @@ router.use(isLogin.hasAccessMiddleware);
  *     responses:
  *       200:
  *         description: my resource info
- */
+ **/
 router.get('/init', (req, res) => {
   const userId = req.ex.userInfo._id;
   service.ensureMyResource(userId, (err, doc) => res.json(result.json(err, doc)));
 });
 
-/*
+/**
  * @permissionName: 列举出项目下的资源
  * @permissionPath: /ivideo/listItem
  * @apiName: listItem
@@ -79,7 +79,7 @@ router.get('/init', (req, res) => {
  *     responses:
  *       200:
  *         description: ''
- */
+ **/
 router.get('/listItem', (req, res) => {
   const userId = req.ex.userInfo._id;
   const parentId = req.query.parentId;
@@ -213,7 +213,7 @@ router.post('/createItem', (req, res) => {
   );
 });
 
-/*
+/**
  * @permissionName: 删除资源
  * @permissionPath: /ivideo/removeItem
  * @apiName: removeItem
@@ -239,12 +239,12 @@ router.post('/createItem', (req, res) => {
  *     responses:
  *       200:
  *         description: ''
- */
+ **/
 router.post('/removeItem', (req, res) => {
   service.removeItem(req.body.id, (err, r) => res.json(result.json(err, r)));
 });
 
-/*
+/**
  * @permissionName: 删除项目
  * @permissionPath: /ivideo/removeProject
  * @apiName: removeProject
@@ -275,7 +275,7 @@ router.post('/removeProject', (req, res) => {
   service.removeProject(req.body.id, (err, r) => res.json(result.json(err, r)));
 });
 
-/*
+/**
  * @permissionName: 列举出当前用户的项目
  * @permissionPath: /ivideo/listProject
  * @apiName: listProject
