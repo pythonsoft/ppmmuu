@@ -91,11 +91,11 @@ router.get('/listItem', (req, res) => {
     parentId,
     (err, docs) => res.json(result.json(err, docs)),
     sortFields,
-    fieldsNeed
+    fieldsNeed,
   );
 });
 
-/*
+/**
  * @permissionName: 创建项目下的目录
  * @permissionPath: /ivideo/createDirectory
  * @apiName: createDirectory
@@ -137,11 +137,11 @@ router.post('/createDirectory', (req, res) => {
     req.body.name,
     req.body.parentId,
     {},
-    (err, r) => res.json(result.json(err, r))
+    (err, r) => res.json(result.json(err, r)),
   );
 });
 
-/*
+/**
  * @permissionName: 添加视频片断到项目中
  * @permissionPath: /ivideo/createItem
  * @apiName: createItem
@@ -209,7 +209,7 @@ router.post('/createItem', (req, res) => {
     req.body.parentId,
     req.body.snippet,
     {},
-    (err, r) => res.json(result.json(err, r))
+    (err, r) => res.json(result.json(err, r)),
   );
 });
 
@@ -270,7 +270,7 @@ router.post('/removeItem', (req, res) => {
  *     responses:
  *       200:
  *         description: ''
- */
+ **/
 router.post('/removeProject', (req, res) => {
   service.removeProject(req.body.id, (err, r) => res.json(result.json(err, r)));
 });
@@ -308,7 +308,7 @@ router.post('/removeProject', (req, res) => {
  *     responses:
  *       200:
  *         description: ''
- */
+ **/
 router.get('/listProject', (req, res) => {
   const userId = req.ex.userInfo._id;
   const sortFields = req.query.sortFields || '';
@@ -318,7 +318,7 @@ router.get('/listProject', (req, res) => {
     userId,
     (err, docs) => res.json(result.json(err, docs)),
     sortFields,
-    fieldsNeed
+    fieldsNeed,
   );
 });
 

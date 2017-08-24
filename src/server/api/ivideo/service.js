@@ -145,7 +145,7 @@ service.createItem = function createItem(creatorId, name, parentId, snippet, det
 };
 
 service.removeItem = function removeItem(id, cb) {
-  if(!id) {
+  if (!id) {
     return cb && cb(i18n.t('ivideoRemoveItemIdIsNull'));
   }
 
@@ -160,7 +160,7 @@ service.removeItem = function removeItem(id, cb) {
 };
 
 service.removeProject = function removeProject(id, cb) {
-  if(!id) {
+  if (!id) {
     return cb && cb(i18n.t('ivideoRemoveProjectIdIsNull'));
   }
 
@@ -179,7 +179,7 @@ service.listProject = function listProject(creatorId, cb, sortFields = 'createdT
     return cb && cb(i18n.t('ivideoProjectCreatorIdIsNull'));
   }
 
-  const cursor = projectInfo.collection.find({ creatorId, parentId });
+  const cursor = projectInfo.collection.find({ creatorId });
 
   if (fieldsNeed) {
     cursor.project(utils.formatSortOrFieldsParams(fieldsNeed, false));
@@ -195,7 +195,6 @@ service.listProject = function listProject(creatorId, cb, sortFields = 'createdT
 
     return cb && cb(null, docs);
   });
-
 };
 
 module.exports = service;
