@@ -59,7 +59,7 @@ class PathInfo extends DB {
     this.struct = {
       _id: { type: 'string', default() { return uuid.v1(); }, validation: 'require' },
       name: { type: 'string', validation: 'require' },
-      webServerPath: { type: 'string'},
+      webServerPath: { type: 'string' },
       webClientPath: { type: 'string' },
       streamingPath: { type: 'string' },
       ftpPath: { type: 'string' },
