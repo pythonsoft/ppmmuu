@@ -23,17 +23,16 @@ router.use(isLogin.hasAccessMiddleware);
  * @swagger
  * /ivideo/init:
  *   get:
- *     description: init ivideo
- *     version: 1.0.0
+ *     description: init
  *     tags:
  *       - v1
+ *       - Ivideo
  *     produces:
  *       - application/json
- *     parameters:
  *     responses:
  *       200:
- *         description: my resource info
- **/
+ *         description: Ivideo
+ */
 router.get('/init', (req, res) => {
   const userId = req.ex.userInfo._id;
   service.ensureMyResource(userId, (err, doc) => res.json(result.json(err, doc)));
@@ -46,12 +45,12 @@ router.get('/init', (req, res) => {
  * @apiFuncType: get
  * @apiFuncUrl: /ivideo/listItem
  * @swagger
- * /ivideo/listItem
+ * /ivideo/listItem:
  *   get:
- *     description: list project resource
- *     version: 1.0.0
+ *     description: list item
  *     tags:
  *       - v1
+ *       - Ivideo
  *     produces:
  *       - application/json
  *     parameters:
@@ -78,7 +77,7 @@ router.get('/init', (req, res) => {
  *         collectionFormat: csv
  *     responses:
  *       200:
- *         description: ''
+ *         description: Ivideo
  **/
 router.get('/listItem', (req, res) => {
   const userId = req.ex.userInfo._id;
@@ -95,30 +94,30 @@ router.get('/listItem', (req, res) => {
   );
 });
 
-/*
+/**
  * @permissionName: 创建项目下的目录
  * @permissionPath: /ivideo/createDirectory
  * @apiName: createDirectory
- * @apiFuncType: get
+ * @apiFuncType: post
  * @apiFuncUrl: /ivideo/createDirectory
  * @swagger
- * /ivideo/createDirectory
- *   get:
+ * /ivideo/createDirectory:
+ *   post:
  *     description: create directory under project
- *     version: 1.0.0
  *     tags:
  *       - v1
- *     produces:
+ *       - Ivideo
+ *     consumes:
  *       - application/json
  *     parameters:
- *       - in: query
+ *       - in: body
  *         name: parentId
  *         description:
  *         required: true
  *         type: string
  *         default: ''
  *         collectionFormat: csv
- *       - in: query
+ *       - in: body
  *         name: name
  *         description: directory name
  *         required: true
@@ -127,7 +126,7 @@ router.get('/listItem', (req, res) => {
  *         collectionFormat: csv
  *     responses:
  *       200:
- *         description: ''
+ *         description: Ivideo
  */
 router.post('/createDirectory', (req, res) => {
   const userId = req.ex.userInfo._id;
@@ -145,33 +144,34 @@ router.post('/createDirectory', (req, res) => {
  * @permissionName: 添加视频片断到项目中
  * @permissionPath: /ivideo/createItem
  * @apiName: createItem
- * @apiFuncType: get
+ * @apiFuncType: post
  * @apiFuncUrl: /ivideo/createItem
  * @swagger
- * /ivideo/createItem
- *   get:
+ * /ivideo/createItem:
+ *   post:
  *     description: add resource to project
  *     version: 1.0.0
  *     tags:
  *       - v1
+ *       - Ivideo
  *     produces:
  *       - application/json
  *     parameters:
- *       - in: query
+ *       - in: body
  *         name: parentId
  *         description:
  *         required: true
  *         type: string
  *         default: ''
  *         collectionFormat: csv
- *       - in: query
+ *       - in: body
  *         name: name
  *         description: resource name
  *         required: true
  *         type: string
  *         default: ''
  *         collectionFormat: csv
- *       - in: query
+ *       - in: body
  *         name: snippet
  *         description: resource info
  *         required: true
@@ -198,7 +198,7 @@ router.post('/createDirectory', (req, res) => {
  *         collectionFormat: csv
  *     responses:
  *       200:
- *         description: ''
+ *         description: Ivideo
  */
 router.post('/createItem', (req, res) => {
   const userId = req.ex.userInfo._id;
@@ -223,9 +223,9 @@ router.post('/createItem', (req, res) => {
  * /ivideo/removeItem:
  *   post:
  *     description: remove resource from project
- *     version: 1.0.0
  *     tags:
  *       - v1
+ *       - Ivideo
  *     produces:
  *       - application/json
  *     parameters:
@@ -254,9 +254,9 @@ router.post('/removeItem', (req, res) => {
  * /ivideo/removeProject:
  *   post:
  *     description: remove project
- *     version: 1.0.0
  *     tags:
  *       - v1
+ *       - Ivideo
  *     produces:
  *       - application/json
  *     parameters:
@@ -282,12 +282,13 @@ router.post('/removeProject', (req, res) => {
  * @apiFuncType: get
  * @apiFuncUrl: /ivideo/listProject
  * @swagger
- * /ivideo/listProject
+ * /ivideo/listProject:
  *   get:
  *     description: list user's projects
  *     version: 1.0.0
  *     tags:
  *       - v1
+ *       - Ivideo
  *     produces:
  *       - application/json
  *     parameters:
