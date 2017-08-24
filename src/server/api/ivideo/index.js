@@ -23,17 +23,16 @@ router.use(isLogin.hasAccessMiddleware);
  * @swagger
  * /ivideo/init:
  *   get:
- *     description: init ivideo
- *     version: 1.0.0
+ *     description: init
  *     tags:
  *       - v1
+ *       - Ivideo
  *     produces:
  *       - application/json
- *     parameters:
  *     responses:
  *       200:
- *         description: my resource info
- **/
+ *         description: Ivideo
+ */
 router.get('/init', (req, res) => {
   const userId = req.ex.userInfo._id;
   service.ensureMyResource(userId, (err, doc) => res.json(result.json(err, doc)));
@@ -48,10 +47,10 @@ router.get('/init', (req, res) => {
  * @swagger
  * /ivideo/listItem:
  *   get:
- *     description: list project resource
- *     version: 1.0.0
+ *     description: list item
  *     tags:
  *       - v1
+ *       - Ivideo
  *     produces:
  *       - application/json
  *     parameters:
@@ -78,7 +77,7 @@ router.get('/init', (req, res) => {
  *         collectionFormat: csv
  *     responses:
  *       200:
- *         description: ''
+ *         description: Ivideo
  **/
 router.get('/listItem', (req, res) => {
   const userId = req.ex.userInfo._id;
@@ -105,10 +104,10 @@ router.get('/listItem', (req, res) => {
  * /ivideo/createDirectory:
  *   post:
  *     description: create directory under project
- *     version: 1.0.0
  *     tags:
  *       - v1
- *     produces:
+ *       - Ivideo
+ *     consumes:
  *       - application/json
  *     parameters:
  *       - in: body
@@ -127,7 +126,7 @@ router.get('/listItem', (req, res) => {
  *         collectionFormat: csv
  *     responses:
  *       200:
- *         description: ''
+ *         description: Ivideo
  */
 router.post('/createDirectory', (req, res) => {
   const userId = req.ex.userInfo._id;
@@ -154,6 +153,7 @@ router.post('/createDirectory', (req, res) => {
  *     version: 1.0.0
  *     tags:
  *       - v1
+ *       - Ivideo
  *     produces:
  *       - application/json
  *     parameters:
@@ -198,7 +198,7 @@ router.post('/createDirectory', (req, res) => {
  *         collectionFormat: csv
  *     responses:
  *       200:
- *         description: ''
+ *         description: Ivideo
  */
 router.post('/createItem', (req, res) => {
   const userId = req.ex.userInfo._id;
@@ -223,9 +223,9 @@ router.post('/createItem', (req, res) => {
  * /ivideo/removeItem:
  *   post:
  *     description: remove resource from project
- *     version: 1.0.0
  *     tags:
  *       - v1
+ *       - Ivideo
  *     produces:
  *       - application/json
  *     parameters:
@@ -254,9 +254,9 @@ router.post('/removeItem', (req, res) => {
  * /ivideo/removeProject:
  *   post:
  *     description: remove project
- *     version: 1.0.0
  *     tags:
  *       - v1
+ *       - Ivideo
  *     produces:
  *       - application/json
  *     parameters:
@@ -288,6 +288,7 @@ router.post('/removeProject', (req, res) => {
  *     version: 1.0.0
  *     tags:
  *       - v1
+ *       - Ivideo
  *     produces:
  *       - application/json
  *     parameters:
