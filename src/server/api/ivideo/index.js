@@ -140,7 +140,7 @@ router.post('/createDirectory', (req, res) => {
   );
 });
 
-/*
+/**
  * @permissionName: 添加视频片断到项目中
  * @permissionPath: /ivideo/createItem
  * @apiName: createItem
@@ -270,7 +270,7 @@ router.post('/removeItem', (req, res) => {
  *     responses:
  *       200:
  *         description: ''
- */
+ **/
 router.post('/removeProject', (req, res) => {
   service.removeProject(req.body.id, (err, r) => res.json(result.json(err, r)));
 });
@@ -309,7 +309,7 @@ router.post('/removeProject', (req, res) => {
  *     responses:
  *       200:
  *         description: ''
- */
+ **/
 router.get('/listProject', (req, res) => {
   const userId = req.ex.userInfo._id;
   const sortFields = req.query.sortFields || '';
