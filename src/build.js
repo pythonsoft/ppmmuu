@@ -95,7 +95,7 @@ const writeUploadApiFuncFile = function writeApiFuncFile(filePath, funcName, fun
 
 const writeGetIconApiFuncFile = function writeApiFuncFile(filePath, funcName, funcType, funcUrl) {
   const tpl = `api.${funcName} = function ${funcName}(id) {
-  return axios.defaults.baseURL + '${funcUrl}?t=' + new Date().getTime() + '&objectid=' + id;
+  return axios.defaults.baseURL + '${funcUrl}?objectid=' + id;
 };
 
 `;

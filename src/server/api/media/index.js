@@ -11,7 +11,7 @@ const result = require('../../common/result');
 const service = require('./service');
 const isLogin = require('../../middleware/login');
 
-//router.use(isLogin.middleware);
+// router.use(isLogin.middleware);
 
 /**
  * @apiName: solrSearch
@@ -349,7 +349,6 @@ router.get('/getObject', (req, res) => {
 router.get('/getVideo', (req, res) => {
   service.getVideo(req, res);
 });
-
 
 // router.post('/cutFile', (req, res) => {
 //   const filename = req.body.filename;

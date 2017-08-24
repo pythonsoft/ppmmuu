@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = {
   usernameOrPasswordIsWrong: {
     code: '-1001',
@@ -376,7 +378,43 @@ module.exports = {
     message: '任务类型不存在',
   },
   childTaskIdIsNotExist: {
-    code: '-300023',
+    code: '-30003',
     message: '子任务ID不存在',
+  },
+  ivideoProjectCreatorIdIsNull: {
+    code: '-40001',
+    message: '媒体编辑器项目创建人Id为空',
+  },
+  ivideoProjectInfoIsNotExist: {
+    code: '-40002',
+    message: '媒体编辑器项目信息不存在',
+  },
+  ivideoParentIdIsNull: {
+    code: '-40003',
+    message: '资源父级Id为空',
+  },
+  ivideoProjectIdIsNull: {
+    code: '-40003',
+    message: '项目Id为空',
+  },
+  ivideoProjectNameIsNull: {
+    code: '-40004',
+    message: '项目名为空',
+  },
+  ivideoProjectDefaultName: {
+    code: '-40005',
+    message: '我的资源',
+  },
+  ivideoItemNameIsNull: {
+    code: '-40006',
+    message: '资源名称为空',
+  },
+  ivideoRemoveItemIdIsNull: {
+    code: '-40006',
+    message: '删除的目标对象Id为空',
+  },
+  ivideoRemoveProjectIdIsNull: {
+    code: '-40006',
+    message: '删除的项目Id为空',
   },
 };
