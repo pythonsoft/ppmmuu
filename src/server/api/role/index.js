@@ -550,18 +550,7 @@ router.post('/assignRole', (req, res) => {
  *       - in: body
  *         name: body
  *         description: delete owner role
- *         schema:
- *           type: object
- *           required:
- *             - _id
- *             - roles
- *           properties:
- *             roles:
- *               type: string
- *               example: "admin,guest,support"
- *             _id:
- *               type: string
- *               example: xuyawen@phoenixtv.com
+ *         w
  *     responses:
  *       200:
  *         description: RoleInfo
