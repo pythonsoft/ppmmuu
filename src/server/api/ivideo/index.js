@@ -90,7 +90,7 @@ router.get('/listItem', (req, res) => {
     parentId,
     (err, docs) => res.json(result.json(err, docs)),
     sortFields,
-    fieldsNeed,
+    fieldsNeed
   );
 });
 
@@ -136,7 +136,7 @@ router.post('/createDirectory', (req, res) => {
     req.body.name,
     req.body.parentId,
     {},
-    (err, r) => res.json(result.json(err, r)),
+    (err, r) => res.json(result.json(err, r))
   );
 });
 
@@ -209,7 +209,7 @@ router.post('/createItem', (req, res) => {
     req.body.parentId,
     req.body.snippet,
     {},
-    (err, r) => res.json(result.json(err, r)),
+    (err, r) => res.json(result.json(err, r))
   );
 });
 
@@ -319,7 +319,7 @@ router.get('/listProject', (req, res) => {
     userId,
     (err, docs) => res.json(result.json(err, docs)),
     sortFields,
-    fieldsNeed,
+    fieldsNeed
   );
 });
 
