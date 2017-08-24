@@ -765,4 +765,9 @@ router.post('/installMonitor', (req, res) => {
   service.installMonitor(req.body.ip, req.body.username, req.body.password, err => res.json(result.json(err, 'ok')));
 });
 
+router.get('/getSysInfo', (req, res) => {
+  const ips = req.query.ip ? req.query.ip.split(',') : [];
+  service.getSysInfo(ips, (err, docs) => res.json(result.json(err, docs)));
+});
+
 module.exports = router;

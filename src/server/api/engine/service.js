@@ -488,4 +488,12 @@ service.installMonitor = function installMonitor(ip, username = 'root', password
   sc.socket.emit('setup', { username, host: ip, password }, (err, stdout, stderr) => cb && cb(stdout === true ? null : i18n.t('setupFailed'), stderr));
 };
 
+service.getSysInfo = function getSysInfo(ips, cb) {
+  if (!ips) {
+    return cb && cb(i18n.t('engineIpCanNotBeNull'));
+  }
+
+  sc.socket.emit('sendSysInfo', ips, (err, result) => cb && cb(err ? i18n.t('getSysInfoFailed') : null, err || result));
+};
+
 module.exports = service;

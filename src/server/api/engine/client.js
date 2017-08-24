@@ -29,12 +29,12 @@ class SocketClient {
 
     this.socket = clientConnect(url, {
       reconnection: true,
-      reconnectionAttempts: Infinity,
+      reconnectionAttempts: 5,
       reconnectionDelay: 500,
     });
 
     this.socket.on('connect', () => {
-      console.log('server connected');
+      console.log('socket server connected');
       me.socket.emit('setClientInfo', { name: me.clientName });
       return cb && cb();
     });
