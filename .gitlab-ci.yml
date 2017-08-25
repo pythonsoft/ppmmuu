@@ -27,6 +27,11 @@ build_job:
   script:
     - sed -i -re "s/(^\s*config\.host)\s*=.*/\1='api\.szdev\.cn'/" src/server/config_master.js
     - npm run build
+  artifacts:
+    when: always
+    paths:
+      - build/*
+    expire_in: "1 week"
   tags:
     - test
 
@@ -54,7 +59,8 @@ restart_to_68_job:
   script:
     - proj_path="/home/gitlab-runner/"
     - cp -r build/api ${proj_path}UMP-FE/src/fe
-    - killall -q node; cd ${proj_path}UMP-FE && nohup npm run dev >/dev/null 2>&1 &
+    - killall -q node
+    - cd ${proj_path}UMP-FE && nohup npm run dev >/dev/null 2>&1 &
   tags:
     - test
   only:

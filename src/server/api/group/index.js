@@ -24,7 +24,6 @@ router.use(isLogin.hasAccessMiddleware);
  * /group/list:
  *   get:
  *     description: get list groups
- *     version: 1.0.0
  *     tags:
  *       - v1
  *       - GroupInfo
@@ -83,7 +82,6 @@ router.get('/list', (req, res) => {
  * /group/getDetail:
  *   get:
  *     description: get list allChildGroups
- *     version: 1.0.0
  *     tags:
  *       - v1
  *       - GroupInfo
@@ -117,7 +115,6 @@ router.get('/getDetail', (req, res) => {
  * /group/add:
  *   post:
  *     description: add group
- *     version: 1.0.0
  *     tags:
  *       - v1
  *       - GroupInfo
@@ -178,7 +175,6 @@ router.post('/add', (req, res) => {
  * /group/delete:
  *   post:
  *     description: delete group
- *     version: 1.0.0
  *     tags:
  *       - v1
  *       - GroupInfo
@@ -227,7 +223,6 @@ router.post('/delete', (req, res) => {
  * /group/listUser:
  *   get:
  *     description: get group user list
- *     version: 1.0.0
  *     tags:
  *       - v1
  *       - GroupInfo
@@ -292,7 +287,6 @@ router.get('/listUser', (req, res) => {
  * /group/userDetail:
  *   get:
  *     description: get group user detail
- *     version: 1.0.0
  *     tags:
  *       - v1
  *       - GroupInfo
@@ -326,7 +320,6 @@ router.get('/userDetail', (req, res) => {
  * /group/addUser:
  *   post:
  *     description: add group user
- *     version: 1.0.0
  *     tags:
  *       - v1
  *       - GroupInfo
@@ -400,7 +393,6 @@ router.post('/addUser', (req, res) => {
  * /group/deleteGroupUser:
  *   post:
  *     description: 删除组成员
- *     version: 1.0.0
  *     tags:
  *       - v1
  *       - GroupInfo
@@ -450,7 +442,6 @@ router.post('/deleteGroupUser', (req, res) => {
  * /group/justifyUserGroup:
  *   post:
  *     description: 组成员调整部门
- *     version: 1.0.0
  *     tags:
  *       - v1
  *       - GroupInfo
@@ -508,7 +499,6 @@ router.post('/justifyUserGroup', (req, res) => {
  * /group/enableUser:
  *   post:
  *     description: 禁用或启用组用户
- *     version: 1.0.0
  *     tags:
  *       - v1
  *       - GroupInfo
@@ -561,7 +551,6 @@ router.post('/enableUser', (req, res) => {
  * /group/updateUser:
  *   post:
  *     description: 修改组成员信息
- *     version: 1.0.0
  *     tags:
  *       - v1
  *       - GroupInfo
@@ -621,7 +610,6 @@ router.post('/updateUser', (req, res) => {
  * /group/getOwnerPermission:
  *   get:
  *     description: 获取公司或部门或小组或成员权限
- *     version: 1.0.0
  *     tags:
  *       - v1
  *       - GroupInfo
@@ -653,7 +641,6 @@ router.get('/getOwnerPermission', (req, res) => {
  * /group/getOwnerEffectivePermission:
  *   get:
  *     description: 获取公司或部门或小组或成员生效权限
- *     version: 1.0.0
  *     tags:
  *       - v1
  *       - GroupInfo
@@ -693,7 +680,6 @@ router.get('/getOwnerEffectivePermission', (req, res) => {
  * /group/updateOwnerPermission:
  *   post:
  *     description: 更新公司或部门或小组或成员的权限
- *     version: 1.0.0
  *     tags:
  *       - v1
  *       - GroupInfo
@@ -759,7 +745,6 @@ router.post('/updateOwnerPermission', (req, res) => {
  * /group/updateGroupInfo:
  *   post:
  *     description: update group info
- *     version: 1.0.0
  *     tags:
  *       - v1
  *       - GroupInfo
@@ -834,7 +819,6 @@ router.post('/updateGroupInfo', (req, res) => {
  * /group/searchUser:
  *   get:
  *     description: get group search user
- *     version: 1.0.0
  *     tags:
  *       - v1
  *       - GroupInfo
