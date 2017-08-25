@@ -18,7 +18,7 @@ const itemInfo = new ItemInfo();
 
 const service = {};
 
-service.ensureMyResource = function ensureMyResource(creatorId, cb) {
+service.ensureAccountInit = function ensureMyResource(creatorId, cb) {
   if (!creatorId) {
     return cb && cb(i18n.t('ivideoProjectCreatorIdIsNull'));
   }
@@ -43,12 +43,20 @@ service.ensureMyResource = function ensureMyResource(creatorId, cb) {
         return cb && cb(i18n.t('databaseError'));
       }
 
-      return cb && cb(null, doc);
+      service.createProject(
+        creatorId,
+        i18n.t('ivideoProjectDefaultNameNull').message,
+        ProjectInfo.TYPE.PROJECT_RESOURCE,
+        '0',
+        (err, projectDoc) => {
+          return cb && cb(err, {myResource: doc, defaultProject: projectDoc});
+        }
+      );
     });
   });
 };
 
-service.createProject = function createProject(creatorId, name, type = ProjectInfo.TYPE.PROJECT_RESOURCE, cb) {
+service.createProject = function createProject(creatorId, name, type = ProjectInfo.TYPE.PROJECT_RESOURCE, canRemove='1', cb) {
   if (!creatorId) {
     return cb && cb(i18n.t('ivideoProjectCreatorIdIsNull'));
   }
@@ -57,7 +65,7 @@ service.createProject = function createProject(creatorId, name, type = ProjectIn
     return cb && cb(i18n.t('ivideoProjectNameIsNull'));
   }
 
-  const info = { creatorId, name, type };
+  const info = { creatorId, name, type, canRemove: canRemove };
 
   projectInfo.insertOne(info, (err, r, doc) => {
     if (err) {
@@ -164,14 +172,31 @@ service.removeProject = function removeProject(id, cb) {
     return cb && cb(i18n.t('ivideoRemoveProjectIdIsNull'));
   }
 
-  projectInfo.collection.removeOne({ _id: id }, (err, r) => {
+  projectInfo.collection.findOne({ _id: id }, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
 
-    return cb && cb(null, r);
+    if (!doc) {
+      return cb && cb(null, doc);
+    }
+
+    if(doc.canRemove !== '1') {
+      return cb && cb(i18n.t('ivideoProjectCanNotRemove'));
+    }
+
+    projectInfo.collection.removeOne({ _id: id }, (err, r) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      return cb && cb(null, r);
+    });
+
   });
+
 };
 
 service.listProject = function listProject(creatorId, cb, sortFields = 'createdTime', fieldsNeed) {

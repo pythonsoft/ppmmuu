@@ -414,11 +414,19 @@ module.exports = {
     message: '资源名称为空',
   },
   ivideoRemoveItemIdIsNull: {
-    code: '-40006',
+    code: '-40007',
     message: '删除的目标对象Id为空',
   },
   ivideoRemoveProjectIdIsNull: {
-    code: '-40006',
+    code: '-40008',
     message: '删除的项目Id为空',
+  },
+  ivideoProjectDefaultNameNull: {
+    code: '-40009',
+    message: '默认项目',
+  },
+  ivideoProjectCanNotRemove: {
+    code: '-40010',
+    message: '此项目不能被删除',
   },
 };

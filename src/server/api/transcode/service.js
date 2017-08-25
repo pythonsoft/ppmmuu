@@ -4,82 +4,17 @@
 
 'use strict';
 
-const logger = require('../../common/log')('error');
-const utils = require('../../common/utils');
-const http = require('http');
 const config = require('../../config');
 const i18n = require('i18next');
 
-const options = {
+const HttpRequest = require('../../common/httpRequest');
+const request = new HttpRequest({
   hostname: config.TRANSCODE_API_SERVER.hostname,
   port: config.TRANSCODE_API_SERVER.port,
   headers: {
     'Transfer-Encoding': 'chunked',
   },
-};
-
-const request = function request(opt, postData, outStream) {
-  const req = http.request(opt, (res) => {
-    const statusCode = res.statusCode;
-    const contentType = res.headers['content-type'];
-
-    let error = null;
-
-    if (statusCode !== 200) {
-      error = new Error(`Request Failed. Status Code: ${statusCode}`);
-    } else if (!/^application\/json/.test(contentType)) {
-      error = new Error(`Invalid content-type.Expected application/json but received ${contentType}`);
-    }
-
-    if (error) {
-      console.log('error message =>', error.message);
-      logger.error(error.message);
-      outStream.end(JSON.stringify({ status: 1, data: {}, statusInfo: { code: '10000', message: error.message } }));
-      return;
-    }
-
-    res.pipe(outStream);
-  });
-
-  req.on('error', (e) => {
-    console.log(`problem with request: ${e.message}`);
-    outStream.end(JSON.stringify({ status: 1, data: {}, statusInfo: { code: '10000', message: e.message } }));
-    logger.error(e.message);
-  });
-
-  if (opt.method === 'POST') {
-    req.write(JSON.stringify(postData));
-  }
-
-  req.end();
-};
-
-const getData = function getData(path, param, outStream) {
-  const opt = utils.clone(options);
-  opt.method = 'GET';
-  opt.path = path;
-
-  const str = [];
-
-  if (param && !utils.isEmptyObject(param)) {
-    const keys = Object.keys(param);
-    for (let i = 0, len = keys.length; i < len; i++) {
-      str.push(`${keys[i]}=${param[keys[i]]}`);
-    }
-  }
-
-  opt.path = `${opt.path}?${str.join('&')}`;
-
-  request(opt, param, outStream);
-};
-
-const postData = function postData(path, param, outStream) {
-  const opt = utils.clone(options);
-  opt.method = 'POST';
-  opt.path = path;
-
-  request(opt, param, outStream);
-};
+});
 
 const service = {};
 
@@ -101,7 +36,7 @@ service.list = function list(status, currentStep, page = 1, pageSize = 20, res) 
     param.currentStep = currentStep;
   }
 
-  getData('/TranscodingTask/list', param, res);
+  request.get('/TranscodingTask/list', param, res);
 };
 
 service.listChildTask = function listChildTask(parentId, res) {
@@ -109,12 +44,12 @@ service.listChildTask = function listChildTask(parentId, res) {
     return res.end(JSON.stringify({ status: 1, data: {}, statusInfo: i18n.t('childTaskParentIdIsNull') }));
   }
 
-  getData('/TranscodingTask/listChild', { id: parentId }, res);
+  request.get('/TranscodingTask/listChild', { id: parentId }, res);
 };
 
 const execCommand = function execCommand(command, parentTaskId, taskId, type, res) {
   if (parentTaskId) {
-    getData(`/TranscodingTask/${command}`, { taskId: parentTaskId }, res);
+    request.get(`/TranscodingTask/${command}`, { taskId: parentTaskId }, res);
     return false;
   }
 
@@ -128,7 +63,7 @@ const execCommand = function execCommand(command, parentTaskId, taskId, type, re
     return res.end(JSON.stringify({ status: 1, data: {}, statusInfo: i18n.t('taskTypeIsNotExist') }));
   }
 
-  getData(cfg[command], { taskId }, res);
+  request.get(cfg[command], { taskId }, res);
 };
 
 service.restart = function restart(parentTaskId, taskId, type, res) {
