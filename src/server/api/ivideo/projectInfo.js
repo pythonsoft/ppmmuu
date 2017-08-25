@@ -21,6 +21,7 @@ class ProjectInfo extends DB {
       type: { type: 'string', allowUpdate: false, validation: 'require', default: () => ProjectInfo.TYPE.PROJECT_RESOURCE },
       modifyTime: { type: 'date', validation: 'require' },
       description: { type: 'string' },
+      canRemove: { type: 'string', allowUpdate: false, default: () => '1' },
       details: { type: 'object' },
     };
   }

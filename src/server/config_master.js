@@ -25,6 +25,11 @@ config.solrBaseUrl = 'http://solr.szdev.cn/solr/';
 // 香港api地址
 config.hongkongUrl = 'http://w2.phoenixtv.com/mamapi/';
 
+config.HKAPI = {
+  hostname: 'w2.phoenixtv.com',
+  port: 80,
+};
+
 // 日志路径
 config.logPath = path.join(__dirname, '../logs/');
 

@@ -11,6 +11,8 @@ const result = require('../../common/result');
 const service = require('./service');
 const isLogin = require('../../middleware/login');
 
+const ProjectInfo = require('./projectInfo');
+
 router.use(isLogin.middleware);
 router.use(isLogin.hasAccessMiddleware);
 
@@ -26,7 +28,7 @@ router.use(isLogin.hasAccessMiddleware);
  *     description: init
  *     tags:
  *       - v1
- *       - Ivideo
+ *       - IVideo
  *     produces:
  *       - application/json
  *     responses:
@@ -35,7 +37,7 @@ router.use(isLogin.hasAccessMiddleware);
  */
 router.get('/init', (req, res) => {
   const userId = req.ex.userInfo._id;
-  service.ensureMyResource(userId, (err, doc) => res.json(result.json(err, doc)));
+  service.ensureAccountInit(userId, (err, doc) => res.json(result.json(err, doc)));
 });
 
 /**
@@ -50,7 +52,7 @@ router.get('/init', (req, res) => {
  *     description: list item
  *     tags:
  *       - v1
- *       - Ivideo
+ *       - IVideo
  *     produces:
  *       - application/json
  *     parameters:
@@ -77,7 +79,7 @@ router.get('/init', (req, res) => {
  *         collectionFormat: csv
  *     responses:
  *       200:
- *         description: Ivideo
+ *         description: IVideo
  **/
 router.get('/listItem', (req, res) => {
   const userId = req.ex.userInfo._id;
@@ -85,13 +87,7 @@ router.get('/listItem', (req, res) => {
   const sortFields = req.query.sortFields || '';
   const fieldsNeed = req.query.fieldsNeed || '';
 
-  service.listItem(
-    userId,
-    parentId,
-    (err, docs) => res.json(result.json(err, docs)),
-    sortFields,
-    fieldsNeed
-  );
+  service.listItem(userId, parentId, (err, docs) => res.json(result.json(err, docs)), sortFields, fieldsNeed);
 });
 
 /**
@@ -106,7 +102,7 @@ router.get('/listItem', (req, res) => {
  *     description: create directory under project
  *     tags:
  *       - v1
- *       - Ivideo
+ *       - IVideo
  *     consumes:
  *       - application/json
  *     parameters:
@@ -126,18 +122,12 @@ router.get('/listItem', (req, res) => {
  *         collectionFormat: csv
  *     responses:
  *       200:
- *         description: Ivideo
+ *         description: IVideo
  */
 router.post('/createDirectory', (req, res) => {
   const userId = req.ex.userInfo._id;
 
-  service.createDirectory(
-    userId,
-    req.body.name,
-    req.body.parentId,
-    {},
-    (err, r) => res.json(result.json(err, r))
-  );
+  service.createDirectory(userId, req.body.name, req.body.parentId, {}, (err, r) => res.json(result.json(err, r)));
 });
 
 /**
@@ -153,7 +143,7 @@ router.post('/createDirectory', (req, res) => {
  *     version: 1.0.0
  *     tags:
  *       - v1
- *       - Ivideo
+ *       - IVideo
  *     produces:
  *       - application/json
  *     parameters:
@@ -198,19 +188,12 @@ router.post('/createDirectory', (req, res) => {
  *         collectionFormat: csv
  *     responses:
  *       200:
- *         description: Ivideo
+ *         description: IVideo
  */
 router.post('/createItem', (req, res) => {
   const userId = req.ex.userInfo._id;
 
-  service.createItem(
-    userId,
-    req.body.name,
-    req.body.parentId,
-    req.body.snippet,
-    {},
-    (err, r) => res.json(result.json(err, r))
-  );
+  service.createItem(userId, req.body.name, req.body.parentId, req.body.snippet, {}, (err, r) => res.json(result.json(err, r)));
 });
 
 /**
@@ -225,7 +208,7 @@ router.post('/createItem', (req, res) => {
  *     description: remove resource from project
  *     tags:
  *       - v1
- *       - Ivideo
+ *       - IVideo
  *     produces:
  *       - application/json
  *     parameters:
@@ -245,6 +228,40 @@ router.post('/removeItem', (req, res) => {
 });
 
 /**
+ * @permissionName: 创建新的项目
+ * @permissionPath: /ivideo/createProject
+ * @apiName: createProject
+ * @apiFuncType: post
+ * @apiFuncUrl: /ivideo/createProject
+ * @swagger
+ * /ivideo/createProject:
+ *   post:
+ *     description: create new project
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - IVideo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: name
+ *         description: resource name
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: IVideo
+ */
+router.post('/createProject', (req, res) => {
+  const userId = req.ex.userInfo._id;
+
+  service.createProject(userId, req.body.name, ProjectInfo.TYPE.PROJECT_RESOURCE, '1', (err, docs) => res.json(result.json(err, docs)));
+});
+
+/**
  * @permissionName: 删除项目
  * @permissionPath: /ivideo/removeProject
  * @apiName: removeProject
@@ -256,7 +273,7 @@ router.post('/removeItem', (req, res) => {
  *     description: remove project
  *     tags:
  *       - v1
- *       - Ivideo
+ *       - IVideo
  *     produces:
  *       - application/json
  *     parameters:
@@ -288,7 +305,7 @@ router.post('/removeProject', (req, res) => {
  *     version: 1.0.0
  *     tags:
  *       - v1
- *       - Ivideo
+ *       - IVideo
  *     produces:
  *       - application/json
  *     parameters:
@@ -315,12 +332,7 @@ router.get('/listProject', (req, res) => {
   const sortFields = req.query.sortFields || '';
   const fieldsNeed = req.query.fieldsNeed || '';
 
-  service.listProject(
-    userId,
-    (err, docs) => res.json(result.json(err, docs)),
-    sortFields,
-    fieldsNeed
-  );
+  service.listProject(userId, (err, docs) => res.json(result.json(err, docs)), sortFields, fieldsNeed);
 });
 
 module.exports = router;

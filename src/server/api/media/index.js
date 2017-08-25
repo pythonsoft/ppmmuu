@@ -350,18 +350,44 @@ router.get('/getVideo', (req, res) => {
   service.getVideo(req, res);
 });
 
-// router.post('/cutFile', (req, res) => {
-//   const filename = req.body.filename;
-//   service.cutFile(filename, function(err, name){
-//     return res.json(result.json(null, name));
-//   })
-// })
-//
-// router.post('/mergeFile', (req, res) => {
-//   const filenames = req.body.filenames;
-//   service.mergeFile(filenames, function(err, name){
-//     return res.json(result.json(null, name));
-//   })
-// })
+/**
+ * @apiName: getStream
+ * @apiFuncType: get
+ * @apiFuncUrl: /media/getStream
+ * @swagger
+ * /media/getStream:
+ *   get:
+ *     description: 获得视频播放地址
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - Search
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: objectId
+ *         required: true
+ *         type: string
+ *         default: "FE1748B4-69F9-4CAB-8CC0-5EB8A35CB717"
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.get('/getStream', (req, res) => {
+  service.getStream(req.query.objectId, (err, doc) => res.json(result.json(err, doc)));
+});
 
 module.exports = router;
