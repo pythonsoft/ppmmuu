@@ -387,7 +387,12 @@ router.get('/getVideo', (req, res) => {
  *                  type: string
  */
 router.get('/getStream', (req, res) => {
-  service.getStream(req.query.objectId, (err, doc) => res.json(result.json(err, doc)));
+  service.getStream(req.query.objectId, (err, doc) => {
+    if(typeof doc.status === 'number') {
+      doc.status = doc.status + '';
+    }
+    return res.json(doc)
+  });
 });
 
 module.exports = router;
