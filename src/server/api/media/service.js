@@ -14,6 +14,7 @@ const fieldConfig = require('./fieldConfig');
 const ConfigurationInfo = require('../configuration/configurationInfo');
 
 const HttpRequest = require('../../common/httpRequest');
+
 const rq = new HttpRequest({
   hostname: config.HKAPI.hostname,
   port: config.HKAPI.port,
@@ -246,7 +247,7 @@ service.getStream = function getStream(objectId, res) {
     objectId: { type: 'string', validation: 'require' },
   };
 
-  const err = utils.validation({ objectId: objectId }, struct);
+  const err = utils.validation({ objectId }, struct);
 
   if (err) {
     return res.end(JSON.stringify({ status: 1, data: {}, statusInfo: { code: 10000, message: err.message } }));

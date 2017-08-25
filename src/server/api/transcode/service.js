@@ -8,6 +8,7 @@ const config = require('../../config');
 const i18n = require('i18next');
 
 const HttpRequest = require('../../common/httpRequest');
+
 const request = new HttpRequest({
   hostname: config.TRANSCODE_API_SERVER.hostname,
   port: config.TRANSCODE_API_SERVER.port,

@@ -87,13 +87,7 @@ router.get('/listItem', (req, res) => {
   const sortFields = req.query.sortFields || '';
   const fieldsNeed = req.query.fieldsNeed || '';
 
-  service.listItem(
-    userId,
-    parentId,
-    (err, docs) => res.json(result.json(err, docs)),
-    sortFields,
-    fieldsNeed
-  );
+  service.listItem(userId, parentId, (err, docs) => res.json(result.json(err, docs)), sortFields, fieldsNeed);
 });
 
 /**
@@ -133,13 +127,7 @@ router.get('/listItem', (req, res) => {
 router.post('/createDirectory', (req, res) => {
   const userId = req.ex.userInfo._id;
 
-  service.createDirectory(
-    userId,
-    req.body.name,
-    req.body.parentId,
-    {},
-    (err, r) => res.json(result.json(err, r))
-  );
+  service.createDirectory(userId, req.body.name, req.body.parentId, {}, (err, r) => res.json(result.json(err, r)));
 });
 
 /**
@@ -205,14 +193,7 @@ router.post('/createDirectory', (req, res) => {
 router.post('/createItem', (req, res) => {
   const userId = req.ex.userInfo._id;
 
-  service.createItem(
-    userId,
-    req.body.name,
-    req.body.parentId,
-    req.body.snippet,
-    {},
-    (err, r) => res.json(result.json(err, r))
-  );
+  service.createItem(userId, req.body.name, req.body.parentId, req.body.snippet, {}, (err, r) => res.json(result.json(err, r)));
 });
 
 /**
@@ -277,14 +258,7 @@ router.post('/removeItem', (req, res) => {
 router.post('/createProject', (req, res) => {
   const userId = req.ex.userInfo._id;
 
-  service.createProject(
-    userId,
-    req.body.name,
-    ProjectInfo.TYPE.PROJECT_RESOURCE,
-    '1',
-    (err, docs) => res.json(result.json(err, docs))
-  );
-
+  service.createProject(userId, req.body.name, ProjectInfo.TYPE.PROJECT_RESOURCE, '1', (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
@@ -358,12 +332,7 @@ router.get('/listProject', (req, res) => {
   const sortFields = req.query.sortFields || '';
   const fieldsNeed = req.query.fieldsNeed || '';
 
-  service.listProject(
-    userId,
-    (err, docs) => res.json(result.json(err, docs)),
-    sortFields,
-    fieldsNeed
-  );
+  service.listProject(userId, (err, docs) => res.json(result.json(err, docs)), sortFields, fieldsNeed);
 });
 
 module.exports = router;

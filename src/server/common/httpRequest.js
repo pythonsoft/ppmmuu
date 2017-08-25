@@ -18,7 +18,7 @@ class httpRequest {
 
   error(msg) {
     return JSON.stringify({
-      status: 1, data: {}, statusInfo: { code: '10000', message: msg }
+      status: 1, data: {}, statusInfo: { code: '10000', message: msg },
     });
   }
 
@@ -43,37 +43,36 @@ class httpRequest {
 
         const rs = me.error(error.message);
 
-        if(typeof outStream === 'function') {
+        if (typeof outStream === 'function') {
           outStream(rs);
-        }else {
+        } else {
           outStream.end(rs);
         }
 
         return false;
       }
 
-      if(typeof outStream === 'function') {
+      if (typeof outStream === 'function') {
         const buffers = [];
         let len = 0;
 
-        res.on('data', function(buf) {
+        res.on('data', (buf) => {
           len += buf.length;
           buffers.push(buf);
         });
 
-        res.on('end', function() {
-          let buffer = new Buffer(len);
+        res.on('end', () => {
+          const buffer = new Buffer(len);
           let pos = 0;
 
-          buffers.forEach(function(n, i) {
+          buffers.forEach((n, i) => {
             buffers[i].copy(buffer, pos);
             pos += buffers[i].length;
           });
 
-          outStream && outStream(null, JSON.parse(buffer.toString()));
+          outStream(null, JSON.parse(buffer.toString()));
         });
-
-      }else {
+      } else {
         res.pipe(outStream);
       }
     });
@@ -81,7 +80,7 @@ class httpRequest {
     req.on('error', (e) => {
       console.log(`problem with request: ${e.message}`);
       outStream.end(JSON.stringify({
-        status: 1, data: {}, statusInfo: { code: '10000', message: e.message }
+        status: 1, data: {}, statusInfo: { code: '10000', message: e.message },
       }));
 
       logger.error(e.message);

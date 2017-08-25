@@ -43,20 +43,12 @@ service.ensureAccountInit = function ensureMyResource(creatorId, cb) {
         return cb && cb(i18n.t('databaseError'));
       }
 
-      service.createProject(
-        creatorId,
-        i18n.t('ivideoProjectDefaultNameNull').message,
-        ProjectInfo.TYPE.PROJECT_RESOURCE,
-        '0',
-        (err, projectDoc) => {
-          return cb && cb(err, {myResource: doc, defaultProject: projectDoc});
-        }
-      );
+      service.createProject(creatorId, i18n.t('ivideoProjectDefaultNameNull').message, ProjectInfo.TYPE.PROJECT_RESOURCE, '0', (err, projectDoc) => cb && cb(err, { myResource: doc, defaultProject: projectDoc }));
     });
   });
 };
 
-service.createProject = function createProject(creatorId, name, type = ProjectInfo.TYPE.PROJECT_RESOURCE, canRemove='1', cb) {
+service.createProject = function createProject(creatorId, name, type = ProjectInfo.TYPE.PROJECT_RESOURCE, canRemove = '1', cb) {
   if (!creatorId) {
     return cb && cb(i18n.t('ivideoProjectCreatorIdIsNull'));
   }
@@ -65,7 +57,7 @@ service.createProject = function createProject(creatorId, name, type = ProjectIn
     return cb && cb(i18n.t('ivideoProjectNameIsNull'));
   }
 
-  const info = { creatorId, name, type, canRemove: canRemove };
+  const info = { creatorId, name, type, canRemove };
 
   projectInfo.insertOne(info, (err, r, doc) => {
     if (err) {
@@ -182,7 +174,7 @@ service.removeProject = function removeProject(id, cb) {
       return cb && cb(null, doc);
     }
 
-    if(doc.canRemove !== '1') {
+    if (doc.canRemove !== '1') {
       return cb && cb(i18n.t('ivideoProjectCanNotRemove'));
     }
 
@@ -194,9 +186,7 @@ service.removeProject = function removeProject(id, cb) {
 
       return cb && cb(null, r);
     });
-
   });
-
 };
 
 service.listProject = function listProject(creatorId, cb, sortFields = 'createdTime', fieldsNeed) {

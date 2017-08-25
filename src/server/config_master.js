@@ -27,7 +27,7 @@ config.hongkongUrl = 'http://w2.phoenixtv.com/mamapi/';
 
 config.HKAPI = {
   hostname: 'w2.phoenixtv.com',
-  port: 80
+  port: 80,
 };
 
 // 日志路径
