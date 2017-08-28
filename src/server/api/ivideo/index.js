@@ -33,7 +33,17 @@ router.use(isLogin.hasAccessMiddleware);
  *       - application/json
  *     responses:
  *       200:
- *         description: Ivideo
+ *         description:
+ *           myResource
+ *             _id string <br/>
+ *             name string <br/>
+ *             creatorId string <br/>
+ *             createdTime date <br/>
+ *             type string 我的资料根结点 '0' 其它的 '1' <br/>
+ *             modifyTime date <br/>
+ *             description string <br/>
+ *             canRemove string 是否可以移除 可以 '1' 不可以 '0' <br/>
+ *             details object
  */
 router.get('/init', (req, res) => {
   const userId = req.ex.userInfo._id;
@@ -79,7 +89,22 @@ router.get('/init', (req, res) => {
  *         collectionFormat: csv
  *     responses:
  *       200:
- *         description: IVideo
+ *         description:
+ *           _id string <br/>
+ *           name string <br/>
+ *           creatorId string <br/>
+ *           createdTime date <br/>
+ *           parentId string <br/>
+ *           type string 目录 0 视频 1<br/>
+ *           modifyTime date <br/>
+ *           description string </br>
+ *           snippet object 视频信息，如果为视频，则此字段不为null<br/>
+ *             { thumb ''
+ *             input 0
+ *             output 1
+ *             duration 0}
+ *           details object
+ *
  **/
 router.get('/listItem', (req, res) => {
   const userId = req.ex.userInfo._id;
