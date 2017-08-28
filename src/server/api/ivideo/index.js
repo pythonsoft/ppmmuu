@@ -34,7 +34,6 @@ router.use(isLogin.hasAccessMiddleware);
  *     responses:
  *       200:
  *         description:
- *           myResource
  *             _id string <br/>
  *             name string <br/>
  *             creatorId string <br/>
