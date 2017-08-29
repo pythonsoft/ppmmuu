@@ -12,7 +12,6 @@ const config = require('../../config');
 const request = require('request');
 const fieldConfig = require('./fieldConfig');
 const ConfigurationInfo = require('../configuration/configurationInfo');
-const result = require('../../common/result');
 
 const configurationInfo = new ConfigurationInfo();
 const service = {};
@@ -241,8 +240,8 @@ service.getVideo = function getVideo(req, res) {
   const path = a === '1' ? '/Users/steven/Downloads/youtube_encoding_long.mp4' : '/Users/steven/Downloads/25fps_transcoded_keyframe.mp4';
   const stat = fs.statSync(path);
   const total = stat.size;
-  console.log("total==>", total);
-  const file = fs.createReadStream(path, { start: 0, end:  1200000});
+  console.log('total==>', total);
+  const file = fs.createReadStream(path, { start: 0, end: 1200000 });
   file.pipe(res);
   // let data = '';
   // file.on("data", function (trunk){

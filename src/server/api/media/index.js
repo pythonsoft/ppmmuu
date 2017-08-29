@@ -351,8 +351,6 @@ router.get('/getObject', (req, res) => {
 });
 
 
-
-
 // router.post('/cutFile', (req, res) => {
 //   const filename = req.body.filename;
 //   service.cutFile(filename, function(err, name){

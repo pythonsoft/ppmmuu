@@ -19,7 +19,7 @@ const corsOptions = {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
-    }*/
+    } */
   },
   credentials: true,   // 允许跨域携带cookie
 };

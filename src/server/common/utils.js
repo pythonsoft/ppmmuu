@@ -7,7 +7,6 @@
 const crypto = require('crypto');
 const os = require('os');
 const i18n = require('i18next');
-const request = require('request');
 
 const utils = {};
 
@@ -286,48 +285,4 @@ utils.getAllowedUpdateObj = function getAllowedUpdateObj(fields, info) {
   return rs;
 };
 
-utils.requestDate = function requestDate(opt, cb) {
-  request(options, (error, response) => {
-    if (error) {
-      logger.error(error);
-      return cb(i18n.t('getObjectError', { error }));
-    }
-    
-    if (response.statusCode !== 200) {
-      logger.error(response.body);
-      return cb(i18n.t('getObjectFailed'));
-    }
-    
-    const rs = JSON.parse(response.body);
-    rs.status = '0';
-    
-    if (rs.result.detail && rs.result.detail.program) {
-      const program = rs.result.detail.program;
-      const files = rs.result.files;
-      
-      for (const key in program) {
-        if (program[key] === '' || program[key] === null) {
-          delete program[key];
-        } else {
-          program[key] = { value: program[key], cn: fieldConfig[key] ? fieldConfig[key].cn : '' };
-        }
-      }
-      
-      for (let i = 0, len = files.length; i < len; i++) {
-        const file = files[i];
-        for (const k in file) {
-          if (file[k] === null || file[k] === '') {
-            delete file[k];
-          }
-        }
-      }
-    }
-    
-    return cb(null, rs);
-  });
-}
-
-utils.getRemoteDate = function getRemoteDate(){
-  
-}
 module.exports = utils;
