@@ -216,30 +216,47 @@ service.getObject = function getObject(info, cb) {
   });
 };
 
+// service.getVideo = function getVideo(req, res) {
+//   const a = req.query.a || '1';
+//   const path = a === '1' ? '/Users/steven/Downloads/youtube_encoding_long.mp4' : '/Users/steven/Downloads/25fps_transcoded_keyframe.mp4';
+//   const stat = fs.statSync(path);
+//   const total = stat.size;
+//   if (req.headers.range) {
+//     const range = req.headers.range;
+//     const parts = range.replace(/bytes=/, '').split('-');
+//     const partialstart = parts[0];
+//     const partialend = parts[1];
+//
+//     const start = parseInt(partialstart, 10);
+//     const end = partialend ? parseInt(partialend, 10) : total - 1;
+//     const chunksize = (end - start) + 1;
+//     console.log(`RANGE: ${start} - ${end} = ${chunksize}`);
+//
+//     const file = fs.createReadStream(path, { start, end });
+//     res.writeHead(206, { 'Content-Range': `bytes ${start}-${end}/${total}`, 'Accept-Ranges': 'bytes', 'Content-Length': chunksize, 'Content-Type': 'video/mp4' });
+//     file.pipe(res);
+//   } else {
+//     console.log(`ALL: ${total}`);
+//     res.writeHead(200, { 'Content-Length': total, 'Content-Type': 'video/mp4' });
+//     fs.createReadStream(path).pipe(res);
+//   }
+// };
+
 service.getVideo = function getVideo(req, res) {
   const a = req.query.a || '1';
   const path = a === '1' ? '/Users/steven/Downloads/youtube_encoding_long.mp4' : '/Users/steven/Downloads/25fps_transcoded_keyframe.mp4';
   const stat = fs.statSync(path);
   const total = stat.size;
-  if (req.headers.range) {
-    const range = req.headers.range;
-    const parts = range.replace(/bytes=/, '').split('-');
-    const partialstart = parts[0];
-    const partialend = parts[1];
-
-    const start = parseInt(partialstart, 10);
-    const end = partialend ? parseInt(partialend, 10) : total - 1;
-    const chunksize = (end - start) + 1;
-    console.log(`RANGE: ${start} - ${end} = ${chunksize}`);
-
-    const file = fs.createReadStream(path, { start, end });
-    res.writeHead(206, { 'Content-Range': `bytes ${start}-${end}/${total}`, 'Accept-Ranges': 'bytes', 'Content-Length': chunksize, 'Content-Type': 'video/mp4' });
-    file.pipe(res);
-  } else {
-    console.log(`ALL: ${total}`);
-    res.writeHead(200, { 'Content-Length': total, 'Content-Type': 'video/mp4' });
-    fs.createReadStream(path).pipe(res);
-  }
+  console.log('total==>', total);
+  const file = fs.createReadStream(path, { start: 0, end: 1200000 });
+  file.pipe(res);
+  // let data = '';
+  // file.on("data", function (trunk){
+  //   data += trunk;
+  // });
+  // file.on("end", function () {
+  //   return res.json(result.json(null, data))
+  // });
 };
 
 service.getStream = function getStream(objectId, res) {
