@@ -9,6 +9,7 @@ const i18n = require('i18next');
 const utils = require('../../common/utils');
 const Token = require('../../common/token');
 const config = require('../../config');
+const Login = require('../../middleware/login')
 
 const UserInfo = require('./userInfo');
 
@@ -46,14 +47,26 @@ service.login = function login(res, username, password, cb) {
     const expires = new Date().getTime() + config.cookieExpires;
     const token = Token.create(doc._id, expires, config.KEY);
 
-    res.cookie('ticket', token, {
-      expires: new Date(expires),
-      httpOnly: true,
-    });
 
-    return cb && cb(null, {
-      token,
-    });
+
+    Login.getUserInfo(doc._id, function(err, info){
+      if(err){
+        return res.json(result.fail(i18n.t('loginCannotGetUserInfo')));
+      }
+
+      const permissions = info.permissions || [];
+      const menu = permissions.length ? ['mediaCenter', 'taskCenter', 'personalCenter', 'management'] : ['mediaCenter', 'taskCenter', 'personalCenter'];
+
+      res.cookie('ticket', token, {
+        expires: new Date(expires),
+        httpOnly: true,
+      });
+
+      return cb && cb(null, {
+          token,
+          menu
+        });
+    })
   });
 };
 

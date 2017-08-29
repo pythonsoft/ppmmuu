@@ -36,9 +36,7 @@ Login.isLogin = function isLogin(req) {
   return decodeTicket;
 };
 
-Login.getUserInfo = function getUserInfo(req, cb) {
-  const userId = req.ex.userId;
-
+Login.getUserInfo = function getUserInfo(userId, cb) {
   let info = {};
 
   redisClient.get(userId, (err, r) => {
@@ -87,7 +85,7 @@ Login.middleware = function middleware(req, res, next) {
         req.body = utils.trim(req.body);
       }
 
-      Login.getUserInfo(req, (err, info) => {
+      Login.getUserInfo(req.ex.userId, (err, info) => {
         if (err) {
           res.clearCookie('ticket');
           return res.json(result.fail(req.t('loginCannotGetUserInfo')));
