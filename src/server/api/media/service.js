@@ -13,6 +13,13 @@ const request = require('request');
 const fieldConfig = require('./fieldConfig');
 const ConfigurationInfo = require('../configuration/configurationInfo');
 
+const HttpRequest = require('../../common/httpRequest');
+
+const rq = new HttpRequest({
+  hostname: config.HKAPI.hostname,
+  port: config.HKAPI.port,
+});
+
 const configurationInfo = new ConfigurationInfo();
 const service = {};
 
@@ -250,6 +257,20 @@ service.getVideo = function getVideo(req, res) {
   // file.on("end", function () {
   //   return res.json(result.json(null, data))
   // });
+};
+
+service.getStream = function getStream(objectId, res) {
+  const struct = {
+    objectId: { type: 'string', validation: 'require' },
+  };
+
+  const err = utils.validation({ objectId }, struct);
+
+  if (err) {
+    return res.end(JSON.stringify({ status: 1, data: {}, statusInfo: { code: 10000, message: err.message } }));
+  }
+
+  rq.get('/mamapi/get_stream', { objectid: objectId }, res);
 };
 
 // service.cutFile = function cutFile(filename, cb) {

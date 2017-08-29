@@ -6,3 +6,5 @@
 
 require('./initUser');
 require('./initConfig');
+require('./initIVideo');
+
