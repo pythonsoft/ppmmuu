@@ -94,6 +94,8 @@ service.listItem = function listItem(creatorId, parentId, cb, sortFields = 'crea
       return cb && cb(i18n.t('databaseError'));
     }
 
+
+
     return cb && cb(null, docs);
   });
 };
