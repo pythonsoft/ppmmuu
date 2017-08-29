@@ -5,4 +5,6 @@
 'use strict';
 
 require('./initUser');
+require('./initConfig');
 require('./initIVideo');
+
