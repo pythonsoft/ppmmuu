@@ -252,6 +252,44 @@ router.post('/removeItem', (req, res) => {
 });
 
 /**
+ * @permissionName: 更新目录或资源信息
+ * @permissionPath: /ivideo/updateItem
+ * @apiName: updateItem
+ * @apiFuncType: post
+ * @apiFuncUrl: /ivideo/updateItem
+ * @swagger
+ * /ivideo/updateItem:
+ *   post:
+ *     description: update resource from project
+ *     tags:
+ *       - v1
+ *       - IVideo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: id
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: name
+ *         description:
+ *         required: false
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: ''
+ **/
+router.post('/updateItem', (req, res) => {
+  service.updateItem(req.body.id, req.body.name, req.body.details, (err, r) => res.json(result.json(err, r)));
+});
+
+/**
  * @permissionName: 创建新的项目
  * @permissionPath: /ivideo/createProject
  * @apiName: createProject

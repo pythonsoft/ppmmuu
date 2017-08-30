@@ -169,6 +169,38 @@ service.removeItem = function removeItem(id, cb) {
   });
 };
 
+service.updateItem = function updateItem(id, name, details, cb) {
+  if (!id) {
+    return cb && cb(i18n.t('ivideoRemoveItemIdIsNull'));
+  }
+
+  const update = {};
+
+  update.modifyTime = new Date();
+
+  if(name) {
+    update.name = name;
+  }
+
+  if(details) {
+    update.details = details;
+  }
+
+  if(utils.isEmptyObject(update)) {
+    return cb && cb(null, 'ok');
+  }
+
+  itemInfo.updateOne({ _id: id }, update, function(err, r) {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, r);
+  });
+
+};
+
 service.removeProject = function removeProject(id, cb) {
   if (!id) {
     return cb && cb(i18n.t('ivideoRemoveProjectIdIsNull'));
