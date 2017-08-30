@@ -6,9 +6,13 @@ const service = require('../api/ivideo/service');
 const userId = 'bea711c0-67ae-11e7-8b13-c506d97b38b0';
 
 const init = function() {
-  service.ensureAccountInit(userId, (err, doc) => {
+  service.ensureAccountInit(userId, (err, doc, isNew) => {
     if(err) {
       console.log('ensure -->', err);
+      return false;
+    }
+
+    if(!isNew) {
       return false;
     }
 
