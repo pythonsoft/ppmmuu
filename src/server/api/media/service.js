@@ -29,7 +29,6 @@ service.solrSearch = function solorSearch(info, cb) {
   }
   const struct = {
     wt: { type: 'string', validation(v) { v = v.trim().toLowerCase(); if (v !== 'json' && v !== 'xml') { return false; } return true; } },
-    q: { type: 'string', validation: 'require' },
   };
   const err = utils.validation(info, struct);
 
