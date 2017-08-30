@@ -73,6 +73,13 @@ router.get('/init', (req, res) => {
  *         default: ''
  *         collectionFormat: csv
  *       - in: query
+ *         name: type
+ *         description: DIRECTORY '0' SNIPPET '1',
+ *         required: false
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: query
  *         name: sortFields
  *         description: sort by this params
  *         required: false
@@ -108,10 +115,11 @@ router.get('/init', (req, res) => {
 router.get('/listItem', (req, res) => {
   const userId = req.ex.userInfo._id;
   const parentId = req.query.parentId;
+  const type = req.query.type || '';
   const sortFields = req.query.sortFields || '';
   const fieldsNeed = req.query.fieldsNeed || '';
 
-  service.listItem(userId, parentId, (err, docs) => res.json(result.json(err, docs)), sortFields, fieldsNeed);
+  service.listItem(userId, parentId, type, (err, docs) => res.json(result.json(err, docs)), sortFields, fieldsNeed);
 });
 
 /**

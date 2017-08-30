@@ -75,7 +75,7 @@ service.createProject = function createProject(creatorId, name, type = ProjectIn
   });
 };
 
-service.listItem = function listItem(creatorId, parentId, cb, sortFields = 'createdTime', fieldsNeed) {
+service.listItem = function listItem(creatorId, parentId, type, cb, sortFields = 'createdTime', fieldsNeed) {
   if (!creatorId) {
     return cb && cb(i18n.t('ivideoProjectCreatorIdIsNull'));
   }
@@ -84,7 +84,13 @@ service.listItem = function listItem(creatorId, parentId, cb, sortFields = 'crea
     return cb && cb(i18n.t('ivideoParentIdIsNull'));
   }
 
-  const cursor = itemInfo.collection.find({ creatorId, parentId });
+  const query = { creatorId, parentId };
+
+  if(type) {
+    query.type = type;
+  }
+
+  const cursor = itemInfo.collection.find(query);
 
   if (fieldsNeed) {
     cursor.project(utils.formatSortOrFieldsParams(fieldsNeed, false));
