@@ -30,9 +30,13 @@ service.ensureAccountInit = function ensureMyResource(creatorId, cb) {
       return cb && cb(i18n.t('databaseError'));
     }
 
+    let isNew = false;
+
     if (doc) {
-      return cb(null, doc);
+      return cb(null, doc, isNew);
     }
+
+    isNew = true;
 
     projectInfo.insertOne({
       name: i18n.t('ivideoProjectDefaultName').message,
@@ -44,7 +48,7 @@ service.ensureAccountInit = function ensureMyResource(creatorId, cb) {
         return cb && cb(i18n.t('databaseError'));
       }
 
-      cb && cb(err, doc);
+      cb && cb(err, doc, isNew);
       // service.createProject(creatorId, i18n.t('ivideoProjectDefaultNameNull').message, ProjectInfo.TYPE.PROJECT_RESOURCE, '0', (err, projectDoc) => cb && cb(err, { myResource: doc, defaultProject: projectDoc }));
     });
   });
