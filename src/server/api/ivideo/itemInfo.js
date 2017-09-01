@@ -14,7 +14,7 @@ class ItemInfo extends DB {
     super(config.dbInstance.umpDB, 'MovieEditor_ItemInfo');
 
     this.struct = {
-      _id: { type: 'string', default: () => uuid.v1() },
+      _id: { type: 'string', default() { return uuid.v1(); }, validation: 'require' },
       name: { type: 'string', validation: 'require' },
       creatorId: { type: 'string', validation: 'require', allowUpdate: false },
       createdTime: { type: 'date', validation: 'require', allowUpdate: false },
