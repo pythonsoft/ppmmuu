@@ -216,7 +216,10 @@ router.post('/createDirectory', (req, res) => {
  *               example: 1
  *             duration:
  *               type: number
- *               example: 0
+ *               example: 0，
+ *             objectId:
+ *               type: string
+ *               example:
  *         collectionFormat: csv
  *     responses:
  *       200:
