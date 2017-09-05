@@ -48,7 +48,7 @@ service.ensureAccountInit = function ensureMyResource(creatorId, cb) {
         return cb && cb(i18n.t('databaseError'));
       }
 
-      cb && cb(err, doc, isNew);
+      return cb && cb(err, doc, isNew);
       // service.createProject(creatorId, i18n.t('ivideoProjectDefaultNameNull').message, ProjectInfo.TYPE.PROJECT_RESOURCE, '0', (err, projectDoc) => cb && cb(err, { myResource: doc, defaultProject: projectDoc }));
     });
   });
@@ -86,7 +86,7 @@ service.listItem = function listItem(creatorId, parentId, type, cb, sortFields =
 
   const query = { creatorId, parentId };
 
-  if(type) {
+  if (type) {
     query.type = type;
   }
 
@@ -104,13 +104,11 @@ service.listItem = function listItem(creatorId, parentId, type, cb, sortFields =
       return cb && cb(i18n.t('databaseError'));
     }
 
-
-
     return cb && cb(null, docs);
   });
 };
 
-const createItem = function createItem(creatorId, name, parentId, type = ItemInfo.TYPE.DIRECTORY, snippet = {}, details = {}, cb) {
+const createSnippetOrDirItem = function createSnippetOrDirItem(creatorId, name, parentId, type = ItemInfo.TYPE.DIRECTORY, snippet = {}, details = {}, cb) {
   if (!creatorId) {
     return cb && cb(i18n.t('ivideoProjectCreatorIdIsNull'));
   }
@@ -123,41 +121,48 @@ const createItem = function createItem(creatorId, name, parentId, type = ItemInf
     return cb && cb(i18n.t('ivideoParentIdIsNull'));
   }
 
-  const id = uuid.v1();
+  const info = { _id: uuid.v1(), name, creatorId, parentId, type, snippet, details };
 
-  const info = { _id: id, name, creatorId, parentId, type, snippet, details };
-
-  itemInfo.insertOne(info, (err, r) => {
+  itemInfo.insertOne(info, (err, r, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
 
-    return cb && cb(null, r, id);
+    return cb && cb(null, r, doc._id);
   });
 };
 
 service.createDirectory = function createDirectory(creatorId, name, parentId, details, cb) {
-  createItem(creatorId, name, parentId, ItemInfo.TYPE.DIRECTORY, {}, {}, cb);
+  createSnippetOrDirItem(creatorId, name, parentId, ItemInfo.TYPE.DIRECTORY, {}, {}, (err, r) => cb && cb(err, r));
 };
 
 service.createItem = function createItem(creatorId, name, parentId, snippet, details, cb) {
-  let info = {};
+  let snippetInfo = {};
 
-  try {
-    info = JSON.parse(snippet);
-  } catch (e) {
-    return cb && cb(e.message);
+  if (snippet) {
+    if (typeof snippet === 'string') {
+      let info = {};
+
+      try {
+        info = JSON.parse(snippet);
+      } catch (e) {
+        return cb && cb(e.message);
+      }
+
+      snippetInfo = utils.merge({
+        thumb: '',
+        input: 0,
+        output: 1,
+        duration: 0,
+        objectId: '',
+      }, info);
+    } else {
+      snippetInfo = snippet;
+    }
   }
 
-  const snippetInfo = utils.merge({
-    thumb: '',
-    input: 0,
-    output: 1,
-    duration: 0,
-  }, info);
-
-  createItem(creatorId, name, parentId, ItemInfo.TYPE.SNIPPET, snippetInfo, {}, cb);
+  createSnippetOrDirItem(creatorId, name, parentId, ItemInfo.TYPE.SNIPPET, snippetInfo, details, (err, r) => cb && cb(err, r));
 };
 
 service.removeItem = function removeItem(id, cb) {
@@ -184,19 +189,19 @@ service.updateItem = function updateItem(id, name, details, cb) {
 
   update.modifyTime = new Date();
 
-  if(name) {
+  if (name) {
     update.name = name;
   }
 
-  if(details) {
+  if (details) {
     update.details = details;
   }
 
-  if(utils.isEmptyObject(update)) {
+  if (utils.isEmptyObject(update)) {
     return cb && cb(null, 'ok');
   }
 
-  itemInfo.updateOne({ _id: id }, update, function(err, r) {
+  itemInfo.updateOne({ _id: id }, update, (err, r) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -204,7 +209,6 @@ service.updateItem = function updateItem(id, name, details, cb) {
 
     return cb && cb(null, r);
   });
-
 };
 
 service.removeProject = function removeProject(id, cb) {

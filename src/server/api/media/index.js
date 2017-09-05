@@ -388,10 +388,10 @@ router.get('/getVideo', (req, res) => {
  */
 router.get('/getStream', (req, res) => {
   service.getStream(req.query.objectId, (err, doc) => {
-    if(typeof doc.status === 'number') {
-      doc.status = doc.status + '';
+    if (typeof doc.status === 'number') {
+      doc.status += '';
     }
-    return res.json(doc)
+    return res.json(doc);
   });
 });
 
