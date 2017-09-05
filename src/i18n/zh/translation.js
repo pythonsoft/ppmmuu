@@ -357,6 +357,10 @@ module.exports = {
     code: '-13006',
     message: '{{error}}',
   },
+  getMeidaCenterSearchConfigsJSONError: {
+    code: '-13007',
+    message: '媒体库搜索配置项配置出错',
+  },
   setupFailed: {
     code: '-20001',
     message: '安装监控客户端失败',

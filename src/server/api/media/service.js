@@ -118,22 +118,30 @@ service.getMediaList = function getMediaList(info, cb) {
 };
 
 service.getSearchConfig = function getSearchConfig(cb) {
-  configurationInfo.collection.find({ key: { $in: ['category', 'duration'] } }, { fields: { key: 1, value: 1 } }).toArray((err, docs) => {
+  configurationInfo.collection.find({ key: { $in: ['meidaCenterSearchSelects', 'mediaCenterSearchRadios'] } }, { fields: { key: 1, value: 1 } }).toArray((err, docs) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
 
     const rs = {
-      category: [],
-      duration: [],
+      searchSelectConfigs: [],
+      searchRadioboxConfigs: [],
     };
 
     for (let i = 0, len = docs.length; i < len; i++) {
-      if (docs[i].key === 'category') {
-        rs.category = docs[i].value.split(',');
+      if (docs[i].key === 'meidaCenterSearchSelects') {
+        try {
+          rs.searchSelectConfigs = JSON.parse(docs[i].value);
+        }catch(e){
+          return cb && cb(i18n.t('getMeidaCenterSearchConfigsJSONError'));
+        }
       } else {
-        rs.duration = docs[i].value.split(',');
+        try {
+          rs.searchRadioboxConfigs = JSON.parse(docs[i].value);
+        }catch(e){
+          return cb && cb(i18n.t('getMeidaCenterSearchConfigsJSONError'));
+        }
       }
     }
 
