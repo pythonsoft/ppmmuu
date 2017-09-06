@@ -14,15 +14,15 @@ router.use(isLogin.middleware);
 router.use(isLogin.hasAccessMiddleware);
 
 /**
- * @permissionName: list
- * @permissionPath: /transcode/list
- * @apiName: list
- * @apiFuncType: get
- * @apiFuncUrl: /transcode/list
+ * @permissionName: download
+ * @permissionPath: /job/download
+ * @apiName: download
+ * @apiFuncType: post
+ * @apiFuncUrl: /job/download
  * @swagger
- * /transcode/list:
+ * /job/download:
  *   get:
- *     description: list transcode task
+ *     description: download task create
  *     version: 1.0.0
  *     tags:
  *       - v1
@@ -30,181 +30,46 @@ router.use(isLogin.hasAccessMiddleware);
  *     produces:
  *       - application/json
  *     parameters:
- *       - in: query
- *         name: status
- *         description: //帧索引创建  divideFile, //文件分割 transcoding, //转码 mergeFile //文件合并
- *         required: false
+ *       - in: body
+ *         name: objectid
+ *         description:
+ *         required: true
  *         type: string
  *         default: ''
  *         collectionFormat: csv
- *       - in: query
- *         name: currentStep
- *         description: 过滤出状态为currentStep 的记录 created, //创建 dealing, //处理中 error,//错误 complete //完成
- *         required: false
- *         type: string
- *         default: ''
- *         collectionFormat: csv
- *       - in: query
- *         name: page
+ *       - in: body
+ *         name: inpoint
  *         description:
  *         required: false
+ *         type: integer
+ *         default: 0
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: outpoint
+ *         description:
+ *         required: true
  *         type: integer
  *         default: 1
  *         collectionFormat: csv
- *       - in: query
- *         name: pageSize
+ *       - in: body
+ *         name: fileName
  *         description:
- *         required: false
- *         type: integer
- *         default: 20
- *         collectionFormat: csv
- *     responses:
- *       200:
- *         description: EngineGroupInfo
- */
-router.get('/list', (req, res) => {
-  const status = req.query.status;
-  const currentStep = req.query.currentStep;
-  const page = req.query.page || 1;
-  const pageSize = req.query.pageSize || 20;
-
-  res.set('Content-Type', 'application/json');
-
-  service.list(status, currentStep, page * 1, pageSize * 1, res);
-});
-
-/**
- * @permissionName: listChildTask
- * @permissionPath: /transcode/listChildTask
- * @apiName: listChildTask
- * @apiFuncType: get
- * @apiFuncUrl: /transcode/listChildTask
- * @swagger
- * /transcode/listChildTask:
- *   get:
- *     description: list child task under main task
- *     version: 1.0.0
- *     tags:
- *       - v1
- *       -
- *     produces:
- *       - application/json
- *     parameters:
- *       - in: query
- *         name: parentId
- *         description: 主任务的Id
  *         required: true
  *         type: string
  *         default: ''
  *         collectionFormat: csv
  *     responses:
  *       200:
- *         description: EngineGroupInfo
+ *         description:
  */
-router.get('/listChildTask', (req, res) => {
-  const parentId = req.query.parentId;
+router.post('/download', (req, res) => {
+  const objectid = req.body.objectid;
+  const inpoint = req.body.inpoint || 0;
+  const outpoint = req.body.outpoint;
+  const fileName = req.body.fileName;
+
   res.set('Content-Type', 'application/json');
-  service.listChildTask(parentId, res);
-});
-
-/**
- * @permissionName: restart
- * @permissionPath: /transcode/restart
- * @apiName: restart
- * @apiFuncType: get
- * @apiFuncUrl: /transcode/restart
- * @swagger
- * /transcode/restart:
- *   get:
- *     description: restart main task or child task
- *     version: 1.0.0
- *     tags:
- *       - v1
- *       -
- *     produces:
- *       - application/json
- *     parameters:
- *       - in: query
- *         name: parentId
- *         description: 主任务的Id
- *         required: false
- *         type: string
- *         default: ''
- *         collectionFormat: csv
- *       - in: query
- *         name: childTaskId
- *         description: 子任务
- *         required: false
- *         type: string
- *         default: ''
- *         collectionFormat: csv
- *       - in: query
- *         name: type
- *         description: 任务的类型，针对子任务，如果为主任务，则不需要传此参数，index || divide || transcode || merge
- *         required: false
- *         type: string
- *         default: ''
- *         collectionFormat: csv
- *     responses:
- *       200:
- *         description: EngineGroupInfo
- */
-router.get('/restart', (req, res) => {
-  const parentId = req.query.parentId;
-  const childTaskId = req.query.childTaskId;
-  const type = req.query.type;
-
-  service.restart(parentId, childTaskId, type, res);
-});
-
-/**
- * @permissionName: stop
- * @permissionPath: /transcode/stop
- * @apiName: stop
- * @apiFuncType: get
- * @apiFuncUrl: /transcode/stop
- * @swagger
- * /transcode/stop:
- *   get:
- *     description: stop main task or child task
- *     version: 1.0.0
- *     tags:
- *       - v1
- *       -
- *     produces:
- *       - application/json
- *     parameters:
- *       - in: query
- *         name: parentId
- *         description: 主任务的Id
- *         required: false
- *         type: string
- *         default: ''
- *         collectionFormat: csv
- *       - in: query
- *         name: childTaskId
- *         description: 子任务
- *         required: false
- *         type: string
- *         default: ''
- *         collectionFormat: csv
- *       - in: query
- *         name: type
- *         description: 任务的类型，针对子任务，如果为主任务，则不需要传此参数，index || divide || transcode || merge
- *         required: false
- *         type: string
- *         default: ''
- *         collectionFormat: csv
- *     responses:
- *       200:
- *         description: EngineGroupInfo
- */
-router.get('/stop', (req, res) => {
-  const parentId = req.query.parentId;
-  const childTaskId = req.query.childTaskId;
-  const type = req.query.type;
-
-  service.stop(parentId, childTaskId, type, res);
+  service.download({ objectid, inpoint: inpoint * 1, outpoint: outpoint * 1, fileName }, res);
 });
 
 module.exports = router;

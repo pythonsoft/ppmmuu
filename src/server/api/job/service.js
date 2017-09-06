@@ -1,10 +1,11 @@
 /**
- * Created by steven on 2017/6/20.
+ * Created by steven on 2017/9/6.
  */
 
 'use strict';
 
 const config = require('../../config');
+const utils = require('../../common/utils');
 const i18n = require('i18next');
 
 const HttpRequest = require('../../common/httpRequest');
@@ -19,66 +20,39 @@ const request = new HttpRequest({
 
 const service = {};
 
-var a = {
-  "objectid":"dsafdsg",
-  "inpoint":0,//起始帧
-  "outpoint":412435,//结束帧
-  "fileName":"dsaf"//文件名
+const errorCall = function(str) {
+  return JSON.stringify({ status: 1, data: {}, statusInfo: i18n.t(str) });
 };
 
 service.download = function download(downloadParams, res) {
   if(!downloadParams) {
-    return res.end(JSON.stringify({ status: 1, data: {}, statusInfo: i18n.t('childTaskParentIdIsNull') }));
-  }
-};
-
-service.list = function list(status, currentStep, page = 1, pageSize = 20, res) {
-  const param = { page, pageSize };
-
-  if (status) {
-    param.status = status;
+    return res.end(errorCall('joDownloadParamsIsNull'));
   }
 
-  if (currentStep) {
-    param.currentStep = currentStep;
+  const params = utils.merge({
+    objectid: "",
+    inpoint: 0,
+    outpoint: 0,
+    fileName: ''
+  }, downloadParams);
+
+  if(!params.objectid) {
+    return res.end(errorCall('joDownloadParamsObjectIdIsNull'));
   }
 
-  request.get('/TranscodingTask/list', param, res);
-};
-
-service.listChildTask = function listChildTask(parentId, res) {
-  if (!parentId) {
-    return res.end(JSON.stringify({ status: 1, data: {}, statusInfo: i18n.t('childTaskParentIdIsNull') }));
+  if(!params.fileName) {
+    return res.end(errorCall('joDownloadParamsFileNameIsNull'));
   }
 
-  request.get('/TranscodingTask/listChild', { id: parentId }, res);
-};
-
-const execCommand = function execCommand(command, parentTaskId, taskId, type, res) {
-  if (parentTaskId) {
-    request.get(`/TranscodingTask/${command}`, { taskId: parentTaskId }, res);
-    return false;
+  if(typeof params.inpoint !== 'number' || typeof params.outpoint !== 'number') {
+    return res.end(errorCall('joDownloadParamsInpointOrOutpointTypeError'));
   }
 
-  if (!taskId) {
-    return res.end(JSON.stringify({ status: 1, data: {}, statusInfo: i18n.t('childTaskIdIsNotExist') }));
+  if(params.inpoint < params.outpoint) {
+    return res.end(errorCall('joDownloadParamsInpointLessThanOutpointTypeError'));
   }
 
-  const cfg = TASK_CONFIG[type];
-
-  if (!cfg) {
-    return res.end(JSON.stringify({ status: 1, data: {}, statusInfo: i18n.t('taskTypeIsNotExist') }));
-  }
-
-  request.get(cfg[command], { taskId }, res);
-};
-
-service.restart = function restart(parentTaskId, taskId, type, res) {
-  execCommand('restart', parentTaskId, taskId, type, res);
-};
-
-service.stop = function restart(parentTaskId, taskId, type, res) {
-  execCommand('stop', parentTaskId, taskId, type, res);
+  request.post('/JobService/download', params, res);
 };
 
 module.exports = service;

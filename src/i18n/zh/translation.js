@@ -433,4 +433,24 @@ module.exports = {
     code: '-40010',
     message: '此项目不能被删除',
   },
+  joDownloadParamsIsNull: {
+    code: '-50001',
+    message: '下载参数为空，请正确传入参数',
+  },
+  joDownloadParamsFileNameIsNull: {
+    code: '-50002',
+    message: '下载参数fileName为空，请正确传入参数',
+  },
+  joDownloadParamsObjectIdIsNull: {
+    code: '-50003',
+    message: '下载参数objectid为空，请正确传入参数',
+  },
+  joDownloadParamsInpointOrOutpointTypeError: {
+    code: '-50004',
+    message: '下载参数inpoint或outpoint参数类型不正确',
+  },
+  joDownloadParamsInpointLessThanOutpointTypeError: {
+    code: '-50005',
+    message: '下载参数inpoint值小于outpoint值',
+  },
 };
