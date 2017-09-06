@@ -85,7 +85,7 @@ service.getMediaList = function getMediaList(info, cb) {
     if (index >= categories.length) {
       return cb && cb(null, result);
     }
-    const category = categories[index];
+    const category = categories[index].label;
     const query = {
       q: `program_type:${category}`,
       fl: 'id,duration,name,ccid,program_type,program_name_cn,hd_flag,program_name_en,last_modify',
@@ -107,7 +107,11 @@ service.getMediaList = function getMediaList(info, cb) {
       return cb && cb(i18n.t('databaseError'));
     }
 
-    const categories = rs.category;
+    if(!rs.searchSelectConfigs.length) {
+      return cb & cb(null, result);
+    }
+
+    const categories = rs.searchSelectConfigs[0].items;
 
     if (!categories.length) {
       return cb & cb(null, result);
