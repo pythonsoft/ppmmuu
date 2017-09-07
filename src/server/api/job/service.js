@@ -20,35 +20,35 @@ const request = new HttpRequest({
 
 const service = {};
 
-const errorCall = function(str) {
+const errorCall = function (str) {
   return JSON.stringify({ status: 1, data: {}, statusInfo: i18n.t(str) });
 };
 
 service.download = function download(downloadParams, res) {
-  if(!downloadParams) {
+  if (!downloadParams) {
     return res.end(errorCall('joDownloadParamsIsNull'));
   }
 
   const params = utils.merge({
-    objectid: "",
+    objectid: '',
     inpoint: 0,
     outpoint: 0,
-    fileName: ''
+    fileName: '',
   }, downloadParams);
 
-  if(!params.objectid) {
+  if (!params.objectid) {
     return res.end(errorCall('joDownloadParamsObjectIdIsNull'));
   }
 
-  if(!params.fileName) {
+  if (!params.fileName) {
     return res.end(errorCall('joDownloadParamsFileNameIsNull'));
   }
 
-  if(typeof params.inpoint !== 'number' || typeof params.outpoint !== 'number') {
+  if (typeof params.inpoint !== 'number' || typeof params.outpoint !== 'number') {
     return res.end(errorCall('joDownloadParamsInpointOrOutpointTypeError'));
   }
 
-  if(params.inpoint < params.outpoint) {
+  if (params.inpoint < params.outpoint) {
     return res.end(errorCall('joDownloadParamsInpointLessThanOutpointTypeError'));
   }
 

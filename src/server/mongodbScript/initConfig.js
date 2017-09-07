@@ -20,9 +20,9 @@ const meidaCenterSearchSelects = [
       { value: '包裝', label: '包裝' },
       { value: '自製', label: '自製' },
       { value: '墊播', label: '墊播' },
-      { value: '素材', label: '素材' }
+      { value: '素材', label: '素材' },
     ],
-    selected: ''
+    selected: '',
   },
   {
     key: 'ccid',
@@ -33,9 +33,9 @@ const meidaCenterSearchSelects = [
       { value: '片段子類', label: '片段子類' },
       { value: '場景子類', label: '場景子類' },
       { value: '片頭子類', label: '片頭子類' },
-      { value: 'segment', label: 'segment' }
+      { value: 'segment', label: 'segment' },
     ],
-    selected: ''
+    selected: '',
   },
   {
     key: 'f_str_145',
@@ -59,9 +59,9 @@ const meidaCenterSearchSelects = [
       { value: '咨詢台新聞', label: '咨詢台新聞' },
       { value: '全球', label: '全球' },
       { value: '咨詢台十週年節目素材', label: '咨詢台十週年節目素材' },
-      { value: 'NowTV', label: 'NowTV' }
+      { value: 'NowTV', label: 'NowTV' },
     ],
-    selected: ''
+    selected: '',
   },
   {
     key: 'f_str_324',
@@ -248,9 +248,9 @@ const meidaCenterSearchSelects = [
       { value: '南斯拉夫', label: 'Yugoslavia YU南斯拉夫' },
       { value: '津巴布韋', label: 'Zimbabwe ZW津巴布韋' },
       { value: '扎伊爾', label: 'Zaire ZR扎伊爾' },
-      { value: '贊比亞', label: 'Zambia ZM贊比亞' }
+      { value: '贊比亞', label: 'Zambia ZM贊比亞' },
     ],
-    selected: ''
+    selected: '',
   },
   {
     key: 'f_str_323',
@@ -268,9 +268,9 @@ const meidaCenterSearchSelects = [
       { value: '國際版', label: '國際版' },
       { value: '拷貝板', label: '拷貝板' },
       { value: '播放前版', label: '播放前版' },
-      { value: '參展版', label: '參展版' }
+      { value: '參展版', label: '參展版' },
     ],
-    selected: ''
+    selected: '',
   },
   {
     key: 'f_str_223',
@@ -282,9 +282,9 @@ const meidaCenterSearchSelects = [
       { value: '香港', label: '香港' },
       { value: '台北', label: '台北' },
       { value: '上海', label: '上海' },
-      { value: 'NIL', label: 'NIL' }
+      { value: 'NIL', label: 'NIL' },
     ],
-    selected: ''
+    selected: '',
   },
   {
     key: 'f_str_314',
@@ -301,10 +301,10 @@ const meidaCenterSearchSelects = [
       { value: '中文台時尚製作組', label: '中文台時尚製作組' },
       { value: '中文台時尚主編組', label: '中文台時尚主編組' },
       { value: '節目購銷部', label: '節目購銷部' },
-      { value: '影帶管理部', label: '影帶管理部' }
+      { value: '影帶管理部', label: '影帶管理部' },
     ],
-    selected: ''
-  }
+    selected: '',
+  },
 ];
 
 const mediaCenterSearchRadios = [
@@ -314,9 +314,9 @@ const mediaCenterSearchRadios = [
     items: [
       { value: '', label: '全部' },
       { value: 1, label: '高清' },
-      { value: 0, label: '標清' }
+      { value: 0, label: '標清' },
     ],
-    selected: ''
+    selected: '',
   },
   {
     key: 'f_str_067',
@@ -324,10 +324,10 @@ const mediaCenterSearchRadios = [
     items: [
       { value: '', label: '全部' },
       { value: '是', label: '是' },
-      { value: '否', label: '否' }
+      { value: '否', label: '否' },
     ],
-    selected: ''
-  }
+    selected: '',
+  },
 ];
 
 configGroup.collection.findOne({ name: '新版媒体库搜索配置' }, { fields: { name: 1 } }, (err, doc) => {
@@ -350,7 +350,7 @@ configGroup.collection.findOne({ name: '新版媒体库搜索配置' }, { fields
       if (err) {
         console.log(err);
       }
-      
+
       if (!doc) {
         console.log('没有创建媒体库搜索配置组');
       } else {

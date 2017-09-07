@@ -5,9 +5,6 @@ const webpack = require('webpack');
 const del = require('del');
 const webpackConfig = require('../webpack.config');
 const fs = require('fs');
-const uuid = require('uuid');
-const mongodb = require('mongodb');
-const config = require('./server/config');
 
 const apiPathFile = path.join(__dirname, './server/apiPath.js');
 const buildPath = path.join(__dirname, '../build');
@@ -156,14 +153,14 @@ const initPermissionInfo = function initPermissionInfo() {
   permissionNames.push('所有权限');
   permissionPaths.push('all');
 
-  console.log("write permission files");
-  fs.readFile(initPermissionPath, 'utf8', function (err,data) {
+  console.log('write permission files');
+  fs.readFile(initPermissionPath, 'utf8', (err, data) => {
     if (err) {
       return console.log(err);
     }
     let result = data.replace(/const permissionNames = .*/g, `const permissionNames = ${JSON.stringify(permissionNames)}`);
     result = result.replace(/const permissionPaths = .*/g, `const permissionPaths = ${JSON.stringify(permissionPaths)}`);
-    fs.writeFile(initPermissionPath, result, 'utf8', function (err) {
+    fs.writeFile(initPermissionPath, result, 'utf8', (err) => {
       if (err) return console.log(err);
     });
   });
