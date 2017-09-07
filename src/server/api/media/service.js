@@ -107,7 +107,7 @@ service.getMediaList = function getMediaList(info, cb) {
       return cb && cb(i18n.t('databaseError'));
     }
 
-    if(!rs.searchSelectConfigs.length) {
+    if (!rs.searchSelectConfigs.length) {
       return cb & cb(null, result);
     }
 
@@ -137,13 +137,13 @@ service.getSearchConfig = function getSearchConfig(cb) {
       if (docs[i].key === 'meidaCenterSearchSelects') {
         try {
           rs.searchSelectConfigs = JSON.parse(docs[i].value);
-        }catch(e){
+        } catch (e) {
           return cb && cb(i18n.t('getMeidaCenterSearchConfigsJSONError'));
         }
       } else {
         try {
           rs.searchRadioboxConfigs = JSON.parse(docs[i].value);
-        }catch(e){
+        } catch (e) {
           return cb && cb(i18n.t('getMeidaCenterSearchConfigsJSONError'));
         }
       }

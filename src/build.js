@@ -5,12 +5,10 @@ const webpack = require('webpack');
 const del = require('del');
 const webpackConfig = require('../webpack.config');
 const fs = require('fs');
-const uuid = require('uuid');
-const mongodb = require('mongodb');
-const config = require('./server/config');
 
 const apiPathFile = path.join(__dirname, './server/apiPath.js');
 const buildPath = path.join(__dirname, '../build');
+const initPermissionPath = path.join(__dirname, './server/mongodbScript/initPermissionInfo.js');
 const feApiPath = path.join(buildPath, 'api');
 
 let permissionNames = [];
@@ -154,64 +152,18 @@ const axios = require('../config');
 const initPermissionInfo = function initPermissionInfo() {
   permissionNames.push('所有权限');
   permissionPaths.push('all');
-  const nLength = permissionNames.length;
-  const pLength = permissionPaths.length;
-  if (nLength && nLength === pLength) {
-    /* eslint-disable consistent-return */
-    mongodb.MongoClient.connect(config.mongodb.umpURL, (err, db) => {
-      if (err) {
-        console.log(err);
-        return false;
-      }
-      console.log('mongodb connect utils!');
-      const permissionInfo = db.collection('PermissionInfo');
-      // permissionInfo.find().toArray((err, docs) => {
-      //   if (err) {
-      //     console.log(err);
-      //     return false;
-      //   }
-      //
-      //   if (docs && docs.length) {
-      //     for (let i = 0, len = docs.length; i < len; i++) {
-      //       const index = permissionPaths.indexOf(docs[i].path);
-      //       if (index !== -1) {
-      //         permissionPaths.splice(index, 1);
-      //         permissionNames.splice(index, 1);
-      //       }
-      //     }
-      //   }
 
-      permissionInfo.removeMany({}, (err) => {
-        if (err) {
-          throw new Error(`权限表初始化有问题:${err.message}`);
-        }
-        const info = [];
-        for (let i = 0; i < permissionPaths.length; i++) {
-          info.push({
-            _id: uuid.v1(),
-            name: permissionNames[i],
-            path: permissionPaths[i],
-            createdTime: new Date(),
-            modifyTime: new Date(),
-            status: '0',
-          });
-        }
-        if (info.length) {
-          permissionInfo.insert(info, {
-            w: 1,
-          }, (err) => {
-            if (err) {
-              throw new Error(`权限表初始化有问题:${err.message}`);
-            }
-            return true;
-          });
-        }
-      });
+  console.log('write permission files');
+  fs.readFile(initPermissionPath, 'utf8', (err, data) => {
+    if (err) {
+      return console.log(err);
+    }
+    let result = data.replace(/const permissionNames = .*/g, `const permissionNames = ${JSON.stringify(permissionNames)}`);
+    result = result.replace(/const permissionPaths = .*/g, `const permissionPaths = ${JSON.stringify(permissionPaths)}`);
+    fs.writeFile(initPermissionPath, result, 'utf8', (err) => {
+      if (err) return console.log(err);
     });
-    /* eslint-enable consistent-return */
-  } else if (nLength !== pLength) {
-    throw new Error('api接口权限注释有问题');
-  }
+  });
 };
 
 generateFeApiFuncFile();
