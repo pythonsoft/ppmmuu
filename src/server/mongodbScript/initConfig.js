@@ -13,7 +13,6 @@ const meidaCenterSearchSelects = [
     key: 'program_type',
     label: '節目類型',
     items: [
-      { value: '', label: '请选择' },
       { value: '宣傳', label: '宣傳' },
       { value: '廣告', label: '廣告' },
       { value: '採購', label: '採購' },
@@ -28,7 +27,6 @@ const meidaCenterSearchSelects = [
     key: 'ccid',
     label: '編目類',
     items: [
-      { value: '', label: '请选择' },
       { value: '視音頻類', label: '視音頻類' },
       { value: '片段子類', label: '片段子類' },
       { value: '場景子類', label: '場景子類' },
@@ -41,7 +39,6 @@ const meidaCenterSearchSelects = [
     key: 'f_str_145',
     label: '新聞類型',
     items: [
-      { value: '', label: '请选择' },
       { value: '鳳凰新聞', label: '鳳凰新聞' },
       { value: '美聯社外電', label: '美聯社外電' },
       { value: '路透社外電', label: '路透社外電' },
@@ -67,7 +64,6 @@ const meidaCenterSearchSelects = [
     key: 'f_str_324',
     label: '事發國家',
     items: [
-      { value: '', label: '请选择' },
       { value: '安哥拉', label: 'Angola AO安哥拉' },
       { value: '阿富汗', label: 'Afghanistan AF阿富汗' },
       { value: '阿爾巴尼亞', label: 'Albania AL阿爾巴尼亞' },
@@ -256,7 +252,6 @@ const meidaCenterSearchSelects = [
     key: 'f_str_323',
     label: '版本',
     items: [
-      { value: '', label: '请选择' },
       { value: '播出版', label: '播出版' },
       { value: '素材版', label: '素材版' },
       { value: '配音字幕版', label: '配音字幕版' },
@@ -276,7 +271,6 @@ const meidaCenterSearchSelects = [
     key: 'f_str_223',
     label: '製作地點',
     items: [
-      { value: '', label: '请选择' },
       { value: '北京', label: '北京' },
       { value: '深圳', label: '深圳' },
       { value: '香港', label: '香港' },
@@ -290,7 +284,6 @@ const meidaCenterSearchSelects = [
     key: 'f_str_314',
     label: '資源所屬部門',
     items: [
-      { value: '', label: '请选择' },
       { value: '節目資料管理部', label: '節目資料管理部' },
       { value: '鏡面宣傳部', label: '鏡面宣傳部' },
       { value: '頻道編輯部', label: '頻道編輯部' },
@@ -312,21 +305,21 @@ const mediaCenterSearchRadios = [
     key: 'hd_flag',
     label: '高標清',
     items: [
-      { value: '', label: '全部' },
+      { value: 'all', label: '全部' },
       { value: 1, label: '高清' },
       { value: 0, label: '標清' },
     ],
-    selected: '',
+    selected: 'all',
   },
   {
     key: 'f_str_067',
     label: '是否歸檔',
     items: [
-      { value: '', label: '全部' },
+      { value: 'all', label: '全部' },
       { value: '是', label: '是' },
       { value: '否', label: '否' },
     ],
-    selected: '',
+    selected: 'all',
   },
 ];
 
