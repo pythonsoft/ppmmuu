@@ -433,6 +433,10 @@ module.exports = {
     code: '-40010',
     message: '此项目不能被删除',
   },
+  ivideoItemDefaultName: {
+    code: '-40011',
+    message: '默认目录',
+  },
   joDownloadParamsIsNull: {
     code: '-50001',
     message: '下载参数为空，请正确传入参数',

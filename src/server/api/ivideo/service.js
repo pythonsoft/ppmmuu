@@ -48,7 +48,7 @@ service.ensureAccountInit = function ensureMyResource(creatorId, cb) {
         return cb && cb(i18n.t('databaseError'));
       }
 
-      return cb && cb(err, doc, isNew);
+      createSnippetOrDirItem(creatorId, i18n.t('ivideoItemDefaultName').message, doc._id, ItemInfo.TYPE.DIRECTORY, {}, {}, (err, r) => cb && cb(err, doc, isNew));
       // service.createProject(creatorId, i18n.t('ivideoProjectDefaultNameNull').message, ProjectInfo.TYPE.PROJECT_RESOURCE, '0', (err, projectDoc) => cb && cb(err, { myResource: doc, defaultProject: projectDoc }));
     });
   });
