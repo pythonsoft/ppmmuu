@@ -111,7 +111,7 @@ router.get('/init', (req, res) => {
  *             duration 0}
  *           details object
  *
- **/
+ * */
 router.get('/listItem', (req, res) => {
   const userId = req.ex.userInfo._id;
   const parentId = req.query.parentId;
@@ -257,7 +257,7 @@ router.post('/createItem', (req, res) => {
  *     responses:
  *       200:
  *         description: ''
- **/
+ * */
 router.post('/removeItem', (req, res) => {
   service.removeItem(req.body.id, (err, r) => res.json(result.json(err, r)));
 });
@@ -295,7 +295,7 @@ router.post('/removeItem', (req, res) => {
  *     responses:
  *       200:
  *         description: ''
- **/
+ * */
 router.post('/updateItem', (req, res) => {
   service.updateItem(req.body.id, req.body.name, req.body.details, (err, r) => res.json(result.json(err, r)));
 });
@@ -360,7 +360,7 @@ router.post('/createProject', (req, res) => {
  *     responses:
  *       200:
  *         description: ''
- **/
+ * */
 router.post('/removeProject', (req, res) => {
   service.removeProject(req.body.id, (err, r) => res.json(result.json(err, r)));
 });
@@ -399,7 +399,7 @@ router.post('/removeProject', (req, res) => {
  *     responses:
  *       200:
  *         description: ''
- **/
+ * */
 router.get('/listProject', (req, res) => {
   const userId = req.ex.userInfo._id;
   const sortFields = req.query.sortFields || '';
