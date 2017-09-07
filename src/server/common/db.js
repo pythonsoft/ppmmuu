@@ -154,6 +154,7 @@ class DB {
 
     this.collection.insertOne(doc, (err, r) => {
       if (err) {
+        logger.error(JSON.stringify(err));
         return cb && cb(i18n.t('databaseError'));
       }
 

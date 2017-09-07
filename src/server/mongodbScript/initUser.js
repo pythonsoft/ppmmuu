@@ -24,6 +24,8 @@ const user = {
   createdAt: new Date(),
 };
 
+userInfo.collection.dropIndex('phone_1');
+
 userInfo.collection.findOne({ email }, { fields: { email: 1 } }, (err, doc) => {
   if (err) {
     console.log(err);
