@@ -69,8 +69,7 @@ class UserInfo extends DB {
   constructor() {
     super(config.dbInstance.umpDB, 'UserInfo', [
       { key: { name: 1 }, name: 'user_name', unique: true },
-      { key: { email: 1 }, unique: true },
-      { key: { phone: 1 }, unique: true },
+      { key: { email: 1 }, unique: true }
     ]);
 
     this.struct = {
