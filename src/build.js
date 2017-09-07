@@ -197,7 +197,7 @@ const initPermissionInfo = function initPermissionInfo() {
           });
         }
         if (info.length) {
-          permissionInfo.insert(info, {
+          permissionInfo.insertMany(info, {
             w: 1,
           }, (err) => {
             if (err) {
