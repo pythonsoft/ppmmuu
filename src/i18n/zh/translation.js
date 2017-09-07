@@ -453,4 +453,52 @@ module.exports = {
     code: '-50005',
     message: '下载参数inpoint值小于outpoint值',
   },
+  jobListParamsIsNull: {
+    code: '-50010',
+    message: '任务列表参数为空',
+  },
+  jobListTemplateParamsIsNull: {
+    code: '-50011',
+    message: '模板列表参数为空',
+  },
+  jobQueryParamsIsNull: {
+    code: '-50012',
+    message: '任务详情参数为空',
+  },
+  jobQueryParamsIdIsNull: {
+    code: '-50013',
+    message: '任务详情参数jobid为空',
+  },
+  jobRestartParamsIsNull: {
+    code: '-50014',
+    message: '重启任务参数为空',
+  },
+  jobRestartParamsIdIsNull: {
+    code: '-50015',
+    message: '重启任务参数id为空',
+  },
+  jobStopParamsIsNull: {
+    code: '-50016',
+    message: '停止任务参数为空',
+  },
+  jobStopParamsIdIsNull: {
+    code: '-50017',
+    message: '停止任务参数id为空',
+  },
+  jobDeleteParamsIsNull: {
+    code: '-50018',
+    message: '删除任务参数为空',
+  },
+  jobDeleteParamsIdIsNull: {
+    code: '-50019',
+    message: '删除任务参数id为空',
+  },
+  jobCreateTemplateParamsIsNull: {
+    code: '-50020',
+    message: '创建template参数为空',
+  },
+  jobCreateTemplateParamsCreateJsonIsNull: {
+    code: '-50021',
+    message: '创建template参数createJson为空',
+  },
 };
