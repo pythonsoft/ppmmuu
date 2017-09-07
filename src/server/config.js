@@ -38,6 +38,11 @@ config.TRANSCODE_API_SERVER = {
   port: 8080,
 };
 
+config.JOB_API_SERVER = {
+  hostname: '10.0.15.80',
+  port: 8080,
+};
+
 const init = function init() {
   const redisClient = redis.createClient(config.redis_port, config.redis_host, config.redis_opts);
 
