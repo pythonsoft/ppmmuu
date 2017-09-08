@@ -46,24 +46,32 @@ function setCookie2(res, doc, cb) {
 
 function webosLogin(userId, password, cb) {
   const wos = new WebosApi(config.WEBOS_SERVER);
-  wos.getTicket(userId, password, (err) => {
+  wos.getTicket(userId, password, (err, r) => {
     if (err) {
       return cb && cb(err);
     }
-    return cb && cb(null);
+    const iL = WebosApi.decryptTicket(r, config.WEBOS_SERVER.key);
+    if (iL[0] === userId) {
+      return cb && cb(null);
+    }
+    return cb && cb('email not matched');
   });
 }
 
 service.login = function login(res, username, password, cb) {
   const cipherPassword = utils.cipher(password, config.KEY);
-  const query = {
-    email: username,
-    // password: cipherPassword,
-  };
+  if (username.indexOf('@') === -1) {
+    username = `${username}@phoenixtv.com`;
+  }
 
   if (!utils.checkEmail(username)) {
     return cb && cb(i18n.t('usernameOrPasswordIsWrong'));
   }
+
+  const query = {
+    email: username,
+    // password: cipherPassword,
+  };
 
   userInfo.collection.findOne(query, {
     fields: {
