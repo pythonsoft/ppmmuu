@@ -43,6 +43,12 @@ config.JOB_API_SERVER = {
   port: 8080,
 };
 
+config.WEBOS_SERVER = {
+  hostname: 'hkss7.phoenixtv.com',
+  port: 80,
+  key: 'aXVhbEEpIWM='
+};
+
 const init = function init() {
   const redisClient = redis.createClient(config.redis_port, config.redis_host, config.redis_opts);
 
