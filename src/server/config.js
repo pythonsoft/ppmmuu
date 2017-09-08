@@ -44,7 +44,7 @@ config.JOB_API_SERVER = {
 };
 
 config.WEBOS_SERVER = {
-  hostname: 'hkss7.phoenixtv.com',
+  hostname: 'webos.phoenixtv.com',
   port: 80,
   key: 'aXVhbEEpIWM='
 };
