@@ -22,12 +22,12 @@ const service = {};
 service.login = function login(res, username, password, cb) {
   const cipherPassword = utils.cipher(password, config.KEY);
   const query = {
-    name: username,
+    email: username,
     password: cipherPassword,
   };
 
-  if (utils.checkEmail(username)) {
-    query._id = username;
+  if (!utils.checkEmail(username)) {
+    return cb && cb(i18n.t('usernameOrPasswordIsWrong'));
   }
 
   userInfo.collection.findOne(query, {
