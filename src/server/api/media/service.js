@@ -156,12 +156,13 @@ service.getMediaList = function getMediaList(info, cb) {
   });
 };
 
-(function cacheMediaList() {
-  service.getMediaList({ pageSize: 20 }, (err, r) => {
-    console.log(r);
-  });
-}());
-
+// (function cacheMediaList() {
+//   service.getMediaList({ pageSize: 20 }, (err, r) => {
+//     redisClient.hmset('cachedMediaList', r);
+//     setTimeout(cacheMediaList, 1000 * );
+//   });
+// }());
+//
 service.getIcon = function getIcon(info, res) {
   const struct = {
     objectid: { type: 'string', validation: 'require' },
