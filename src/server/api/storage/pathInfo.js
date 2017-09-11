@@ -63,6 +63,8 @@ class PathInfo extends DB {
       webClientPath: { type: 'string' },
       streamingPath: { type: 'string' },
       ftpPath: { type: 'string' },
+      windowsStoragePath: { type: 'string' },
+      linuxStoragePath: { type: 'string' },
       reserveCapability: { type: 'number', default: -1 },
       bucket: { type: 'object', default: { _id: '', name: '' }, validation: 'require' },
       creator: { type: 'object', default: { _id: '', name: '' }, validation: 'require', allowUpdate: false },
