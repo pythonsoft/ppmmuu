@@ -26,7 +26,6 @@ router.use(isLogin.hasAccessMiddleware);
  *     version: 1.0.0
  *     tags:
  *       - v1
- *       -
  *     produces:
  *       - application/json
  *     parameters:
@@ -70,6 +69,68 @@ router.post('/download', (req, res) => {
 
   res.set('Content-Type', 'application/json');
   service.download({ objectid, inpoint: inpoint * 1, outpoint: outpoint * 1, fileName }, res);
+});
+
+/**
+ * @permissionName: createTemplate
+ * @permissionPath: /job/createTemplate
+ * @apiName: createTemplate
+ * @apiFuncType: post
+ * @apiFuncUrl: /job/createTemplate
+ * @swagger
+ * /job/createTemplate:
+ *   post:
+ *     description: create template
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: createJson
+ *         required: true
+ *         type: string
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description:
+ */
+router.post('/createTemplate', (req, res) => {
+  const createJson = req.body.createJson;
+  res.set('Content-Type', 'application/json');
+  service.createJson({ createJson }, res);
+});
+
+/**
+ * @permissionName: updateTemplate
+ * @permissionPath: /job/updateTemplate
+ * @apiName: updateTemplate
+ * @apiFuncType: post
+ * @apiFuncUrl: /job/updateTemplate
+ * @swagger
+ * /job/updateTemplate:
+ *   post:
+ *     description: updateTemplate
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: updateJson
+ *         required: true
+ *         type: string
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description:
+ */
+router.post('/updateTemplate', (req, res) => {
+  const updateJson = req.body.updateJson;
+  res.set('Content-Type', 'application/json');
+  service.updateJson({ updateJson }, res);
 });
 
 /**
@@ -268,6 +329,36 @@ router.get('/delete', (req, res) => {
   const jobId = req.query.jobId;
   res.set('Content-Type', 'application/json');
   service.delete({ jobId }, res);
+});
+
+/**
+ * @permissionName: deleteTemplate
+ * @permissionPath: /job/deleteTemplate
+ * @apiName: deleteTemplate
+ * @apiFuncType: get
+ * @apiFuncUrl: /job/deleteTemplate
+ * @swagger
+ * /job/deleteTemplate:
+ *   get:
+ *     description: delete
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: templateId
+ *         type: string
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: templateList
+ */
+router.get('/deleteTemplate', (req, res) => {
+  const templateId = req.query.templateId;
+  res.set('Content-Type', 'application/json');
+  service.deleteTemplate({ templateId }, res);
 });
 
 module.exports = router;

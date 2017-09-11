@@ -195,6 +195,10 @@ router.get('/getMediaList', (req, res) => {
   service.getMediaList(req.query, (err, doc) => res.json(result.json(err, doc)));
 });
 
+router.get('/defaultMedia', (req, res) => {
+  service.defaultMediaList((err, r) => res.json(result.json(err, r)));
+});
+
 /**
  * @apiName: getSearchConfig
  * @apiFuncType: get
