@@ -513,4 +513,8 @@ module.exports = {
     code: '-50021',
     message: '创建template参数createJson为空',
   },
+  notImplementedVerityType: {
+    code: '-60000',
+    message: '未实装的verifyType',
+  },
 };

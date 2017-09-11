@@ -8,6 +8,7 @@ const logger = require('../../common/log')('error');
 const i18n = require('i18next');
 const utils = require('../../common/utils');
 const Token = require('../../common/token');
+const WebosApi = require('../../common/webosAPI');
 const config = require('../../config');
 const Login = require('../../middleware/login');
 
@@ -19,20 +20,64 @@ const groupUserService = require('../group/userService');
 
 const service = {};
 
+function setCookie2(res, doc, cb) {
+  const expires = new Date().getTime() + config.cookieExpires;
+  const token = Token.create(doc._id, expires, config.KEY);
+
+  Login.getUserInfo(doc._id, (err, info) => {
+    if (err) {
+      return cb && cb(i18n.t('loginCannotGetUserInfo'));
+    }
+
+    const permissions = info.permissions || [];
+    const menu = permissions.length ? config.adminMenuPermission : config.normalMenuPermission;
+
+    res.cookie('ticket', token, {
+      expires: new Date(expires),
+      httpOnly: true,
+    });
+
+    return cb && cb(null, {
+      token,
+      menu,
+    });
+  });
+}
+
+function webosLogin(userId, password, cb) {
+  const wos = new WebosApi(config.WEBOS_SERVER);
+  wos.getTicket(userId, password, (err, r) => {
+    if (err) {
+      return cb && cb(err);
+    }
+    const iL = WebosApi.decryptTicket(r, config.WEBOS_SERVER.key);
+    if (iL[0] === userId) {
+      return cb && cb(null);
+    }
+    return cb && cb('email not matched');
+  });
+}
+
 service.login = function login(res, username, password, cb) {
   const cipherPassword = utils.cipher(password, config.KEY);
-  const query = {
-    email: username,
-    password: cipherPassword,
-  };
+  if (username.indexOf('@') === -1) {
+    username = `${username}@phoenixtv.com`;
+  }
 
   if (!utils.checkEmail(username)) {
     return cb && cb(i18n.t('usernameOrPasswordIsWrong'));
   }
 
+  const query = {
+    email: username,
+    // password: cipherPassword,
+  };
+
   userInfo.collection.findOne(query, {
     fields: {
       _id: 1,
+      password: 1,
+      verifyType: 1,
     },
   }, (err, doc) => {
     if (err) {
@@ -44,28 +89,21 @@ service.login = function login(res, username, password, cb) {
       return cb && cb(i18n.t('usernameOrPasswordIsWrong'));
     }
 
-    const expires = new Date().getTime() + config.cookieExpires;
-    const token = Token.create(doc._id, expires, config.KEY);
-
-
-    Login.getUserInfo(doc._id, (err, info) => {
-      if (err) {
-        return cb && cb(i18n.t('loginCannotGetUserInfo'));
+    if (UserInfo.VERIFY_TYPE.PASSWORD === doc.verifyType) {
+      if (cipherPassword !== doc.password) {
+        return cb && cb(i18n.t('usernameOrPasswordIsWrong'));
       }
-
-      const permissions = info.permissions || [];
-      const menu = permissions.length ? ['mediaCenter', 'taskCenter', 'personalCenter', 'management'] : ['mediaCenter', 'taskCenter', 'personalCenter'];
-
-      res.cookie('ticket', token, {
-        expires: new Date(expires),
-        httpOnly: true,
+      setCookie2(res, doc, cb);
+    } else if (UserInfo.VERIFY_TYPE.WEBOS === doc.verifyType) {
+      webosLogin(username, password, (err) => {
+        if (err) {
+          return cb && cb(i18n.t('usernameOrPasswordIsWrong'));
+        }
+        setCookie2(res, doc, cb);
       });
-
-      return cb && cb(null, {
-        token,
-        menu,
-      });
-    });
+    } else {
+      return cb && cb(i18n.t('notImplementedVerityType'));
+    }
   });
 };
 
@@ -95,7 +133,6 @@ service.getUserDetail = function getUserDetail(_id, cb) {
   }, (err, doc) => {
     if (err) {
       logger.error(err.message);
-      console.log(err);
       return cb && cb(i18n.t('databaseError'));
     }
     if (!doc) {
