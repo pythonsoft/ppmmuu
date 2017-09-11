@@ -55,6 +55,34 @@ service.download = function download(downloadParams, res) {
   request.post('/JobService/download', params, res);
 };
 
+service.createJson = function createJson(createJsonParams, res) {
+  if (!createJsonParams) {
+    return res.end(errorCall('jobCreateTemplateParamsIsNull'));
+  }
+  const params = utils.merge({
+    createJson: '',
+  }, createJsonParams);
+  if (!params.createJson) {
+    return res.end(errorCall('jobCreateTemplateParamsCreateJsonIsNull'));
+  }
+  params.createJson = JSON.parse(params.createJson);
+  request.post('/TemplateService/create', params, res);
+};
+
+service.updateJson = function updateJson(updateJsonParams, res) {
+  if (!updateJsonParams) {
+    return res.end(errorCall('jobCreateTemplateParamsIsNull'));
+  }
+  const params = utils.merge({
+    updateJson: '',
+  }, updateJsonParams);
+  if (!params.updateJson) {
+    return res.end(errorCall('jobCreateTemplateParamsCreateJsonIsNull'));
+  }
+  params.updateJson = JSON.parse(params.updateJson);
+  request.post('/TemplateService/update', params, res);
+};
+
 service.list = function list(listParams, res) {
   if (!listParams) {
     return res.end(errorCall('jobListParamsIsNull'));
@@ -137,6 +165,19 @@ service.delete = function del(deleteParams, res) {
     return res.end(errorCall('jobDeleteParamsIdIsNull'));
   }
   request.get('/JobService/delete', params, res);
+};
+
+service.deleteTemplate = function del(deleteParams, res) {
+  if (!deleteParams) {
+    return res.end(errorCall('jobDeleteParamsIsNull'));
+  }
+  const params = utils.merge({
+    templateId: '',
+  }, deleteParams);
+  if (!params.templateId) {
+    return res.end(errorCall('jobDeleteParamsIdIsNull'));
+  }
+  request.get('/TemplateService/delete', params, res);
 };
 
 module.exports = service;

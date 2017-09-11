@@ -111,6 +111,21 @@ service.solrSearch = function solorSearch(info, cb) {
   });
 };
 
+function saveSearch() {
+}
+
+function defaultMediaList(cb) {
+  redisClient.get('cachedMediaList', (err, obj) => {
+    if (err) {
+      logger.error(err);
+      return cb && cb(err);
+    }
+    return cb && cb(null, JSON.parse(obj || '[]'));
+  });
+}
+
+service.defaultMediaList = defaultMediaList;
+
 service.getMediaList = function getMediaList(info, cb) {
   const pageSize = info.pageSize || 4;
   const result = [];
@@ -156,13 +171,17 @@ service.getMediaList = function getMediaList(info, cb) {
   });
 };
 
-// (function cacheMediaList() {
-//   service.getMediaList({ pageSize: 20 }, (err, r) => {
-//     redisClient.hmset('cachedMediaList', r);
-//     setTimeout(cacheMediaList, 1000 * );
-//   });
-// }());
-//
+(function cacheMediaList() {
+  service.getMediaList({ pageSize: 1 }, (err, r) => {
+    redisClient.set('cachedMediaList', JSON.stringify(r), (err) => {
+      if (err) {
+        logger.error(err);
+      }
+      setTimeout(cacheMediaList, 1000 * 60 * 3);
+    });
+  });
+}());
+
 service.getIcon = function getIcon(info, res) {
   const struct = {
     objectid: { type: 'string', validation: 'require' },
