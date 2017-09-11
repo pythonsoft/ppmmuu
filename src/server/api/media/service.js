@@ -23,6 +23,40 @@ const rq = new HttpRequest({
 const configurationInfo = new ConfigurationInfo();
 const service = {};
 
+const redisClient = config.redisClient;
+
+service.getSearchConfig = function getSearchConfig(cb) {
+  configurationInfo.collection.find({ key: { $in: ['meidaCenterSearchSelects', 'mediaCenterSearchRadios'] } }, { fields: { key: 1, value: 1 } }).toArray((err, docs) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    const rs = {
+      searchSelectConfigs: [],
+      searchRadioboxConfigs: [],
+    };
+
+    for (let i = 0, len = docs.length; i < len; i++) {
+      if (docs[i].key === 'meidaCenterSearchSelects') {
+        try {
+          rs.searchSelectConfigs = JSON.parse(docs[i].value);
+        } catch (e) {
+          return cb && cb(i18n.t('getMeidaCenterSearchConfigsJSONError'));
+        }
+      } else {
+        try {
+          rs.searchRadioboxConfigs = JSON.parse(docs[i].value);
+        } catch (e) {
+          return cb && cb(i18n.t('getMeidaCenterSearchConfigsJSONError'));
+        }
+      }
+    }
+
+    return cb && cb(null, rs);
+  });
+};
+
 service.solrSearch = function solorSearch(info, cb) {
   if (!info.wt) {
     info.wt = 'json';
@@ -88,10 +122,11 @@ service.getMediaList = function getMediaList(info, cb) {
     const category = categories[index].label;
     const query = {
       q: `program_type:${category}`,
-      fl: 'id,duration,name,ccid,program_type,program_name_cn,hd_flag,program_name_en,last_modify',
+      fl: 'id,duration,name,ccid,program_type,program_name_cn,hd_flag,program_name_en,last_modify,f_str_03',
       sort: 'last_modify desc',
       start: 0,
       rows: pageSize,
+      hl: 'off',
     };
     service.solrSearch(query, (err, r) => {
       if (err) {
@@ -121,37 +156,11 @@ service.getMediaList = function getMediaList(info, cb) {
   });
 };
 
-service.getSearchConfig = function getSearchConfig(cb) {
-  configurationInfo.collection.find({ key: { $in: ['meidaCenterSearchSelects', 'mediaCenterSearchRadios'] } }, { fields: { key: 1, value: 1 } }).toArray((err, docs) => {
-    if (err) {
-      logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
-    }
-
-    const rs = {
-      searchSelectConfigs: [],
-      searchRadioboxConfigs: [],
-    };
-
-    for (let i = 0, len = docs.length; i < len; i++) {
-      if (docs[i].key === 'meidaCenterSearchSelects') {
-        try {
-          rs.searchSelectConfigs = JSON.parse(docs[i].value);
-        } catch (e) {
-          return cb && cb(i18n.t('getMeidaCenterSearchConfigsJSONError'));
-        }
-      } else {
-        try {
-          rs.searchRadioboxConfigs = JSON.parse(docs[i].value);
-        } catch (e) {
-          return cb && cb(i18n.t('getMeidaCenterSearchConfigsJSONError'));
-        }
-      }
-    }
-
-    return cb && cb(null, rs);
+(function cacheMediaList() {
+  service.getMediaList({ pageSize: 20 }, (err, r) => {
+    console.log(r);
   });
-};
+}());
 
 service.getIcon = function getIcon(info, res) {
   const struct = {

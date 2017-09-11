@@ -30,7 +30,7 @@ function setCookie2(res, doc, cb) {
     }
 
     const permissions = info.permissions || [];
-    const menu = permissions.length ? ['mediaCenter', 'taskCenter', 'personalCenter', 'management'] : ['mediaCenter', 'taskCenter', 'personalCenter'];
+    const menu = permissions.length ? config.adminMenuPermission : config.normalMenuPermission;
 
     res.cookie('ticket', token, {
       expires: new Date(expires),
