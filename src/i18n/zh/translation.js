@@ -421,9 +421,9 @@ module.exports = {
     code: '-40007',
     message: '删除的目标对象Id为空',
   },
-  ivideoRemoveProjectIdIsNull: {
+  ivideoItemCanNotRemove: {
     code: '-40008',
-    message: '删除的项目Id为空',
+    message: '此项目不能被删除',
   },
   ivideoProjectDefaultNameNull: {
     code: '-40009',
@@ -436,6 +436,14 @@ module.exports = {
   ivideoItemDefaultName: {
     code: '-40011',
     message: '默认目录',
+  },
+  ivideoRemoveItemIsNull: {
+    code: '-40012',
+    message: '删除的目标对象为空',
+  },
+  ivideoDefaultDirectoryCanNotRemove: {
+    code: '-40013',
+    message: '默认目录不能删除',
   },
   joDownloadParamsIsNull: {
     code: '-50001',

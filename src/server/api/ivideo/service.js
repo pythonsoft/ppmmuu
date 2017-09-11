@@ -48,7 +48,7 @@ service.ensureAccountInit = function ensureMyResource(creatorId, cb) {
         return cb && cb(i18n.t('databaseError'));
       }
 
-      createSnippetOrDirItem(creatorId, i18n.t('ivideoItemDefaultName').message, doc._id, ItemInfo.TYPE.DIRECTORY, {}, {}, (err, r) => cb && cb(err, doc, isNew));
+      createSnippetOrDirItem(creatorId, i18n.t('ivideoItemDefaultName').message, doc._id, ItemInfo.TYPE.DIRECTORY, ItemInfo.CAN_REVMOE.NO, {}, {}, (err, r) => cb && cb(err, doc, isNew));
       // service.createProject(creatorId, i18n.t('ivideoProjectDefaultNameNull').message, ProjectInfo.TYPE.PROJECT_RESOURCE, '0', (err, projectDoc) => cb && cb(err, { myResource: doc, defaultProject: projectDoc }));
     });
   });
@@ -108,7 +108,7 @@ service.listItem = function listItem(creatorId, parentId, type, cb, sortFields =
   });
 };
 
-const createSnippetOrDirItem = function createSnippetOrDirItem(creatorId, name, parentId, type = ItemInfo.TYPE.DIRECTORY, snippet = {}, details = {}, cb) {
+const createSnippetOrDirItem = function createSnippetOrDirItem(creatorId, name, parentId, type = ItemInfo.TYPE.DIRECTORY, canRemove=ItemInfo.CAN_REVMOE.YES, snippet = {}, details = {}, cb) {
   if (!creatorId) {
     return cb && cb(i18n.t('ivideoProjectCreatorIdIsNull'));
   }
@@ -121,7 +121,7 @@ const createSnippetOrDirItem = function createSnippetOrDirItem(creatorId, name, 
     return cb && cb(i18n.t('ivideoParentIdIsNull'));
   }
 
-  const info = { _id: uuid.v1(), name, creatorId, parentId, type, snippet, details };
+  const info = { _id: uuid.v1(), name, creatorId, parentId, type, snippet, details, canRemove };
 
   itemInfo.insertOne(info, (err, r, doc) => {
     if (err) {
@@ -133,8 +133,10 @@ const createSnippetOrDirItem = function createSnippetOrDirItem(creatorId, name, 
   });
 };
 
+service.createSnippetOrDirItem = createSnippetOrDirItem;
+
 service.createDirectory = function createDirectory(creatorId, name, parentId, details, cb) {
-  createSnippetOrDirItem(creatorId, name, parentId, ItemInfo.TYPE.DIRECTORY, {}, {}, (err, r) => cb && cb(err, r));
+  createSnippetOrDirItem(creatorId, name, parentId, ItemInfo.TYPE.DIRECTORY, ItemInfo.CAN_REVMOE.YES, {}, {}, (err, r) => cb && cb(err, r));
 };
 
 service.createItem = function createItem(creatorId, name, parentId, snippet, details, cb) {
@@ -162,7 +164,7 @@ service.createItem = function createItem(creatorId, name, parentId, snippet, det
     }
   }
 
-  createSnippetOrDirItem(creatorId, name, parentId, ItemInfo.TYPE.SNIPPET, snippetInfo, details, (err, r) => cb && cb(err, r));
+  createSnippetOrDirItem(creatorId, name, parentId, ItemInfo.TYPE.SNIPPET, ItemInfo.CAN_REVMOE.YES, snippetInfo, details, (err, r) => cb && cb(err, r));
 };
 
 service.removeItem = function removeItem(id, cb) {
@@ -170,13 +172,29 @@ service.removeItem = function removeItem(id, cb) {
     return cb && cb(i18n.t('ivideoRemoveItemIdIsNull'));
   }
 
-  itemInfo.collection.removeOne({ _id: id }, (err, r) => {
+  itemInfo.collection.findOne({ _id: id }, { field: { canRemove: 1 }}, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
 
-    return cb && cb(null, r);
+    if(!doc) {
+      return cb && cb(i18n.t('ivideoRemoveItemIsNull'));
+    }
+
+    if(doc.canRemove === ItemInfo.CAN_REVMOE.NO) {
+      return cb && cb(i18n.t('ivideoDefaultDirectoryCanNotRemove'));
+    }
+
+    itemInfo.collection.removeOne({ _id: id }, (err, r) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      return cb && cb(null, r);
+    });
+
   });
 };
 
