@@ -39,6 +39,7 @@ ItemInfo.Snippet = {
 ItemInfo.TYPE = {
   DIRECTORY: '0',
   SNIPPET: '1',
+  DEFAULT_DIRECTORY: '2'
 };
 
 ItemInfo.CAN_REVMOE = {

@@ -48,7 +48,7 @@ service.ensureAccountInit = function ensureMyResource(creatorId, cb) {
         return cb && cb(i18n.t('databaseError'));
       }
 
-      createSnippetOrDirItem(creatorId, i18n.t('ivideoItemDefaultName').message, doc._id, ItemInfo.TYPE.DIRECTORY, ItemInfo.CAN_REVMOE.NO, {}, {}, (err, r) => cb && cb(err, doc, isNew));
+      createSnippetOrDirItem(creatorId, i18n.t('ivideoItemDefaultName').message, doc._id, ItemInfo.TYPE.DEFAULT_DIRECTORY, ItemInfo.CAN_REVMOE.NO, {}, {}, (err, r) => cb && cb(err, doc, isNew));
       // service.createProject(creatorId, i18n.t('ivideoProjectDefaultNameNull').message, ProjectInfo.TYPE.PROJECT_RESOURCE, '0', (err, projectDoc) => cb && cb(err, { myResource: doc, defaultProject: projectDoc }));
     });
   });
@@ -143,6 +143,7 @@ service.createItem = function createItem(creatorId, name, parentId, snippet, det
   let snippetInfo = {};
 
   if (snippet) {
+
     if (typeof snippet === 'string') {
       let info = {};
 
@@ -162,9 +163,26 @@ service.createItem = function createItem(creatorId, name, parentId, snippet, det
     } else {
       snippetInfo = snippet;
     }
+
   }
 
-  createSnippetOrDirItem(creatorId, name, parentId, ItemInfo.TYPE.SNIPPET, ItemInfo.CAN_REVMOE.YES, snippetInfo, details, (err, r) => cb && cb(err, r));
+  const callback = function(pid) {
+    createSnippetOrDirItem(creatorId, name, pid, ItemInfo.TYPE.SNIPPET, ItemInfo.CAN_REVMOE.YES, snippetInfo, details, (err, r) => cb && cb(err, r));
+  };
+
+  if(!parentId) {
+    itemInfo.collection.findOne({ creatorId, type: ItemInfo.TYPE.DEFAULT_DIRECTORY }, { fields: { _id: 1 } }, (err, doc) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      callback(doc._id);
+    });
+  }else {
+    callback(parentId);
+  }
+
 };
 
 service.removeItem = function removeItem(id, cb) {
