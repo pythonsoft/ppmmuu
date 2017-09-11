@@ -122,6 +122,7 @@ UserInfo.STATUS = {
 UserInfo.VERIFY_TYPE = {
   PASSWORD: '0', // 密码验证
   AD: '1', // 域验证，域验证会根据组织里的验证信息去验证
+  WEBOS: '2',
 };
 
 module.exports = UserInfo;
