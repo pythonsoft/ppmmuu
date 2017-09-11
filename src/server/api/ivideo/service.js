@@ -88,7 +88,7 @@ service.listItem = function listItem(creatorId, parentId, type, cb, sortFields =
 
   if (type) {
     if(type.indexOf(',') !== -1) {
-      query['$in'] = type.split(',');
+      query['type'] = { $in: type.split(',') };
     }else {
       query.type = type;
     }
