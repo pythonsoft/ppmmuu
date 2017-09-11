@@ -172,7 +172,7 @@ service.removeItem = function removeItem(id, cb) {
     return cb && cb(i18n.t('ivideoRemoveItemIdIsNull'));
   }
 
-  itemInfo.collection.findOne({ _id: id }, { field: { canRemove: 1 }}, (err, doc) => {
+  itemInfo.collection.findOne({ _id: id }, { fields: { canRemove: 1 }}, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));

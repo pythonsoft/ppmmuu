@@ -87,7 +87,9 @@ if (process.env.NODE_ENV === 'development') {
     },
     // TODO: import apis as below
     apis: [
-      './**/api/*/*.js',
+      './**/api/configuration/*.js',
+      './**/api/ivideo/*.js',
+      './**/api/engine/*.js',
       './**/common/*.js',
     ],
   };
