@@ -53,9 +53,9 @@ const meidaCenterSearchSelects = [
       { value: '墊底片', label: '墊底片' },
       { value: '香港新聞', label: '香港新聞' },
       { value: '大陸新聞', label: '大陸新聞' },
-      { value: '資詢台新聞', label: '資詢台新聞' },
+      { value: '資訊台新聞', label: '資訊台新聞' },
       { value: '全球', label: '全球' },
-      { value: '資詢台十週年節目素材', label: '資詢台十週年節目素材' },
+      { value: '資訊台十週年節目素材', label: '資訊台十週年節目素材' },
       { value: 'NowTV', label: 'NowTV' }
     ],
     selected: '',
