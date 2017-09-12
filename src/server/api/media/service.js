@@ -68,7 +68,7 @@ function saveSearch(k, id, cb) {
     (err, r) => cb && cb(err, r));
 }
 
-service.solrSearch = function solrSearch(info, cb, userId) {
+service.solrSearch = function solorSearch(info, cb, userId, videoIds) {
   if (!info.wt) {
     info.wt = 'json';
   }
@@ -83,6 +83,12 @@ service.solrSearch = function solrSearch(info, cb, userId) {
 
   info.wt = info.wt.trim().toLowerCase();
 
+  if (videoIds) {
+    const vIdL = videoIds.split(',');
+    const newQ = vIdL.length === 1 ? `id: ${vIdL[0]}` : `id: ${vIdL.join(' OR id: ')}`;
+    info.q = newQ;
+  }
+
   const options = {
     uri: `${config.solrBaseUrl}program/select`,
     method: 'GET',
@@ -90,7 +96,6 @@ service.solrSearch = function solrSearch(info, cb, userId) {
     qs: info,
   };
   const t1 = new Date().getTime();
-  console.log('options:', options);
   request(options, (error, response) => {
     if (!error && response.statusCode === 200) {
       const rs = JSON.parse(response.body);
@@ -188,17 +193,6 @@ service.getMediaList = function getMediaList(info, cb) {
     loopGetCategoryList(categories, 0);
   });
 };
-
-// (function cacheMediaList() {
-//   service.getMediaList({ pageSize: 1 }, (err, r) => {
-//     redisClient.set('cachedMediaList', JSON.stringify(r), (err) => {
-//       if (err) {
-//         logger.error(err);
-//       }
-//       setTimeout(cacheMediaList, 1000 * 60 * 3);
-//     });
-//   });
-// }());
 
 service.getIcon = function getIcon(info, res) {
   const struct = {
@@ -316,5 +310,66 @@ service.getSearchHistory = (userId, cb) => {
       count: 1,
     }).toArray((err, docs) => cb && cb(err, docs));
 };
+
+service.getWatchHistory = (userId, cb) => {
+  watchingHistoryInfo.collection
+  .find({ userId, status: 'available' })
+  .sort({ updatedTime: -1 })
+  .limit(10)
+  .toArray((err, docs) => {
+    const r = [];
+    if (docs) {
+      docs.forEach((item) => {
+        r.push(item.videoContent);
+      });
+    }
+    return cb && cb(err, r);
+  });
+};
+
+// service.cutFile = function cutFile(filename, cb) {
+//   const timestamps = new Date().getTime();
+//   const path = `/Users/steven/Downloads/${filename}`;
+//   const tempDir = config.uploadPath;
+//   console.log(path);
+//   ffmpeg(path)
+//     .setStartTime('00:00:50')
+//     .setDuration('100')
+//     .output(`${tempDir + timestamps}.mp4`)
+//     .on('end', (err) => {
+//       if (!err) {
+//         console.log('conversion Done');
+//         return cb && cb(null, `${timestamps}.mp4`);
+//       }
+//     })
+//     .on('error', (err) => {
+//       console.log('error===> ', +err);
+//       return cb && cb({ code: '-16001', message: err.message });
+//     }).run();
+// };
+//
+// service.mergeFile = function mergeFile(filenames, cb) {
+//   filenames = filenames.split(',');
+//   const tempDir = config.uploadPath;
+//   const len = filenames.length;
+//   const timestamps = new Date().getTime();
+//   if (len <= 0) {
+//     return cb && cb(null, null);
+//   }
+//   const command = ffmpeg(tempDir + filenames[0]);
+//   for (let i = 1; i < len; i++) {
+//     command.input(tempDir + filenames[1]);
+//   }
+//   command
+//     .on('error', (err) => {
+//       console.log(`An error occurred: ${err.message}`);
+//       return cb && cb({ code: '-16002', message: err.message });
+//     })
+//     .on('end', () => {
+//       console.log('Merging finished !');
+//       return cb && cb(null, `${timestamps}.mp4`);
+//     })
+//     .mergeToFile(`${tempDir + timestamps}.mp4`, tempDir);
+// };
 
 module.exports = service;
