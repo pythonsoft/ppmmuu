@@ -68,11 +68,7 @@ function saveSearch(k, id, cb) {
     (err, r) => cb && cb(err, r));
 }
 
-<<<<<<< HEAD
 service.solrSearch = function solorSearch(info, cb, userId, videoIds) {
-=======
-service.solrSearch = function solrSearch(info, cb, userId) {
->>>>>>> f6f8a6831a134c69ff7e0b7c18995504e676d491
   if (!info.wt) {
     info.wt = 'json';
   }
@@ -315,7 +311,6 @@ service.getSearchHistory = (userId, cb) => {
     }).toArray((err, docs) => cb && cb(err, docs));
 };
 
-<<<<<<< HEAD
 service.getWatchHistory = (userId, cb) => {
   watchingHistoryInfo.collection
   .find({ userId, status: 'available' })
@@ -377,7 +372,4 @@ service.getWatchHistory = (userId, cb) => {
 //     .mergeToFile(`${tempDir + timestamps}.mp4`, tempDir);
 // };
 
-
-=======
->>>>>>> f6f8a6831a134c69ff7e0b7c18995504e676d491
 module.exports = service;
