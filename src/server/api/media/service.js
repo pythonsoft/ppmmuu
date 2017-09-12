@@ -12,6 +12,8 @@ const config = require('../../config');
 const request = require('request');
 const fieldConfig = require('./fieldConfig');
 const ConfigurationInfo = require('../configuration/configurationInfo');
+const SearchHistoryInfo = require('../user/searchHistoryInfo');
+const WatchingHistoryInfo = require('../user/watchingHistoryInfo');
 
 const HttpRequest = require('../../common/httpRequest');
 
@@ -21,6 +23,8 @@ const rq = new HttpRequest({
 });
 
 const configurationInfo = new ConfigurationInfo();
+const searchHistoryInfo = new SearchHistoryInfo();
+const watchingHistoryInfo = new WatchingHistoryInfo();
 const service = {};
 
 const redisClient = config.redisClient;
@@ -57,7 +61,14 @@ service.getSearchConfig = function getSearchConfig(cb) {
   });
 };
 
-service.solrSearch = function solorSearch(info, cb) {
+function saveSearch(k, id, cb) {
+  searchHistoryInfo.findOneAndUpdate({ keyword: k, userId: id },
+    { $set: { updatedTime: new Date() }, $inc: { count: 1 } },
+    { returnOriginal: false, upsert: true },
+    (err, r) => cb && cb(err, r));
+}
+
+service.solrSearch = function solorSearch(info, cb, userId) {
   if (!info.wt) {
     info.wt = 'json';
   }
@@ -79,6 +90,7 @@ service.solrSearch = function solorSearch(info, cb) {
     qs: info,
   };
   const t1 = new Date().getTime();
+  console.log('options:', options);
   request(options, (error, response) => {
     if (!error && response.statusCode === 200) {
       const rs = JSON.parse(response.body);
@@ -99,6 +111,15 @@ service.solrSearch = function solorSearch(info, cb) {
             }
           }
         }
+        if (userId && info.q.lastIndexOf('full_text:') !== -1) {
+          const k = info.q.substring(info.q.lastIndexOf('full_text:') + 10, info.q.indexOf(' '));
+          saveSearch(k, userId, (err, r) => {
+            if (err) {
+              logger.error(err);
+            }
+            console.log(r);
+          });
+        }
         return cb && cb(null, r);
       }
       return cb && cb(i18n.t('solrSearchError', { error: rs.error.msg }));
@@ -110,9 +131,6 @@ service.solrSearch = function solorSearch(info, cb) {
     return cb && cb(i18n.t('solrSearchFailed'));
   });
 };
-
-function saveSearch() {
-}
 
 function defaultMediaList(cb) {
   redisClient.get('cachedMediaList', (err, obj) => {
@@ -299,6 +317,15 @@ service.getVideo = function getVideo(req, res) {
   // });
 };
 
+function saveWatching(userId, videoId, cb) {
+  watchingHistoryInfo.findOneAndUpdate({ videoId, userId },
+    { $set: { updatedTime: new Date() }, $inc: { count: 1 }, $setOnInsert: { videoContent: '', status: 'unavailable' } },
+    { returnOriginal: false, upsert: true },
+    (err, r) => cb && cb(err, r));
+}
+
+service.saveWatching = saveWatching;
+
 service.getStream = function getStream(objectId, res) {
   const struct = {
     objectId: { type: 'string', validation: 'require' },
@@ -311,6 +338,18 @@ service.getStream = function getStream(objectId, res) {
   }
 
   rq.get('/mamapi/get_stream', { objectid: objectId }, res);
+};
+
+service.getSearchHistory = (userId, cb) => {
+  searchHistoryInfo.collection
+    .find({ userId })
+    .sort({ updatedTime: -1 })
+    .limit(10).project({
+      keyword: 1,
+      updatedTime: 1,
+      count: 1,
+    })
+    .toArray((err, docs) => cb && cb(err, docs));
 };
 
 // service.cutFile = function cutFile(filename, cb) {
