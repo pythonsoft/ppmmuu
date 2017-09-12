@@ -409,7 +409,10 @@ router.get('/getStream', (req, res) => {
 });
 
 router.get('/getSearchHistory', (req, res) => {
-  service.getSearchHistory(req.ex.userId, (err, docs) => res.json(result.json(err, docs)));
+  const page = req.query.page || 1;
+  const pageSize = req.query.pageSize || 999;
+
+  service.getSearchHistory(req.ex.userId, (err, docs) => res.json(result.json(err, docs)), page, pageSize);
 });
 
 router.get('/getWatchHistory', (req, res) => {
