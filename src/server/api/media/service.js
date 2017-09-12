@@ -68,7 +68,7 @@ function saveSearch(k, id, cb) {
     (err, r) => cb && cb(err, r));
 }
 
-service.solrSearch = function solorSearch(info, cb, userId) {
+service.solrSearch = function solorSearch(info, cb, userId, videoIds) {
   if (!info.wt) {
     info.wt = 'json';
   }
@@ -83,6 +83,12 @@ service.solrSearch = function solorSearch(info, cb, userId) {
 
   info.wt = info.wt.trim().toLowerCase();
 
+  if (videoIds) {
+    const vIdL = videoIds.split(',');
+    const newQ = vIdL.length === 1 ? `id: ${vIdL[0]}` : `id: ${vIdL.join(' OR id: ')}`;
+    info.q = newQ;
+  }
+
   const options = {
     uri: `${config.solrBaseUrl}program/select`,
     method: 'GET',
@@ -90,7 +96,6 @@ service.solrSearch = function solorSearch(info, cb, userId) {
     qs: info,
   };
   const t1 = new Date().getTime();
-  console.log('options:', options);
   request(options, (error, response) => {
     if (!error && response.statusCode === 200) {
       const rs = JSON.parse(response.body);
@@ -188,17 +193,6 @@ service.getMediaList = function getMediaList(info, cb) {
     loopGetCategoryList(categories, 0);
   });
 };
-
-(function cacheMediaList() {
-  service.getMediaList({ pageSize: 1 }, (err, r) => {
-    redisClient.set('cachedMediaList', JSON.stringify(r), (err) => {
-      if (err) {
-        logger.error(err);
-      }
-      setTimeout(cacheMediaList, 1000 * 60 * 3);
-    });
-  });
-}());
 
 service.getIcon = function getIcon(info, res) {
   const struct = {
@@ -350,6 +344,22 @@ service.getSearchHistory = (userId, cb) => {
       count: 1,
     })
     .toArray((err, docs) => cb && cb(err, docs));
+};
+
+service.getWatchHistory = (userId, cb) => {
+  watchingHistoryInfo.collection
+  .find({ userId, status: 'available' })
+  .sort({ updatedTime: -1 })
+  .limit(10)
+  .toArray((err, docs) => {
+    const r = [];
+    if (docs) {
+      docs.forEach((item) => {
+        r.push(item.videoContent);
+      });
+    }
+    return cb && cb(err, r);
+  });
 };
 
 // service.cutFile = function cutFile(filename, cb) {

@@ -38,7 +38,7 @@ class WatchingHistoryInfo extends DB {
       createdTime: { type: 'date', allowUpdate: false },
       updatedTime: { type: 'date', allowUpdate: true },
       count: { type: 'number', default: 1 },
-      videoContent: { type: 'string', default: '' },
+      videoContent: { type: 'object', default: {} },
       status: { type: 'string', default: 'unavailable' },
     };
   }

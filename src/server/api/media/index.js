@@ -413,4 +413,8 @@ router.get('/getSearchHistory', (req, res) => {
   service.getSearchHistory(req.ex.userId, (err, docs) => res.json(result.json(err, docs)));
 });
 
+router.get('/getWatchHistory', (req, res) => {
+  service.getWatchHistory(req.ex.userId, (err, docs) => res.json(result.json(err, docs)));
+});
+
 module.exports = router;
