@@ -68,7 +68,7 @@ function saveSearch(k, id, cb) {
     (err, r) => cb && cb(err, r));
 }
 
-service.solrSearch = function solorSearch(info, cb, userId) {
+service.solrSearch = function solrSearch(info, cb, userId) {
   if (!info.wt) {
     info.wt = 'json';
   }
@@ -189,16 +189,16 @@ service.getMediaList = function getMediaList(info, cb) {
   });
 };
 
-(function cacheMediaList() {
-  service.getMediaList({ pageSize: 1 }, (err, r) => {
-    redisClient.set('cachedMediaList', JSON.stringify(r), (err) => {
-      if (err) {
-        logger.error(err);
-      }
-      setTimeout(cacheMediaList, 1000 * 60 * 3);
-    });
-  });
-}());
+// (function cacheMediaList() {
+//   service.getMediaList({ pageSize: 1 }, (err, r) => {
+//     redisClient.set('cachedMediaList', JSON.stringify(r), (err) => {
+//       if (err) {
+//         logger.error(err);
+//       }
+//       setTimeout(cacheMediaList, 1000 * 60 * 3);
+//     });
+//   });
+// }());
 
 service.getIcon = function getIcon(info, res) {
   const struct = {
