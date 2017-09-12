@@ -248,4 +248,5 @@ service.changePassword = function changePassword(info, res, cb) {
     });
   });
 };
+
 module.exports = service;

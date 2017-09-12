@@ -314,7 +314,6 @@ router.get('/getObject', (req, res) => {
   service.getObject(req.query, (err, rs) => res.json(result.json(err, rs)));
 });
 
-
 /**
  * @apiName: getVideo
  * @apiFuncType: get
