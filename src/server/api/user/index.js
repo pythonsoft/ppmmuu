@@ -66,6 +66,60 @@ router.post('/login', (req, res) => {
   service.login(res, username, password, (err, data) => res.json(result.json(err, data)));
 });
 
+/**
+ * @apiName: getToken
+ * @apiFuncType: post
+ * @apiFuncUrl: /user/getToken
+ * @swagger
+ * /user/getToken/:
+ *   post:
+ *     description: getToken
+ *     tags:
+ *       - v1
+ *       - UserInfo
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: user login
+ *         schema:
+ *           type: object
+ *           required:
+ *             - username
+ *             - password
+ *           properties:
+ *             username:
+ *               type: string
+ *               example: xuyawen
+ *             password:
+ *               type: string
+ *               example: "123123"
+ *     responses:
+ *       200:
+ *         description: token
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: string
+ *              example: ''
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *
+ */
+router.get('/getToken', (req, res) => {
+  const username = req.body.username || '';
+  const password = req.body.password || '';
+
+  service.getToken(res, username, password, (err, token) => res.json(result.json(err, token)));
+});
+
 const isLogin = require('../../middleware/login');
 
 router.use(isLogin.middleware);

@@ -87,7 +87,11 @@ service.listItem = function listItem(creatorId, parentId, type, cb, sortFields =
   const query = { creatorId, parentId };
 
   if (type) {
-    query.type = type;
+    if(type.indexOf(',') !== -1) {
+      query['type'] = { $in: type.split(',') };
+    }else {
+      query.type = type;
+    }
   }
 
   const cursor = itemInfo.collection.find(query);
@@ -171,7 +175,7 @@ service.createItem = function createItem(creatorId, name, parentId, snippet, det
   };
 
   if(!parentId) {
-    itemInfo.collection.findOne({ creatorId, type: ItemInfo.TYPE.DEFAULT_DIRECTORY }, { fields: { _id: 1 } }, (err, doc) => {
+    itemInfo.collection.findOne({ creatorId: creatorId, type: ItemInfo.TYPE.DEFAULT_DIRECTORY }, { fields: { _id: 1 } }, (err, doc) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
