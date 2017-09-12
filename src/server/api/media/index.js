@@ -11,6 +11,8 @@ const result = require('../../common/result');
 const service = require('./service');
 const isLogin = require('../../middleware/login');
 
+const logger = require('../../common/log')('error');
+
 router.use(isLogin.middleware);
 
 /**
@@ -149,7 +151,7 @@ router.use(isLogin.middleware);
  *                  type: string
  */
 router.get('/solrSearch', (req, res) => {
-  service.solrSearch(req.query, (err, doc) => res.json(result.json(err, doc)));
+  service.solrSearch(req.query, (err, doc) => res.json(result.json(err, doc)), req.ex.userId);
 });
 
 /**
@@ -395,8 +397,20 @@ router.get('/getStream', (req, res) => {
     if (typeof doc.status === 'number') {
       doc.status += '';
     }
+    if (doc && doc.status === '0' && req.ex.userId) {
+      service.saveWatching(req.ex.userId, req.query.objectId, (err, r) => {
+        if (err) {
+          logger.error(err);
+        }
+        console.log(r);
+      });
+    }
     return res.json(doc);
   });
+});
+
+router.get('/getSearchHistory', (req, res) => {
+  service.getSearchHistory(req.ex.userId, (err, docs) => res.json(result.json(err, docs)));
 });
 
 module.exports = router;
