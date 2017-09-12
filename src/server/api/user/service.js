@@ -20,15 +20,16 @@ const groupUserService = require('../group/userService');
 
 const service = {};
 
-const generateToken = function generateToken(id) {
-  const expires = new Date().getTime() + config.cookieExpires;
-  const token = Token.create(id, expires, config.KEY);
+const generateToken = function generateToken(id, expires) {
+  const exp = expires ? expires : new Date().getTime() + config.cookieExpires;
+  const token = Token.create(id, exp, config.KEY);
 
   return token;
 };
 
 function setCookie2(res, doc, cb) {
-  const token = generateToken(doc._id);
+  const expires = new Date().getTime() + config.cookieExpires;
+  const token = generateToken(doc._id, expires);
 
   Login.getUserInfo(doc._id, (err, info) => {
     if (err) {
@@ -64,7 +65,7 @@ function webosLogin(userId, password, cb) {
   });
 }
 
-const login = function login(username, password, cb) {
+const loginHandle = function loginHandle(username, password, cb) {
   const cipherPassword = utils.cipher(password, config.KEY);
 
   if (username.indexOf('@') === -1) {
@@ -114,7 +115,7 @@ const login = function login(username, password, cb) {
 };
 
 service.getToken = function(res, username, password, cb) {
-  login(username, password, (err, doc) => {
+  loginHandle(username, password, (err, doc) => {
     if(err) {
       return cb && cb(err);
     }
@@ -125,12 +126,18 @@ service.getToken = function(res, username, password, cb) {
 };
 
 service.login = function login(res, username, password, cb) {
-  login(username, password, (err, doc) => {
+  loginHandle(username, password, (err, doc) => {
     if(err) {
       return cb && cb(err);
     }
 
-    setCookie2(res, doc, cb);
+    setCookie2(res, doc, (err, doc) => {
+      if(err) {
+        return cb && cb(err);
+      }
+
+      return cb && cb(null, doc);
+    });
   });
 };
 
