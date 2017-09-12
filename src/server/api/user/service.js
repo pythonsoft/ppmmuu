@@ -20,9 +20,15 @@ const groupUserService = require('../group/userService');
 
 const service = {};
 
-function setCookie2(res, doc, cb) {
+const generateToken = function generateToken(id) {
   const expires = new Date().getTime() + config.cookieExpires;
-  const token = Token.create(doc._id, expires, config.KEY);
+  const token = Token.create(id, expires, config.KEY);
+
+  return token;
+};
+
+function setCookie2(res, doc, cb) {
+  const token = generateToken(doc._id);
 
   Login.getUserInfo(doc._id, (err, info) => {
     if (err) {
@@ -58,8 +64,9 @@ function webosLogin(userId, password, cb) {
   });
 }
 
-service.login = function login(res, username, password, cb) {
+const login = function login(username, password, cb) {
   const cipherPassword = utils.cipher(password, config.KEY);
+
   if (username.indexOf('@') === -1) {
     username = `${username}@phoenixtv.com`;
   }
@@ -70,7 +77,6 @@ service.login = function login(res, username, password, cb) {
 
   const query = {
     email: username,
-    // password: cipherPassword,
   };
 
   userInfo.collection.findOne(query, {
@@ -93,17 +99,38 @@ service.login = function login(res, username, password, cb) {
       if (cipherPassword !== doc.password) {
         return cb && cb(i18n.t('usernameOrPasswordIsWrong'));
       }
-      setCookie2(res, doc, cb);
+      return cb && cb(null, doc);
     } else if (UserInfo.VERIFY_TYPE.WEBOS === doc.verifyType) {
       webosLogin(username, password, (err) => {
         if (err) {
           return cb && cb(i18n.t('usernameOrPasswordIsWrong'));
         }
-        setCookie2(res, doc, cb);
+        return cb && cb(null, doc);
       });
     } else {
       return cb && cb(i18n.t('notImplementedVerityType'));
     }
+  });
+};
+
+service.getToken = function(res, username, password, cb) {
+  login(username, password, (err, doc) => {
+    if(err) {
+      return cb && cb(err);
+    }
+
+    const token = generateToken(doc._id);
+    return cb && cb(null, token);
+  });
+};
+
+service.login = function login(res, username, password, cb) {
+  login(username, password, (err, doc) => {
+    if(err) {
+      return cb && cb(err);
+    }
+
+    setCookie2(res, doc, cb);
   });
 };
 

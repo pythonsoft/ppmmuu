@@ -139,19 +139,20 @@ router.get('/listItem', (req, res) => {
  *       - application/json
  *     parameters:
  *       - in: body
- *         name: parentId
+ *         name: body
  *         description:
- *         required: true
- *         type: string
- *         default: ''
- *         collectionFormat: csv
- *       - in: body
- *         name: name
- *         description: directory name
- *         required: true
- *         type: string
- *         default: ''
- *         collectionFormat: csv
+ *         schema:
+ *          type: object
+ *          required:
+ *            - parentId
+ *            - name
+ *          properties:
+ *            parentId:
+ *              type: string
+ *              example: ''
+ *            name:
+ *              type: string
+ *              example: ''
  *     responses:
  *       200:
  *         description: IVideo
@@ -180,47 +181,45 @@ router.post('/createDirectory', (req, res) => {
  *       - application/json
  *     parameters:
  *       - in: body
- *         name: parentId
+ *         name: body
  *         description:
- *         required: true
- *         type: string
- *         default: ''
- *         collectionFormat: csv
- *       - in: body
- *         name: name
- *         description: resource name
- *         required: true
- *         type: string
- *         default: ''
- *         collectionFormat: csv
- *       - in: body
- *         name: snippet
- *         description: resource info
- *         required: true
  *         schema:
- *           type: object
- *           required:
- *             - thumb
- *             - input
- *             - output
- *             - duration
- *           properties:
- *             thumb:
- *               type: string
- *               example: "base64/image..."
- *             input:
- *               type: number
- *               example: 0
- *             output:
- *               type: number
- *               example: 1
- *             duration:
- *               type: number
- *               example: 0，
- *             objectId:
- *               type: string
- *               example:
- *         collectionFormat: csv
+ *          type: object
+ *          required:
+ *            - parentId
+ *            - name
+ *          properties:
+ *            parentId:
+ *              type: string
+ *              example: ''
+ *            name:
+ *              type: string
+ *              example: ''
+ *            snippet:
+ *              type: object
+ *              schema:
+ *                type: object
+ *                require:
+ *                  - thumb
+ *                  - input
+ *                  - output
+ *                  - duration
+ *                properties:
+ *                  thumb:
+ *                    type: string
+ *                    example: "base64/image..."
+ *                  input:
+ *                    type: number
+ *                    example: 0
+ *                  output:
+ *                    type: number
+ *                    example: 1
+ *                  duration:
+ *                    type: number
+ *                    example: 0，
+ *                  objectId:
+ *                    type: string
+ *                    example:
  *     responses:
  *       200:
  *         description: IVideo
