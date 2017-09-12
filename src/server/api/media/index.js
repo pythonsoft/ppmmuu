@@ -408,6 +408,39 @@ router.get('/getStream', (req, res) => {
   });
 });
 
+/**
+ * @apiName: getSearchHistory
+ * @apiFuncType: get
+ * @apiFuncUrl: /media/getSearchHistory
+ * @swagger
+ * /media/getSearchHistory:
+ *   get:
+ *     description: 获得视频播放地址
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - Search
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         description:
+ *         required: false
+ *         type: integer
+ *         default: 1
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: pageSize
+ *         description:
+ *         required: false
+ *         type: integer
+ *         default: 999
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: RoleInfo
+ */
 router.get('/getSearchHistory', (req, res) => {
   const page = req.query.page || 1;
   const pageSize = req.query.pageSize || 999;
@@ -415,6 +448,24 @@ router.get('/getSearchHistory', (req, res) => {
   service.getSearchHistory(req.ex.userId, (err, docs) => res.json(result.json(err, docs)), page, pageSize);
 });
 
+/**
+ * @apiName: getWatchHistory
+ * @apiFuncType: get
+ * @apiFuncUrl: /media/getWatchHistory
+ * @swagger
+ * /media/getWatchHistory:
+ *   get:
+ *     description: 获得视频播放地址
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - Search
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: RoleInfo
+ */
 router.get('/getWatchHistory', (req, res) => {
   service.getWatchHistory(req.ex.userId, (err, docs) => res.json(result.json(err, docs)));
 });
