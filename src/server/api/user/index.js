@@ -68,11 +68,11 @@ router.post('/login', (req, res) => {
 
 /**
  * @apiName: getToken
- * @apiFuncType: post
+ * @apiFuncType: get
  * @apiFuncUrl: /user/getToken
  * @swagger
  * /user/getToken/:
- *   post:
+ *   get:
  *     description: getToken
  *     tags:
  *       - v1
@@ -80,8 +80,8 @@ router.post('/login', (req, res) => {
  *     consumes:
  *       - application/json
  *     parameters:
- *       - in: body
- *         name: body
+ *       - in: query
+ *         name: query
  *         description: user login
  *         schema:
  *           type: object
@@ -91,7 +91,7 @@ router.post('/login', (req, res) => {
  *           properties:
  *             username:
  *               type: string
- *               example: xuyawen
+ *               example: "xuyawen"
  *             password:
  *               type: string
  *               example: "123123"

@@ -182,7 +182,6 @@ router.post('/createDirectory', (req, res) => {
  *     parameters:
  *       - in: body
  *         name: body
- *         description:
  *         schema:
  *          type: object
  *          required:
@@ -197,29 +196,7 @@ router.post('/createDirectory', (req, res) => {
  *              example: ''
  *            snippet:
  *              type: object
- *              schema:
- *                type: object
- *                require:
- *                  - thumb
- *                  - input
- *                  - output
- *                  - duration
- *                properties:
- *                  thumb:
- *                    type: string
- *                    example: "base64/image..."
- *                  input:
- *                    type: number
- *                    example: 0
- *                  output:
- *                    type: number
- *                    example: 1
- *                  duration:
- *                    type: number
- *                    example: 0，
- *                  objectId:
- *                    type: string
- *                    example:
+ *              example: '{ thumb:"base64/image...", input: 0, output: 1, duration: 1, objectId: "" }'
  *     responses:
  *       200:
  *         description: IVideo
@@ -247,12 +224,16 @@ router.post('/createItem', (req, res) => {
  *       - application/json
  *     parameters:
  *       - in: body
- *         name: id
+ *         name: body
  *         description:
- *         required: true
- *         type: string
- *         default: ''
- *         collectionFormat: csv
+ *         schema:
+ *           type: object
+ *           required:
+ *             - id
+ *           properties:
+ *             id:
+ *               type: string
+ *               example: ''
  *     responses:
  *       200:
  *         description: ''
@@ -278,19 +259,18 @@ router.post('/removeItem', (req, res) => {
  *       - application/json
  *     parameters:
  *       - in: body
- *         name: id
- *         description:
- *         required: true
- *         type: string
- *         default: ''
- *         collectionFormat: csv
- *       - in: body
- *         name: name
- *         description:
- *         required: false
- *         type: string
- *         default: ''
- *         collectionFormat: csv
+ *         name: body
+ *         schema:
+ *          type: object
+ *          required:
+ *            - id
+ *          parameters:
+ *            id:
+ *              type: string
+ *              example: ''
+ *            name:
+ *              type: string
+ *              example: ''
  *     responses:
  *       200:
  *         description: ''
@@ -317,12 +297,15 @@ router.post('/updateItem', (req, res) => {
  *       - application/json
  *     parameters:
  *       - in: body
- *         name: name
- *         description: resource name
- *         required: true
- *         type: string
- *         default: ''
- *         collectionFormat: csv
+ *         name: body
+ *         schema:
+ *          type: object
+ *          required:
+ *            - name
+ *          parameters:
+ *            name:
+ *              type: string
+ *              example: ''
  *     responses:
  *       200:
  *         description: IVideo
@@ -350,12 +333,15 @@ router.post('/createProject', (req, res) => {
  *       - application/json
  *     parameters:
  *       - in: body
- *         name: id
- *         description:
- *         required: true
- *         type: string
- *         default: ''
- *         collectionFormat: csv
+ *         name: body
+ *         schema:
+ *          type: object
+ *          required:
+ *            - id
+ *          parameters:
+ *            id:
+ *              type: string
+ *              example: ''
  *     responses:
  *       200:
  *         description: ''
