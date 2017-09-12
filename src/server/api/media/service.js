@@ -274,47 +274,13 @@ service.getObject = function getObject(info, cb) {
   });
 };
 
-// service.getVideo = function getVideo(req, res) {
-//   const a = req.query.a || '1';
-//   const path = a === '1' ? '/Users/steven/Downloads/youtube_encoding_long.mp4' : '/Users/steven/Downloads/25fps_transcoded_keyframe.mp4';
-//   const stat = fs.statSync(path);
-//   const total = stat.size;
-//   if (req.headers.range) {
-//     const range = req.headers.range;
-//     const parts = range.replace(/bytes=/, '').split('-');
-//     const partialstart = parts[0];
-//     const partialend = parts[1];
-//
-//     const start = parseInt(partialstart, 10);
-//     const end = partialend ? parseInt(partialend, 10) : total - 1;
-//     const chunksize = (end - start) + 1;
-//     console.log(`RANGE: ${start} - ${end} = ${chunksize}`);
-//
-//     const file = fs.createReadStream(path, { start, end });
-//     res.writeHead(206, { 'Content-Range': `bytes ${start}-${end}/${total}`, 'Accept-Ranges': 'bytes', 'Content-Length': chunksize, 'Content-Type': 'video/mp4' });
-//     file.pipe(res);
-//   } else {
-//     console.log(`ALL: ${total}`);
-//     res.writeHead(200, { 'Content-Length': total, 'Content-Type': 'video/mp4' });
-//     fs.createReadStream(path).pipe(res);
-//   }
-// };
-
 service.getVideo = function getVideo(req, res) {
   const a = req.query.a || '1';
   const path = a === '1' ? '/Users/steven/Downloads/youtube_encoding_long.mp4' : '/Users/steven/Downloads/25fps_transcoded_keyframe.mp4';
   const stat = fs.statSync(path);
   const total = stat.size;
-  console.log('total==>', total);
   const file = fs.createReadStream(path, { start: 0, end: 1200000 });
   file.pipe(res);
-  // let data = '';
-  // file.on("data", function (trunk){
-  //   data += trunk;
-  // });
-  // file.on("end", function () {
-  //   return res.json(result.json(null, data))
-  // });
 };
 
 function saveWatching(userId, videoId, cb) {
@@ -348,54 +314,7 @@ service.getSearchHistory = (userId, cb) => {
       keyword: 1,
       updatedTime: 1,
       count: 1,
-    })
-    .toArray((err, docs) => cb && cb(err, docs));
+    }).toArray((err, docs) => cb && cb(err, docs));
 };
-
-// service.cutFile = function cutFile(filename, cb) {
-//   const timestamps = new Date().getTime();
-//   const path = `/Users/steven/Downloads/${filename}`;
-//   const tempDir = config.uploadPath;
-//   console.log(path);
-//   ffmpeg(path)
-//     .setStartTime('00:00:50')
-//     .setDuration('100')
-//     .output(`${tempDir + timestamps}.mp4`)
-//     .on('end', (err) => {
-//       if (!err) {
-//         console.log('conversion Done');
-//         return cb && cb(null, `${timestamps}.mp4`);
-//       }
-//     })
-//     .on('error', (err) => {
-//       console.log('error===> ', +err);
-//       return cb && cb({ code: '-16001', message: err.message });
-//     }).run();
-// };
-//
-// service.mergeFile = function mergeFile(filenames, cb) {
-//   filenames = filenames.split(',');
-//   const tempDir = config.uploadPath;
-//   const len = filenames.length;
-//   const timestamps = new Date().getTime();
-//   if (len <= 0) {
-//     return cb && cb(null, null);
-//   }
-//   const command = ffmpeg(tempDir + filenames[0]);
-//   for (let i = 1; i < len; i++) {
-//     command.input(tempDir + filenames[1]);
-//   }
-//   command
-//     .on('error', (err) => {
-//       console.log(`An error occurred: ${err.message}`);
-//       return cb && cb({ code: '-16002', message: err.message });
-//     })
-//     .on('end', () => {
-//       console.log('Merging finished !');
-//       return cb && cb(null, `${timestamps}.mp4`);
-//     })
-//     .mergeToFile(`${tempDir + timestamps}.mp4`, tempDir);
-// };
-
 
 module.exports = service;
