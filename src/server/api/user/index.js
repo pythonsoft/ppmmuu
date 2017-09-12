@@ -184,7 +184,6 @@ router.post('/update', (req, res) => {
   service.updateUser(_id, req.body, (err, data) => res.json(result.json(err, data)));
 });
 
-
 /**
  * @apiName: getUserDetail
  * @apiFuncType: get
@@ -346,6 +345,5 @@ router.post('/changePassword', (req, res) => {
   req.body._id = _id;
   service.changePassword(req.body, res, (err, data) => res.json(result.json(err, data)));
 });
-
 
 module.exports = router;
