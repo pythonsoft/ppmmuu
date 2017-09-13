@@ -299,17 +299,25 @@ service.getStream = function getStream(objectId, res) {
 
 service.getSearchHistory = (userId, cb, page, pageSize) => {
   searchHistoryInfo.pagination({ userId }, page, pageSize, (err, doc) => cb && cb(err, doc), 'updatedTime', '');
-//   searchHistoryInfo.collection
-//     .find({ userId })
-//     .sort({ updatedTime: -1 })
-//     .limit(10).project({
-//       keyword: 1,
-//       updatedTime: 1,
-//       count: 1,
-//     }).toArray((err, docs) => cb && cb(err, docs));
 };
 
-service.getWatchHistory = (userId, cb) => {
+service.getSearchHistoryForMediaPage = (userId, cb) => {
+  searchHistoryInfo.collection
+    .find({ userId })
+    .sort({ updatedTime: -1 })
+    .limit(10).project({
+      keyword: 1,
+      updatedTime: 1,
+      count: 1,
+    })
+    .toArray((err, docs) => cb && cb(err, docs));
+};
+
+service.getWatchHistory = (userId, cb, page, pageSize) => {
+  watchingHistoryInfo.pagination({ userId }, page, pageSize, (err, doc) => cb && cb(err, doc), 'updatedTime', '');
+};
+
+service.getWatchHistoryForMediaPage = (userId, cb) => {
   watchingHistoryInfo.collection
   .find({ userId, status: 'available' })
   .sort({ updatedTime: -1 })
