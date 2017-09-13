@@ -115,8 +115,8 @@ router.post('/login', (req, res) => {
  *
  */
 router.get('/getToken', (req, res) => {
-  const username = req.body.username || '';
-  const password = req.body.password || '';
+  const username = req.query.username || '';
+  const password = req.query.password || '';
 
   service.getToken(res, username, password, (err, token) => res.json(result.json(err, token)));
 });
@@ -184,7 +184,6 @@ router.post('/update', (req, res) => {
   const _id = req.ex.userInfo._id;
   service.updateUser(_id, req.body, (err, data) => res.json(result.json(err, data)));
 });
-
 
 /**
  * @apiName: getUserDetail

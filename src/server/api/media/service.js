@@ -269,23 +269,20 @@ service.getObject = function getObject(info, cb) {
   });
 };
 
-service.getVideo = function getVideo(req, res) {
-  const a = req.query.a || '1';
-  const path = a === '1' ? '/Users/steven/Downloads/youtube_encoding_long.mp4' : '/Users/steven/Downloads/25fps_transcoded_keyframe.mp4';
-  const stat = fs.statSync(path);
-  const total = stat.size;
-  const file = fs.createReadStream(path, { start: 0, end: 1200000 });
-  file.pipe(res);
-};
-
-function saveWatching(userId, videoId, cb) {
-  watchingHistoryInfo.findOneAndUpdate({ videoId, userId },
-    { $set: { updatedTime: new Date() }, $inc: { count: 1 }, $setOnInsert: { videoContent: '', status: 'unavailable', _id: uuid.v1() } },
-    { returnOriginal: false, upsert: true },
+service.saveWatching = function saveWatching(userId, videoId, cb) {
+  watchingHistoryInfo.findOneAndUpdate(
+    { videoId, userId },
+    {
+      $set: { updatedTime: new Date() },
+      $inc: { count: 1 },
+      $setOnInsert: { videoContent: '', status: 'unavailable', _id: uuid.v1() }
+    },
+    {
+      returnOriginal: false,
+      upsert: true
+    },
     (err, r) => cb && cb(err, r));
-}
-
-service.saveWatching = saveWatching;
+};
 
 service.getStream = function getStream(objectId, res) {
   const struct = {
@@ -336,50 +333,5 @@ service.getWatchHistoryForMediaPage = (userId, cb) => {
     return cb && cb(err, r);
   });
 };
-
-// service.cutFile = function cutFile(filename, cb) {
-//   const timestamps = new Date().getTime();
-//   const path = `/Users/steven/Downloads/${filename}`;
-//   const tempDir = config.uploadPath;
-//   console.log(path);
-//   ffmpeg(path)
-//     .setStartTime('00:00:50')
-//     .setDuration('100')
-//     .output(`${tempDir + timestamps}.mp4`)
-//     .on('end', (err) => {
-//       if (!err) {
-//         console.log('conversion Done');
-//         return cb && cb(null, `${timestamps}.mp4`);
-//       }
-//     })
-//     .on('error', (err) => {
-//       console.log('error===> ', +err);
-//       return cb && cb({ code: '-16001', message: err.message });
-//     }).run();
-// };
-//
-// service.mergeFile = function mergeFile(filenames, cb) {
-//   filenames = filenames.split(',');
-//   const tempDir = config.uploadPath;
-//   const len = filenames.length;
-//   const timestamps = new Date().getTime();
-//   if (len <= 0) {
-//     return cb && cb(null, null);
-//   }
-//   const command = ffmpeg(tempDir + filenames[0]);
-//   for (let i = 1; i < len; i++) {
-//     command.input(tempDir + filenames[1]);
-//   }
-//   command
-//     .on('error', (err) => {
-//       console.log(`An error occurred: ${err.message}`);
-//       return cb && cb({ code: '-16002', message: err.message });
-//     })
-//     .on('end', () => {
-//       console.log('Merging finished !');
-//       return cb && cb(null, `${timestamps}.mp4`);
-//     })
-//     .mergeToFile(`${tempDir + timestamps}.mp4`, tempDir);
-// };
 
 module.exports = service;
