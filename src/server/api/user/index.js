@@ -114,8 +114,8 @@ router.post('/login', (req, res) => {
  *
  */
 router.get('/getToken', (req, res) => {
-  const username = req.body.username || '';
-  const password = req.body.password || '';
+  const username = req.query.username || '';
+  const password = req.query.password || '';
 
   service.getToken(res, username, password, (err, token) => res.json(result.json(err, token)));
 });
