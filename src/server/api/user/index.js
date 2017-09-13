@@ -9,6 +9,7 @@ const express = require('express');
 const router = express.Router();
 const result = require('../../common/result');
 const service = require('./service');
+const mediaService = require('../media/service');
 
 /**
  * @apiName: postUserLogin
@@ -347,5 +348,82 @@ router.post('/changePassword', (req, res) => {
   service.changePassword(req.body, res, (err, data) => res.json(result.json(err, data)));
 });
 
+/**
+ * @apiName: getSearchHistory
+ * @apiFuncType: get
+ * @apiFuncUrl: /user/getSearchHistory
+ * @swagger
+ * /user/getSearchHistory:
+ *   get:
+ *     description: 获得视频播放地址
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         description:
+ *         required: false
+ *         type: integer
+ *         default: 1
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: pageSize
+ *         description:
+ *         required: false
+ *         type: integer
+ *         default: 999
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: SearchHistoryInfo
+ */
+router.get('/getSearchHistory', (req, res) => {
+  const page = req.query.page || 1;
+  const pageSize = req.query.pageSize || 999;
+
+  mediaService.getSearchHistory(req.ex.userId, (err, docs) => res.json(result.json(err, docs)), page, pageSize);
+});
+
+/**
+ * @apiName: getWatchHistory
+ * @apiFuncType: get
+ * @apiFuncUrl: /user/getWatchHistory
+ * @swagger
+ * /user/getWatchHistory:
+ *   get:
+ *     description: 获得视频播放地址
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         description:
+ *         required: false
+ *         type: integer
+ *         default: 1
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: pageSize
+ *         description:
+ *         required: false
+ *         type: integer
+ *         default: 999
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: WatchHistoryInfo
+ */
+router.get('/getWatchHistory', (req, res) => {
+  const page = req.query.page || 1;
+  const pageSize = req.query.pageSize || 999;
+
+  mediaService.getWatchHistory(req.ex.userId, (err, docs) => res.json(result.json(err, docs)), page, pageSize);
+});
 
 module.exports = router;
