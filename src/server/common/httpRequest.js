@@ -116,6 +116,7 @@ class httpRequest {
     const opt = utils.clone(this.options);
     opt.method = 'POST';
     opt.path = path;
+    opt.headers['Content-Type'] = 'application/x-www-form-urlencoded';
 
     this.request(opt, param, outStream);
   }

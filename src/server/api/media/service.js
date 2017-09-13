@@ -12,6 +12,8 @@ const config = require('../../config');
 const request = require('request');
 const fieldConfig = require('./fieldConfig');
 const ConfigurationInfo = require('../configuration/configurationInfo');
+const SearchHistoryInfo = require('../user/searchHistoryInfo');
+const WatchingHistoryInfo = require('../user/watchingHistoryInfo');
 
 const HttpRequest = require('../../common/httpRequest');
 
@@ -21,105 +23,11 @@ const rq = new HttpRequest({
 });
 
 const configurationInfo = new ConfigurationInfo();
+const searchHistoryInfo = new SearchHistoryInfo();
+const watchingHistoryInfo = new WatchingHistoryInfo();
 const service = {};
 
-service.solrSearch = function solorSearch(info, cb) {
-  if (!info.wt) {
-    info.wt = 'json';
-  }
-  const struct = {
-    wt: { type: 'string', validation(v) { v = v.trim().toLowerCase(); if (v !== 'json' && v !== 'xml') { return false; } return true; } },
-  };
-  const err = utils.validation(info, struct);
-
-  if (err) {
-    return cb && cb(err);
-  }
-
-  info.wt = info.wt.trim().toLowerCase();
-
-  const options = {
-    uri: `${config.solrBaseUrl}program/select`,
-    method: 'GET',
-    encoding: 'utf-8',
-    qs: info,
-  };
-  const t1 = new Date().getTime();
-  request(options, (error, response) => {
-    if (!error && response.statusCode === 200) {
-      const rs = JSON.parse(response.body);
-      let r = {};
-      if (rs.response) {
-        const highlighting = rs.highlighting || {};
-        r.QTime = rs.responseHeader ? rs.responseHeader.QTime : (new Date().getTime() - t1);
-        r = Object.assign(r, rs.response);
-        if (!utils.isEmptyObject(highlighting)) {
-          const docs = r.docs;
-          for (let i = 0, len = docs.length; i < len; i++) {
-            const doc = docs[i];
-            const hl = highlighting[doc.id];
-            if (!utils.isEmptyObject(hl)) {
-              for (const key in hl) {
-                doc[key] = hl[key].join('') || doc[key];
-              }
-            }
-          }
-        }
-        return cb && cb(null, r);
-      }
-      return cb && cb(i18n.t('solrSearchError', { error: rs.error.msg }));
-    } else if (error) {
-      logger.error(error);
-      return cb && cb(i18n.t('solrSearchError', { error }));
-    }
-    logger.error(response.body);
-    return cb && cb(i18n.t('solrSearchFailed'));
-  });
-};
-
-service.getMediaList = function getMediaList(info, cb) {
-  const pageSize = info.pageSize || 4;
-  const result = [];
-
-  const loopGetCategoryList = function loopGetCategoryList(categories, index) {
-    if (index >= categories.length) {
-      return cb && cb(null, result);
-    }
-    const category = categories[index].label;
-    const query = {
-      q: `program_type:${category}`,
-      fl: 'id,duration,name,ccid,program_type,program_name_cn,hd_flag,program_name_en,last_modify',
-      sort: 'last_modify desc',
-      start: 0,
-      rows: pageSize,
-    };
-    service.solrSearch(query, (err, r) => {
-      if (err) {
-        return cb && cb(err);
-      }
-      result.push({ category, docs: r.docs });
-      loopGetCategoryList(categories, index + 1);
-    });
-  };
-
-  service.getSearchConfig((err, rs) => {
-    if (err) {
-      return cb && cb(i18n.t('databaseError'));
-    }
-
-    if (!rs.searchSelectConfigs.length) {
-      return cb & cb(null, result);
-    }
-
-    const categories = rs.searchSelectConfigs[0].items;
-
-    if (!categories.length) {
-      return cb & cb(null, result);
-    }
-
-    loopGetCategoryList(categories, 0);
-  });
-};
+const redisClient = config.redisClient;
 
 service.getSearchConfig = function getSearchConfig(cb) {
   configurationInfo.collection.find({ key: { $in: ['meidaCenterSearchSelects', 'mediaCenterSearchRadios'] } }, { fields: { key: 1, value: 1 } }).toArray((err, docs) => {
@@ -150,6 +58,139 @@ service.getSearchConfig = function getSearchConfig(cb) {
     }
 
     return cb && cb(null, rs);
+  });
+};
+
+function saveSearch(k, id, cb) {
+  searchHistoryInfo.findOneAndUpdate({ keyword: k, userId: id },
+    { $set: { updatedTime: new Date() }, $inc: { count: 1 } },
+    { returnOriginal: false, upsert: true },
+    (err, r) => cb && cb(err, r));
+}
+
+service.solrSearch = function solorSearch(info, cb, userId, videoIds) {
+  if (!info.wt) {
+    info.wt = 'json';
+  }
+  const struct = {
+    wt: { type: 'string', validation(v) { v = v.trim().toLowerCase(); if (v !== 'json' && v !== 'xml') { return false; } return true; } },
+  };
+  const err = utils.validation(info, struct);
+
+  if (err) {
+    return cb && cb(err);
+  }
+
+  info.wt = info.wt.trim().toLowerCase();
+
+  if (videoIds) {
+    const vIdL = videoIds.split(',');
+    const newQ = vIdL.length === 1 ? `id: ${vIdL[0]}` : `id: ${vIdL.join(' OR id: ')}`;
+    info.q = newQ;
+  }
+
+  const options = {
+    uri: `${config.solrBaseUrl}program/select`,
+    method: 'GET',
+    encoding: 'utf-8',
+    qs: info,
+  };
+  const t1 = new Date().getTime();
+  request(options, (error, response) => {
+    if (!error && response.statusCode === 200) {
+      const rs = JSON.parse(response.body);
+      let r = {};
+      if (rs.response) {
+        const highlighting = rs.highlighting || {};
+        r.QTime = rs.responseHeader ? rs.responseHeader.QTime : (new Date().getTime() - t1);
+        r = Object.assign(r, rs.response);
+        if (!utils.isEmptyObject(highlighting)) {
+          const docs = r.docs;
+          for (let i = 0, len = docs.length; i < len; i++) {
+            const doc = docs[i];
+            const hl = highlighting[doc.id];
+            if (!utils.isEmptyObject(hl)) {
+              for (const key in hl) {
+                doc[key] = hl[key].join('') || doc[key];
+              }
+            }
+          }
+        }
+        if (userId && info.q.lastIndexOf('full_text:') !== -1) {
+          const k = info.q.substring(info.q.lastIndexOf('full_text:') + 10, info.q.indexOf(' '));
+          saveSearch(k, userId, (err, r) => {
+            if (err) {
+              logger.error(err);
+            }
+            console.log(r);
+          });
+        }
+        return cb && cb(null, r);
+      }
+      return cb && cb(i18n.t('solrSearchError', { error: rs.error.msg }));
+    } else if (error) {
+      logger.error(error);
+      return cb && cb(i18n.t('solrSearchError', { error }));
+    }
+    logger.error(response.body);
+    return cb && cb(i18n.t('solrSearchFailed'));
+  });
+};
+
+function defaultMediaList(cb) {
+  redisClient.get('cachedMediaList', (err, obj) => {
+    if (err) {
+      logger.error(err);
+      return cb && cb(err);
+    }
+    return cb && cb(null, JSON.parse(obj || '[]'));
+  });
+}
+
+service.defaultMediaList = defaultMediaList;
+
+service.getMediaList = function getMediaList(info, cb) {
+  const pageSize = info.pageSize || 4;
+  const result = [];
+
+  const loopGetCategoryList = function loopGetCategoryList(categories, index) {
+    if (index >= categories.length) {
+      return cb && cb(null, result);
+    }
+    const category = categories[index].label;
+    const query = {
+      q: `program_type:${category}`,
+      fl: 'id,duration,name,ccid,program_type,program_name_cn,hd_flag,program_name_en,last_modify,f_str_03',
+      sort: 'last_modify desc',
+      start: 0,
+      rows: pageSize,
+      hl: 'off',
+    };
+    service.solrSearch(query, (err, r) => {
+      if (err) {
+        return cb && cb(err);
+      }
+      result.push({ category, docs: r.docs });
+      loopGetCategoryList(categories, index + 1);
+    });
+  };
+
+  service.getSearchConfig((err, rs) => {
+    if (err) {
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if (!rs.searchSelectConfigs.length) {
+      return cb & cb(null, result);
+    }
+
+    const categories = rs.searchSelectConfigs[0].items;
+
+    if (!categories.length) {
+      return cb & cb(null, result);
+    }
+
+    loopGetCategoryList(categories, 0);
   });
 };
 
@@ -227,48 +268,23 @@ service.getObject = function getObject(info, cb) {
   });
 };
 
-// service.getVideo = function getVideo(req, res) {
-//   const a = req.query.a || '1';
-//   const path = a === '1' ? '/Users/steven/Downloads/youtube_encoding_long.mp4' : '/Users/steven/Downloads/25fps_transcoded_keyframe.mp4';
-//   const stat = fs.statSync(path);
-//   const total = stat.size;
-//   if (req.headers.range) {
-//     const range = req.headers.range;
-//     const parts = range.replace(/bytes=/, '').split('-');
-//     const partialstart = parts[0];
-//     const partialend = parts[1];
-//
-//     const start = parseInt(partialstart, 10);
-//     const end = partialend ? parseInt(partialend, 10) : total - 1;
-//     const chunksize = (end - start) + 1;
-//     console.log(`RANGE: ${start} - ${end} = ${chunksize}`);
-//
-//     const file = fs.createReadStream(path, { start, end });
-//     res.writeHead(206, { 'Content-Range': `bytes ${start}-${end}/${total}`, 'Accept-Ranges': 'bytes', 'Content-Length': chunksize, 'Content-Type': 'video/mp4' });
-//     file.pipe(res);
-//   } else {
-//     console.log(`ALL: ${total}`);
-//     res.writeHead(200, { 'Content-Length': total, 'Content-Type': 'video/mp4' });
-//     fs.createReadStream(path).pipe(res);
-//   }
-// };
-
 service.getVideo = function getVideo(req, res) {
   const a = req.query.a || '1';
   const path = a === '1' ? '/Users/steven/Downloads/youtube_encoding_long.mp4' : '/Users/steven/Downloads/25fps_transcoded_keyframe.mp4';
   const stat = fs.statSync(path);
   const total = stat.size;
-  console.log('total==>', total);
   const file = fs.createReadStream(path, { start: 0, end: 1200000 });
   file.pipe(res);
-  // let data = '';
-  // file.on("data", function (trunk){
-  //   data += trunk;
-  // });
-  // file.on("end", function () {
-  //   return res.json(result.json(null, data))
-  // });
 };
+
+function saveWatching(userId, videoId, cb) {
+  watchingHistoryInfo.findOneAndUpdate({ videoId, userId },
+    { $set: { updatedTime: new Date() }, $inc: { count: 1 }, $setOnInsert: { videoContent: '', status: 'unavailable' } },
+    { returnOriginal: false, upsert: true },
+    (err, r) => cb && cb(err, r));
+}
+
+service.saveWatching = saveWatching;
 
 service.getStream = function getStream(objectId, res) {
   const struct = {
@@ -282,6 +298,42 @@ service.getStream = function getStream(objectId, res) {
   }
 
   rq.get('/mamapi/get_stream', { objectid: objectId }, res);
+};
+
+service.getSearchHistory = (userId, cb, page, pageSize) => {
+  searchHistoryInfo.pagination({ userId }, page, pageSize, (err, doc) => cb && cb(err, doc), 'updatedTime', '');
+};
+
+service.getSearchHistoryForMediaPage = (userId, cb) => {
+  searchHistoryInfo.collection
+    .find({ userId })
+    .sort({ updatedTime: -1 })
+    .limit(10).project({
+      keyword: 1,
+      updatedTime: 1,
+      count: 1,
+    })
+    .toArray((err, docs) => cb && cb(err, docs));
+};
+
+service.getWatchHistory = (userId, cb, page, pageSize) => {
+  watchingHistoryInfo.pagination({ userId }, page, pageSize, (err, doc) => cb && cb(err, doc), 'updatedTime', '');
+};
+
+service.getWatchHistoryForMediaPage = (userId, cb) => {
+  watchingHistoryInfo.collection
+  .find({ userId, status: 'available' })
+  .sort({ updatedTime: -1 })
+  .limit(10)
+  .toArray((err, docs) => {
+    const r = [];
+    if (docs) {
+      docs.forEach((item) => {
+        r.push(item.videoContent);
+      });
+    }
+    return cb && cb(err, r);
+  });
 };
 
 // service.cutFile = function cutFile(filename, cb) {
@@ -328,6 +380,5 @@ service.getStream = function getStream(objectId, res) {
 //     })
 //     .mergeToFile(`${tempDir + timestamps}.mp4`, tempDir);
 // };
-
 
 module.exports = service;

@@ -64,6 +64,7 @@ const runServer = function runServer() {
     app.listen(config.port, () => {
       require('./apiPath.js')(app); // eslint-disable-line
       require('./mongodbScript/index');
+      require('./setTimeOutJob/index');
 
       console.log(`Listening on port ${config.port}...`);
     });

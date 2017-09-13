@@ -9,6 +9,7 @@ const express = require('express');
 const router = express.Router();
 const result = require('../../common/result');
 const service = require('./service');
+const mediaService = require('../media/service');
 
 /**
  * @apiName: postUserLogin
@@ -64,6 +65,60 @@ router.post('/login', (req, res) => {
   const password = req.body.password || '';
 
   service.login(res, username, password, (err, data) => res.json(result.json(err, data)));
+});
+
+/**
+ * @apiName: getToken
+ * @apiFuncType: get
+ * @apiFuncUrl: /user/getToken
+ * @swagger
+ * /user/getToken/:
+ *   get:
+ *     description: getToken
+ *     tags:
+ *       - v1
+ *       - UserInfo
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: query
+ *         description: user login
+ *         schema:
+ *           type: object
+ *           required:
+ *             - username
+ *             - password
+ *           properties:
+ *             username:
+ *               type: string
+ *               example: "xuyawen"
+ *             password:
+ *               type: string
+ *               example: "123123"
+ *     responses:
+ *       200:
+ *         description: token
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: string
+ *              example: ''
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *
+ */
+router.get('/getToken', (req, res) => {
+  const username = req.body.username || '';
+  const password = req.body.password || '';
+
+  service.getToken(res, username, password, (err, token) => res.json(result.json(err, token)));
 });
 
 const isLogin = require('../../middleware/login');
@@ -293,5 +348,82 @@ router.post('/changePassword', (req, res) => {
   service.changePassword(req.body, res, (err, data) => res.json(result.json(err, data)));
 });
 
+/**
+ * @apiName: getSearchHistory
+ * @apiFuncType: get
+ * @apiFuncUrl: /user/getSearchHistory
+ * @swagger
+ * /user/getSearchHistory:
+ *   get:
+ *     description: 获得视频播放地址
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         description:
+ *         required: false
+ *         type: integer
+ *         default: 1
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: pageSize
+ *         description:
+ *         required: false
+ *         type: integer
+ *         default: 999
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: SearchHistoryInfo
+ */
+router.get('/getSearchHistory', (req, res) => {
+  const page = req.query.page || 1;
+  const pageSize = req.query.pageSize || 999;
+
+  mediaService.getSearchHistory(req.ex.userId, (err, docs) => res.json(result.json(err, docs)), page, pageSize);
+});
+
+/**
+ * @apiName: getWatchHistory
+ * @apiFuncType: get
+ * @apiFuncUrl: /user/getWatchHistory
+ * @swagger
+ * /user/getWatchHistory:
+ *   get:
+ *     description: 获得视频播放地址
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         description:
+ *         required: false
+ *         type: integer
+ *         default: 1
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: pageSize
+ *         description:
+ *         required: false
+ *         type: integer
+ *         default: 999
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: WatchHistoryInfo
+ */
+router.get('/getWatchHistory', (req, res) => {
+  const page = req.query.page || 1;
+  const pageSize = req.query.pageSize || 999;
+
+  mediaService.getWatchHistory(req.ex.userId, (err, docs) => res.json(result.json(err, docs)), page, pageSize);
+});
 
 module.exports = router;

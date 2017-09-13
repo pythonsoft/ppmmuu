@@ -44,3 +44,6 @@ config.uploadPath = path.join(__dirname, '../../uploads/');
 
 // 允许跨域访问的地址列表
 config.whitelist = ['http://localhost:8000', 'http://localhost:8080', 'http://10.0.15.68:8000', 'http://10.0.15.105:8000', 'http://10.0.15.105:8080'];
+
+config.normalMenuPermission = ['mediaCenter', 'taskCenter', 'personalCenter'];
+config.adminMenuPermission = config.normalMenuPermission.concat(['management']);
