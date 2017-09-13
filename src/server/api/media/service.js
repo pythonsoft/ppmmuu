@@ -14,6 +14,7 @@ const fieldConfig = require('./fieldConfig');
 const ConfigurationInfo = require('../configuration/configurationInfo');
 const SearchHistoryInfo = require('../user/searchHistoryInfo');
 const WatchingHistoryInfo = require('../user/watchingHistoryInfo');
+const uuid = require('uuid');
 
 const HttpRequest = require('../../common/httpRequest');
 
@@ -63,7 +64,7 @@ service.getSearchConfig = function getSearchConfig(cb) {
 
 function saveSearch(k, id, cb) {
   searchHistoryInfo.findOneAndUpdate({ keyword: k, userId: id },
-    { $set: { updatedTime: new Date() }, $inc: { count: 1 } },
+    { $set: { updatedTime: new Date() }, $inc: { count: 1 }, $setOnInsert: { _id: uuid.v1() } },
     { returnOriginal: false, upsert: true },
     (err, r) => cb && cb(err, r));
 }
@@ -279,7 +280,7 @@ service.getVideo = function getVideo(req, res) {
 
 function saveWatching(userId, videoId, cb) {
   watchingHistoryInfo.findOneAndUpdate({ videoId, userId },
-    { $set: { updatedTime: new Date() }, $inc: { count: 1 }, $setOnInsert: { videoContent: '', status: 'unavailable' } },
+    { $set: { updatedTime: new Date() }, $inc: { count: 1 }, $setOnInsert: { videoContent: '', status: 'unavailable', _id: uuid.v1() } },
     { returnOriginal: false, upsert: true },
     (err, r) => cb && cb(err, r));
 }
@@ -306,14 +307,14 @@ service.getSearchHistory = (userId, cb, page, pageSize) => {
 
 service.getSearchHistoryForMediaPage = (userId, cb) => {
   searchHistoryInfo.collection
-    .find({ userId })
-    .sort({ updatedTime: -1 })
-    .limit(10).project({
-      keyword: 1,
-      updatedTime: 1,
-      count: 1,
-    })
-    .toArray((err, docs) => cb && cb(err, docs));
+  .find({ userId })
+  .sort({ updatedTime: -1 })
+  .limit(10).project({
+    keyword: 1,
+    updatedTime: 1,
+    count: 1,
+  })
+  .toArray((err, docs) => cb && cb(err, docs));
 };
 
 service.getWatchHistory = (userId, cb, page, pageSize) => {
