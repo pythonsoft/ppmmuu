@@ -387,6 +387,57 @@ router.get('/getSearchHistory', (req, res) => {
 });
 
 /**
+ * @apiName: removeSearchHistory
+ * @apiFuncType: post
+ * @apiFuncUrl: /user/removeSearchHistory
+ * @swagger
+ * /user/removeSearchHistory:
+ *   post:
+ *     description: 获得视频播放地址
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: remove history
+ *         schema:
+ *           type: object
+ *           properties:
+ *             ids:
+ *               type: string
+ *     responses:
+ *       200:
+ *         description: remove history
+ */
+router.post('/removeSearchHistory', (req, res) => {
+  service.removeSearchHistory(req.body.ids, null, (err, r) => res.json(result.json(err, r)));
+});
+
+/**
+ * @apiName: clearSearchHistory
+ * @apiFuncType: post
+ * @apiFuncUrl: /user/clearSearchHistory
+ * @swagger
+ * /user/clearSearchHistory:
+ *   post:
+ *     description: 获得视频播放地址
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: remove history
+ */
+router.post('/clearSearchHistory', (req, res) => {
+  service.removeSearchHistory(null, req.ex.userId, (err, r) => res.json(result.json(err, r)));
+});
+
+/**
  * @apiName: getWatchHistory
  * @apiFuncType: get
  * @apiFuncUrl: /user/getWatchHistory
@@ -423,6 +474,57 @@ router.get('/getWatchHistory', (req, res) => {
   const pageSize = req.query.pageSize || 999;
 
   mediaService.getWatchHistory(req.ex.userId, (err, docs) => res.json(result.json(err, docs)), page, pageSize);
+});
+
+/**
+ * @apiName: removeWatchHistory
+ * @apiFuncType: post
+ * @apiFuncUrl: /user/removeWatchHistory
+ * @swagger
+ * /user/removeWatchHistory:
+ *   post:
+ *     description: 获得视频播放地址
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: remove watch history
+ *         schema:
+ *           type: object
+ *           properties:
+ *             ids:
+ *               type: string
+ *     responses:
+ *       200:
+ *         description: remove history
+ */
+router.post('/removeWatchHistory', (req, res) => {
+  service.removeWatchHistory(req.body.ids, null, (err, r) => res.json(result.json(err, r)));
+});
+
+/**
+ * @apiName: clearWatchHistory
+ * @apiFuncType: post
+ * @apiFuncUrl: /user/clearWatchHistory
+ * @swagger
+ * /user/clearWatchHistory:
+ *   post:
+ *     description: 获得视频播放地址
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: remove history
+ */
+router.post('/clearWatchHistory', (req, res) => {
+  service.removeWatchHistory(null, req.ex.userId, (err, r) => res.json(result.json(err, r)));
 });
 
 module.exports = router;
