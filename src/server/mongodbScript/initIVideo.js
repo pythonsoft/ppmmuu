@@ -57,4 +57,3 @@ service.getMyResource(userId, (err, doc) => {
 
 // service.createSnippetOrDirItem(userId, '默认目录', '7dcc07f0-8b99-11e7-a634-551563816964', ItemInfo.TYPE.DIRECTORY, ItemInfo.CAN_REVMOE.YES, {}, {}, (err, r) => console.log(err, r));
 
-

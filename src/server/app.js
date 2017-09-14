@@ -88,8 +88,7 @@ if (process.env.NODE_ENV === 'development') {
     },
     // TODO: import apis as below
     apis: [
-      './**/api/storage/*.js',
-      './**/api/user/*.js',
+      './**/api/*/*.js',
       './**/common/*.js',
     ],
   };

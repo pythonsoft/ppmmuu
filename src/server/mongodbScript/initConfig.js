@@ -56,7 +56,7 @@ const meidaCenterSearchSelects = [
       { value: '資訊台新聞', label: '資訊台新聞' },
       { value: '全球', label: '全球' },
       { value: '資訊台十週年節目素材', label: '資訊台十週年節目素材' },
-      { value: 'NowTV', label: 'NowTV' }
+      { value: 'NowTV', label: 'NowTV' },
     ],
     selected: '',
   },

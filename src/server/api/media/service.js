@@ -275,11 +275,11 @@ service.saveWatching = function saveWatching(userId, videoId, cb) {
     {
       $set: { updatedTime: new Date() },
       $inc: { count: 1 },
-      $setOnInsert: { videoContent: '', status: 'unavailable', _id: uuid.v1() }
+      $setOnInsert: { videoContent: '', status: 'unavailable', _id: uuid.v1() },
     },
     {
       returnOriginal: false,
-      upsert: true
+      upsert: true,
     },
     (err, r) => cb && cb(err, r));
 };

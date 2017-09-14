@@ -25,7 +25,7 @@ const groupUserService = require('../group/userService');
 const service = {};
 
 const generateToken = function generateToken(id, expires) {
-  const exp = expires ? expires : new Date().getTime() + config.cookieExpires;
+  const exp = expires || new Date().getTime() + config.cookieExpires;
   const token = Token.create(id, exp, config.KEY);
 
   return token;
@@ -89,7 +89,7 @@ const loginHandle = function loginHandle(username, password, cb) {
       _id: 1,
       password: 1,
       verifyType: 1,
-      expiredTime: 1
+      expiredTime: 1,
     },
   }, (err, doc) => {
     if (err) {
@@ -102,8 +102,7 @@ const loginHandle = function loginHandle(username, password, cb) {
     }
 
     if (UserInfo.VERIFY_TYPE.PASSWORD === doc.verifyType) {
-
-      if(doc.expiredTime < new Date()){
+      if (doc.expiredTime < new Date()) {
         return cb && cb(i18n.t('userExpiredTime'));
       }
 
@@ -124,9 +123,9 @@ const loginHandle = function loginHandle(username, password, cb) {
   });
 };
 
-service.getToken = function(res, username, password, cb) {
+service.getToken = function (res, username, password, cb) {
   loginHandle(username, password, (err, doc) => {
-    if(err) {
+    if (err) {
       return cb && cb(err);
     }
 
@@ -137,12 +136,12 @@ service.getToken = function(res, username, password, cb) {
 
 service.login = function login(res, username, password, cb) {
   loginHandle(username, password, (err, doc) => {
-    if(err) {
+    if (err) {
       return cb && cb(err);
     }
 
     setCookie2(res, doc, (err, doc) => {
-      if(err) {
+      if (err) {
         return cb && cb(err);
       }
 

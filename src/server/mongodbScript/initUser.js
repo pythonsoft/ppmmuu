@@ -27,11 +27,11 @@ const user = {
 
 userInfo.collection.dropIndex('phone_1');
 
-userInfo.collection.update({ expiredTime: { $exists: false } } , { $set: {expiredTime: new Date('9999 23:59:59')}}, { multi: true }, function(err){
-  if(err){
+userInfo.collection.update({ expiredTime: { $exists: false } }, { $set: { expiredTime: new Date('9999 23:59:59') } }, { multi: true }, (err) => {
+  if (err) {
     console.log(err.message);
   }
-})
+});
 
 userInfo.collection.findOne({ email }, { fields: { email: 1 } }, (err, doc) => {
   if (err) {
