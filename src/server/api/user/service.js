@@ -12,9 +12,13 @@ const WebosApi = require('../../common/webosAPI');
 const config = require('../../config');
 const Login = require('../../middleware/login');
 
+const SearchHistoryInfo = require('./searchHistoryInfo');
+const WatchingHistoryInfo = require('./watchingHistoryInfo');
 const UserInfo = require('./userInfo');
 
 const userInfo = new UserInfo();
+const searchHistoryInfo = new SearchHistoryInfo();
+const watchingHistoryInfo = new WatchingHistoryInfo();
 
 const groupUserService = require('../group/userService');
 
@@ -253,6 +257,32 @@ service.changePassword = function changePassword(info, res, cb) {
       service.logout(_id, res, cb);
     });
   });
+};
+
+service.removeWatchHistory = (ids, userId, cb) => {
+  const filter = {};
+  if (userId) {
+    filter.userId = userId;
+  } else {
+    if (!ids) {
+      return cb && cb(i18n.t('idIsNull'));
+    }
+    filter._id = { $in: ids.split(',') };
+  }
+  watchingHistoryInfo.collection.deleteMany(filter, null, (err, r) => cb && cb(err, r));
+};
+
+service.removeSearchHistory = (ids, userId, cb) => {
+  const filter = {};
+  if (userId) {
+    filter.userId = userId;
+  } else {
+    if (!ids) {
+      return cb && cb(i18n.t('idIsNull'));
+    }
+    filter._id = { $in: ids.split(',') };
+  }
+  searchHistoryInfo.collection.deleteMany(filter, null, (err, r) => cb && cb(err, r));
 };
 
 module.exports = service;

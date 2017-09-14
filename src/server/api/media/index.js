@@ -315,47 +315,6 @@ router.get('/getObject', (req, res) => {
 });
 
 /**
- * @apiName: getVideo
- * @apiFuncType: get
- * @apiFuncUrl: /media/getVideo
- * @swagger
- * /media/getVideo:
- *   get:
- *     description: 获取视频流
- *     version: 1.0.0
- *     tags:
- *       - v1
- *       - Search
- *     produces:
- *       - application/json
- *     parameters:
- *       - in: query
- *         name: objectid
- *         required: true
- *         type: string
- *         default: "FE1748B4-69F9-4CAB-8CC0-5EB8A35CB717"
- *         collectionFormat: csv
- *     responses:
- *       200:
- *         schema:
- *           type: object
- *           properties:
- *            status:
- *              type: string
- *            data:
- *              type: object
- *            statusInfo:
- *              type: object
- *              properties:
- *                message:
- *                  type: string
- *
- */
-router.get('/getVideo', (req, res) => {
-  service.getVideo(req, res);
-});
-
-/**
  * @apiName: getStream
  * @apiFuncType: get
  * @apiFuncUrl: /media/getStream

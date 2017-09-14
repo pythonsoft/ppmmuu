@@ -521,4 +521,8 @@ module.exports = {
     code: '-60000',
     message: '未实装的verifyType',
   },
+  idIsNull: {
+    code: '-70000',
+    message: 'id为空',
+  },
 };
