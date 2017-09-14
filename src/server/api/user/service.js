@@ -85,6 +85,7 @@ const loginHandle = function loginHandle(username, password, cb) {
       _id: 1,
       password: 1,
       verifyType: 1,
+      expiredTime: 1
     },
   }, (err, doc) => {
     if (err) {
@@ -97,6 +98,11 @@ const loginHandle = function loginHandle(username, password, cb) {
     }
 
     if (UserInfo.VERIFY_TYPE.PASSWORD === doc.verifyType) {
+
+      if(doc.expiredTime < new Date()){
+        return cb && cb(i18n.t('userExpiredTime'));
+      }
+
       if (cipherPassword !== doc.password) {
         return cb && cb(i18n.t('usernameOrPasswordIsWrong'));
       }
