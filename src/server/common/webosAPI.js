@@ -5,69 +5,69 @@ const http = require('http');
 const crypto = require('crypto');
 const utils = require('./utils');
 
-//const wos = new webosAPI(config.WEBOS_SERVER);
+// const wos = new webosAPI(config.WEBOS_SERVER);
 
 class webosAPI {
   constructor(settings) {
     this.settings = utils.merge({
       hostname: '',
       port: '',
-      key: ''
+      key: '',
     }, settings);
 
-    if(!this.settings.key) {
+    if (!this.settings.key) {
       throw new Error('WebOS key is null.');
     }
   }
   api(module, action, params, callback, method, clientId, ticket) {
-    let me = this;
-    let url = '/api?app='+ module +'&method=' + action;
-    let headers = {};
+    const me = this;
+    let url = `/api?app=${module}&method=${action}`;
+    const headers = {};
 
-    if(params) {
-      let p = [];
-      for(let k in params) {
-        p.push(k + '=' + encodeURIComponent(params[k]));
+    if (params) {
+      const p = [];
+      for (const k in params) {
+        p.push(`${k}=${encodeURIComponent(params[k])}`);
       }
-      url = url + '&' + p.join('&');
+      url = `${url}&${p.join('&')}`;
     }
 
-    if(ticket) {
+    if (ticket) {
       headers['webos-ticket'] = ticket;
     }
 
-    if(clientId) {
+    if (clientId) {
       headers['User-Agent'] = clientId;
-    }else {
+    } else {
       headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.146 Safari/537.36';
     }
 
-    let options = {
+    const options = {
       hostname: me.settings.hostname,
       port: me.settings.port,
       path: url,
       method: method || 'GET',
-      headers: headers
+      headers,
     };
 
-    let req = http.request(options, function(res) {
-      let buffers = [],
-        len = 0;
+    const req = http.request(options, (res) => {
+      const buffers = [];
+      let len = 0;
 
-      res.on('data', function(buf) {
+      res.on('data', (buf) => {
         len += buf.length;
         buffers.push(buf);
       });
 
-      res.on('end', function() {
-        let buffer = Buffer.concat(buffers, len);
+      res.on('end', () => {
+        const buffer = Buffer.concat(buffers, len);
         callback && callback(buffer.toString());
       });
     });
 
-    req.on('error', function(e) {
-        throw new Error('problem with request: ' + e.message, e, e.stack);
-        callback && callback({ Status: -1, Result: e.message });
+    req.on('error', (e) => {
+      throw new Error(`problem with request: ${e.message}`, e, e.stack);
+      callback && callback({ Status: -1, Result: e.message });
     });
 
     req.end();
@@ -104,16 +104,16 @@ class webosAPI {
   * @constructor
   */
   profile(callback, userAgent, ticket) {
-      this.api('Profile', 'Detail', '', function(chunk) {
-          let data = JSON.parse(chunk),
-          rs = data.Result;
+    this.api('Profile', 'Detail', '', (chunk) => {
+      let data = JSON.parse(chunk),
+        rs = data.Result;
 
-          if(data.Status == 0) {
-              callback  && callback(null, rs);
-          }else {
-              callback && callback(rs);
-          }
-      }, 'GET', userAgent, ticket);
+      if (data.Status == 0) {
+        callback && callback(null, rs);
+      } else {
+        callback && callback(rs);
+      }
+    }, 'GET', userAgent, ticket);
   }
   /**
    * 从webos获取用户的详细信息
@@ -147,13 +147,13 @@ class webosAPI {
    * @constructor
    */
   getUserInfo(userId, callback, userAgent, ticket) {
-    this.api('Account', 'Get', { UserId: userId }, function(chunk) {
-      let data = JSON.parse(chunk);
-      let rs = data.Result;
+    this.api('Account', 'Get', { UserId: userId }, (chunk) => {
+      const data = JSON.parse(chunk);
+      const rs = data.Result;
 
-      if(data.Status == 0) {
-        callback  && callback(null, rs);
-      }else {
+      if (data.Status == 0) {
+        callback && callback(null, rs);
+      } else {
         callback && callback(rs);
       }
     }, 'GET', userAgent, ticket);
@@ -166,45 +166,45 @@ class webosAPI {
    * @param callback
    */
   getTicket(userId, password, callback) {
-    if(!userId) {
+    if (!userId) {
       callback && callback();
       return;
     }
 
-    let exts = '@phoenixtv.com';
+    const exts = '@phoenixtv.com';
 
-    if(userId.indexOf(exts) == -1) {
-      userId = userId + exts;
+    if (userId.indexOf(exts) == -1) {
+      userId += exts;
     }
 
-    this.api('Account', 'Token', { userId: userId, password: password }, function(chunk) {
+    this.api('Account', 'Token', { userId, password }, (chunk) => {
       const data = JSON.parse(chunk);
       const rs = data.Result;
 
-      if(data.Status == 0) {
-        callback && callback(null, rs)
-      }else {
-        callback && callback(rs)
+      if (data.Status == 0) {
+        callback && callback(null, rs);
+      } else {
+        callback && callback(rs);
       }
     }, 'GET');
   }
   listUserOfRole(appId, name, callback, userAgent) {
-    this.api('Security', 'ListUserOfRole', { id: appId, name: name }, function(chunk) {
-      let data = JSON.parse(chunk);
-      let rs = data.Result;
+    this.api('Security', 'ListUserOfRole', { id: appId, name }, (chunk) => {
+      const data = JSON.parse(chunk);
+      const rs = data.Result;
 
-      if(data.Status == 0) {
+      if (data.Status == 0) {
         callback && callback(null, rs);
-      }else {
+      } else {
         callback && callback(rs);
       }
     }, 'Get', this.settings.key, userAgent);
   }
   encryptTicket(userId, key) {
-    let k = new Buffer(key, 'base64');
-    let iv = new Buffer(key, 'base64');
-    let str = "{0}\n{1}\n{2}".replace('{0}', userId).replace('{1}', '1').replace('{2}', (new Date().getTime() + 2592000000) + ''); //30天
-    let decipher = crypto.createCipheriv('des', k, iv);
+    const k = new Buffer(key, 'base64');
+    const iv = new Buffer(key, 'base64');
+    const str = '{0}\n{1}\n{2}'.replace('{0}', userId).replace('{1}', '1').replace('{2}', `${new Date().getTime() + 2592000000}`); // 30天
+    const decipher = crypto.createCipheriv('des', k, iv);
     let txt = decipher.update(str, 'utf8', 'base64');
 
     txt += decipher.final('base64');
@@ -212,34 +212,34 @@ class webosAPI {
     return txt;
   }
   securityAuthorize(appId, privileges, callback, ticket) {
-    this.api('Security', 'Authorize', { id: appId, privileges: privileges }, function(chunk) {
+    this.api('Security', 'Authorize', { id: appId, privileges }, (chunk) => {
       let data = JSON.parse(chunk),
         rs = data.Result;
 
-      if(data.Status == 0) {
+      if (data.Status == 0) {
         callback && callback(null, rs);
-      }else {
+      } else {
         callback && callback(rs);
       }
     }, 'GET', false, ticket);
   }
   static decryptTicket(ticket, key) {
-    let k = new Buffer(key, 'base64');
-    let iv = new Buffer(key, 'base64');
+    const k = new Buffer(key, 'base64');
+    const iv = new Buffer(key, 'base64');
 
     let txt = '';
 
     try {
-      let decipher = crypto.createDecipheriv('des', k, iv);
+      const decipher = crypto.createDecipheriv('des', k, iv);
       txt = decipher.update(ticket, 'base64', 'utf8');
       txt += decipher.final('utf8');
-    }catch (e) {
+    } catch (e) {
       console.error(e);
       return false;
     }
 
     return txt.split('\n');
   }
-};
+}
 
 module.exports = webosAPI;

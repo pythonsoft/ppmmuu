@@ -46,7 +46,7 @@ config.JOB_API_SERVER = {
 config.WEBOS_SERVER = {
   hostname: 'webos.phoenixtv.com',
   port: 80,
-  key: 'aXVhbEEpIWM='
+  key: 'aXVhbEEpIWM=',
 };
 
 const init = function init() {

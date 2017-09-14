@@ -87,9 +87,9 @@ service.listItem = function listItem(creatorId, parentId, type, cb, sortFields =
   const query = { creatorId, parentId };
 
   if (type) {
-    if(type.indexOf(',') !== -1) {
-      query['type'] = { $in: type.split(',') };
-    }else {
+    if (type.indexOf(',') !== -1) {
+      query.type = { $in: type.split(',') };
+    } else {
       query.type = type;
     }
   }
@@ -112,7 +112,7 @@ service.listItem = function listItem(creatorId, parentId, type, cb, sortFields =
   });
 };
 
-const createSnippetOrDirItem = function createSnippetOrDirItem(creatorId, name, parentId, type = ItemInfo.TYPE.DIRECTORY, canRemove=ItemInfo.CAN_REVMOE.YES, snippet = {}, details = {}, cb) {
+const createSnippetOrDirItem = function createSnippetOrDirItem(creatorId, name, parentId, type = ItemInfo.TYPE.DIRECTORY, canRemove = ItemInfo.CAN_REVMOE.YES, snippet = {}, details = {}, cb) {
   if (!creatorId) {
     return cb && cb(i18n.t('ivideoProjectCreatorIdIsNull'));
   }
@@ -147,7 +147,6 @@ service.createItem = function createItem(creatorId, name, parentId, snippet, det
   let snippetInfo = {};
 
   if (snippet) {
-
     if (typeof snippet === 'string') {
       let info = {};
 
@@ -167,15 +166,14 @@ service.createItem = function createItem(creatorId, name, parentId, snippet, det
     } else {
       snippetInfo = snippet;
     }
-
   }
 
-  const callback = function(pid) {
+  const callback = function (pid) {
     createSnippetOrDirItem(creatorId, name, pid, ItemInfo.TYPE.SNIPPET, ItemInfo.CAN_REVMOE.YES, snippetInfo, details, (err, r) => cb && cb(err, r));
   };
 
-  if(!parentId) {
-    itemInfo.collection.findOne({ creatorId: creatorId, type: ItemInfo.TYPE.DEFAULT_DIRECTORY }, { fields: { _id: 1 } }, (err, doc) => {
+  if (!parentId) {
+    itemInfo.collection.findOne({ creatorId, type: ItemInfo.TYPE.DEFAULT_DIRECTORY }, { fields: { _id: 1 } }, (err, doc) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
@@ -183,10 +181,9 @@ service.createItem = function createItem(creatorId, name, parentId, snippet, det
 
       callback(doc._id);
     });
-  }else {
+  } else {
     callback(parentId);
   }
-
 };
 
 service.removeItem = function removeItem(id, cb) {
@@ -194,17 +191,17 @@ service.removeItem = function removeItem(id, cb) {
     return cb && cb(i18n.t('ivideoRemoveItemIdIsNull'));
   }
 
-  itemInfo.collection.findOne({ _id: id }, { fields: { canRemove: 1 }}, (err, doc) => {
+  itemInfo.collection.findOne({ _id: id }, { fields: { canRemove: 1 } }, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
 
-    if(!doc) {
+    if (!doc) {
       return cb && cb(i18n.t('ivideoRemoveItemIsNull'));
     }
 
-    if(doc.canRemove === ItemInfo.CAN_REVMOE.NO) {
+    if (doc.canRemove === ItemInfo.CAN_REVMOE.NO) {
       return cb && cb(i18n.t('ivideoDefaultDirectoryCanNotRemove'));
     }
 
@@ -216,7 +213,6 @@ service.removeItem = function removeItem(id, cb) {
 
       return cb && cb(null, r);
     });
-
   });
 };
 
