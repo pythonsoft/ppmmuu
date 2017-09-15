@@ -19,9 +19,9 @@ class webosAPI {
       throw new Error('WebOS key is null.');
     }
   }
-  api(module, action, params, callback, method, clientId, ticket) {
+  api(module, action, params, callback, method, clientId, ticket, isLoader) {
     let me = this;
-    let url = '/api?app='+ module +'&method=' + action;
+    let url = `/${isLoader ? 'loader' : 'api'}?app=${module}&method=${action}`;
     let headers = {};
 
     if(params) {

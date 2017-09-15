@@ -63,7 +63,7 @@ function webosLogin(userId, password, cb) {
     }
     const iL = WebosApi.decryptTicket(r, config.WEBOS_SERVER.key);
     if (iL[0] === userId) {
-      return cb && cb(null);
+      return cb && cb(null, r);
     }
     return cb && cb('email not matched');
   });

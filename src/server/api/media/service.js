@@ -4,7 +4,6 @@
 
 'use strict';
 
-const fs = require('fs');
 const logger = require('../../common/log')('error');
 const i18n = require('i18next');
 const utils = require('../../common/utils');
@@ -275,11 +274,11 @@ service.saveWatching = function saveWatching(userId, videoId, cb) {
     {
       $set: { updatedTime: new Date() },
       $inc: { count: 1 },
-      $setOnInsert: { videoContent: '', status: 'unavailable', _id: uuid.v1() }
+      $setOnInsert: { videoContent: '', status: 'unavailable', _id: uuid.v1() },
     },
     {
       returnOriginal: false,
-      upsert: true
+      upsert: true,
     },
     (err, r) => cb && cb(err, r));
 };
