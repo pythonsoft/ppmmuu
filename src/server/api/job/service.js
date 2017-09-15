@@ -60,12 +60,12 @@ service.createJson = function createJson(createJsonParams, res) {
     return res.end(errorCall('jobCreateTemplateParamsIsNull'));
   }
   const params = utils.merge({
-    createJson: '',
+    template: '',
   }, createJsonParams);
-  if (!params.createJson) {
+  if (!params.template) {
     return res.end(errorCall('jobCreateTemplateParamsCreateJsonIsNull'));
   }
-  params.createJson = JSON.parse(params.createJson);
+  params.template = JSON.parse(params.template);
   request.post('/TemplateService/create', params, res);
 };
 
@@ -74,12 +74,12 @@ service.updateJson = function updateJson(updateJsonParams, res) {
     return res.end(errorCall('jobCreateTemplateParamsIsNull'));
   }
   const params = utils.merge({
-    updateJson: '',
+    template: '',
   }, updateJsonParams);
-  if (!params.updateJson) {
+  if (!params.template) {
     return res.end(errorCall('jobCreateTemplateParamsCreateJsonIsNull'));
   }
-  params.updateJson = JSON.parse(params.updateJson);
+  params.template = JSON.parse(params.template);
   request.post('/TemplateService/update', params, res);
 };
 
@@ -172,9 +172,9 @@ service.deleteTemplate = function del(deleteParams, res) {
     return res.end(errorCall('jobDeleteParamsIsNull'));
   }
   const params = utils.merge({
-    templateId: '',
+    id: '',
   }, deleteParams);
-  if (!params.templateId) {
+  if (!params.id) {
     return res.end(errorCall('jobDeleteParamsIdIsNull'));
   }
   request.get('/TemplateService/delete', params, res);
