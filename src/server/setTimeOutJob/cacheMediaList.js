@@ -9,12 +9,16 @@ const mediaService = require('../api/media/service');
 
 (function cacheMediaList() {
   mediaService.getMediaList({ pageSize: 12 }, (err, r) => {
-    redisClient.set('cachedMediaList', JSON.stringify(r), (err) => {
-      if (err) {
-        logger.error(err);
-      }
+    if (r) {
+      redisClient.set('cachedMediaList', JSON.stringify(r), (err) => {
+        if (err) {
+          logger.error(err);
+        }
+        setTimeout(cacheMediaList, 1000 * 60 * 3);
+      });
+    } else {
       setTimeout(cacheMediaList, 1000 * 60 * 3);
-    });
+    }
   });
 }());
 
