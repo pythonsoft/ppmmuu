@@ -315,47 +315,6 @@ router.get('/getObject', (req, res) => {
 });
 
 /**
- * @apiName: getVideo
- * @apiFuncType: get
- * @apiFuncUrl: /media/getVideo
- * @swagger
- * /media/getVideo:
- *   get:
- *     description: 获取视频流
- *     version: 1.0.0
- *     tags:
- *       - v1
- *       - Search
- *     produces:
- *       - application/json
- *     parameters:
- *       - in: query
- *         name: objectid
- *         required: true
- *         type: string
- *         default: "FE1748B4-69F9-4CAB-8CC0-5EB8A35CB717"
- *         collectionFormat: csv
- *     responses:
- *       200:
- *         schema:
- *           type: object
- *           properties:
- *            status:
- *              type: string
- *            data:
- *              type: object
- *            statusInfo:
- *              type: object
- *              properties:
- *                message:
- *                  type: string
- *
- */
-router.get('/getVideo', (req, res) => {
-  service.getVideo(req, res);
-});
-
-/**
  * @apiName: getStream
  * @apiFuncType: get
  * @apiFuncUrl: /media/getStream
@@ -419,33 +378,14 @@ router.get('/getStream', (req, res) => {
  *     version: 1.0.0
  *     tags:
  *       - v1
- *       - Search
  *     produces:
  *       - application/json
- *     parameters:
- *       - in: query
- *         name: page
- *         description:
- *         required: false
- *         type: integer
- *         default: 1
- *         collectionFormat: csv
- *       - in: query
- *         name: pageSize
- *         description:
- *         required: false
- *         type: integer
- *         default: 999
- *         collectionFormat: csv
  *     responses:
  *       200:
- *         description: RoleInfo
+ *         description: SearchHistoryInfo
  */
 router.get('/getSearchHistory', (req, res) => {
-  const page = req.query.page || 1;
-  const pageSize = req.query.pageSize || 999;
-
-  service.getSearchHistory(req.ex.userId, (err, docs) => res.json(result.json(err, docs)), page, pageSize);
+  service.getSearchHistoryForMediaPage(req.ex.userId, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
@@ -459,15 +399,14 @@ router.get('/getSearchHistory', (req, res) => {
  *     version: 1.0.0
  *     tags:
  *       - v1
- *       - Search
  *     produces:
  *       - application/json
  *     responses:
  *       200:
- *         description: RoleInfo
+ *         description: WatchHistoryInfo
  */
 router.get('/getWatchHistory', (req, res) => {
-  service.getWatchHistory(req.ex.userId, (err, docs) => res.json(result.json(err, docs)));
+  service.getWatchHistoryForMediaPage(req.ex.userId, (err, docs) => res.json(result.json(err, docs)));
 });
 
 module.exports = router;

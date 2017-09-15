@@ -9,6 +9,7 @@ const express = require('express');
 const router = express.Router();
 const result = require('../../common/result');
 const service = require('./service');
+const mediaService = require('../media/service');
 
 /**
  * @apiName: postUserLogin
@@ -114,8 +115,8 @@ router.post('/login', (req, res) => {
  *
  */
 router.get('/getToken', (req, res) => {
-  const username = req.body.username || '';
-  const password = req.body.password || '';
+  const username = req.query.username || '';
+  const password = req.query.password || '';
 
   service.getToken(res, username, password, (err, token) => res.json(result.json(err, token)));
 });
@@ -183,7 +184,6 @@ router.post('/update', (req, res) => {
   const _id = req.ex.userInfo._id;
   service.updateUser(_id, req.body, (err, data) => res.json(result.json(err, data)));
 });
-
 
 /**
  * @apiName: getUserDetail
@@ -347,5 +347,184 @@ router.post('/changePassword', (req, res) => {
   service.changePassword(req.body, res, (err, data) => res.json(result.json(err, data)));
 });
 
+/**
+ * @apiName: getSearchHistory
+ * @apiFuncType: get
+ * @apiFuncUrl: /user/getSearchHistory
+ * @swagger
+ * /user/getSearchHistory:
+ *   get:
+ *     description: 获得视频播放地址
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         description:
+ *         required: false
+ *         type: integer
+ *         default: 1
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: pageSize
+ *         description:
+ *         required: false
+ *         type: integer
+ *         default: 999
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: SearchHistoryInfo
+ */
+router.get('/getSearchHistory', (req, res) => {
+  const page = req.query.page || 1;
+  const pageSize = req.query.pageSize || 999;
+
+  mediaService.getSearchHistory(req.ex.userId, (err, docs) => res.json(result.json(err, docs)), page, pageSize);
+});
+
+/**
+ * @apiName: removeSearchHistory
+ * @apiFuncType: post
+ * @apiFuncUrl: /user/removeSearchHistory
+ * @swagger
+ * /user/removeSearchHistory:
+ *   post:
+ *     description: 获得视频播放地址
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: remove history
+ *         schema:
+ *           type: object
+ *           properties:
+ *             ids:
+ *               type: string
+ *     responses:
+ *       200:
+ *         description: remove history
+ */
+router.post('/removeSearchHistory', (req, res) => {
+  service.removeSearchHistory(req.body.ids, null, (err, r) => res.json(result.json(err, r)));
+});
+
+/**
+ * @apiName: clearSearchHistory
+ * @apiFuncType: post
+ * @apiFuncUrl: /user/clearSearchHistory
+ * @swagger
+ * /user/clearSearchHistory:
+ *   post:
+ *     description: 获得视频播放地址
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: remove history
+ */
+router.post('/clearSearchHistory', (req, res) => {
+  service.removeSearchHistory(null, req.ex.userId, (err, r) => res.json(result.json(err, r)));
+});
+
+/**
+ * @apiName: getWatchHistory
+ * @apiFuncType: get
+ * @apiFuncUrl: /user/getWatchHistory
+ * @swagger
+ * /user/getWatchHistory:
+ *   get:
+ *     description: 获得视频播放地址
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         description:
+ *         required: false
+ *         type: integer
+ *         default: 1
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: pageSize
+ *         description:
+ *         required: false
+ *         type: integer
+ *         default: 999
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: WatchHistoryInfo
+ */
+router.get('/getWatchHistory', (req, res) => {
+  const page = req.query.page || 1;
+  const pageSize = req.query.pageSize || 999;
+
+  mediaService.getWatchHistory(req.ex.userId, (err, docs) => res.json(result.json(err, docs)), page, pageSize);
+});
+
+/**
+ * @apiName: removeWatchHistory
+ * @apiFuncType: post
+ * @apiFuncUrl: /user/removeWatchHistory
+ * @swagger
+ * /user/removeWatchHistory:
+ *   post:
+ *     description: 获得视频播放地址
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: remove watch history
+ *         schema:
+ *           type: object
+ *           properties:
+ *             ids:
+ *               type: string
+ *     responses:
+ *       200:
+ *         description: remove history
+ */
+router.post('/removeWatchHistory', (req, res) => {
+  service.removeWatchHistory(req.body.ids, null, (err, r) => res.json(result.json(err, r)));
+});
+
+/**
+ * @apiName: clearWatchHistory
+ * @apiFuncType: post
+ * @apiFuncUrl: /user/clearWatchHistory
+ * @swagger
+ * /user/clearWatchHistory:
+ *   post:
+ *     description: 获得视频播放地址
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: remove history
+ */
+router.post('/clearWatchHistory', (req, res) => {
+  service.removeWatchHistory(null, req.ex.userId, (err, r) => res.json(result.json(err, r)));
+});
 
 module.exports = router;

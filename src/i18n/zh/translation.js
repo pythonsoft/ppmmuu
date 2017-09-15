@@ -33,6 +33,10 @@ module.exports = {
     code: '-1008',
     message: '新密码与旧密码相同',
   },
+  userExpiredTime: {
+    code: '-1009',
+    message: '用户已过期',
+  },
   getRoleNoId: {
     code: '-2005',
     message: '获取角色详情需要参数_id',
@@ -540,5 +544,9 @@ module.exports = {
   templatePathIsNotExist: {
     code: '-70005',
     message: '需要用到的以下存储路径信息不存在，{{paths}}',
+  },
+  idIsNull: {
+    code: '-80000',
+    message: 'id为空',
   },
 };
