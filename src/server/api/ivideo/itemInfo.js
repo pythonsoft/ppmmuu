@@ -24,7 +24,7 @@ class ItemInfo extends DB {
       description: { type: 'string' },
       snippet: { type: 'object', default: () => null },
       details: { type: 'object' },
-      canRemove: { type: 'string', default: () => ItemInfo.CAN_REVMOE.YES }
+      canRemove: { type: 'string', default: () => ItemInfo.CAN_REVMOE.YES },
     };
   }
 }
@@ -39,7 +39,7 @@ ItemInfo.Snippet = {
 ItemInfo.TYPE = {
   DIRECTORY: '0',
   SNIPPET: '1',
-  DEFAULT_DIRECTORY: '2'
+  DEFAULT_DIRECTORY: '2',
 };
 
 ItemInfo.CAN_REVMOE = {

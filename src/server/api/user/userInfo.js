@@ -69,7 +69,7 @@ class UserInfo extends DB {
   constructor() {
     super(config.dbInstance.umpDB, 'UserInfo', [
       { key: { name: 1 }, name: 'user_name', unique: true },
-      { key: { email: 1 }, unique: true }
+      { key: { email: 1 }, unique: true },
     ]);
 
     this.struct = {
@@ -90,6 +90,7 @@ class UserInfo extends DB {
       photo: { type: 'string' },
       status: { type: 'string', default: UserInfo.STATUS.NORMAL, validation: v => utils.isValueInObject(v, UserInfo.STATUS) },
       detail: { type: 'object' },
+      expiredTime: { type: 'date', default() { return new Date('9999 23:59:59'); } },
     };
   }
 
