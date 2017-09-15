@@ -313,6 +313,29 @@ service.deletePath = function deletePath(pathId, cb) {
   });
 };
 
+service.getPaths = function getPaths(ids, cb) {
+  if(!paths) {
+    return cb && cb(i18n.t('pathIdIsNull'));
+  }
+
+  const query = {};
+
+  if(ids.constructor === Array) {
+    query._id = { $in: ids }
+  }else {
+    query.id = { $in: ids.replace(/\s/g, '').split(',') };
+  }
+
+  pathInfo.collection.find(query).toArray((err, docs) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, docs);
+  });
+};
+
 /* tactics */
 
 service.listTactics = function listTactics(sourceId, status, keyword, page, pageSize, sortFields, fieldsNeed, cb) {

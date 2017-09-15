@@ -44,4 +44,10 @@ class WatchingHistoryInfo extends DB {
   }
 }
 
+WatchingHistoryInfo.STATUS = {
+  UNAVAILABLE: '0',
+  PROCESSING: '1',
+  AVAILABLE: '2',
+};
+
 module.exports = WatchingHistoryInfo;
