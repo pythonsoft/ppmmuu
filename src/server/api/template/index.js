@@ -31,7 +31,7 @@ router.use(isLogin.hasAccessMiddleware);
  *     parameters:
  *       - in: query
  *         name: type
- *         description: Download '0',
+ *         description: Download '0'
  *         required: false
  *         type: string
  *         default: '0'
@@ -102,8 +102,12 @@ router.get('/list', (req, res) => {
  *            - name
  *            - bucketId
  *            - script
+ *            - id
  *          properties:
  *            name:
+ *              type: string
+ *              example: ''
+ *            id:
  *              type: string
  *              example: ''
  *            description:
@@ -125,8 +129,9 @@ router.post('/createDownloadTemplate', (req, res) => {
   const description = req.body.description;
   const bucketId = req.body.bucketId;
   const script = req.body.script;
+  const id = req.body.id;
 
-  service.createDownloadTemplate(userId, name, description, bucketId, script, (err, r) => res.json(result.json(err, 'ok')));
+  service.createDownloadTemplate(userId, id, name, description, bucketId, script, (err, r) => res.json(result.json(err, 'ok')));
 });
 
 /**
@@ -146,7 +151,7 @@ router.post('/createDownloadTemplate', (req, res) => {
  *     parameters:
  *       - in: body
  *         name: body
- *         description:
+ *         description: ''
  *         schema:
  *           type: object
  *           required:
@@ -213,7 +218,7 @@ router.post('/update', (req, res) => {
  *     parameters:
  *       - in: query
  *         name: id
- *         description: '',
+ *         description: ''
  *         required: true
  *         type: string
  *         default: ''

@@ -32,8 +32,12 @@ service.list = function list(type, sortFields = '-createdTime', fieldsNeed, page
   templateInfo.pagination(query, page, pageSize, cb, sortFields, fieldsNeed);
 };
 
-service.createTemplate = function createTemplate(creatorId, name, type=TemplateInfo.TYPE.DOWNLOAD, description, details, cb) {
-  const info = { _id: uuid.v1(), creatorId, name, type, description, details };
+service.createTemplate = function createTemplate(creatorId, id, name, type=TemplateInfo.TYPE.DOWNLOAD, description, details, cb) {
+  if(!id) {
+    return cb && cb(i18n.t('templateIdIsNotExist'));
+  }
+
+  const info = { _id: id, creatorId, name, type, description, details };
   const t = new Date();
 
   info.createdTime = t;
@@ -51,14 +55,14 @@ service.createTemplate = function createTemplate(creatorId, name, type=TemplateI
   return false;
 };
 
-service.createDownloadTemplate = function createDownloadTemplate(creatorId, name, description, bucketId, script, cb) {
-  if(!storageId) {
+service.createDownloadTemplate = function createDownloadTemplate(creatorId, id, name, description, bucketId, script, cb) {
+  if(!bucketId) {
     return cb && cb(i18n.t('templateStorageIdIsNotExist'));
   }
 
   const details = { bucketId, script };
 
-  service.createTemplate(creatorId, name, TemplateInfo.TYPE.DOWNLOAD, description, details, cb);
+  service.createTemplate(creatorId, id, name, TemplateInfo.TYPE.DOWNLOAD, description, details, cb);
 
   return false;
 };
@@ -89,6 +93,14 @@ service.update = function update(id, info, cb) {
 
   info.modifyTime = new Date();
 
+  if(info._id) {
+    delete info._id;
+  }
+
+  if(info.id) {
+    delete info.id;
+  }
+
   templateInfo.updateOne({ _id: id }, info, (err, r) => {
     if (err) {
       logger.error(err.message);
@@ -114,7 +126,7 @@ service.getDetail = function getDetail(id, cb) {
   });
 };
 
-service.getDownloadPath = function getDownloadPath(id, cb) {
+service.getDownloadPath = function getDownloadPath(userInfo, id, cb) {
   if (!id) {
     return cb && cb(i18n.t('templateIdIsNotExist'));
   }
@@ -141,7 +153,10 @@ service.getDownloadPath = function getDownloadPath(id, cb) {
         return cb && cb(i18n.t('templateBucketIsNotExist'));
       }
 
-      runDownloadScript(bucketInfo, doc.details.script, cb);
+      const user = Object.assign({}, userInfo);
+      user.password = '';
+
+      runDownloadScript(user, bucketInfo, doc.details.script, cb);
 
     });
   });
@@ -173,9 +188,9 @@ const fixed = function(str) {
   return str;
 };
 
-const runDownloadScript = function runDownloadScript(bucketInfo, script, cb) {
+const runDownloadScript = function runDownloadScript(userInfo, bucketInfo, script, cb) {
   //const pathId =${ paths.pathId }
-  let execScript = script.replace(/\s+/g, '');
+  let execScript = script.replace(/\s+/g, '').replace(/(\r\n|\n|\r)/gm, '');
   const paths = execScript.match(/\$\{paths.([0-9a-zA-Z]+)\}/g);
   const len = paths.length;
   const pathIds = [];
@@ -212,6 +227,7 @@ const runDownloadScript = function runDownloadScript(bucketInfo, script, cb) {
     let day = fixed(t.getDate() + '');
 
     const sandbox = {
+      userInfo,
       bucketInfo,
       year,
       month,

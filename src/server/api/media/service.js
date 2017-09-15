@@ -144,6 +144,7 @@ service.defaultMediaList = function defaultMediaList(cb) {
       logger.error(err);
       return cb && cb(err);
     }
+
     return cb && cb(null, JSON.parse(obj || '[]'));
   });
 }

@@ -15,7 +15,7 @@ class TemplateInfo extends DB {
     super(config.dbInstance.umpDB, 'TemplateInfo');
 
     this.struct = {
-      _id: { type: 'string', default() { return uuid.v1(); }, validation: 'require' },
+      _id: { type: 'string', validation: 'require' },
       name: { type: 'string', validation: 'require' },
       creatorId: { type: 'string', validation: 'require', allowUpdate: false },
       createdTime: { type: 'date', validation: 'require', allowUpdate: false },
