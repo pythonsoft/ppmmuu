@@ -33,6 +33,10 @@ module.exports = {
     code: '-1008',
     message: '新密码与旧密码相同',
   },
+  userExpiredTime: {
+    code: '-1009',
+    message: '用户已过期',
+  },
   getRoleNoId: {
     code: '-2005',
     message: '获取角色详情需要参数_id',
@@ -516,5 +520,9 @@ module.exports = {
   notImplementedVerityType: {
     code: '-60000',
     message: '未实装的verifyType',
+  },
+  idIsNull: {
+    code: '-70000',
+    message: 'id为空',
   },
 };

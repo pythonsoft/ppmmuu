@@ -12,16 +12,20 @@ const WebosApi = require('../../common/webosAPI');
 const config = require('../../config');
 const Login = require('../../middleware/login');
 
+const SearchHistoryInfo = require('./searchHistoryInfo');
+const WatchingHistoryInfo = require('./watchingHistoryInfo');
 const UserInfo = require('./userInfo');
 
 const userInfo = new UserInfo();
+const searchHistoryInfo = new SearchHistoryInfo();
+const watchingHistoryInfo = new WatchingHistoryInfo();
 
 const groupUserService = require('../group/userService');
 
 const service = {};
 
 const generateToken = function generateToken(id, expires) {
-  const exp = expires ? expires : new Date().getTime() + config.cookieExpires;
+  const exp = expires || new Date().getTime() + config.cookieExpires;
   const token = Token.create(id, exp, config.KEY);
 
   return token;
@@ -85,6 +89,7 @@ const loginHandle = function loginHandle(username, password, cb) {
       _id: 1,
       password: 1,
       verifyType: 1,
+      expiredTime: 1,
     },
   }, (err, doc) => {
     if (err) {
@@ -97,6 +102,10 @@ const loginHandle = function loginHandle(username, password, cb) {
     }
 
     if (UserInfo.VERIFY_TYPE.PASSWORD === doc.verifyType) {
+      if (doc.expiredTime < new Date()) {
+        return cb && cb(i18n.t('userExpiredTime'));
+      }
+
       if (cipherPassword !== doc.password) {
         return cb && cb(i18n.t('usernameOrPasswordIsWrong'));
       }
@@ -114,9 +123,9 @@ const loginHandle = function loginHandle(username, password, cb) {
   });
 };
 
-service.getToken = function(res, username, password, cb) {
+service.getToken = function (res, username, password, cb) {
   loginHandle(username, password, (err, doc) => {
-    if(err) {
+    if (err) {
       return cb && cb(err);
     }
 
@@ -127,12 +136,12 @@ service.getToken = function(res, username, password, cb) {
 
 service.login = function login(res, username, password, cb) {
   loginHandle(username, password, (err, doc) => {
-    if(err) {
+    if (err) {
       return cb && cb(err);
     }
 
     setCookie2(res, doc, (err, doc) => {
-      if(err) {
+      if (err) {
         return cb && cb(err);
       }
 
@@ -247,6 +256,32 @@ service.changePassword = function changePassword(info, res, cb) {
       service.logout(_id, res, cb);
     });
   });
+};
+
+service.removeWatchHistory = (ids, userId, cb) => {
+  const filter = {};
+  if (userId) {
+    filter.userId = userId;
+  } else {
+    if (!ids) {
+      return cb && cb(i18n.t('idIsNull'));
+    }
+    filter._id = { $in: ids.split(',') };
+  }
+  watchingHistoryInfo.collection.deleteMany(filter, null, (err, r) => cb && cb(err, r));
+};
+
+service.removeSearchHistory = (ids, userId, cb) => {
+  const filter = {};
+  if (userId) {
+    filter.userId = userId;
+  } else {
+    if (!ids) {
+      return cb && cb(i18n.t('idIsNull'));
+    }
+    filter._id = { $in: ids.split(',') };
+  }
+  searchHistoryInfo.collection.deleteMany(filter, null, (err, r) => cb && cb(err, r));
 };
 
 module.exports = service;
