@@ -4,7 +4,6 @@
 
 'use strict';
 
-const fs = require('fs');
 const logger = require('../../common/log')('error');
 const i18n = require('i18next');
 const utils = require('../../common/utils');
@@ -15,6 +14,7 @@ const ConfigurationInfo = require('../configuration/configurationInfo');
 const SearchHistoryInfo = require('../user/searchHistoryInfo');
 const WatchingHistoryInfo = require('../user/watchingHistoryInfo');
 const uuid = require('uuid');
+const OpenCC = require('opencc');
 
 const HttpRequest = require('../../common/httpRequest');
 
@@ -22,6 +22,8 @@ const rq = new HttpRequest({
   hostname: config.HKAPI.hostname,
   port: config.HKAPI.port,
 });
+
+const opencc = new OpenCC('s2t.json');
 
 const configurationInfo = new ConfigurationInfo();
 const searchHistoryInfo = new SearchHistoryInfo();
@@ -84,6 +86,10 @@ service.solrSearch = function solrSearch(info, cb, userId, videoIds) {
 
   info.wt = info.wt.trim().toLowerCase();
 
+  // convert simplified to tranditional
+  info.q = opencc.convertSync(info.q);
+
+  // search by videoId will overwrite original keywords
   if (videoIds) {
     const vIdL = videoIds.split(',');
     const newQ = vIdL.length === 1 ? `id: ${vIdL[0]}` : `id: ${vIdL.join(' OR id: ')}`;
@@ -119,11 +125,10 @@ service.solrSearch = function solrSearch(info, cb, userId, videoIds) {
         }
         if (userId && info.q.lastIndexOf('full_text:') !== -1) {
           const k = info.q.substring(info.q.lastIndexOf('full_text:') + 10, info.q.indexOf(' '));
-          saveSearch(k, userId, (err, r) => {
+          saveSearch(k, userId, (err) => {
             if (err) {
               logger.error(err);
             }
-            console.log(r);
           });
         }
         return cb && cb(null, r);
