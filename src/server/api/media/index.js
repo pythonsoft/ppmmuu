@@ -213,6 +213,7 @@ router.get('/getMediaList', (req, res) => {
  *       - application/json
  *     responses:
  *       200:
+ *         description: defaultmedia list
  */
 router.get('/defaultMedia', (req, res) => {
   service.defaultMediaList((err, r) => res.json(result.json(err, r)));
