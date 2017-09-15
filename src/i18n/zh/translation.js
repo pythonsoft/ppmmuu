@@ -517,4 +517,28 @@ module.exports = {
     code: '-60000',
     message: '未实装的verifyType',
   },
+  templateStorageIdIsNotExist: {
+    code: '-70000',
+    message: '存储ID不存在',
+  },
+  templateIdIsNotExist: {
+    code: '-70001',
+    message: '模板ID不存在',
+  },
+  templateIsNotExist: {
+    code: '-70002',
+    message: '模板不存在',
+  },
+  templateBucketIdIsNotExist: {
+    code: '-70003',
+    message: '模板的存储Id不存在',
+  },
+  templateBucketIsNotExist: {
+    code: '-70004',
+    message: '模板的对应的存储信息不存在',
+  },
+  templatePathIsNotExist: {
+    code: '-70005',
+    message: '需要用到的以下存储路径信息不存在，{{paths}}',
+  },
 };

@@ -68,7 +68,7 @@ function saveSearch(k, id, cb) {
     (err, r) => cb && cb(err, r));
 }
 
-service.solrSearch = function solorSearch(info, cb, userId, videoIds) {
+service.solrSearch = function solrSearch(info, cb, userId, videoIds) {
   if (!info.wt) {
     info.wt = 'json';
   }
@@ -137,7 +137,7 @@ service.solrSearch = function solorSearch(info, cb, userId, videoIds) {
   });
 };
 
-function defaultMediaList(cb) {
+service.defaultMediaList = function defaultMediaList(cb) {
   redisClient.get('cachedMediaList', (err, obj) => {
     if (err) {
       logger.error(err);
@@ -146,8 +146,7 @@ function defaultMediaList(cb) {
     return cb && cb(null, JSON.parse(obj || '[]'));
   });
 }
-
-service.defaultMediaList = defaultMediaList;
+;
 
 service.getMediaList = function getMediaList(info, cb) {
   const pageSize = info.pageSize || 4;
@@ -277,14 +276,17 @@ service.getVideo = function getVideo(req, res) {
   file.pipe(res);
 };
 
-function saveWatching(userId, videoId, cb) {
-  watchingHistoryInfo.findOneAndUpdate({ videoId, userId },
-    { $set: { updatedTime: new Date() }, $inc: { count: 1 }, $setOnInsert: { videoContent: '', status: 'unavailable' } },
+service.saveWatching = function saveWatching(userId, videoId, cb) {
+  watchingHistoryInfo.findOneAndUpdate(
+    { videoId, userId },
+    {
+      $set: { updatedTime: new Date() },
+      $inc: { count: 1 },
+      $setOnInsert: { videoContent: '', status: 'unavailable' }
+    },
     { returnOriginal: false, upsert: true },
     (err, r) => cb && cb(err, r));
 }
-
-service.saveWatching = saveWatching;
 
 service.getStream = function getStream(objectId, res) {
   const struct = {
@@ -302,14 +304,6 @@ service.getStream = function getStream(objectId, res) {
 
 service.getSearchHistory = (userId, cb, page, pageSize) => {
   searchHistoryInfo.pagination({ userId }, page, pageSize, (err, doc) => cb && cb(err, doc), 'updatedTime', '');
-//   searchHistoryInfo.collection
-//     .find({ userId })
-//     .sort({ updatedTime: -1 })
-//     .limit(10).project({
-//       keyword: 1,
-//       updatedTime: 1,
-//       count: 1,
-//     }).toArray((err, docs) => cb && cb(err, docs));
 };
 
 service.getWatchHistory = (userId, cb) => {
