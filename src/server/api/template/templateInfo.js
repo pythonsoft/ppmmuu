@@ -4,11 +4,8 @@
 
 'use strict';
 
-const uuid = require('uuid');
-
 const DB = require('../../common/db');
 const config = require('../../config');
-const utils = require('../../common/utils');
 
 class TemplateInfo extends DB {
   constructor() {
@@ -26,11 +23,8 @@ class TemplateInfo extends DB {
     };
   }
 
-  createDownloadInfo(info) {
-    return utils.merge({
-      script: '',
-      bucketId: ''
-    }, info);
+  createDownloadInfo(script, bucketId) {
+    return { script, bucketId };
   }
 };
 

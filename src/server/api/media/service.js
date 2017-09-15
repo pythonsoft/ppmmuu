@@ -152,8 +152,7 @@ service.defaultMediaList = function defaultMediaList(cb) {
 
     return cb && cb(null, JSON.parse(obj || '[]'));
   });
-}
-;
+};
 
 service.getMediaList = function getMediaList(info, cb) {
   const pageSize = info.pageSize || 4;

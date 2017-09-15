@@ -101,6 +101,10 @@ service.update = function update(id, info, cb) {
     delete info.id;
   }
 
+  if(!info.type || info.type === TemplateInfo.TYPE.DOWNLOAD) {
+    info.details = templateInfo.createDownloadInfo(info.script, info.bucketId);
+  }
+
   templateInfo.updateOne({ _id: id }, info, (err, r) => {
     if (err) {
       logger.error(err.message);
@@ -157,7 +161,6 @@ service.getDownloadPath = function getDownloadPath(userInfo, id, cb) {
       user.password = '';
 
       runDownloadScript(user, bucketInfo, doc.details.script, cb);
-
     });
   });
 
@@ -188,10 +191,43 @@ const fixed = function(str) {
   return str;
 };
 
+const exec = function(userInfo, bucketInfo, execScript, pathsInfo=[]) {
+  const t = new Date();
+  const year = t.getFullYear();
+  let month = fixed((t.getMonth() + 1) + '');
+  let day = fixed(t.getDate() + '');
+
+  const sandbox = {
+    userInfo,
+    bucketInfo,
+    year,
+    month,
+    day,
+    result: ''
+  };
+
+  for(let i = 0, l = pathsInfo.length; i < l; i++) {
+    sandbox[pathsInfo[i]._id] = pathsInfo[i];
+  }
+
+  const s = new vm.Script(execScript);
+  s.runInNewContext(sandbox);
+
+  const rs = { err: null, result: '' };
+
+  if(!sandbox.result) {
+    rs.err = i18n.t('templateDownloadPathError', { downloadPath: result });
+  }else {
+    rs.result = sandbox.result;
+  }
+
+  return rs;
+};
+
 const runDownloadScript = function runDownloadScript(userInfo, bucketInfo, script, cb) {
   //const pathId =${ paths.pathId }
-  let execScript = script.replace(/\s+/g, '').replace(/(\r\n|\n|\r)/gm, '');
-  const paths = execScript.match(/\$\{paths.([0-9a-zA-Z]+)\}/g);
+  let execScript = script.replace(/(\r\n|\n|\r)/gm, '');
+  const paths = execScript.match(/\$\{paths.([0-9a-zA-Z]+)\}/g) || [];
   const len = paths.length;
   const pathIds = [];
   let temp = '';
@@ -202,7 +238,8 @@ const runDownloadScript = function runDownloadScript(userInfo, bucketInfo, scrip
   }
 
   if(pathIds.length === 0) {
-    return cb && cb(null, '');
+    let rs = exec(userInfo, bucketInfo, execScript);
+    return cb && cb(rs.err, rs.result);
   }
 
   storageService.getPaths(pathIds, (err, docs) => {
@@ -219,30 +256,10 @@ const runDownloadScript = function runDownloadScript(userInfo, bucketInfo, scrip
     for(let i = 0; i < docs.length; i++) {
       let reg = new RegExp('${paths.'+ docs[i]._id +'}', 'img');
       execScript = execScript.replace(reg, docs[i]._id);
-    };
-
-    const t = new Date();
-    const year = t.getFullYear();
-    let month = fixed((t.getMonth() + 1) + '');
-    let day = fixed(t.getDate() + '');
-
-    const sandbox = {
-      userInfo,
-      bucketInfo,
-      year,
-      month,
-      day,
-      result: ''
-    };
-
-    for(let i = 0, l = docs.length; i < l; i++) {
-      sandbox[docs[i]._id] = docs[i];
     }
 
-    const s = new vm.Script(execScript);
-    s.runInNewContext(context);
-
-    return cb && cb(null, sandbox.result);
+    const rs = exec(userInfo, bucketInfo, execScript, docs);
+    return cb && cb(rs.err, rs.result);
   });
 
   return false;

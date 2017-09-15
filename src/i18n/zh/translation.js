@@ -11,7 +11,7 @@ module.exports = {
   },
   userIdIsNull: {
     code: '-1003',
-    message: '参数_id为空',
+    message: '用户标识为空',
   },
   userNotFind: {
     code: '-1004',
@@ -36,6 +36,10 @@ module.exports = {
   userExpiredTime: {
     code: '-1009',
     message: '用户已过期',
+  },
+  userNameIsNull: {
+    code: '-1010',
+    message: '用户名称为空',
   },
   getRoleNoId: {
     code: '-2005',
@@ -455,7 +459,7 @@ module.exports = {
   },
   joDownloadParamsFileNameIsNull: {
     code: '-50002',
-    message: '下载参数fileName为空，请正确传入参数',
+    message: '下载参数filename为空，请正确传入参数',
   },
   joDownloadParamsObjectIdIsNull: {
     code: '-50003',
@@ -517,6 +521,14 @@ module.exports = {
     code: '-50021',
     message: '创建template参数createJson为空',
   },
+  joDownloadParamsFileTypeIdIsNull: {
+    code: '-50022',
+    message: '下载参数filetypeid为空，请正确传入参数',
+  },
+  joDownloadParamsFileDestinationIsNull: {
+    code: '-50023',
+    message: '下载参数destination为空，请正确传入参数',
+  },
   notImplementedVerityType: {
     code: '-60000',
     message: '未实装的verifyType',
@@ -544,6 +556,10 @@ module.exports = {
   templatePathIsNotExist: {
     code: '-70005',
     message: '需要用到的以下存储路径信息不存在，{{paths}}',
+  },
+  templateDownloadPathError: {
+    code: '-70005',
+    message: '存储路径不正确，请确保脚本有返回result值，当前要求存储路径为:{{downloadPath}}',
   },
   idIsNull: {
     code: '-80000',

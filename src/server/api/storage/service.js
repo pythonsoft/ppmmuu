@@ -231,6 +231,10 @@ service.addPath = function addPath(bucketId, info = {}, cb) {
     return cb && cb(i18n.t('bucketIdIsNull'));
   }
 
+  if (!info._id) {
+    return cb && cb(i18n.t('pathIdIsNull'));
+  }
+
   bucketInfo.collection.findOne({ _id: bucketId }, { fields: { _id: 1, name: 1 } }, (err, doc) => {
     if (err) {
       logger.error(err.message);
@@ -264,6 +268,10 @@ service.updatePath = function updatePath(pathId, info = {}, cb) {
   }
 
   info.modifyTime = new Date();
+
+  if(info._id) {
+    delete info._id;
+  }
 
   pathInfo.updateOne({ _id: pathId }, info, (err, r) => {
     if (err) {
