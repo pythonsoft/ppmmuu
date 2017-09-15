@@ -65,10 +65,12 @@ router.post('/download', (req, res) => {
   const objectid = req.body.objectid;
   const inpoint = req.body.inpoint || 0;
   const outpoint = req.body.outpoint;
-  const fileName = req.body.fileName;
+  const filename = req.body.filename;
+  const filetypeid = req.body.filetypeid;
+  const templateId = req.body.templateId;
 
   res.set('Content-Type', 'application/json');
-  service.download({ objectid, inpoint: inpoint * 1, outpoint: outpoint * 1, fileName }, res);
+  service.download(req.ex.userInfo, { objectid, inpoint: inpoint * 1, outpoint: outpoint * 1, filename, filetypeid, templateId },  res);
 });
 
 /**

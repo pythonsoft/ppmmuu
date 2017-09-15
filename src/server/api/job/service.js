@@ -7,6 +7,9 @@
 const config = require('../../config');
 const utils = require('../../common/utils');
 const i18n = require('i18next');
+const result = require('../../common/result');
+
+const templateService = require('../template/service');
 
 const HttpRequest = require('../../common/httpRequest');
 
@@ -24,35 +27,62 @@ const errorCall = function (str) {
   return JSON.stringify({ status: 1, data: {}, statusInfo: i18n.t(str) });
 };
 
-service.download = function download(downloadParams, res) {
+service.download = function download(userInfo, downloadParams, res) {
   if (!downloadParams) {
     return res.end(errorCall('joDownloadParamsIsNull'));
   }
 
   const params = utils.merge({
-    objectid: '',
-    inpoint: 0,
-    outpoint: 0,
-    fileName: '',
+    "objectid": "",
+    "inpoint": 0,//起始帧
+    "outpoint": 0,//结束帧
+    "filename": "",
+    "filetypeid": "",
+    "destination": "", //相对路径，windows路径 格式 \\2017\\09\\15
+    "targetname": ""//文件名,不需要文件名后缀，非必须
   }, downloadParams);
 
   if (!params.objectid) {
     return res.end(errorCall('joDownloadParamsObjectIdIsNull'));
   }
 
-  if (!params.fileName) {
-    return res.end(errorCall('joDownloadParamsFileNameIsNull'));
-  }
-
   if (typeof params.inpoint !== 'number' || typeof params.outpoint !== 'number') {
     return res.end(errorCall('joDownloadParamsInpointOrOutpointTypeError'));
   }
 
-  if (params.inpoint < params.outpoint) {
+  if (params.inpoint > params.outpoint) {
     return res.end(errorCall('joDownloadParamsInpointLessThanOutpointTypeError'));
   }
 
-  request.post('/JobService/download', params, res);
+  if (!params.filename) {
+    return res.end(errorCall('joDownloadParamsFileNameIsNull'));
+  }
+
+  if (!params.filetypeid) {
+    return res.end(errorCall('joDownloadParamsFileTypeIdIsNull'));
+  }
+
+  if (!userInfo) {
+    return res.end(errorCall('userNotFind'));
+  }
+
+  const templateId = downloadParams.templateId;
+
+  templateService.getDownloadPath(userInfo, templateId, (err, downloadPath) => {
+    if(err) {
+      return res.end(result.fail(err));
+    }
+
+    params.destination = downloadPath;
+
+    const p = {
+      downloadParams: params,
+      userId: userInfo._id,
+      userName: userInfo.name
+    };
+
+    request.post('/JobService/download', p, res);
+  });
 };
 
 service.createJson = function createJson(createJsonParams, res) {

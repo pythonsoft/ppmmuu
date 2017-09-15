@@ -71,7 +71,7 @@ function saveSearch(k, id, cb) {
     (err, r) => cb && cb(err, r));
 }
 
-service.solrSearch = function solorSearch(info, cb, userId, videoIds) {
+service.solrSearch = function solrSearch(info, cb, userId, videoIds) {
   if (!info.wt) {
     info.wt = 'json';
   }
@@ -143,17 +143,16 @@ service.solrSearch = function solorSearch(info, cb, userId, videoIds) {
   });
 };
 
-function defaultMediaList(cb) {
+service.defaultMediaList = function defaultMediaList(cb) {
   redisClient.get('cachedMediaList', (err, obj) => {
     if (err) {
       logger.error(err);
       return cb && cb(err);
     }
+
     return cb && cb(null, JSON.parse(obj || '[]'));
   });
-}
-
-service.defaultMediaList = defaultMediaList;
+};
 
 service.getMediaList = function getMediaList(info, cb) {
   const pageSize = info.pageSize || 4;
