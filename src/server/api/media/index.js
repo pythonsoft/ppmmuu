@@ -197,6 +197,23 @@ router.get('/getMediaList', (req, res) => {
   service.getMediaList(req.query, (err, doc) => res.json(result.json(err, doc)));
 });
 
+/**
+ * @apiName: defaultMedia
+ * @apiFuncType: get
+ * @apiFuncUrl: /media/defaultMedia
+ * @swagger
+ * /media/defaultMedia:
+ *   get:
+ *     description: 获取媒体库手机版首页
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - Media
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ */
 router.get('/defaultMedia', (req, res) => {
   service.defaultMediaList((err, r) => res.json(result.json(err, r)));
 });
