@@ -533,6 +533,10 @@ module.exports = {
     code: '-50023',
     message: '下载参数destination为空，请正确传入参数',
   },
+  joDownloadPermissionDeny: {
+    code: '-50024',
+    message: '没有操作权限',
+  },
   notImplementedVerityType: {
     code: '-60000',
     message: '未实装的verifyType',
