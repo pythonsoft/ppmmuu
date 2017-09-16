@@ -70,7 +70,7 @@ router.post('/download', (req, res) => {
   const templateId = req.body.templateId;
 
   res.set('Content-Type', 'application/json');
-  service.download(req.ex.userInfo, { objectid, inpoint: inpoint * 1, outpoint: outpoint * 1, filename, filetypeid, templateId }, res);
+  service.download(req.ex.userInfo, { objectid, inpoint: inpoint * 1, outpoint: outpoint * 1, filename, filetypeid, templateId },  res);
 });
 
 /**
