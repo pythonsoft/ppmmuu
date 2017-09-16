@@ -7,6 +7,8 @@
 const logger = require('../../common/log')('error');
 const utils = require('../../common/utils');
 const i18n = require('i18next');
+const request = require('request');
+const config = require('../../config');
 
 const GroupInfo = require('./groupInfo');
 
@@ -335,6 +337,65 @@ service.updateGroupInfo = function updateGroupInfo(info, cb) {
     return cb && cb(null, 'ok');
   });
 };
+
+const requestCallApi = function requestCallApi(uri, method, info, cb){
+  const options = {
+    uri: uri,
+    method: method,
+    encoding: 'utf-8',
+    qs: info,
+  };
+  request(options, (error, response) => {
+    if (!error && response.statusCode === 200) {
+      const rs = JSON.parse(response.body);
+      if( rs.status == 0 ){
+        return cb && cb(null);
+      }else{
+        return cb && cb(i18n.t('bindMediaExpressError', { error: rs.result }));
+      }
+    } else if (error) {
+      logger.error(error);
+      return cb && cb(i18n.t('bindMediaExpressError', { error }));
+    }
+    logger.error(response.body);
+    return cb && cb(i18n.t('bindMediaExpressFailed'));
+  });
+}
+
+service.bindMediaExpress = function bindMediaExpress(info, cb){
+  const struct = {
+    _id: { type: 'string', validation: 'require' },
+    username: { type: 'string', validation: 'require' },
+    password: { type: 'string', validation: 'require' },
+  };
+  const err = utils.validation(info, struct);
+  if (err) {
+    return cb && cb(err);
+  }
+  
+  const mediaExpressUser = {
+    username: info.username,
+    password: info.password
+  }
+  
+  const url = config.mediaExpressUrl + 'login';
+  const method = 'POST';
+  
+  requestCallApi(url, method, mediaExpressUser, function(err){
+    if(err){
+      return cb && cb(err);
+    }
+    
+    userInfo.collection.findOneAndUpdate({ _id: info._id}, { $set: {mediaExpressUser: mediaExpressUser} }, function(err){
+      if(err){
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
+      }
+      
+      return cb && cb(null, 'ok');
+    })
+  })
+}
 
 
 module.exports = service;
