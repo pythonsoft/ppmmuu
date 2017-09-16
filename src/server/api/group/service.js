@@ -352,7 +352,7 @@ const requestCallApi = function requestCallApi(uri, method, info, cb) {
     encoding: 'utf-8',
   };
   if (method === 'POST') {
-    options.json = info;
+    options.json = JSON.parse(JSON.stringify(info));
   } else {
     options.qs = info;
   }

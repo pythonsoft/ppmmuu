@@ -52,4 +52,4 @@ config.adminMenuPermission = config.normalMenuPermission.concat(['management']);
 
 
 // 快传api地址
-config.mediaExpressUrl = 'http://console.cloudifeng.com/';
+config.mediaExpressUrl = 'https://console.cloudifeng.com/';
