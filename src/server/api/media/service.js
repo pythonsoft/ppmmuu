@@ -14,7 +14,7 @@ const ConfigurationInfo = require('../configuration/configurationInfo');
 const SearchHistoryInfo = require('../user/searchHistoryInfo');
 const WatchingHistoryInfo = require('../user/watchingHistoryInfo');
 const uuid = require('uuid');
-const OpenCC = require('opencc');
+const nodecc = require('node-opencc');
 
 const HttpRequest = require('../../common/httpRequest');
 
@@ -22,8 +22,6 @@ const rq = new HttpRequest({
   hostname: config.HKAPI.hostname,
   port: config.HKAPI.port,
 });
-
-const opencc = new OpenCC('s2t.json');
 
 const configurationInfo = new ConfigurationInfo();
 const searchHistoryInfo = new SearchHistoryInfo();
@@ -87,7 +85,7 @@ service.solrSearch = function solorSearch(info, cb, userId, videoIds) {
   info.wt = info.wt.trim().toLowerCase();
 
   // convert simplified to tranditional
-  info.q = opencc.convertSync(info.q);
+  info.q = nodecc.simplifiedToTraditional(info.q);
 
   // search by videoId will overwrite original keywords
   if (videoIds) {
