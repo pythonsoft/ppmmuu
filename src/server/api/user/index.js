@@ -589,4 +589,182 @@ router.post('/adAccountSync', (req, res) => {
   service.adAccountSync(req.body, (err, r) => res.json(result.json(err, r)));
 });
 
+/* downloadTask */
+/**
+ * @permissionName: user_listJob
+ * @permissionPath: /user/listJob
+ * @apiName: listJob
+ * @apiFuncType: get
+ * @apiFuncUrl: /user/listJob
+ * @swagger
+ * /user/listJob:
+ *   get:
+ *     description: list task
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - UserInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: status
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: currentStep
+ *         type: int
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: page
+ *         type: int
+ *         default: 1
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: pageSize
+ *         type: int
+ *         default: 99
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: taskList
+ */
+router.get('/listJob', (req, res) => {
+  const page = req.query.page;
+  const pageSize = req.query.pageSize;
+  const status = req.query.status;
+  const currentStep = req.query.currentStep;
+  const userId = req.ex.userId;
+
+  res.set('Content-Type', 'application/json');
+  service.list({ page: page * 1, pageSize: pageSize * 1, status, currentStep, userId }, res);
+});
+
+/**
+ * @permissionName: user_queryJob
+ * @permissionPath: /user/queryJob
+ * @apiName: queryJob
+ * @apiFuncType: get
+ * @apiFuncUrl: /user/queryJob
+ * @swagger
+ * /user/queryJob:
+ *   get:
+ *     description: query download job
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - UserInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: jobId
+ *         type: string
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: templateList
+ */
+router.get('/queryJob', (req, res) => {
+  const jobId = req.query.jobId;
+  res.set('Content-Type', 'application/json');
+  service.query({ jobId }, res);
+});
+
+/**
+ * @permissionName: user_restartJob
+ * @permissionPath: /user/restartJob
+ * @apiName: restartJob
+ * @apiFuncType: get
+ * @apiFuncUrl: /user/restartJob
+ * @swagger
+ * /user/restartJob:
+ *   get:
+ *     description: restart job
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - UserInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: jobId
+ *         type: string
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: templateList
+ */
+router.get('/restartJob', (req, res) => {
+  const jobId = req.query.jobId;
+  res.set('Content-Type', 'application/json');
+  service.restart({ jobId, userId: req.ex.userId }, res);
+});
+
+/**
+ * @permissionName: user_stopJob
+ * @permissionPath: /user/stopJob
+ * @apiName: stopJob
+ * @apiFuncType: get
+ * @apiFuncUrl: /user/stopJob
+ * @swagger
+ * /user/stopJob:
+ *   get:
+ *     description: stop job
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - UserInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: jobId
+ *         type: string
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: templateList
+ */
+router.get('/stopJob', (req, res) => {
+  const jobId = req.query.jobId;
+  res.set('Content-Type', 'application/json');
+  service.stop({ jobId, userId: req.ex.userId }, res);
+});
+
+/**
+ * @permissionName: user_deleteJob
+ * @permissionPath: /user/deleteJob
+ * @apiName: deleteJob
+ * @apiFuncType: get
+ * @apiFuncUrl: /user/deleteJob
+ * @swagger
+ * /user/deleteJob:
+ *   get:
+ *     description: delete job
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - UserInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: jobId
+ *         type: string
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: templateList
+ */
+router.get('/deleteJob', (req, res) => {
+  const jobId = req.query.jobId;
+  res.set('Content-Type', 'application/json');
+  service.delete({ jobId, userId: req.ex.userId }, res);
+});
+
+
 module.exports = router;
