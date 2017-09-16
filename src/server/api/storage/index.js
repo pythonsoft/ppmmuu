@@ -440,11 +440,15 @@ router.get('/getPathDetail', (req, res) => {
  *         schema:
  *           type: object
  *           required:
+ *             - id
  *             - name
  *             - path
  *             - type
  *             - maxSize
  *           properties:
+ *             id:
+ *               type: string
+ *               example: ''
  *             name:
  *               type: string
  *               example: admin

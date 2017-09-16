@@ -75,4 +75,8 @@ service.stop = function restart(parentTaskId, taskId, type, res) {
   execCommand('stop', parentTaskId, taskId, type, res);
 };
 
+service.createTemplate = function createTemplate(template, cb) {
+
+};
+
 module.exports = service;

@@ -65,10 +65,12 @@ router.post('/download', (req, res) => {
   const objectid = req.body.objectid;
   const inpoint = req.body.inpoint || 0;
   const outpoint = req.body.outpoint;
-  const fileName = req.body.fileName;
+  const filename = req.body.filename;
+  const filetypeid = req.body.filetypeid;
+  const templateId = req.body.templateId;
 
   res.set('Content-Type', 'application/json');
-  service.download({ objectid, inpoint: inpoint * 1, outpoint: outpoint * 1, fileName }, res);
+  service.download(req.ex.userInfo, { objectid, inpoint: inpoint * 1, outpoint: outpoint * 1, filename, filetypeid, templateId },  res);
 });
 
 /**
@@ -97,9 +99,9 @@ router.post('/download', (req, res) => {
  *         description:
  */
 router.post('/createTemplate', (req, res) => {
-  const createJson = req.body.createJson;
+  const template = req.body.createJson;
   res.set('Content-Type', 'application/json');
-  service.createJson({ createJson }, res);
+  service.createJson({ template }, res);
 });
 
 /**
@@ -128,9 +130,9 @@ router.post('/createTemplate', (req, res) => {
  *         description:
  */
 router.post('/updateTemplate', (req, res) => {
-  const updateJson = req.body.updateJson;
+  const template = req.body.updateJson;
   res.set('Content-Type', 'application/json');
-  service.updateJson({ updateJson }, res);
+  service.updateJson({ template }, res);
 });
 
 /**
@@ -356,9 +358,9 @@ router.get('/delete', (req, res) => {
  *         description: templateList
  */
 router.get('/deleteTemplate', (req, res) => {
-  const templateId = req.query.templateId;
+  const id = req.query.templateId;
   res.set('Content-Type', 'application/json');
-  service.deleteTemplate({ templateId }, res);
+  service.deleteTemplate({ id }, res);
 });
 
 module.exports = router;

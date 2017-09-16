@@ -2,13 +2,14 @@
 
 const WatchingHistoryInfo = require('../api/user/watchingHistoryInfo');
 const mediaService = require('../api/media/service');
+const logger = require('../common/log')('error');
 
 const watchingHistoryInfo = new WatchingHistoryInfo();
 
-function renewHistoryList() {
+const renewHistoryList = function() {
   watchingHistoryInfo.collection.findOneAndUpdate(
-    { status: 'unavailable' },
-    { $set: { status: 'processing' } },
+    { status: WatchingHistoryInfo.STATUS.UNAVAILABLE },
+    { $set: { status: WatchingHistoryInfo.STATUS.PROCESSING } },
     {
       projection: { videoId: 1, status: 1 },
       returnOriginal: false,
@@ -31,21 +32,31 @@ function renewHistoryList() {
             { $set: { status: 'unavailable' } },
             {
               returnOriginal: false,
-            }, (err, r) => {
-              console.log('1 err, r', err, r);
+            }, (err) => {
+              if (err) {
+                logger.error(err);
+              }
             });
         } else {
           watchingHistoryInfo.collection.findOneAndUpdate(
             { _id: r.value._id },
-            { $set: { status: 'available', videoContent: doc.docs[0], updatedTime: new Date() } },
+            {
+              $set: {
+                status: WatchingHistoryInfo.STATUS.AVAILABLE,
+                videoContent: doc.docs[0],
+                updatedTime: new Date()
+              }
+            },
             {
               returnOriginal: false,
-            }, (err, r) => {
-              console.log('1 err, r', err, r);
+            }, (err) => {
+              if (err) {
+                logger.error(err);
+              }
             });
         }
       }, null, r.value.videoId);
     });
 }
 
-setTimeout(renewHistoryList, 1000 * 10);
+setInterval(renewHistoryList, 1000 * 60);
