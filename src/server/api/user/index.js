@@ -527,4 +527,66 @@ router.post('/clearWatchHistory', (req, res) => {
   service.removeWatchHistory(null, req.ex.userId, (err, r) => res.json(result.json(err, r)));
 });
 
+/**
+ * @permissionName: 同步AD账户
+ * @permissionPath: /user/adAccountSync
+ * @swagger
+ * /user/adAccountSync:
+ *   post:
+ *     description: '同步AD账户'
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: '必须的字段_id,name,email'
+ *         schema:
+ *           type: object
+ *           required:
+ *             - _id
+ *             - name
+ *             - email
+ *           properties:
+ *             _id:
+ *               type: string
+ *               example: ''
+ *               description: 'ObjectId'
+ *             name:
+ *               type: string
+ *               example: ''
+ *             title:
+ *               type: string
+ *               example: ''
+ *               description: '职位头衔'
+ *             employeeId:
+ *               type: string
+ *               example: ''
+ *               description: '工号'
+ *             email:
+ *               type: string
+ *               example: '12345678@qq.com'
+ *               description: '邮箱'
+ *             phone:
+ *               type: string
+ *               example: ''
+ *               description: '手机号'
+ *             photo:
+ *               type: string
+ *               example: ''
+ *               description: '头像地址'
+ *             status:
+ *               type: string
+ *               example: ''
+ *               description: '0:未激活,1:正常,2:已删除.默认是1'
+ *     responses:
+ *       200:
+ *         description: remove history
+ */
+router.post('/adAccountSync', (req, res) => {
+  service.adAccountSync(req.body, (err, r) => res.json(result.json(err, r)));
+});
+
 module.exports = router;

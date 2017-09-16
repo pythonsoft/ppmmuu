@@ -379,8 +379,11 @@ service.getRoleOwners = function getRoleOwners(info, cb) {
     if (!groupIds || groupIds.length === 0) {
       return callback && callback(null, []);
     }
-
-    groupInfo.collection.find({ _id: { $in: groupIds } }, { fields: { name: 1, logo: 1, type: 1 } }).toArray((err, docs) => {
+    const query = { _id: { $in: groupIds } };
+    if (keyword) {
+      query.name = { $regex: keyword, $options: 'i' };
+    }
+    groupInfo.collection.find(query, { fields: { name: 1, logo: 1, type: 1 } }).toArray((err, docs) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));

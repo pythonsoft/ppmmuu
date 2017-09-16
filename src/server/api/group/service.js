@@ -29,6 +29,8 @@ service.listGroup = function listGroup(parentId, type, page, pageSize, cb) {
 
   if (parentId) {
     q.parentId = parentId;
+  }else {
+    q.parentId = '';
   }
 
   if (type !== '') {

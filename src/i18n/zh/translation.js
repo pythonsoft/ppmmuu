@@ -121,6 +121,10 @@ module.exports = {
     code: '-1',
     message: '数据库异常.',
   },
+  databaseErrorDetail: {
+    code: '-2',
+    message: '{{error}}',
+  },
   validateError: {
     code: '-10',
     message: '参数 {{param}} 不正确',
