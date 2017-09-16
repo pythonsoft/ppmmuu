@@ -125,6 +125,10 @@ module.exports = {
     code: '-1',
     message: '数据库异常.',
   },
+  databaseErrorDetail: {
+    code: '-2',
+    message: '{{error}}',
+  },
   validateError: {
     code: '-10',
     message: '参数 {{param}} 不正确',
@@ -568,5 +572,13 @@ module.exports = {
   idIsNull: {
     code: '-80000',
     message: 'id为空',
+  },
+  requestCallApiError: {
+    code: '-90000',
+    message: '{{error}}',
+  },
+  requestCallApiFailed: {
+    code: '-90000',
+    message: 'api请求超时',
   },
 };

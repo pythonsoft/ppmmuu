@@ -6,7 +6,7 @@ const logger = require('../common/log')('error');
 
 const watchingHistoryInfo = new WatchingHistoryInfo();
 
-const renewHistoryList = function() {
+const renewHistoryList = function () {
   watchingHistoryInfo.collection.findOneAndUpdate(
     { status: WatchingHistoryInfo.STATUS.UNAVAILABLE },
     { $set: { status: WatchingHistoryInfo.STATUS.PROCESSING } },
@@ -44,8 +44,8 @@ const renewHistoryList = function() {
               $set: {
                 status: WatchingHistoryInfo.STATUS.AVAILABLE,
                 videoContent: doc.docs[0],
-                updatedTime: new Date()
-              }
+                updatedTime: new Date(),
+              },
             },
             {
               returnOriginal: false,
@@ -57,6 +57,6 @@ const renewHistoryList = function() {
         }
       }, null, r.value.videoId);
     });
-}
+};
 
 setInterval(renewHistoryList, 1000 * 60);

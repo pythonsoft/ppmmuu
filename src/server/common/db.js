@@ -19,6 +19,10 @@ const logger = require('./log')('error');
 *
  */
 
+const getValueType = function getValueType(val) {
+  return typeof val === 'undefined' ? 'undefined' : val.constructor.name.toLocaleLowerCase();
+};
+
 /**
  *
  * @param info
@@ -34,7 +38,7 @@ const validation = function validation(info, struct) {
       return i18n.t('fieldIsNotExistError', { field: k });
     }
 
-    if (typeof temp.type !== 'undefined' && utils.getValueType(info[k]) !== temp.type) {
+    if (typeof temp.type !== 'undefined' && getValueType(info[k]) !== temp.type) {
       return i18n.t('typeError', { field: k });
     }
 
@@ -85,13 +89,17 @@ class DB {
       temp = struct[k];
 
       if (typeof info[k] !== 'undefined') {
-        doc[k] = info[k];
+        if (temp.type === 'date') {
+          doc[k] = new Date(info[k]);
+        } else {
+          doc[k] = info[k];
+        }
       } else {
-        defaultType = utils.getValueType(temp.default);
+        defaultType = getValueType(temp.default);
         if (defaultType !== 'undefined') {
           doc[k] = defaultType === 'function' ? temp.default() : temp.default;
         } else if (temp.type && typeof defaultValue[temp.type] !== 'undefined') {
-          if (utils.getValueType(defaultValue[temp.type]) === 'function') {
+          if (getValueType(defaultValue[temp.type]) === 'function') {
             doc[k] = defaultValue[temp.type]();
           } else {
             doc[k] = defaultValue[temp.type];
@@ -113,8 +121,12 @@ class DB {
       if (k === '_id') { continue; }
       const temp = struct[k];
       if (temp !== undefined) {
-        if (utils.getValueType(temp.allowUpdate) === 'undefined' || temp.allowUpdate) {
-          doc[k] = info[k];
+        if (getValueType(temp.allowUpdate) === 'undefined' || temp.allowUpdate) {
+          if (temp.type === 'date') {
+            doc[k] = new Date(info[k]);
+          } else {
+            doc[k] = info[k];
+          }
         }
       }
     }

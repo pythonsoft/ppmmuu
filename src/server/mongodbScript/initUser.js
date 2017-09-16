@@ -33,6 +33,12 @@ userInfo.collection.update({ expiredTime: { $exists: false } }, { $set: { expire
   }
 });
 
+userInfo.collection.update({ mediaExpressUser: { $exists: false } }, { $set: { mediaExpressUser: { username: '', password: '' } } }, { multi: true }, (err) => {
+  if (err) {
+    console.log(err.message);
+  }
+});
+
 userInfo.collection.findOne({ email }, { fields: { email: 1 } }, (err, doc) => {
   if (err) {
     console.log(err);

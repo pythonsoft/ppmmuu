@@ -10,7 +10,6 @@ const router = express.Router();
 const result = require('../../common/result');
 const service = require('./service');
 const mediaService = require('../media/service');
-const jobServcie = require('../job/service');
 
 /**
  * @apiName: postUserLogin
@@ -528,181 +527,66 @@ router.post('/clearWatchHistory', (req, res) => {
   service.removeWatchHistory(null, req.ex.userId, (err, r) => res.json(result.json(err, r)));
 });
 
-/* downloadTask */
 /**
- * @permissionName: user_listJob
- * @permissionPath: /user/listJob
- * @apiName: listJob
- * @apiFuncType: get
- * @apiFuncUrl: /user/listJob
+ * @permissionName: 同步AD账户
+ * @permissionPath: /user/adAccountSync
  * @swagger
- * /user/listJob:
- *   get:
- *     description: list task
+ * /user/adAccountSync:
+ *   post:
+ *     description: '同步AD账户'
  *     version: 1.0.0
  *     tags:
  *       - v1
- *       - UserInfo
  *     produces:
  *       - application/json
  *     parameters:
- *       - in: query
- *         name: status
- *         type: string
- *         default: ''
- *         collectionFormat: csv
- *       - in: query
- *         name: currentStep
- *         type: int
- *         default: ''
- *         collectionFormat: csv
- *       - in: query
- *         name: page
- *         type: int
- *         default: 1
- *         collectionFormat: csv
- *       - in: query
- *         name: pageSize
- *         type: int
- *         default: 99
- *         collectionFormat: csv
+ *       - in: body
+ *         name: body
+ *         description: '必须的字段_id,name,email'
+ *         schema:
+ *           type: object
+ *           required:
+ *             - _id
+ *             - name
+ *             - email
+ *           properties:
+ *             _id:
+ *               type: string
+ *               example: ''
+ *               description: 'ObjectId'
+ *             name:
+ *               type: string
+ *               example: ''
+ *             title:
+ *               type: string
+ *               example: ''
+ *               description: '职位头衔'
+ *             employeeId:
+ *               type: string
+ *               example: ''
+ *               description: '工号'
+ *             email:
+ *               type: string
+ *               example: '12345678@qq.com'
+ *               description: '邮箱'
+ *             phone:
+ *               type: string
+ *               example: ''
+ *               description: '手机号'
+ *             photo:
+ *               type: string
+ *               example: ''
+ *               description: '头像地址'
+ *             status:
+ *               type: string
+ *               example: ''
+ *               description: '0:未激活,1:正常,2:已删除.默认是1'
  *     responses:
  *       200:
- *         description: taskList
+ *         description: remove history
  */
-router.get('/listJob', (req, res) => {
-  const page = req.query.page;
-  const pageSize = req.query.pageSize;
-  const status = req.query.status;
-  const currentStep = req.query.currentStep;
-  const userId = req.ex.userId;
-
-  res.set('Content-Type', 'application/json');
-  jobServcie.list({ page: page * 1, pageSize: pageSize * 1, status, currentStep, userId }, res);
-});
-
-/**
- * @permissionName: user_queryJob
- * @permissionPath: /user/queryJob
- * @apiName: queryJob
- * @apiFuncType: get
- * @apiFuncUrl: /user/queryJob
- * @swagger
- * /user/queryJob:
- *   get:
- *     description: query download job
- *     version: 1.0.0
- *     tags:
- *       - v1
- *       - UserInfo
- *     produces:
- *       - application/json
- *     parameters:
- *       - in: query
- *         name: jobId
- *         type: string
- *         collectionFormat: csv
- *     responses:
- *       200:
- *         description: templateList
- */
-router.get('/queryJob', (req, res) => {
-  const jobId = req.query.jobId;
-  res.set('Content-Type', 'application/json');
-  jobServcie.query({ jobId }, res);
-});
-
-/**
- * @permissionName: user_restartJob
- * @permissionPath: /user/restartJob
- * @apiName: restartJob
- * @apiFuncType: get
- * @apiFuncUrl: /user/restartJob
- * @swagger
- * /user/restartJob:
- *   get:
- *     description: restart job
- *     version: 1.0.0
- *     tags:
- *       - v1
- *       - UserInfo
- *     produces:
- *       - application/json
- *     parameters:
- *       - in: query
- *         name: jobId
- *         type: string
- *         collectionFormat: csv
- *     responses:
- *       200:
- *         description: templateList
- */
-router.get('/restartJob', (req, res) => {
-  const jobId = req.query.jobId;
-  res.set('Content-Type', 'application/json');
-  jobServcie.restart({ jobId, userId: req.ex.userId }, res);
-});
-
-/**
- * @permissionName: user_stopJob
- * @permissionPath: /user/stopJob
- * @apiName: stopJob
- * @apiFuncType: get
- * @apiFuncUrl: /user/stopJob
- * @swagger
- * /user/stopJob:
- *   get:
- *     description: stop job
- *     version: 1.0.0
- *     tags:
- *       - v1
- *       - UserInfo
- *     produces:
- *       - application/json
- *     parameters:
- *       - in: query
- *         name: jobId
- *         type: string
- *         collectionFormat: csv
- *     responses:
- *       200:
- *         description: templateList
- */
-router.get('/stopJob', (req, res) => {
-  const jobId = req.query.jobId;
-  res.set('Content-Type', 'application/json');
-  jobServcie.stop({ jobId, userId: req.ex.userId }, res);
-});
-
-/**
- * @permissionName: user_deleteJob
- * @permissionPath: /user/deleteJob
- * @apiName: deleteJob
- * @apiFuncType: get
- * @apiFuncUrl: /user/deleteJob
- * @swagger
- * /user/deleteJob:
- *   get:
- *     description: delete job
- *     version: 1.0.0
- *     tags:
- *       - v1
- *       - UserInfo
- *     produces:
- *       - application/json
- *     parameters:
- *       - in: query
- *         name: jobId
- *         type: string
- *         collectionFormat: csv
- *     responses:
- *       200:
- *         description: templateList
- */
-router.get('/deleteJob', (req, res) => {
-  const jobId = req.query.jobId;
-  res.set('Content-Type', 'application/json');
-  jobServcie.delete({ jobId, userId: req.ex.userId }, res);
+router.post('/adAccountSync', (req, res) => {
+  service.adAccountSync(req.body, (err, r) => res.json(result.json(err, r)));
 });
 
 module.exports = router;
