@@ -124,11 +124,21 @@ service.list = function list(listParams, res) {
   }, listParams);
 
   if (listParams.status) {
-    params.status = listParams.status;
+    if(listParams.status.indexOf(',') !== -1) {
+      params.status = { $in: listParams.status.split(',') }
+    }else {
+      params.status = listParams.status;
+    }
   }
+
   if (listParams.currentStep) {
     params.currentStep = listParams.currentStep;
   }
+
+  if (listParams.userId) {
+    params.userId = listParams.userId;
+  }
+
   request.get('/JobService/list', params, res);
 };
 
@@ -149,52 +159,116 @@ service.query = function query(queryParams, res) {
   if (!queryParams) {
     return res.end(errorCall('jobQueryParamsIsNull'));
   }
+
+  if (!queryParams.jobId) {
+    return res.end(errorCall('jobQueryParamsIdIsNull'));
+  }
+
   const params = utils.merge({
     jobId: '',
   }, queryParams);
-  if (!params.jobId) {
-    return res.end(errorCall('jobQueryParamsIdIsNull'));
-  }
+
   request.get('/JobService/query', params, res);
+};
+
+const checkOwner = function checkOwner(jobId, userId, cb) {
+  request.get('/JobService/query', { jobId }, (err, rs) => {
+    if(err) {
+      return cb && cb(err);
+    }
+
+    if(rs.status !== '0') {
+      return cb && cb(rs);
+    }
+
+    if(rs.data.userId !== userId) {
+      return cb(errorCall('joDownloadPermissionDeny'));
+    }
+
+    return cb && cb(null, 'yes');
+  });
 };
 
 service.restart = function restart(restartParams, res) {
   if (!restartParams) {
     return res.end(errorCall('jobRestartParamsIsNull'));
   }
+
+  if (!restartParams.jobId) {
+    return res.end(errorCall('jobRestartParamsIdIsNull'));
+  }
+
   const params = utils.merge({
     jobId: '',
   }, restartParams);
-  if (!params.jobId) {
-    return res.end(errorCall('jobRestartParamsIdIsNull'));
+
+  //如果传入userId, 则检查任务的userId与之是否相等，相等则有权限操作
+  if (restartParams.userId) {
+    checkOwner(restartParams.jobId, restartParams.userId, (err, r) => {
+      if(err) {
+        return res.end(err);
+      }
+
+      request.get('/JobService/restart', params, res);
+    });
+  }else {
+    request.get('/JobService/restart', params, res);
   }
-  request.get('/JobService/restart', params, res);
+
 };
 
 service.stop = function stop(stopParams, res) {
   if (!stopParams) {
     return res.end(errorCall('jobStopParamsIsNull'));
   }
+
+  if (!stopParams.jobId) {
+    return res.end(errorCall('jobStopParamsIdIsNull'));
+  }
+
   const params = utils.merge({
     jobId: '',
   }, stopParams);
-  if (!params.jobId) {
-    return res.end(errorCall('jobStopParamsIdIsNull'));
+
+  //如果传入userId, 则检查任务的userId与之是否相等，相等则有权限操作
+  if (stopParams.userId) {
+    checkOwner(stopParams.jobId, stopParams.userId, (err, r) => {
+      if(err) {
+        return res.end(err);
+      }
+
+      request.get('/JobService/stop', params, res);
+    });
+  }else {
+    request.get('/JobService/stop', params, res);
   }
-  request.get('/JobService/stop', params, res);
 };
 
 service.delete = function del(deleteParams, res) {
   if (!deleteParams) {
     return res.end(errorCall('jobDeleteParamsIsNull'));
   }
+
+  if (!deleteParams.jobId) {
+    return res.end(errorCall('jobDeleteParamsIdIsNull'));
+  }
+
   const params = utils.merge({
     jobId: '',
   }, deleteParams);
-  if (!params.jobId) {
-    return res.end(errorCall('jobDeleteParamsIdIsNull'));
+
+  //如果传入userId, 则检查任务的userId与之是否相等，相等则有权限操作
+  if (deleteParams.userId) {
+    checkOwner(deleteParams.jobId, deleteParams.userId, (err, r) => {
+      if(err) {
+        return res.end(err);
+      }
+
+      request.get('/JobService/stop', params, res);
+    });
+  }else {
+    request.get('/JobService/delete', params, res);
   }
-  request.get('/JobService/delete', params, res);
 };
 
 service.deleteTemplate = function del(deleteParams, res) {

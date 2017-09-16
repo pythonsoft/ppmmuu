@@ -152,6 +152,21 @@ router.post('/updateTemplate', (req, res) => {
  *       - application/json
  *     parameters:
  *       - in: query
+ *         name: userId
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: status
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: currentStep
+ *         type: int
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: query
  *         name: page
  *         type: int
  *         default: 1
@@ -170,9 +185,10 @@ router.get('/list', (req, res) => {
   const pageSize = req.query.pageSize;
   const status = req.query.status;
   const currentStep = req.query.currentStep;
+  const userId = req.query.userId;
 
   res.set('Content-Type', 'application/json');
-  service.list({ page: page * 1, pageSize: pageSize * 1, status, currentStep }, res);
+  service.list({ page: page * 1, pageSize: pageSize * 1, status, currentStep, userId }, res);
 });
 
 /**
