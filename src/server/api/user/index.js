@@ -10,6 +10,7 @@ const router = express.Router();
 const result = require('../../common/result');
 const service = require('./service');
 const mediaService = require('../media/service');
+const jobServce = require('../job/service');
 
 /**
  * @apiName: postUserLogin
@@ -639,7 +640,7 @@ router.get('/listJob', (req, res) => {
   const userId = req.ex.userId;
 
   res.set('Content-Type', 'application/json');
-  service.list({ page: page * 1, pageSize: pageSize * 1, status, currentStep, userId }, res);
+  jobServce.list({ page: page * 1, pageSize: pageSize * 1, status, currentStep, userId }, res);
 });
 
 /**
@@ -670,7 +671,7 @@ router.get('/listJob', (req, res) => {
 router.get('/queryJob', (req, res) => {
   const jobId = req.query.jobId;
   res.set('Content-Type', 'application/json');
-  service.query({ jobId }, res);
+  jobServce.query({ jobId }, res);
 });
 
 /**
@@ -701,7 +702,7 @@ router.get('/queryJob', (req, res) => {
 router.get('/restartJob', (req, res) => {
   const jobId = req.query.jobId;
   res.set('Content-Type', 'application/json');
-  service.restart({ jobId, userId: req.ex.userId }, res);
+  jobServce.restart({ jobId, userId: req.ex.userId }, res);
 });
 
 /**
@@ -732,7 +733,7 @@ router.get('/restartJob', (req, res) => {
 router.get('/stopJob', (req, res) => {
   const jobId = req.query.jobId;
   res.set('Content-Type', 'application/json');
-  service.stop({ jobId, userId: req.ex.userId }, res);
+  jobServce.stop({ jobId, userId: req.ex.userId }, res);
 });
 
 /**
@@ -763,8 +764,7 @@ router.get('/stopJob', (req, res) => {
 router.get('/deleteJob', (req, res) => {
   const jobId = req.query.jobId;
   res.set('Content-Type', 'application/json');
-  service.delete({ jobId, userId: req.ex.userId }, res);
+  jobServce.delete({ jobId, userId: req.ex.userId }, res);
 });
-
 
 module.exports = router;
