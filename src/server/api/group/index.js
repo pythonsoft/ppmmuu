@@ -846,5 +846,61 @@ router.get('/searchUser', (req, res) => {
   service.searchUser(req.query, (err, docs) => res.json(result.json(err, docs)));
 });
 
+/**
+ * @permissionName: 绑定快传账户
+ * @permissionPath: /group/bindMediaExpressUser
+ * @apiName: postBindMediaExpressUser
+ * @apiFuncType: post
+ * @apiFuncUrl: /group/bindMediaExpressUser
+ * @swagger
+ * /group/bindMediaExpressUser:
+ *   post:
+ *     description: bind MediaExpress User
+ *     tags:
+ *       - v1
+ *       - GroupInfo
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: bind MediaExpress User
+ *         schema:
+ *           type: object
+ *           required:
+ *             - _id
+ *             - username
+ *             - password
+ *           properties:
+ *             _id:
+ *               type: string
+ *               description: userId
+ *               example: "bea711c0-67ae-11e7-8b13-c506d97b38b0"
+ *             username:
+ *               type: string
+ *               example: "xiaoming"
+ *             password:
+ *               type: string
+ *               example: "123456"
+ *     responses:
+ *       200:
+ *         description: GroupInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.post('/bindMediaExpressUser', (req, res) => {
+  service.bindMediaExpress(req.body, (err, r) => res.json(result.json(err, r)));
+});
+
 
 module.exports = router;
