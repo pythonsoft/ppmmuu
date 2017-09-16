@@ -868,21 +868,20 @@ router.get('/searchUser', (req, res) => {
  *         schema:
  *           type: object
  *           required:
- *            - _id
- *            - username
- *            - password
+ *             - _id
+ *             - username
+ *             - password
  *           properties:
  *             _id:
  *               type: string
  *               description: userId
  *               example: "bea711c0-67ae-11e7-8b13-c506d97b38b0"
- *             userName
+ *             username:
  *               type: string
  *               example: "xiaoming"
  *             password:
  *               type: string
- *               example: '123456'
- *
+ *               example: "123456"
  *     responses:
  *       200:
  *         description: GroupInfo
@@ -900,7 +899,7 @@ router.get('/searchUser', (req, res) => {
  *                  type: string
  */
 router.post('/bindMediaExpressUser', (req, res) => {
-  service.updateGroupInfo(req.body, (err, r) => res.json(result.json(err, r)));
+  service.bindMediaExpress(req.body, (err, r) => res.json(result.json(err, r)));
 });
 
 

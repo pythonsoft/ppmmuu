@@ -290,11 +290,11 @@ service.removeSearchHistory = (ids, userId, cb) => {
  * @param cb
  * @returns {*}
  */
-service.adAccountSync = function adAccountSync(info, cb){
+service.adAccountSync = function adAccountSync(info, cb) {
   info.verifyType = UserInfo.VERIFY_TYPE.AD;
-  console.log("info==>", info);
+  console.log('info==>', info);
 
-  if(!info._id){
+  if (!info._id) {
     return cb && cb(i18n.t('fieldIsNotExistError', { field: '_id' }));
   }
 
@@ -306,14 +306,14 @@ service.adAccountSync = function adAccountSync(info, cb){
 
   const doc = result.doc;
 
-  userInfo.collection.findOneAndUpdate({ _id: info._id}, { $set: doc }, { upsert: true}, function(err){
-    if(err){
+  userInfo.collection.findOneAndUpdate({ _id: info._id }, { $set: doc }, { upsert: true }, (err) => {
+    if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
     }
 
     return cb && cb(null, 'ok');
-  })
-}
+  });
+};
 
 module.exports = service;

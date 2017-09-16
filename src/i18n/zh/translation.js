@@ -573,4 +573,12 @@ module.exports = {
     code: '-80000',
     message: 'id为空',
   },
+  requestCallApiError: {
+    code: '-90000',
+    message: '{{error}}',
+  },
+  requestCallApiFailed: {
+    code: '-90000',
+    message: 'api请求超时',
+  },
 };

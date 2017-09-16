@@ -33,13 +33,13 @@ service.download = function download(userInfo, downloadParams, res) {
   }
 
   const params = utils.merge({
-    "objectid": "",
-    "inpoint": 0,//起始帧
-    "outpoint": 0,//结束帧
-    "filename": "",
-    "filetypeid": "",
-    "destination": "", //相对路径，windows路径 格式 \\2017\\09\\15
-    "targetname": ""//文件名,不需要文件名后缀，非必须
+    objectid: '',
+    inpoint: 0, // 起始帧
+    outpoint: 0, // 结束帧
+    filename: '',
+    filetypeid: '',
+    destination: '', // 相对路径，windows路径 格式 \\2017\\09\\15
+    targetname: '', // 文件名,不需要文件名后缀，非必须
   }, downloadParams);
 
   if (!params.objectid) {
@@ -69,7 +69,7 @@ service.download = function download(userInfo, downloadParams, res) {
   const templateId = downloadParams.templateId;
 
   templateService.getDownloadPath(userInfo, templateId, (err, downloadPath) => {
-    if(err) {
+    if (err) {
       return res.end(result.fail(err));
     }
 
@@ -78,7 +78,7 @@ service.download = function download(userInfo, downloadParams, res) {
     const p = {
       downloadParams: params,
       userId: userInfo._id,
-      userName: userInfo.name
+      userName: userInfo.name,
     };
 
     request.post('/JobService/download', p, res);
@@ -124,9 +124,9 @@ service.list = function list(listParams, res) {
   }, listParams);
 
   if (listParams.status) {
-    if(listParams.status.indexOf(',') !== -1) {
-      params.status = { $in: listParams.status.split(',') }
-    }else {
+    if (listParams.status.indexOf(',') !== -1) {
+      params.status = { $in: listParams.status.split(',') };
+    } else {
       params.status = listParams.status;
     }
   }
@@ -173,15 +173,15 @@ service.query = function query(queryParams, res) {
 
 const checkOwner = function checkOwner(jobId, userId, cb) {
   request.get('/JobService/query', { jobId }, (err, rs) => {
-    if(err) {
+    if (err) {
       return cb && cb(err);
     }
 
-    if(rs.status !== '0') {
+    if (rs.status !== '0') {
       return cb && cb(rs);
     }
 
-    if(rs.data.userId !== userId) {
+    if (rs.data.userId !== userId) {
       return cb(errorCall('joDownloadPermissionDeny'));
     }
 
@@ -202,19 +202,18 @@ service.restart = function restart(restartParams, res) {
     jobId: '',
   }, restartParams);
 
-  //如果传入userId, 则检查任务的userId与之是否相等，相等则有权限操作
+  // 如果传入userId, 则检查任务的userId与之是否相等，相等则有权限操作
   if (restartParams.userId) {
     checkOwner(restartParams.jobId, restartParams.userId, (err, r) => {
-      if(err) {
+      if (err) {
         return res.end(err);
       }
 
       request.get('/JobService/restart', params, res);
     });
-  }else {
+  } else {
     request.get('/JobService/restart', params, res);
   }
-
 };
 
 service.stop = function stop(stopParams, res) {
@@ -230,16 +229,16 @@ service.stop = function stop(stopParams, res) {
     jobId: '',
   }, stopParams);
 
-  //如果传入userId, 则检查任务的userId与之是否相等，相等则有权限操作
+  // 如果传入userId, 则检查任务的userId与之是否相等，相等则有权限操作
   if (stopParams.userId) {
     checkOwner(stopParams.jobId, stopParams.userId, (err, r) => {
-      if(err) {
+      if (err) {
         return res.end(err);
       }
 
       request.get('/JobService/stop', params, res);
     });
-  }else {
+  } else {
     request.get('/JobService/stop', params, res);
   }
 };
@@ -257,16 +256,16 @@ service.delete = function del(deleteParams, res) {
     jobId: '',
   }, deleteParams);
 
-  //如果传入userId, 则检查任务的userId与之是否相等，相等则有权限操作
+  // 如果传入userId, 则检查任务的userId与之是否相等，相等则有权限操作
   if (deleteParams.userId) {
     checkOwner(deleteParams.jobId, deleteParams.userId, (err, r) => {
-      if(err) {
+      if (err) {
         return res.end(err);
       }
 
       request.get('/JobService/stop', params, res);
     });
-  }else {
+  } else {
     request.get('/JobService/delete', params, res);
   }
 };

@@ -31,7 +31,7 @@ service.listGroup = function listGroup(parentId, type, page, pageSize, cb) {
 
   if (parentId) {
     q.parentId = parentId;
-  }else {
+  } else {
     q.parentId = '';
   }
 
@@ -338,31 +338,42 @@ service.updateGroupInfo = function updateGroupInfo(info, cb) {
   });
 };
 
-const requestCallApi = function requestCallApi(uri, method, info, cb){
+/**
+ * @param uri
+ * @param method
+ * @param info
+ * @param cb
+ */
+const requestCallApi = function requestCallApi(uri, method, info, cb) {
   const options = {
-    uri: uri,
-    method: method,
+    uri,
+    method: method || 'GET',
+    json: info,
     encoding: 'utf-8',
-    qs: info,
   };
-  request(options, (error, response) => {
+  if (method === 'POST') {
+    options.json = info;
+  } else {
+    options.qs = info;
+  }
+  request(options, (error, response, body) => {
     if (!error && response.statusCode === 200) {
       const rs = JSON.parse(response.body);
-      if( rs.status == 0 ){
+      if (rs.status == 0) {
         return cb && cb(null);
-      }else{
-        return cb && cb(i18n.t('bindMediaExpressError', { error: rs.result }));
       }
+      return cb && cb(i18n.t('requestCallApiError', { error: rs.result }));
     } else if (error) {
       logger.error(error);
-      return cb && cb(i18n.t('bindMediaExpressError', { error }));
+      return cb && cb(i18n.t('requestCallApiError', { error }));
     }
     logger.error(response.body);
-    return cb && cb(i18n.t('bindMediaExpressFailed'));
+    console.log(response.body);
+    return cb && cb(i18n.t('requestCallApiFailed'));
   });
-}
+};
 
-service.bindMediaExpress = function bindMediaExpress(info, cb){
+service.bindMediaExpress = function bindMediaExpress(info, cb) {
   const struct = {
     _id: { type: 'string', validation: 'require' },
     username: { type: 'string', validation: 'require' },
@@ -372,30 +383,30 @@ service.bindMediaExpress = function bindMediaExpress(info, cb){
   if (err) {
     return cb && cb(err);
   }
-  
+
   const mediaExpressUser = {
     username: info.username,
-    password: info.password
-  }
-  
-  const url = config.mediaExpressUrl + 'login';
+    password: info.password,
+  };
+
+  const url = `${config.mediaExpressUrl}login`;
   const method = 'POST';
-  
-  requestCallApi(url, method, mediaExpressUser, function(err){
-    if(err){
+
+  requestCallApi(url, method, mediaExpressUser, (err) => {
+    if (err) {
       return cb && cb(err);
     }
-    
-    userInfo.collection.findOneAndUpdate({ _id: info._id}, { $set: {mediaExpressUser: mediaExpressUser} }, function(err){
-      if(err){
+
+    userInfo.collection.findOneAndUpdate({ _id: info._id }, { mediaExpressUser }, (err) => {
+      if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
       }
-      
+
       return cb && cb(null, 'ok');
-    })
-  })
-}
+    });
+  });
+};
 
 
 module.exports = service;

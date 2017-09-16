@@ -18,13 +18,13 @@ const templateInfo = new TemplateInfo();
 
 const service = {};
 
-service.list = function list(type, sortFields = '-createdTime', fieldsNeed, page, pageSize=20, cb) {
-  const query = {  };
+service.list = function list(type, sortFields = '-createdTime', fieldsNeed, page, pageSize = 20, cb) {
+  const query = { };
 
   if (type) {
-    if(type.indexOf(',') !== -1) {
-      query['type'] = { $in: type.split(',') };
-    }else {
+    if (type.indexOf(',') !== -1) {
+      query.type = { $in: type.split(',') };
+    } else {
       query.type = type;
     }
   }
@@ -32,8 +32,8 @@ service.list = function list(type, sortFields = '-createdTime', fieldsNeed, page
   templateInfo.pagination(query, page, pageSize, cb, sortFields, fieldsNeed);
 };
 
-service.createTemplate = function createTemplate(creatorId, id, name, type=TemplateInfo.TYPE.DOWNLOAD, description, details, cb) {
-  if(!id) {
+service.createTemplate = function createTemplate(creatorId, id, name, type = TemplateInfo.TYPE.DOWNLOAD, description, details, cb) {
+  if (!id) {
     return cb && cb(i18n.t('templateIdIsNotExist'));
   }
 
@@ -56,7 +56,7 @@ service.createTemplate = function createTemplate(creatorId, id, name, type=Templ
 };
 
 service.createDownloadTemplate = function createDownloadTemplate(creatorId, id, name, description, bucketId, script, cb) {
-  if(!bucketId) {
+  if (!bucketId) {
     return cb && cb(i18n.t('templateStorageIdIsNotExist'));
   }
 
@@ -93,15 +93,15 @@ service.update = function update(id, info, cb) {
 
   info.modifyTime = new Date();
 
-  if(info._id) {
+  if (info._id) {
     delete info._id;
   }
 
-  if(info.id) {
+  if (info.id) {
     delete info.id;
   }
 
-  if(!info.type || info.type === TemplateInfo.TYPE.DOWNLOAD) {
+  if (!info.type || info.type === TemplateInfo.TYPE.DOWNLOAD) {
     info.details = templateInfo.createDownloadInfo(info.script, info.bucketId);
   }
 
@@ -140,20 +140,20 @@ service.getDownloadPath = function getDownloadPath(userInfo, id, cb) {
       return cb && cb(err);
     }
 
-    if(!doc) {
+    if (!doc) {
       return cb && cb(i18n.t('templateIsNotExist'));
     }
 
-    if(!doc.details.bucketId) {
+    if (!doc.details.bucketId) {
       return cb && cb(i18n.t('templateBucketIdIsNotExist'));
     }
 
     storageService.getBucketDetail(doc.details.bucketId, (err, bucketInfo) => {
-      if(err) {
+      if (err) {
         return cb && cb(err);
       }
 
-      if(!bucketInfo) {
+      if (!bucketInfo) {
         return cb && cb(i18n.t('templateBucketIsNotExist'));
       }
 
@@ -163,19 +163,18 @@ service.getDownloadPath = function getDownloadPath(userInfo, id, cb) {
       runDownloadScript(user, bucketInfo, doc.details.script, cb);
     });
   });
-
 };
 
 const checkPathId = function checkPathId(ids, docs) {
-  let notExistIds = [];
-  let docsMap = {};
+  const notExistIds = [];
+  const docsMap = {};
 
-  for(let j = 0, l = docs.length; j < l; j++) {
+  for (let j = 0, l = docs.length; j < l; j++) {
     docsMap[docs[j]._id] = docs[j];
   }
 
-  for(let i = 0, len = ids.length; i < len; i++) {
-    if(!docsMap[ids[i]]) {
+  for (let i = 0, len = ids.length; i < len; i++) {
+    if (!docsMap[ids[i]]) {
       notExistIds.push(ids[i]);
     }
   }
@@ -183,19 +182,19 @@ const checkPathId = function checkPathId(ids, docs) {
   return notExistIds;
 };
 
-const fixed = function(str) {
-  if(str.length !== 2) {
-    str = '0' + str;
+const fixed = function (str) {
+  if (str.length !== 2) {
+    str = `0${str}`;
   }
 
   return str;
 };
 
-const exec = function(userInfo, bucketInfo, execScript, pathsInfo=[]) {
+const exec = function (userInfo, bucketInfo, execScript, pathsInfo = []) {
   const t = new Date();
   const year = t.getFullYear();
-  let month = fixed((t.getMonth() + 1) + '');
-  let day = fixed(t.getDate() + '');
+  const month = fixed(`${t.getMonth() + 1}`);
+  const day = fixed(`${t.getDate()}`);
 
   const sandbox = {
     userInfo,
@@ -203,10 +202,10 @@ const exec = function(userInfo, bucketInfo, execScript, pathsInfo=[]) {
     year,
     month,
     day,
-    result: ''
+    result: '',
   };
 
-  for(let i = 0, l = pathsInfo.length; i < l; i++) {
+  for (let i = 0, l = pathsInfo.length; i < l; i++) {
     sandbox[pathsInfo[i]._id] = pathsInfo[i];
   }
 
@@ -215,9 +214,9 @@ const exec = function(userInfo, bucketInfo, execScript, pathsInfo=[]) {
 
   const rs = { err: null, result: '' };
 
-  if(!sandbox.result) {
+  if (!sandbox.result) {
     rs.err = i18n.t('templateDownloadPathError', { downloadPath: result });
-  }else {
+  } else {
     rs.result = sandbox.result;
   }
 
@@ -225,36 +224,36 @@ const exec = function(userInfo, bucketInfo, execScript, pathsInfo=[]) {
 };
 
 const runDownloadScript = function runDownloadScript(userInfo, bucketInfo, script, cb) {
-  //const pathId =${ paths.pathId }
+  // const pathId =${ paths.pathId }
   let execScript = script.replace(/(\r\n|\n|\r)/gm, '');
   const paths = execScript.match(/\$\{paths.([0-9a-zA-Z]+)\}/g) || [];
   const len = paths.length;
   const pathIds = [];
   let temp = '';
 
-  for(let i = 0; i < len; i++) {
+  for (let i = 0; i < len; i++) {
     temp = paths[i].match(/\.([0-9a-zA-Z]+)/);
-    if(temp.length > 0) { pathIds.push(temp[1]) };
+    if (temp.length > 0) { pathIds.push(temp[1]); }
   }
 
-  if(pathIds.length === 0) {
-    let rs = exec(userInfo, bucketInfo, execScript);
+  if (pathIds.length === 0) {
+    const rs = exec(userInfo, bucketInfo, execScript);
     return cb && cb(rs.err, rs.result);
   }
 
   storageService.getPaths(pathIds, (err, docs) => {
-    if(err) {
+    if (err) {
       return cb && cb(err);
     }
 
     const notExistIds = checkPathId(pathIds, docs);
 
-    if(notExistIds.length > 0) {
+    if (notExistIds.length > 0) {
       return cb && cb(i18n.t('templatePathIsNotExist'), { paths: notExistIds.join(',') });
     }
 
-    for(let i = 0; i < docs.length; i++) {
-      let reg = new RegExp('${paths.'+ docs[i]._id +'}', 'img');
+    for (let i = 0; i < docs.length; i++) {
+      const reg = new RegExp(`\${paths.${docs[i]._id}}`, 'img');
       execScript = execScript.replace(reg, docs[i]._id);
     }
 

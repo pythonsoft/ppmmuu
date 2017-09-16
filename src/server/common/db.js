@@ -89,9 +89,9 @@ class DB {
       temp = struct[k];
 
       if (typeof info[k] !== 'undefined') {
-        if(temp.type === 'date'){
+        if (temp.type === 'date') {
           doc[k] = new Date(info[k]);
-        }else {
+        } else {
           doc[k] = info[k];
         }
       } else {
@@ -122,9 +122,9 @@ class DB {
       const temp = struct[k];
       if (temp !== undefined) {
         if (getValueType(temp.allowUpdate) === 'undefined' || temp.allowUpdate) {
-          if(temp.type === 'date'){
+          if (temp.type === 'date') {
             doc[k] = new Date(info[k]);
-          }else {
+          } else {
             doc[k] = info[k];
           }
         }
