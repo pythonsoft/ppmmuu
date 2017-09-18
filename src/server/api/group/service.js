@@ -7,7 +7,6 @@
 const logger = require('../../common/log')('error');
 const utils = require('../../common/utils');
 const i18n = require('i18next');
-const request = require('request');
 const config = require('../../config');
 
 const GroupInfo = require('./groupInfo');
@@ -338,41 +337,6 @@ service.updateGroupInfo = function updateGroupInfo(info, cb) {
   });
 };
 
-/**
- * @param uri
- * @param method
- * @param info
- * @param cb
- */
-const requestCallApi = function requestCallApi(uri, method, info, cb) {
-  const options = {
-    uri,
-    method: method || 'GET',
-    json: info,
-    encoding: 'utf-8',
-  };
-  if (method === 'POST') {
-    options.json = JSON.parse(JSON.stringify(info));
-  } else {
-    options.qs = info;
-  }
-  request(options, (error, response, body) => {
-    if (!error && response.statusCode === 200) {
-      const rs = JSON.parse(response.body);
-      if (rs.status == 0) {
-        return cb && cb(null);
-      }
-      return cb && cb(i18n.t('requestCallApiError', { error: rs.result }));
-    } else if (error) {
-      logger.error(error);
-      return cb && cb(i18n.t('requestCallApiError', { error }));
-    }
-    logger.error(response.body);
-    console.log(response.body);
-    return cb && cb(i18n.t('requestCallApiFailed'));
-  });
-};
-
 service.bindMediaExpress = function bindMediaExpress(info, cb) {
   const struct = {
     _id: { type: 'string', validation: 'require' },
@@ -385,19 +349,23 @@ service.bindMediaExpress = function bindMediaExpress(info, cb) {
   }
 
   const mediaExpressUser = {
-    username: info.username,
+    email: info.username,
     password: info.password,
   };
 
   const url = `${config.mediaExpressUrl}login`;
   const method = 'POST';
 
-  requestCallApi(url, method, mediaExpressUser, (err) => {
+  utils.requestCallApi(url, method, mediaExpressUser, (err, rs) => {
     if (err) {
       return cb && cb(err);
     }
-
-    userInfo.collection.findOneAndUpdate({ _id: info._id }, { mediaExpressUser }, (err) => {
+    if(rs.status !== 0){
+      return cb && cb(i18n.t('requestCallApiError', { error: rs.result.message }));
+    }
+    mediaExpressUser.username = mediaExpressUser.email;
+    delete mediaExpressUser.email;
+    userInfo.collection.findOneAndUpdate({ _id: info._id }, { $set: {mediaExpressUser: mediaExpressUser} }, (err) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));

@@ -5,7 +5,12 @@
 'use strict';
 
 const config = require('../../config');
+const logger = require('../../common/log')('error');
 const i18n = require('i18next');
+const utils = require('../../common/utils');
+const UserInfo = require('../user/userInfo');
+
+const userInfo = new UserInfo();
 
 const HttpRequest = require('../../common/httpRequest');
 
@@ -78,5 +83,38 @@ service.stop = function restart(parentTaskId, taskId, type, res) {
 service.createTemplate = function createTemplate(template, cb) {
 
 };
+
+service.getDirectAuthorizeAcceptorList = function getDirectAuthorizeAcceptorList(userInfo, cb){
+  const mediaExpressUser = userInfo.mediaExpressUser;
+  if(!mediaExpressUser.email){
+    return cb && cb(i18n.t('unBindMediaExpressUser'))
+  }
+  const loginForm = {
+    email: mediaExpressUser.username,
+    password: mediaExpressUser.password
+  }
+  
+  let url = config.mediaExpressUrl + 'login';
+  utils.requestCallApi(url, 'POST', loginForm, function(err, rs){
+    if (err) {
+      return cb && cb(err);
+    }
+    if(rs.status !== 0){
+      return cb && cb(i18n.t('bindMediaExpressUserNeedRefresh'));
+    }
+  
+    url = config.mediaExpressUrl + 'directAuthorize/acceptorList?t=' + new Date().getTime();
+    utils.requestCallApi(url, 'GET', '', function(err, rs){
+      if (err) {
+        return cb && cb(err);
+      }
+      if(rs.status !== 0){
+        return cb && cb(i18n.t('requestCallApiError', { error: rs.result }))
+      }
+      
+      return cb && cb(null, rs.result);
+    })
+  })
+}
 
 module.exports = service;

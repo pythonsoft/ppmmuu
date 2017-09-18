@@ -586,7 +586,15 @@ module.exports = {
     message: '{{error}}',
   },
   requestCallApiFailed: {
-    code: '-90000',
+    code: '-900001',
     message: 'api请求超时',
+  },
+  unBindMediaExpressUser: {
+    code: '-900002',
+    message: '没有绑定快传账户，请先绑定',
+  },
+  bindMediaExpressUserNeedRefresh: {
+    code: '-900003',
+    message: '绑定的快传账号用户名或密码发生变化，请重新绑定',
   },
 };
