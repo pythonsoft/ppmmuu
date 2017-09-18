@@ -8,6 +8,7 @@ const crypto = require('crypto');
 const os = require('os');
 const i18n = require('i18next');
 const request = require('request');
+const logger = require('./log')('error');
 
 const utils = {};
 
