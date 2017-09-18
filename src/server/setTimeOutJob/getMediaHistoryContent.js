@@ -29,7 +29,7 @@ const renewHistoryList = function () {
         if (err) {
           watchingHistoryInfo.collection.findOneAndUpdate(
             { _id: r.value._id },
-            { $set: { status: 'unavailable' } },
+            { $set: { status: WatchingHistoryInfo.STATUS.UNAVAILABLE } },
             {
               returnOriginal: false,
             }, (err) => {
@@ -59,4 +59,4 @@ const renewHistoryList = function () {
     });
 };
 
-setInterval(renewHistoryList, 1000 * 60);
+setInterval(renewHistoryList, 1000 * 6);

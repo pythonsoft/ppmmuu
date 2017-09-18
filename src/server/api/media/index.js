@@ -216,7 +216,7 @@ router.get('/getMediaList', (req, res) => {
  *         description: defaultmedia list
  */
 router.get('/defaultMedia', (req, res) => {
-  service.defaultMediaList((err, r) => res.json(result.json(err, r)));
+  service.defaultMediaList((err, r) => res.json(result.json(err, r)), req.ex.userId);
 });
 
 /**
@@ -374,11 +374,10 @@ router.get('/getStream', (req, res) => {
       doc.status += '';
     }
     if (doc && doc.status === '0' && req.ex.userId) {
-      service.saveWatching(req.ex.userId, req.query.objectId, (err, r) => {
+      service.saveWatching(req.ex.userId, req.query.objectId, (err) => {
         if (err) {
           logger.error(err);
         }
-        console.log(r);
       });
     }
     return res.json(doc);
@@ -425,6 +424,27 @@ router.get('/getSearchHistory', (req, res) => {
  */
 router.get('/getWatchHistory', (req, res) => {
   service.getWatchHistoryForMediaPage(req.ex.userId, (err, docs) => res.json(result.json(err, docs)));
+});
+
+/**
+ * @apiName: xml2srt
+ * @apiFuncType: get
+ * @apiFuncUrl: /media/xml2srt
+ * @swagger
+ * /media/xml2srt:
+ *   get:
+ *     description: 获得视频播放地址
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: xml2srt
+ */
+router.get('/xml2srt', (req, res) => {
+  service.xml2srt(req.query, (err, r) => res.json(result.json(err, r)));
 });
 
 module.exports = router;
