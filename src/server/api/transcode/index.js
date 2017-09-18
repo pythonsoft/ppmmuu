@@ -207,4 +207,51 @@ router.get('/stop', (req, res) => {
   service.stop(parentId, childTaskId, type, res);
 });
 
+/**
+ * @permissionName: 获取直传模式授权列表
+ * @permissionPath: /transcode/directAuthorize/acceptorList
+ * @apiName: directAuthorizeAcceptorList
+ * @apiFuncType: get
+ * @apiFuncUrl: /transcode/directAuthorize/acceptorList
+ * @swagger
+ * /transcode/directAuthorize/acceptorList:
+ *   get:
+ *     description: 获取绑定的快传账户的直传模式授权列表
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       -
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: parentId
+ *         description: 主任务的Id
+ *         required: false
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: childTaskId
+ *         description: 子任务
+ *         required: false
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: type
+ *         description: 任务的类型，针对子任务，如果为主任务，则不需要传此参数，index || divide || transcode || merge
+ *         required: false
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: EngineGroupInfo
+ */
+router.get('/directAuthorize/acceptorList', (req, res) => {
+  const userInfo = req.ex.userInfo;
+  service.getDirectAuthorizeAcceptorList(userInfo, (err, data) => res.json(result.json(err, data)));
+});
+
 module.exports = router;

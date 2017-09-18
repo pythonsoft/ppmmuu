@@ -7,7 +7,6 @@
 const logger = require('../../common/log')('error');
 const utils = require('../../common/utils');
 const i18n = require('i18next');
-const request = require('request');
 const config = require('../../config');
 
 const GroupInfo = require('./groupInfo');
@@ -338,40 +337,6 @@ service.updateGroupInfo = function updateGroupInfo(info, cb) {
   });
 };
 
-/**
- * @param uri
- * @param method
- * @param info
- * @param cb
- */
-const requestCallApi = function requestCallApi(url, method, info, cb) {
-  const options = {
-    method: method || 'GET',
-    url: url
-  }
-  if (method === 'POST') {
-    options.form = JSON.parse(JSON.stringify(info));
-    options.headers = {
-      'content-type': 'application/x-www-form-urlencoded',
-      'cache-control': 'no-cache'
-    };
-  } else {
-    options.qs = info;
-  }
-  
-  request(options, (error, response, body) => {
-    if (!error && response.statusCode === 200) {
-      const rs = JSON.parse(response.body);
-      return cb && cb(null, rs);
-    } else if (error) {
-      logger.error(error);
-      return cb && cb(i18n.t('requestCallApiError', { error }));
-    }
-    logger.error(response.body);
-    return cb && cb(i18n.t('requestCallApiFailed'));
-  });
-};
-
 service.bindMediaExpress = function bindMediaExpress(info, cb) {
   const struct = {
     _id: { type: 'string', validation: 'require' },
@@ -391,7 +356,7 @@ service.bindMediaExpress = function bindMediaExpress(info, cb) {
   const url = `${config.mediaExpressUrl}login`;
   const method = 'POST';
 
-  requestCallApi(url, method, mediaExpressUser, (err, rs) => {
+  utils.requestCallApi(url, method, mediaExpressUser, (err, rs) => {
     if (err) {
       return cb && cb(err);
     }
