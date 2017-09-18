@@ -344,32 +344,30 @@ service.updateGroupInfo = function updateGroupInfo(info, cb) {
  * @param info
  * @param cb
  */
-const requestCallApi = function requestCallApi(uri, method, info, cb) {
+const requestCallApi = function requestCallApi(url, method, info, cb) {
   const options = {
-    uri,
     method: method || 'GET',
-    json: info,
-    encoding: 'utf-8',
-    headers: 'content-type: application/x-www-form-urlencoded'
-  };
+    url: url
+  }
   if (method === 'POST') {
-    options.json = JSON.parse(JSON.stringify(info));
+    options.form = JSON.parse(JSON.stringify(info));
+    options.headers = {
+      'content-type': 'application/x-www-form-urlencoded',
+      'cache-control': 'no-cache'
+    };
   } else {
     options.qs = info;
   }
+  
   request(options, (error, response, body) => {
     if (!error && response.statusCode === 200) {
       const rs = JSON.parse(response.body);
-      if (rs.status == 0) {
-        return cb && cb(null);
-      }
-      return cb && cb(i18n.t('requestCallApiError', { error: rs.result }));
+      return cb && cb(null, rs);
     } else if (error) {
       logger.error(error);
       return cb && cb(i18n.t('requestCallApiError', { error }));
     }
     logger.error(response.body);
-    console.log(response.body);
     return cb && cb(i18n.t('requestCallApiFailed'));
   });
 };
@@ -386,19 +384,23 @@ service.bindMediaExpress = function bindMediaExpress(info, cb) {
   }
 
   const mediaExpressUser = {
-    username: info.username,
+    email: info.username,
     password: info.password,
   };
 
   const url = `${config.mediaExpressUrl}login`;
   const method = 'POST';
 
-  requestCallApi(url, method, mediaExpressUser, (err) => {
+  requestCallApi(url, method, mediaExpressUser, (err, rs) => {
     if (err) {
       return cb && cb(err);
     }
-
-    userInfo.collection.findOneAndUpdate({ _id: info._id }, { mediaExpressUser }, (err) => {
+    if(rs.status !== 0){
+      return cb && cb(i18n.t('requestCallApiError', { error: rs.result.message }));
+    }
+    mediaExpressUser.username = mediaExpressUser.email;
+    delete mediaExpressUser.email;
+    userInfo.collection.findOneAndUpdate({ _id: info._id }, { $set: {mediaExpressUser: mediaExpressUser} }, (err) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
