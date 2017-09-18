@@ -350,6 +350,7 @@ const requestCallApi = function requestCallApi(uri, method, info, cb) {
     method: method || 'GET',
     json: info,
     encoding: 'utf-8',
+    headers: 'content-type: application/x-www-form-urlencoded'
   };
   if (method === 'POST') {
     options.json = JSON.parse(JSON.stringify(info));
