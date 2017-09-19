@@ -322,7 +322,7 @@ service.deletePath = function deletePath(pathId, cb) {
 };
 
 service.getPaths = function getPaths(ids, cb) {
-  if (!paths) {
+  if (!ids) {
     return cb && cb(i18n.t('pathIdIsNull'));
   }
 

@@ -360,12 +360,12 @@ service.bindMediaExpress = function bindMediaExpress(info, cb) {
     if (err) {
       return cb && cb(err);
     }
-    if(rs.status !== 0){
+    if (rs.status !== 0) {
       return cb && cb(i18n.t('requestCallApiError', { error: rs.result.message }));
     }
     mediaExpressUser.username = mediaExpressUser.email;
     delete mediaExpressUser.email;
-    userInfo.collection.findOneAndUpdate({ _id: info._id }, { $set: {mediaExpressUser: mediaExpressUser} }, (err) => {
+    userInfo.collection.findOneAndUpdate({ _id: info._id }, { $set: { mediaExpressUser } }, (err) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
