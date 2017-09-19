@@ -15,6 +15,7 @@ const SearchHistoryInfo = require('../user/searchHistoryInfo');
 const WatchingHistoryInfo = require('../user/watchingHistoryInfo');
 const uuid = require('uuid');
 const nodecc = require('node-opencc');
+const Xml2Srt = require('../../common/parseXmlSub');
 
 const HttpRequest = require('../../common/httpRequest');
 
@@ -141,14 +142,21 @@ service.solrSearch = function solrSearch(info, cb, userId, videoIds) {
   });
 };
 
-service.defaultMediaList = function defaultMediaList(cb) {
+service.defaultMediaList = function defaultMediaList(cb, userId) {
   redisClient.get('cachedMediaList', (err, obj) => {
     if (err) {
       logger.error(err);
       return cb && cb(err);
     }
-
-    return cb && cb(null, JSON.parse(obj || '[]'));
+    service.getWatchHistoryForMediaPage(userId, (err, r) => {
+      try {
+        obj = JSON.parse(obj);
+      } catch (e) {
+        return cb && cb(e);
+      }
+      obj.push({ category: '瀏覽歷史', docs: r });
+      return cb && cb(null, obj || []);
+    });
   });
 };
 
@@ -212,6 +220,48 @@ service.getIcon = function getIcon(info, res) {
     logger.error(error);
     res.end(error.message);
   }).pipe(res);
+};
+
+service.xml2srt = (info, cb) => {
+  const struct = {
+    objectid: { type: 'string', validation: 'require' },
+  };
+  const err = utils.validation(info, struct);
+
+  if (err) {
+    return cb(err);
+  }
+
+  const options = {
+    uri: `${config.hongkongUrl}get_subtitle`,
+    method: 'GET',
+    encoding: 'utf-8',
+    qs: info,
+  };
+
+  request(options, (error, response) => {
+    if (error) {
+      logger.error(error);
+      return cb(i18n.t('getSubtitleError', { error }));
+    }
+
+    if (response.statusCode !== 200) {
+      logger.error(response.body);
+      return cb(i18n.t('getSubtitleFailed'));
+    }
+
+    const rs = JSON.parse(response.body);
+    rs.status = '0';
+
+    const parser = new Xml2Srt(rs.result);
+    parser.getSrtStr((err, r) => {
+      if (err) {
+        return cb(err);
+      }
+      rs.result = r;
+      return cb(null, rs);
+    });
+  });
 };
 
 service.getObject = function getObject(info, cb) {

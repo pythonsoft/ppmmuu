@@ -373,6 +373,14 @@ module.exports = {
     code: '-13007',
     message: '媒体库搜索配置项配置出错',
   },
+  getSubtitleFailed: {
+    code: '-13008',
+    message: '获取单条详情失败',
+  },
+  getSubtitleError: {
+    code: '-13009',
+    message: '{{error}}',
+  },
   setupFailed: {
     code: '-20001',
     message: '安装监控客户端失败',
