@@ -23,7 +23,7 @@ const request = new HttpRequest({
 
 const service = {};
 
-const errorCall = function (str) {
+const errorCall = function errorCall(str) {
   return JSON.stringify({ status: 1, data: {}, statusInfo: i18n.t(str) });
 };
 
@@ -80,14 +80,14 @@ service.download = function download(userInfo, downloadParams, res) {
       userId: userInfo._id,
       userName: userInfo.name,
     };
-    const url = 'http://' + config.JOB_API_SERVER.hostname + ':' + config.JOB_API_SERVER.port + '/JobService/download';
-    utils.requestCallApi(url, 'POST', p, '', function(err, rs){
-      if(err){
+    const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/JobService/download`;
+    utils.requestCallApi(url, 'POST', p, '', (err, rs) => {
+      if (err) {
         return res.json(result.fail(err));
       }
-      
+
       return res.json(rs);
-    })
+    });
   });
 };
 
@@ -210,7 +210,7 @@ service.restart = function restart(restartParams, res) {
 
   // 如果传入userId, 则检查任务的userId与之是否相等，相等则有权限操作
   if (restartParams.userId) {
-    checkOwner(restartParams.jobId, restartParams.userId, (err, r) => {
+    checkOwner(restartParams.jobId, restartParams.userId, (err) => {
       if (err) {
         return res.end(err);
       }
@@ -237,7 +237,7 @@ service.stop = function stop(stopParams, res) {
 
   // 如果传入userId, 则检查任务的userId与之是否相等，相等则有权限操作
   if (stopParams.userId) {
-    checkOwner(stopParams.jobId, stopParams.userId, (err, r) => {
+    checkOwner(stopParams.jobId, stopParams.userId, (err) => {
       if (err) {
         return res.end(err);
       }
@@ -264,7 +264,7 @@ service.delete = function del(deleteParams, res) {
 
   // 如果传入userId, 则检查任务的userId与之是否相等，相等则有权限操作
   if (deleteParams.userId) {
-    checkOwner(deleteParams.jobId, deleteParams.userId, (err, r) => {
+    checkOwner(deleteParams.jobId, deleteParams.userId, (err) => {
       if (err) {
         return res.end(err);
       }

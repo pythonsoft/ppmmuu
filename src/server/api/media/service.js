@@ -205,7 +205,7 @@ service.getMediaList = function getMediaList(info, cb) {
   });
 };
 
-service.esSearch = function esSearch(info, cb){
+service.esSearch = function esSearch(info, cb) {
   const match = info.match || [];
   const should = info.should || [];
   const hl = info.hl;
@@ -213,56 +213,56 @@ service.esSearch = function esSearch(info, cb){
   const start = info.start || 0;
   const pageSize = info.pageSize || 24;
   const source = info.source || '';
-  
-  const getHighLightFields = function getHighLightFields(fields){
+
+  const getHighLightFields = function getHighLightFields(fields) {
     const obj = {};
     fields = fields.split(',');
-    for(let i = 0, len = fields.length; i < len; i++){
+    for (let i = 0, len = fields.length; i < len; i++) {
       obj[fields[i]] = {};
     }
     return obj;
-  }
-  
-  const formatMust = function formatMust(obj){
+  };
+
+  const formatMust = function formatMust(obj) {
     const rs = [];
-    for(let key in obj){
-      if(obj[key]){
+    for (const key in obj) {
+      if (obj[key]) {
         const item = {
-          match: {}
-        }
-        item['match'][key] = obj[key];
-        rs.push(item)
+          match: {},
+        };
+        item.match[key] = obj[key];
+        rs.push(item);
       }
     }
     return rs;
-  }
-  
+  };
+
   const options = {
     source: source.split(','),
     query: {
       bool: {
         must: formatMust(match),
-        should: formatMust(should)
-      }
+        should: formatMust(should),
+      },
     },
-    sort: sort,
+    sort,
     from: start * 1,
     highlight: {
-      "require_field_match": false, "fields": getHighLightFields(hl)
+      require_field_match: false, fields: getHighLightFields(hl),
     },
-    size: pageSize * 1
+    size: pageSize * 1,
   };
-  
-  const url = config.esBaseUrl + 'es/program/_search';
+
+  const url = `${config.esBaseUrl}es/program/_search`;
   console.log(options);
-  
-  utils.requestCallApi(url, 'GET', options, '', function(err, rs){
-    if(err){
+
+  utils.requestCallApi(url, 'GET', options, '', (err, rs) => {
+    if (err) {
       return cb && cb(err);
     }
     console.log(rs);
-  })
-}
+  });
+};
 
 service.getIcon = function getIcon(info, res) {
   const struct = {
