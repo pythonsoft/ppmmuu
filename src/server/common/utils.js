@@ -294,7 +294,7 @@ utils.getAllowedUpdateObj = function getAllowedUpdateObj(fields, info) {
  * @param info
  * @param cb
  */
-utils.requestCallApi = function requestCallApi(url, method, info, cb){
+utils.baseRequestCallApi = function baseRequestCallApi(url, method, info, token, cb){
   const options = {
     method: method || 'GET',
     url: url
@@ -303,22 +303,69 @@ utils.requestCallApi = function requestCallApi(url, method, info, cb){
     options.form = JSON.parse(JSON.stringify(info));
     options.headers = {
       'content-type': 'application/x-www-form-urlencoded',
-      'cache-control': 'no-cache'
+      'cache': 'no-cache',
+      'token': token
     };
   } else {
     options.qs = info;
+    options.headers = {
+      'cache-control': 'no-cache',
+      'token': token
+    }
   }
   
   request(options, (error, response, body) => {
     if (!error && response.statusCode === 200) {
-      const rs = JSON.parse(response.body);
-      return cb && cb(null, rs);
+      return cb && cb(null, response);
     } else if (error) {
       logger.error(error);
       return cb && cb(i18n.t('requestCallApiError', { error }));
     }
     logger.error(response.body);
     return cb && cb(i18n.t('requestCallApiFailed'));
+  });
+};
+
+/**
+ * @param uri
+ * @param method "POST" or "GET"
+ * @param info
+ * @param cb
+ */
+utils.requestCallApi = function requestCallApi(url, method, info, token, cb){
+  utils.baseRequestCallApi(url, method, info, token, function(err, response){
+    if(err){
+      return cb && cb(err);
+    }
+    const rs = JSON.parse(response.body);
+    return cb && cb(null, rs);
+  });
+};
+
+
+/**
+ * @param uri
+ * @param method "POST" or "GET"
+ * @param info
+ * @param cb
+ */
+utils.requestCallApiGetCookie = function requestCallApi(url, method, info, token, cb){
+  utils.baseRequestCallApi(url, method, info, token, function(err, response){
+    if(err){
+      return cb && cb(err);
+    }
+    const rs = JSON.parse(response.body);
+    if(rs.status === 0) {
+      const cookie = response.headers['set-cookie'];
+      try {
+        const token = cookie[0].split(';')[0].split('=')[1];
+        return cb && cb(null, token);
+      }catch(e){
+        return cb && cb(i18n.t('requestCallApiError', { error: e.message }));
+      }
+    }
+    
+    return cb && cb(i18n.t('requestCallApiError', { error: rs.result.message }));
   });
 };
 

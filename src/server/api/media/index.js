@@ -154,6 +154,17 @@ router.get('/solrSearch', (req, res) => {
   service.solrSearch(req.query, (err, doc) => res.json(result.json(err, doc)), req.ex.userId);
 });
 
+
+/**
+ * @apiName: esSearch
+ * @apiFuncType: get
+ * @apiFuncUrl: /media/esSearch
+ *
+ */
+router.get('/esSearch', (req, res) => {
+  service.esSearch(req.query, (err, doc) => res.json(result.json(err, doc)), req.ex.userId);
+});
+
 /**
  * 用于mobile
  * @apiName: getMediaList

@@ -47,10 +47,14 @@ function setCookie2(res, doc, cb) {
       expires: new Date(expires),
       httpOnly: true,
     });
+    
+    delete info.permissions;
+    delete info.mediaExpressUser;
 
     return cb && cb(null, {
       token,
       menu,
+      userInfo: info
     });
   });
 }

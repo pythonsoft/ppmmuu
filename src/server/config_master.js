@@ -22,6 +22,8 @@ config.port = process.env.NODE_ENV === 'development' ? 8080 : 8080;
 
 // solr搜索地址
 config.solrBaseUrl = 'http://solr.szdev.cn/solr/';
+// es搜索地址
+config.esBaseUrl =  'http://10.0.15.204:9200/';
 // 香港检索基础api地址
 config.hongkongUrl = 'http://w2.phoenixtv.com/mamapi/';
 // ump fe api地址
@@ -52,4 +54,4 @@ config.adminMenuPermission = config.normalMenuPermission.concat(['management']);
 
 
 // 快传api地址
-config.mediaExpressUrl = 'https://console.cloudifeng.com/';
+config.mediaExpressUrl = 'https://console.szdev.cn/';
