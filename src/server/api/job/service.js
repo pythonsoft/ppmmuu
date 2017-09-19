@@ -76,12 +76,18 @@ service.download = function download(userInfo, downloadParams, res) {
     params.destination = downloadPath;
 
     const p = {
-      downloadParams: params,
+      downloadParams: JSON.stringify(params),
       userId: userInfo._id,
       userName: userInfo.name,
     };
-
-    request.post('/JobService/download', p, res);
+    const url = 'http://' + config.JOB_API_SERVER.hostname + ':' + config.JOB_API_SERVER.port + '/JobService/download';
+    utils.requestCallApi(url, 'POST', p, '', function(err, rs){
+      if(err){
+        return res.json(result.fail(err));
+      }
+      
+      return res.json(rs);
+    })
   });
 };
 
