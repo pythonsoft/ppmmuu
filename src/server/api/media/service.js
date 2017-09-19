@@ -213,7 +213,7 @@ service.esSearch = function esSearch(info, cb){
   const start = info.start || 0;
   const pageSize = info.pageSize || 24;
   const source = info.source || '';
-  
+
   const getHighLightFields = function getHighLightFields(fields){
     const obj = {};
     fields = fields.split(',');
@@ -222,7 +222,7 @@ service.esSearch = function esSearch(info, cb){
     }
     return obj;
   }
-  
+
   const formatMust = function formatMust(obj){
     const rs = [];
     for(let key in obj){
@@ -236,7 +236,7 @@ service.esSearch = function esSearch(info, cb){
     }
     return rs;
   }
-  
+
   const options = {
     source: source.split(','),
     query: {
@@ -252,10 +252,10 @@ service.esSearch = function esSearch(info, cb){
     },
     size: pageSize * 1
   };
-  
+
   const url = config.esBaseUrl + 'es/program/_search';
   console.log(options);
-  
+
   utils.requestCallApi(url, 'GET', options, '', function(err, rs){
     if(err){
       return cb && cb(err);
@@ -310,16 +310,20 @@ service.xml2srt = (info, cb) => {
     }
 
     const rs = JSON.parse(response.body);
-    rs.status = '0';
+
+    if (rs.status !== 0) {
+      logger.error(response.body);
+      return cb(i18n.t('getSubtitleFailed'));
+    }
 
     const parser = new Xml2Srt(rs.result);
     parser.getSrtStr((err, r) => {
       if (err) {
         return cb(err);
       }
-      rs.result = r;
-      return cb(null, rs);
+      return cb(null, r);
     });
+
   });
 };
 

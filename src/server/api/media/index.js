@@ -359,7 +359,7 @@ router.get('/getObject', (req, res) => {
  *       - application/json
  *     parameters:
  *       - in: query
- *         name: objectId
+ *         name: objectid
  *         required: true
  *         type: string
  *         default: "FE1748B4-69F9-4CAB-8CC0-5EB8A35CB717"
@@ -380,12 +380,12 @@ router.get('/getObject', (req, res) => {
  *                  type: string
  */
 router.get('/getStream', (req, res) => {
-  service.getStream(req.query.objectId, (err, doc) => {
+  service.getStream(req.query.objectid, (err, doc) => {
     if (typeof doc.status === 'number') {
       doc.status += '';
     }
     if (doc && doc.status === '0' && req.ex.userId) {
-      service.saveWatching(req.ex.userId, req.query.objectId, (err) => {
+      service.saveWatching(req.ex.userId, req.query.objectid, (err) => {
         if (err) {
           logger.error(err);
         }
