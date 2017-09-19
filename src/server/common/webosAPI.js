@@ -105,7 +105,7 @@ class webosAPI {
   */
   profile(callback, userAgent, ticket) {
     this.api('Profile', 'Detail', '', (chunk) => {
-      let data = JSON.parse(chunk),
+      const data = JSON.parse(chunk),
         rs = data.Result;
 
       if (data.Status == 0) {
