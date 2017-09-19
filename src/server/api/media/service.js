@@ -310,16 +310,20 @@ service.xml2srt = (info, cb) => {
     }
 
     const rs = JSON.parse(response.body);
-    rs.status = '0';
+
+    if (rs.status !== 0) {
+      logger.error(response.body);
+      return cb(i18n.t('getSubtitleFailed'));
+    }
 
     const parser = new Xml2Srt(rs.result);
     parser.getSrtStr((err, r) => {
       if (err) {
         return cb(err);
       }
-      rs.result = r;
-      return cb(null, rs);
+      return cb(null, r);
     });
+
   });
 };
 
