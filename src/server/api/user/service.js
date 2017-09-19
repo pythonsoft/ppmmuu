@@ -127,7 +127,7 @@ const loginHandle = function loginHandle(username, password, cb) {
   });
 };
 
-service.getToken = function (res, username, password, cb) {
+service.getToken = function getToken(res, username, password, cb) {
   loginHandle(username, password, (err, doc) => {
     if (err) {
       return cb && cb(err);

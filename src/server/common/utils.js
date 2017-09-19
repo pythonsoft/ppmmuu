@@ -314,7 +314,7 @@ utils.baseRequestCallApi = function baseRequestCallApi(url, method, info, token,
     };
   }
 
-  request(options, (error, response, body) => {
+  request(options, (error, response) => {
     if (!error && response.statusCode === 200) {
       return cb && cb(null, response);
     } else if (error) {
