@@ -313,7 +313,7 @@ utils.baseRequestCallApi = function baseRequestCallApi(url, method, info, token,
       'token': token
     }
   }
-  console.log(options);
+  
   request(options, (error, response, body) => {
     if (!error && response.statusCode === 200) {
       return cb && cb(null, response);
