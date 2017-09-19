@@ -38,7 +38,6 @@ class httpRequest {
       }
 
       if (error) {
-        console.log('error message =>', error.message);
         logger.error(error.message);
 
         const rs = me.error(error.message);
@@ -78,7 +77,6 @@ class httpRequest {
     });
 
     req.on('error', (e) => {
-      console.log(`problem with request: ${e.message}`);
       outStream.end(JSON.stringify({
         status: 1, data: {}, statusInfo: { code: '10000', message: e.message },
       }));
