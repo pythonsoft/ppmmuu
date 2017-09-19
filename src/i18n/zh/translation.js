@@ -381,6 +381,10 @@ module.exports = {
     code: '-13009',
     message: '{{error}}',
   },
+  objectIdIsNull: {
+    code: '-13010',
+    message: 'objectid参数为空',
+  },
   setupFailed: {
     code: '-20001',
     message: '安装监控客户端失败',
