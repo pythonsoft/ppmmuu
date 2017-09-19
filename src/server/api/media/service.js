@@ -400,13 +400,19 @@ service.saveWatching = function saveWatching(userId, videoId, cb) {
 };
 
 service.getStream = function getStream(objectId, res) {
-  if (!objectId) {
-    const rs = JSON.stringify({ status: '1', data: {}, statusInfo: i18n.t('objectIdIsNull') });
+  const struct = {
+    objectId: { type: 'string', validation: 'require' },
+  };
+
+  const err = utils.validation({ objectId }, struct);
+
+  if (err) {
+    const rs = JSON.stringify({ status: 1, data: {}, statusInfo: { code: 10000, message: err.message } });
 
     if(typeof res === 'function') {
       res(rs);
     }else {
-      res.end(rs);
+      res.end(JSON.stringify({ status: 1, data: {}, statusInfo: { code: 10000, message: err.message } }));
     }
 
     return false;

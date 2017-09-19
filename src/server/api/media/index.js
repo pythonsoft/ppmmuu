@@ -381,22 +381,20 @@ router.get('/getObject', (req, res) => {
  */
 router.get('/getStream', (req, res) => {
   service.getStream(req.query.objectid, (err, doc) => {
-    if(err) {
-      return res.json(result.json(err, doc));
-    }
 
-    if (doc && doc.status === '0' && req.ex.userId) {
-      if (typeof doc.status === 'number') {
-        doc.status += '';
+    if (doc) {
+      doc.status += '';
+
+      if(doc.status === '0' && req.ex.userId) {
+        service.saveWatching(req.ex.userId, req.query.objectid, (err) => {
+          if (err) {
+            logger.error(err);
+          }
+        });
       }
-      service.saveWatching(req.ex.userId, req.query.objectid, (err) => {
-        if (err) {
-          logger.error(err);
-        }
-      });
     }
 
-    return res.json(result.json(err, docs));
+    return res.json(doc);
   });
 });
 
