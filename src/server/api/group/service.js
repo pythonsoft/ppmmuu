@@ -356,7 +356,7 @@ service.bindMediaExpress = function bindMediaExpress(info, cb) {
   const url = `${config.mediaExpressUrl}login`;
   const method = 'POST';
 
-  utils.requestCallApi(url, method, mediaExpressUser, (err, rs) => {
+  utils.requestCallApi(url, method, mediaExpressUser, '', (err, rs) => {
     if (err) {
       return cb && cb(err);
     }
