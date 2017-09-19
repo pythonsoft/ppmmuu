@@ -154,6 +154,17 @@ router.get('/solrSearch', (req, res) => {
   service.solrSearch(req.query, (err, doc) => res.json(result.json(err, doc)), req.ex.userId);
 });
 
+
+/**
+ * @apiName: esSearch
+ * @apiFuncType: get
+ * @apiFuncUrl: /media/esSearch
+ *
+ */
+router.get('/esSearch', (req, res) => {
+  service.esSearch(req.query, (err, doc) => res.json(result.json(err, doc)), req.ex.userId);
+});
+
 /**
  * 用于mobile
  * @apiName: getMediaList
@@ -439,6 +450,13 @@ router.get('/getWatchHistory', (req, res) => {
  *       - v1
  *     produces:
  *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: objectid
+ *         required: true
+ *         type: string
+ *         default: "30EAF8CB-A40A-4BD8-9F8E-20111E9AEC8A"
+ *         collectionFormat: csv
  *     responses:
  *       200:
  *         description: xml2srt
