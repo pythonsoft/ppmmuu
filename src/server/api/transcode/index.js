@@ -9,6 +9,7 @@ const express = require('express');
 const router = express.Router();
 const service = require('./service');
 const isLogin = require('../../middleware/login');
+const result = require('../../common/result');
 
 router.use(isLogin.middleware);
 router.use(isLogin.hasAccessMiddleware);
@@ -223,35 +224,53 @@ router.get('/stop', (req, res) => {
  *       -
  *     produces:
  *       - application/json
- *     parameters:
- *       - in: query
- *         name: parentId
- *         description: 主任务的Id
- *         required: false
- *         type: string
- *         default: ''
- *         collectionFormat: csv
- *       - in: query
- *         name: childTaskId
- *         description: 子任务
- *         required: false
- *         type: string
- *         default: ''
- *         collectionFormat: csv
- *       - in: query
- *         name: type
- *         description: 任务的类型，针对子任务，如果为主任务，则不需要传此参数，index || divide || transcode || merge
- *         required: false
- *         type: string
- *         default: ''
- *         collectionFormat: csv
  *     responses:
  *       200:
  *         description: EngineGroupInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *              properties:
+ *                acceptor:
+ *                  type: object
+ *                  description: '接收方信息'
+ *                  properties:
+ *                    _id:
+ *                      type: string
+ *                    targetType:
+ *                      type: number
+ *                      description: '0:个人,1:组织,2:全部'
+ *                    name:
+ *                      type: string
+ *                      description: '依据targetType对应个人或组织名字'
+ *                    avatar:
+ *                      type: object
+ *                      description: '头像'
+ *                sender:
+ *                  type: object
+ *                  description: '发送方信息'
+ *                  properties:
+ *                    _id:
+ *                      type: string
+ *                    targetType:
+ *                      type: number
+ *                      description: '0:个人,1:组织,2:全部'
+ *                    name:
+ *                      type: string
+ *                      description: '依据targetType对应个人或组织名字'
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
  */
 router.get('/directAuthorize/acceptorList', (req, res) => {
-  const userInfo = req.ex.userInfo;
-  service.getDirectAuthorizeAcceptorList(userInfo, (err, data) => res.json(result.json(err, data)));
+  const _id = req.ex.userId;
+  service.getDirectAuthorizeAcceptorList(_id, (err, data) => res.json(result.json(err, data)));
 });
 
 module.exports = router;
