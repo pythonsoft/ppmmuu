@@ -375,7 +375,7 @@ module.exports = {
   },
   getSubtitleFailed: {
     code: '-13008',
-    message: '获取单条详情失败',
+    message: '获取字幕失败',
   },
   getSubtitleError: {
     code: '-13009',
