@@ -84,35 +84,45 @@ service.createTemplate = function createTemplate(template, cb) {
 
 };
 
-service.getDirectAuthorizeAcceptorList = function getDirectAuthorizeAcceptorList(userInfo, cb){
-  const mediaExpressUser = userInfo.mediaExpressUser;
-  if(!mediaExpressUser.email){
-    return cb && cb(i18n.t('unBindMediaExpressUser'))
-  }
-  const loginForm = {
-    email: mediaExpressUser.username,
-    password: mediaExpressUser.password
-  }
-  
-  let url = config.mediaExpressUrl + 'login';
-  utils.requestCallApi(url, 'POST', loginForm, function(err, rs){
-    if (err) {
-      return cb && cb(err);
+service.getDirectAuthorizeAcceptorList = function getDirectAuthorizeAcceptorList(_id, cb){
+  userInfo.collection.findOne({_id}, function(err, user) {
+    if(err){
+      return cb && cb(i18n.t('databaseError'));
     }
-    if(rs.status !== 0){
-      return cb && cb(i18n.t('bindMediaExpressUserNeedRefresh'));
+    
+    if(!user){
+      return cb && cb(i18n.t('userNotFind'));
+    }
+    
+    const mediaExpressUser = user.mediaExpressUser;
+    if (!mediaExpressUser.username) {
+      return cb && cb(i18n.t('unBindMediaExpressUser'))
+    }
+    const loginForm = {
+      email: mediaExpressUser.username,
+      password: mediaExpressUser.password
     }
   
-    url = config.mediaExpressUrl + 'directAuthorize/acceptorList?t=' + new Date().getTime();
-    utils.requestCallApi(url, 'GET', '', function(err, rs){
+    let url = config.mediaExpressUrl + 'login';
+    utils.requestCallApiGetCookie(url, 'POST', loginForm, '', function (err, cookie) {
       if (err) {
         return cb && cb(err);
       }
-      if(rs.status !== 0){
-        return cb && cb(i18n.t('requestCallApiError', { error: rs.result }))
+      if (!cookie) {
+        return cb && cb(i18n.t('bindMediaExpressUserNeedRefresh'));
       }
+    
+      url = config.mediaExpressUrl + 'directAuthorize/acceptorList?t=' + new Date().getTime();
+      utils.requestCallApi(url, 'GET', '', cookie, function (err, rs) {
+        if (err) {
+          return cb && cb(err);
+        }
+        if (rs.status !== 0) {
+          return cb && cb(i18n.t('requestCallApiError', {error: rs.result}))
+        }
       
-      return cb && cb(null, rs.result);
+        return cb && cb(null, rs.result);
+      })
     })
   })
 }
