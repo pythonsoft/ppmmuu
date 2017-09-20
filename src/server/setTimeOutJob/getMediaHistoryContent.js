@@ -17,15 +17,16 @@ const renewHistoryList = function renewHistoryList() {
       if (err || !r.value) {
         return false;
       }
-      const query = {
-        q: '',
-        fl: 'id,duration,name,ccid,program_type,program_name_cn,hd_flag,program_name_en,last_modify,f_str_03',
-        sort: 'last_modify desc',
+      const options = {
+        source: 'id,duration,name,ccid,program_type,program_name_cn,hd_flag,program_name_en,last_modify,f_str_03',
+        sort: [{
+          key: 'last_modify',
+          value: 'desc',
+        }],
         start: 0,
-        rows: 1,
-        hl: 'off',
+        pageSize: 1,
       };
-      mediaService.solrSearch(query, (err, doc) => {
+      mediaService.esSearch(query, (err, doc) => {
         if (err) {
           watchingHistoryInfo.collection.findOneAndUpdate(
             { _id: r.value._id },

@@ -235,7 +235,6 @@ service.getEsMediaList = function getEsMediaList(info, cb) {
         key: 'program_type',
         value: category,
       }],
-      q: `program_type:${category}`,
       source: 'id,duration,name,ccid,program_type,program_name_cn,hd_flag,program_name_en,last_modify,f_str_03',
       sort: [{
         key: 'last_modify',
@@ -373,7 +372,6 @@ service.esSearch = function esSearch(info, cb, userId, videoIds) {
   // search by videoId will overwrite original keywords
   const match = info.match || [];
   if (videoIds) {
-    const vIdL = videoIds.split(',');
     info.match = [{ _id: vIdL }];
   }
   const body = getEsOptions(info);
