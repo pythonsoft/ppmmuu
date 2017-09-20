@@ -27,7 +27,7 @@ const renewHistoryList = function renewHistoryList() {
         pageSize: 1,
       };
       mediaService.esSearch(query, (err, doc) => {
-        if (err) {
+        if (err || !doc.docs[0]) {
           watchingHistoryInfo.collection.findOneAndUpdate(
             { _id: r.value._id },
             { $set: { status: WatchingHistoryInfo.STATUS.UNAVAILABLE } },
