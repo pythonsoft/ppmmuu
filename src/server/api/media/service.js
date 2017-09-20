@@ -372,6 +372,7 @@ service.esSearch = function esSearch(info, cb, userId, videoIds) {
   // search by videoId will overwrite original keywords
   const match = info.match || [];
   if (videoIds) {
+    videoIds = videoIds.split(',').join(' ');
     info.match = [{ _id: videoIds }];
   }
   const body = getEsOptions(info);
