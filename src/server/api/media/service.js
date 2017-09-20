@@ -372,7 +372,7 @@ service.esSearch = function esSearch(info, cb, userId, videoIds) {
   // search by videoId will overwrite original keywords
   const match = info.match || [];
   if (videoIds) {
-    info.match = [{ _id: vIdL }];
+    info.match = [{ _id: videoIds }];
   }
   const body = getEsOptions(info);
   const url = `${config.esBaseUrl}es/program/_search`;
