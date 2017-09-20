@@ -161,6 +161,7 @@ service.createItem = function createItem(creatorId, name, parentId, snippet, det
         output: 1,
         duration: 0,
         objectId: '',
+        fileTypeId: ''
       }, info);
     } else {
       snippetInfo = snippet;
