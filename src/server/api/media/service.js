@@ -146,25 +146,25 @@ service.defaultMediaList = function defaultMediaList(cb, userId) {
   const key = 'cachedMediaList';
   redisClient.get(key, (err, obj) => {
     service.getWatchHistoryForMediaPage(userId, (error, r) => {
-      if(error){
+      if (error) {
         logger.error(error.message);
         return cb && cb(i18n.t('databaseError'));
       }
       if (err) {
         logger.error(err.message);
       }
-      if(!obj || err){
-        service.getEsMediaList({pageSize: 12}, function(err, rs){
-          if(err){
+      if (!obj || err) {
+        service.getEsMediaList({ pageSize: 12 }, (err, rs) => {
+          if (err) {
             logger.error(err.message);
           }
           rs = rs || [];
           redisClient.set(key, JSON.stringify(rs));
-          redisClient.EXPIRE(key, 60*3);
+          redisClient.EXPIRE(key, 60 * 3);
           rs.push({ category: '瀏覽歷史', docs: r });
           return cb && cb(null, rs);
-        })
-      }else{
+        });
+      } else {
         try {
           obj = JSON.parse(obj);
         } catch (e) {
@@ -224,7 +224,7 @@ service.getMediaList = function getMediaList(info, cb) {
 service.getEsMediaList = function getEsMediaList(info, cb) {
   const pageSize = info.pageSize || 4;
   const result = [];
-  
+
   const loopGetCategoryList = function loopGetCategoryList(categories, index) {
     if (index >= categories.length) {
       return cb && cb(null, result);
@@ -232,17 +232,17 @@ service.getEsMediaList = function getEsMediaList(info, cb) {
     const category = categories[index].label;
     const options = {
       match: [{
-       key: 'program_type',
-       value: category
+        key: 'program_type',
+        value: category,
       }],
       q: `program_type:${category}`,
       source: 'id,duration,name,ccid,program_type,program_name_cn,hd_flag,program_name_en,last_modify,f_str_03',
       sort: [{
         key: 'last_modify',
-        value: 'desc'
+        value: 'desc',
       }],
       start: 0,
-      pageSize: 4,
+      pageSize,
     };
     service.esSearch(options, (err, r) => {
       if (err) {
@@ -252,27 +252,27 @@ service.getEsMediaList = function getEsMediaList(info, cb) {
       loopGetCategoryList(categories, index + 1);
     });
   };
-  
+
   service.getSearchConfig((err, rs) => {
     if (err) {
       return cb && cb(i18n.t('databaseError'));
     }
-    
+
     if (!rs.searchSelectConfigs.length) {
       return cb & cb(null, result);
     }
-    
+
     const categories = rs.searchSelectConfigs[0].items;
-    
+
     if (!categories.length) {
       return cb & cb(null, result);
     }
-    
+
     loopGetCategoryList(categories, 0);
   });
 };
 
-const getEsOptions = function getEsOptions(info){
+const getEsOptions = function getEsOptions(info) {
   let match = info.match || [];
   let should = info.should || [];
   const hl = info.hl || '';
@@ -280,150 +280,150 @@ const getEsOptions = function getEsOptions(info){
   const start = info.start || 0;
   const pageSize = info.pageSize || 24;
   const source = info.source || '';
-  
+
   // convert simplified to tranditional
   match = JSON.parse(nodecc.simplifiedToTraditional(JSON.stringify(match)));
   should = JSON.parse(nodecc.simplifiedToTraditional(JSON.stringify(should)));
-  const getHighLightFields = function getHighLightFields(fields){
+  const getHighLightFields = function getHighLightFields(fields) {
     const obj = {};
     fields = fields.split(',');
-    for(let i = 0, len = fields.length; i < len; i++){
+    for (let i = 0, len = fields.length; i < len; i++) {
       obj[fields[i]] = {};
     }
     return obj;
-  }
-  
-  const formatMust = function formatMust(arr){
+  };
+
+  const formatMust = function formatMust(arr) {
     const rs = [];
-    for(let i = 0, len = arr.length; i < len; i++){
+    for (let i = 0, len = arr.length; i < len; i++) {
       const temp = arr[i];
-      if(temp.value){
+      if (temp.value) {
         const item = {
-          match: {}
-        }
-        item['match'][temp.key] = temp.value;
-        rs.push(item)
+          match: {},
+        };
+        item.match[temp.key] = temp.value;
+        rs.push(item);
       }
     }
     return rs;
-  }
-  
-  const formatSort = function formatSort(arr){
+  };
+
+  const formatSort = function formatSort(arr) {
     const rs = [];
-    for(let i = 0, len = arr.length; i < len; i++){
+    for (let i = 0, len = arr.length; i < len; i++) {
       const temp = arr[i];
-      if(temp.value){
+      if (temp.value) {
         const item = {};
         item[temp.key] = {
-          order: temp.value
+          order: temp.value,
         };
-        rs.push(item)
+        rs.push(item);
       }
     }
     return rs;
-  }
-  
+  };
+
   const must = formatMust(match);
   const shoulds = formatMust(should);
   const sorts = formatSort(sort);
   const highlight = getHighLightFields(hl);
-  
+
   const options = {
     _source: source.split(','),
     from: start * 1,
-    size: pageSize * 1
+    size: pageSize * 1,
   };
-  
-  if(must.length && shoulds.length){
-    options['query'] = {
+
+  if (must.length && shoulds.length) {
+    options.query = {
       bool: {
-        must: must,
-        should: shoulds
-      }
-    }
-  }else if(must.length){
-    options['query'] = {
+        must,
+        should: shoulds,
+      },
+    };
+  } else if (must.length) {
+    options.query = {
       bool: {
-        must: must
-      }
-    }
-  }else if(shoulds.length){
-    options['query'] = {
+        must,
+      },
+    };
+  } else if (shoulds.length) {
+    options.query = {
       bool: {
-        should: shoulds
-      }
-    }
-  }
-  
-  if(sorts.length){
-    options['sort'] = sorts;
-  }
-  
-  if(!utils.isEmptyObject(highlight)){
-    options['highlight'] = {
-      require_field_match: false,
-      fields: highlight
+        should: shoulds,
+      },
     };
   }
-  
-  return options;
-}
 
-service.esSearch = function esSearch(info, cb, userId, videoIds){
+  if (sorts.length) {
+    options.sort = sorts;
+  }
+
+  if (!utils.isEmptyObject(highlight)) {
+    options.highlight = {
+      require_field_match: false,
+      fields: highlight,
+    };
+  }
+
+  return options;
+};
+
+service.esSearch = function esSearch(info, cb, userId, videoIds) {
   // search by videoId will overwrite original keywords
   const match = info.match || [];
   if (videoIds) {
     const vIdL = videoIds.split(',');
-    info.match = [{_id: vIdL}];
+    info.match = [{ _id: vIdL }];
   }
   const body = getEsOptions(info);
-  const url = config.esBaseUrl + 'es/program/_search';
+  const url = `${config.esBaseUrl}es/program/_search`;
   const options = {
     method: 'POST',
-    url: url,
-    body: body,
-    json: true
-  }
-  
-  utils.commonRequestCallApi(options, function(err, rs){
-    if(err){
+    url,
+    body,
+    json: true,
+  };
+
+  utils.commonRequestCallApi(options, (err, rs) => {
+    if (err) {
       return cb && cb(err);
     }
     const newRs = {
       docs: [],
       QTime: rs.took,
-      numFound: rs.hits.total
-    }
+      numFound: rs.hits.total,
+    };
     const hits = rs.hits.hits || [];
-    for(let i = 0, len = hits.length; i < len; i++){
+    for (let i = 0, len = hits.length; i < len; i++) {
       const _source = hits[i]._source || {};
       const highlight = hits[i].highlight || {};
-      for(let key in _source){
-        if(highlight[key]){
+      for (const key in _source) {
+        if (highlight[key]) {
           _source[key] = highlight[key].join('');
         }
       }
-      newRs['docs'].push(_source);
+      newRs.docs.push(_source);
     }
-    
-    let full_text = '';
-    for(let i = 0, len = match.length; i < len; i++){
-      if(match[i].key === 'full_text'){
-        full_text = match[i].value;
+
+    let fullText = '';
+    for (let i = 0, len = match.length; i < len; i++) {
+      if (match[i].key === 'full_text') {
+        fullText = match[i].value;
         break;
       }
     }
-    if (userId && full_text) {
-      saveSearch(full_text, userId, (err) => {
+    if (userId && fullText) {
+      saveSearch(fullText, userId, (err) => {
         if (err) {
           logger.error(err);
         }
       });
     }
-    
+
     return cb && cb(null, newRs);
-  })
-}
+  });
+};
 
 service.getIcon = function getIcon(info, res) {
   const struct = {

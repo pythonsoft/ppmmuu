@@ -375,8 +375,8 @@ utils.requestCallApiGetCookie = function requestCallApi(url, method, info, token
  * @param info
  * @param cb
  */
-utils.commonRequestCallApi = function commonRequestCallApi(options, cb){
-  request(options, (error, response, body) => {
+utils.commonRequestCallApi = function commonRequestCallApi(options, cb) {
+  request(options, (error, response) => {
     if (!error && response.statusCode === 200) {
       const rs = response.body;
       return cb && cb(null, rs);

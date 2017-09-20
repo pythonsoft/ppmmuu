@@ -478,11 +478,10 @@ router.get('/getObject', (req, res) => {
  */
 router.get('/getStream', (req, res) => {
   service.getStream(req.query.objectid, (err, doc) => {
-
     if (doc) {
       doc.status += '';
 
-      if(doc.status === '0' && req.ex.userId) {
+      if (doc.status === '0' && req.ex.userId) {
         service.saveWatching(req.ex.userId, req.query.objectid, (err) => {
           if (err) {
             logger.error(err);
