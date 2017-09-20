@@ -410,7 +410,15 @@ service.getStream = function getStream(objectId, res) {
   const err = utils.validation({ objectId }, struct);
 
   if (err) {
-    return res.end(JSON.stringify({ status: 1, data: {}, statusInfo: { code: 10000, message: err.message } }));
+    const rs = JSON.stringify({ status: 1, data: {}, statusInfo: { code: 10000, message: err.message } });
+
+    if(typeof res === 'function') {
+      res(rs);
+    }else {
+      res.end(JSON.stringify({ status: 1, data: {}, statusInfo: { code: 10000, message: err.message } }));
+    }
+
+    return false;
   }
 
   rq.get('/mamapi/get_stream', { objectid: objectId }, res);
