@@ -157,12 +157,66 @@ router.get('/solrSearch', (req, res) => {
 
 /**
  * @apiName: esSearch
- * @apiFuncType: get
+ * @apiFuncType: post
  * @apiFuncUrl: /media/esSearch
- *
+ * @swagger
+ * /media/esSearch:
+ *   post:
+ *     description: 媒体库es搜索
+ *     tags:
+ *       - v1
+ *       - Search
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: 媒体库es搜索
+ *         schema:
+ *           type: object
+ *           properties:
+ *             match:
+ *               type: array
+ *               description: '条件, key:字段, value：值'
+ *               example: [{key: "publish_status", value: 1}, {key: "full_text", value: "鏘鏘三人行"}]
+ *             should:
+ *               type: array
+ *               description: '关联度, key:字段, value：值'
+ *               example: [{key: "name", value: "鏘鏘三人行"}]
+ *             source:
+ *               type: string
+ *               description: '需要的字段'
+ *               example: "id,duration,name,ccid,program_type,program_name_cn,hd_flag,program_name_en,last_modify,f_str_03,f_str_187"
+ *             hl:
+ *               type: string
+ *               description: '需要高亮的字段'
+ *               example: "name,program_name_cn,program_name_en,f_str_03,f_str_187"
+ *             start:
+ *               type: number
+ *               description: '从第几个开始搜索'
+ *               example: 0
+ *             pageSize:
+ *               type: number
+ *               description: '每页数量'
+ *               example: 20
+ *     responses:
+ *       200:
+ *         description: GroupInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
  */
-router.get('/esSearch', (req, res) => {
-  service.esSearch(req.query, (err, doc) => res.json(result.json(err, doc)), req.ex.userId);
+router.post('/esSearch', (req, res) => {
+  service.esSearch(req.body, (err, doc) => res.json(result.json(err, doc)), req.ex.userId);
 });
 
 /**
@@ -205,6 +259,49 @@ router.get('/esSearch', (req, res) => {
  *
  */
 router.get('/getMediaList', (req, res) => {
+  service.getMediaList(req.query, (err, doc) => res.json(result.json(err, doc)));
+});
+
+/**
+ * 用于mobile
+ * @apiName: getEsMediaList
+ * @apiFuncType: get
+ * @apiFuncUrl: /media/getEsMediaList
+ * @swagger
+ * /media/getEsMediaList:
+ *   get:
+ *     description: 获取媒体库手机版首页
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - Search
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: pageSize
+ *         description: "每个分类个数"
+ *         required: true
+ *         type: string
+ *         default: 4
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *
+ */
+router.get('/getEsMediaList', (req, res) => {
   service.getMediaList(req.query, (err, doc) => res.json(result.json(err, doc)));
 });
 
