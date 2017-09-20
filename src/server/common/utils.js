@@ -369,4 +369,24 @@ utils.requestCallApiGetCookie = function requestCallApi(url, method, info, token
   });
 };
 
+/**
+ * @param uri
+ * @param method "POST" or "GET"
+ * @param info
+ * @param cb
+ */
+utils.commonRequestCallApi = function commonRequestCallApi(options, cb) {
+  request(options, (error, response) => {
+    if (!error && response.statusCode === 200) {
+      const rs = response.body;
+      return cb && cb(null, rs);
+    } else if (error) {
+      logger.error(error);
+      return cb && cb(i18n.t('requestCallApiError', { error }));
+    }
+    logger.error(response.body);
+    return cb && cb(i18n.t('requestCallApiFailed'));
+  });
+};
+
 module.exports = utils;
