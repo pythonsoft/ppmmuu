@@ -24,6 +24,9 @@ class Xml2Srt {
     let srt = '';
 
     // const SectionInfo = xmlObj.Document.TextSection[0].SectionInfo;
+    if (!xmlObj) {
+      return srt;
+    }
     const TextScreen = xmlObj.Document.TextSection[0].TextScreen;
 
     // const writeStream = fs.createWriteStream('./test.srt', 'utf8');
@@ -62,7 +65,7 @@ class Xml2Srt {
         return cb && cb(err);
       }
       if (!data) {
-        return cb && cb('Empty input!');
+        return cb && cb(null, '');
       }
       parseString(data, (err, r) => {
         if (err) {
