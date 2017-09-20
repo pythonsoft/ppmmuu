@@ -5,7 +5,6 @@
 'use strict';
 
 const config = require('../../config');
-const logger = require('../../common/log')('error');
 const i18n = require('i18next');
 const utils = require('../../common/utils');
 const UserInfo = require('../user/userInfo');
@@ -84,47 +83,47 @@ service.createTemplate = function createTemplate(template, cb) {
 
 };
 
-service.getDirectAuthorizeAcceptorList = function getDirectAuthorizeAcceptorList(_id, cb){
-  userInfo.collection.findOne({_id}, function(err, user) {
-    if(err){
+service.getDirectAuthorizeAcceptorList = function getDirectAuthorizeAcceptorList(_id, cb) {
+  userInfo.collection.findOne({ _id }, (err, user) => {
+    if (err) {
       return cb && cb(i18n.t('databaseError'));
     }
-    
-    if(!user){
+
+    if (!user) {
       return cb && cb(i18n.t('userNotFind'));
     }
-    
+
     const mediaExpressUser = user.mediaExpressUser;
     if (!mediaExpressUser.username) {
-      return cb && cb(i18n.t('unBindMediaExpressUser'))
+      return cb && cb(i18n.t('unBindMediaExpressUser'));
     }
     const loginForm = {
       email: mediaExpressUser.username,
-      password: mediaExpressUser.password
-    }
-  
-    let url = config.mediaExpressUrl + 'login';
-    utils.requestCallApiGetCookie(url, 'POST', loginForm, '', function (err, cookie) {
+      password: mediaExpressUser.password,
+    };
+
+    let url = `${config.mediaExpressUrl}login`;
+    utils.requestCallApiGetCookie(url, 'POST', loginForm, '', (err, cookie) => {
       if (err) {
         return cb && cb(err);
       }
       if (!cookie) {
         return cb && cb(i18n.t('bindMediaExpressUserNeedRefresh'));
       }
-    
-      url = config.mediaExpressUrl + 'directAuthorize/acceptorList?t=' + new Date().getTime();
-      utils.requestCallApi(url, 'GET', '', cookie, function (err, rs) {
+
+      url = `${config.mediaExpressUrl}directAuthorize/acceptorList?t=${new Date().getTime()}`;
+      utils.requestCallApi(url, 'GET', '', cookie, (err, rs) => {
         if (err) {
           return cb && cb(err);
         }
         if (rs.status !== 0) {
-          return cb && cb(i18n.t('requestCallApiError', {error: rs.result}))
+          return cb && cb(i18n.t('requestCallApiError', { error: rs.result }));
         }
-      
+
         return cb && cb(null, rs.result);
-      })
-    })
-  })
-}
+      });
+    });
+  });
+};
 
 module.exports = service;

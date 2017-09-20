@@ -25,14 +25,14 @@ const init = function () {
         return false;
       }
 
-      service.createDirectory(userId, '目录1-1', dirId, {}, (err, r, dirId) => {
+      service.createDirectory(userId, '目录1-1', dirId, {}, err => {
         if (err) {
           console.log('createDirectory -->', err);
           return false;
         }
       });
 
-      service.createDirectory(userId, '目录1-2', dirId, {}, (err, r, dirId) => {
+      service.createDirectory(userId, '目录1-2', dirId, {}, err => {
         if (err) {
           console.log('createDirectory -->', err);
           return false;

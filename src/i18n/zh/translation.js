@@ -375,11 +375,15 @@ module.exports = {
   },
   getSubtitleFailed: {
     code: '-13008',
-    message: '获取单条详情失败',
+    message: '获取字幕失败',
   },
   getSubtitleError: {
     code: '-13009',
     message: '{{error}}',
+  },
+  objectIdIsNull: {
+    code: '-13010',
+    message: 'objectid参数为空',
   },
   setupFailed: {
     code: '-20001',

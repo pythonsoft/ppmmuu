@@ -456,7 +456,7 @@ router.get('/getObject', (req, res) => {
  *       - application/json
  *     parameters:
  *       - in: query
- *         name: objectId
+ *         name: objectid
  *         required: true
  *         type: string
  *         default: "FE1748B4-69F9-4CAB-8CC0-5EB8A35CB717"
@@ -477,17 +477,20 @@ router.get('/getObject', (req, res) => {
  *                  type: string
  */
 router.get('/getStream', (req, res) => {
-  service.getStream(req.query.objectId, (err, doc) => {
-    if (typeof doc.status === 'number') {
+  service.getStream(req.query.objectid, (err, doc) => {
+
+    if (doc) {
       doc.status += '';
+
+      if(doc.status === '0' && req.ex.userId) {
+        service.saveWatching(req.ex.userId, req.query.objectid, (err) => {
+          if (err) {
+            logger.error(err);
+          }
+        });
+      }
     }
-    if (doc && doc.status === '0' && req.ex.userId) {
-      service.saveWatching(req.ex.userId, req.query.objectId, (err) => {
-        if (err) {
-          logger.error(err);
-        }
-      });
-    }
+
     return res.json(doc);
   });
 });
@@ -547,6 +550,13 @@ router.get('/getWatchHistory', (req, res) => {
  *       - v1
  *     produces:
  *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: objectid
+ *         required: true
+ *         type: string
+ *         default: "30EAF8CB-A40A-4BD8-9F8E-20111E9AEC8A"
+ *         collectionFormat: csv
  *     responses:
  *       200:
  *         description: xml2srt

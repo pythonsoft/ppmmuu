@@ -47,14 +47,14 @@ function setCookie2(res, doc, cb) {
       expires: new Date(expires),
       httpOnly: true,
     });
-    
+
     delete info.permissions;
     delete info.mediaExpressUser;
 
     return cb && cb(null, {
       token,
       menu,
-      userInfo: info
+      userInfo: info,
     });
   });
 }
@@ -127,7 +127,7 @@ const loginHandle = function loginHandle(username, password, cb) {
   });
 };
 
-service.getToken = function (res, username, password, cb) {
+service.getToken = function getToken(res, username, password, cb) {
   loginHandle(username, password, (err, doc) => {
     if (err) {
       return cb && cb(err);

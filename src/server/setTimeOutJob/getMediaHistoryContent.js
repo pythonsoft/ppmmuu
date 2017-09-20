@@ -6,7 +6,7 @@ const logger = require('../common/log')('error');
 
 const watchingHistoryInfo = new WatchingHistoryInfo();
 
-const renewHistoryList = function () {
+const renewHistoryList = function renewHistoryList() {
   watchingHistoryInfo.collection.findOneAndUpdate(
     { status: WatchingHistoryInfo.STATUS.UNAVAILABLE },
     { $set: { status: WatchingHistoryInfo.STATUS.PROCESSING } },

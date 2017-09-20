@@ -131,7 +131,7 @@ router.post('/createDownloadTemplate', (req, res) => {
   const script = req.body.script;
   const id = req.body.id;
 
-  service.createDownloadTemplate(userId, id, name, description, bucketId, script, (err, r) => res.json(result.json(err, 'ok')));
+  service.createDownloadTemplate(userId, id, name, description, bucketId, script, err => res.json(result.json(err, 'ok')));
 });
 
 /**
@@ -165,7 +165,7 @@ router.post('/createDownloadTemplate', (req, res) => {
  *         description: ''
  * */
 router.post('/remove', (req, res) => {
-  service.remove(req.body.id, (err, r) => res.json(result.json(err, 'ok')));
+  service.remove(req.body.id, err => res.json(result.json(err, 'ok')));
 });
 
 /**
