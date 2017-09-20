@@ -316,14 +316,17 @@ service.xml2srt = (info, cb) => {
       return cb(i18n.t('getSubtitleFailed'));
     }
 
+    if (Object.keys(rs.result).length === 0) {
+      rs.result = '';
+    }
     const parser = new Xml2Srt(rs.result);
     parser.getSrtStr((err, r) => {
       if (err) {
-        return cb(err);
+        logger.error(err);
+        return cb(i18n.t('getSubtitleFailed'));
       }
       return cb(null, r);
     });
-
   });
 };
 
