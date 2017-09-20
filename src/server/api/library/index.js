@@ -15,15 +15,15 @@ router.use(isLogin.middleware);
 router.use(isLogin.hasAccessMiddleware);
 
 /**
- * @permissionName: 列举出所有模板
- * @permissionPath: /template/list
+ * @permissionName: 列举出库中所有模板
+ * @permissionPath: /library/list
  * @apiName: list
  * @apiFuncType: get
- * @apiFuncUrl: /template/list
+ * @apiFuncUrl: /library/list
  * @swagger
- * /template/list:
+ * /library/list:
  *   get:
- *     description: list template
+ *     description: list library template
  *     tags:
  *       - template
  *     produces:
@@ -79,13 +79,13 @@ router.get('/list', (req, res) => {
 });
 
 /**
- * @permissionName: 创建下模板
- * @permissionPath: /template/createDownloadTemplate
+ * @permissionName: 库创建下模板
+ * @permissionPath: /library/createDownloadTemplate
  * @apiName: createDownloadTemplate
  * @apiFuncType: post
- * @apiFuncUrl: /template/createDownloadTemplate
+ * @apiFuncUrl: /library/createDownloadTemplate
  * @swagger
- * /template/createDownloadTemplate:
+ * /library/createDownloadTemplate:
  *   post:
  *     description: create directory under project
  *     tags:
@@ -135,13 +135,13 @@ router.post('/createDownloadTemplate', (req, res) => {
 });
 
 /**
- * @permissionName: 删除模板
- * @permissionPath: /template/remove
+ * @permissionName: 库删除模板
+ * @permissionPath: /library/remove
  * @apiName: remove
  * @apiFuncType: post
- * @apiFuncUrl: /template/remove
+ * @apiFuncUrl: /library/remove
  * @swagger
- * /template/remove:
+ * /library/remove:
  *   post:
  *     description: remove template
  *     tags:
@@ -169,13 +169,13 @@ router.post('/remove', (req, res) => {
 });
 
 /**
- * @permissionName: 更新模板信息
- * @permissionPath: /template/update
+ * @permissionName: 库更新模板信息
+ * @permissionPath: /library/update
  * @apiName: update
  * @apiFuncType: post
- * @apiFuncUrl: /template/update
+ * @apiFuncUrl: /library/update
  * @swagger
- * /template/update:
+ * /library/update:
  *   post:
  *     description: update resource from project
  *     tags:
@@ -202,13 +202,13 @@ router.post('/update', (req, res) => {
 });
 
 /**
- * @permissionName: 获取模板详细信息
- * @permissionPath: /template/getDetail
+ * @permissionName: 库获取模板详细信息
+ * @permissionPath: /library/getDetail
  * @apiName: getDetail
  * @apiFuncType: get
- * @apiFuncUrl: /template/getDetail
+ * @apiFuncUrl: /library/getDetail
  * @swagger
- * /template/getDetail:
+ * /library/getDetail:
  *   get:
  *     description: get template detail
  *     tags:
