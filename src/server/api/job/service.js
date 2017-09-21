@@ -70,7 +70,7 @@ service.download = function download(userInfo, downloadParams, res) {
 
   templateService.getDownloadPath(userInfo, templateId, (err, downloadPath) => {
     if (err) {
-      return res.end(result.fail(err));
+      return res.end(JSON.stringify(result.fail(err)));
     }
 
     params.destination = downloadPath;
