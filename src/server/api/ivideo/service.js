@@ -179,6 +179,10 @@ service.createItem = function createItem(creatorId, name, parentId, snippet, det
         return cb && cb(i18n.t('databaseError'));
       }
 
+      if(!doc) {
+        return cb && cb(i18n.t('ivideoDefaultDirectoryIsNull'));
+      }
+
       callback(doc._id);
     });
   } else {
