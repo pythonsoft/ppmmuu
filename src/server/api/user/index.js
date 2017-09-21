@@ -554,7 +554,7 @@ router.post('/clearWatchHistory', (req, res) => {
  *             _id:
  *               type: string
  *               example: ''
- *               description: 'ObjectId'
+ *               description: 'uuid'
  *             name:
  *               type: string
  *               example: ''
@@ -584,7 +584,25 @@ router.post('/clearWatchHistory', (req, res) => {
  *               description: '0:未激活,1:正常,2:已删除.默认是1'
  *     responses:
  *       200:
- *         description: remove history
+ *         description: UserInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *              description: '0表示成功,其他表示失败'
+ *              example: '0'
+ *            data:
+ *              type: string
+ *              description: '如果status是0,那么data是"ok",否则是空的object'
+ *              example: 'ok'
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *                  description: '如果status不是0，那么这里是出错的信息,否则是"ok"'
+ *                  example: 'ok'
  */
 router.post('/adAccountSync', (req, res) => {
   service.adAccountSync(req.body, (err, r) => res.json(result.json(err, r)));
