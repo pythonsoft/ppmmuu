@@ -25,13 +25,13 @@ class CatalogInfo extends DB {
       outpoint: { type: 'number', validation: 'require' },
       root: { type: 'string' },
       available: { type: 'string', default: () => CatalogInfo.AVAILABLE.NO },
-      owner: { type: 'object', default() { return { _id: '', name: '' }; }  },
+      owner: { type: 'object', default() { return { _id: '', name: '' }; } },
       department: { type: 'object', default() { return { _id: '', name: '' }; } },
-      materialDate: { type: 'object', default() { return { from: '', to: '' } } }, // 素材日期 { from: '2017-03-21', to: '2017-03-21' }
+      materialDate: { type: 'object', default() { return { from: '', to: '' }; } }, // 素材日期 { from: '2017-03-21', to: '2017-03-21' }
       createdTime: { type: 'date', validation: 'require', allowUpdate: false },
       lastModifyTime: { type: 'date', validation: 'require' },
       description: { type: 'string' },
-      details: { type: 'object' }
+      details: { type: 'object' },
     };
   }
 

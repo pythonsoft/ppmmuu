@@ -35,7 +35,7 @@ FileInfo.TYPE = {
   ORIGINAL: '0',
   LOW_BIT_VIDEO: '1',
   SUBTITLE: '2',
-  THUMB: '3', //缩略图
+  THUMB: '3', // 缩略图
   OTHER: '4',
 };
 

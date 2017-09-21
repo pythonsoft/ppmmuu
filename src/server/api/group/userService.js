@@ -169,10 +169,7 @@ service.addGroupUser = function addGroupUser(info, cb) {
         return cb && cb(err);
       }
 
-      ivideoService.ensureAccountInit(info._id, (err) => {
-        return cb && cb(err, 'ok');
-      });
-
+      ivideoService.ensureAccountInit(info._id, err => cb && cb(err, 'ok'));
     });
   });
 };
