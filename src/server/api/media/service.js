@@ -471,11 +471,11 @@ service.xml2srt = (info, cb) => {
 
     const rs = JSON.parse(response.body);
     rs.status = '0';
-  
+
     if (Object.keys(rs.result).length === 0) {
       rs.result = '';
     }
-    
+
     const parser = new Xml2Srt(rs.result);
     parser.getSrtStr((err, r) => {
       if (err) {

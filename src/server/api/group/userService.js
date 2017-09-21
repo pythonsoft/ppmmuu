@@ -7,6 +7,7 @@
 const logger = require('../../common/log')('error');
 const utils = require('../../common/utils');
 const i18n = require('i18next');
+const uuid = require('uuid');
 
 const GroupInfo = require('./groupInfo');
 
@@ -31,6 +32,8 @@ const permissionAssignmentInfo = new PermissionAssignmentInfo();
 const config = require('../../config');
 
 const roleService = require('../role/service');
+
+const ivideoService = require('../ivideo/service');
 
 const service = {};
 
@@ -144,6 +147,8 @@ service.addGroupUser = function addGroupUser(info, cb) {
     return cb && cb(i18n.t('validationError', { field: 'password' }));
   }
 
+  info._id = uuid.v1();
+
   _ids.push(info.companyId);
 
   if (info.departmentId) {
@@ -164,7 +169,7 @@ service.addGroupUser = function addGroupUser(info, cb) {
         return cb && cb(err);
       }
 
-      return cb && cb(null, 'ok');
+      ivideoService.ensureAccountInit(info._id, err => cb && cb(err, 'ok'));
     });
   });
 };

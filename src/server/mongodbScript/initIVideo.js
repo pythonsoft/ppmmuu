@@ -2,7 +2,6 @@
 'use strict';
 
 const service = require('../api/ivideo/service');
-const ItemInfo = require('../api/ivideo/itemInfo');
 
 const userId = 'bea711c0-67ae-11e7-8b13-c506d97b38b0';
 
@@ -54,6 +53,4 @@ service.getMyResource(userId, (err, doc) => {
 
   console.log('init ivideo data completely.');
 });
-
-// service.createSnippetOrDirItem(userId, '默认目录', '7dcc07f0-8b99-11e7-a634-551563816964', ItemInfo.TYPE.DIRECTORY, ItemInfo.CAN_REVMOE.YES, {}, {}, (err, r) => console.log(err, r));
 

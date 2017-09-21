@@ -469,6 +469,10 @@ module.exports = {
     code: '-40013',
     message: '默认目录不能删除',
   },
+  ivideoDefaultDirectoryIsNull: {
+    code: '-40013',
+    message: '默认目录不存在',
+  },
   joDownloadParamsIsNull: {
     code: '-50001',
     message: '下载参数为空，请正确传入参数',
