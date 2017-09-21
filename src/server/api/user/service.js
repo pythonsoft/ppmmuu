@@ -296,7 +296,6 @@ service.removeSearchHistory = (ids, userId, cb) => {
  */
 service.adAccountSync = function adAccountSync(info, cb) {
   info.verifyType = UserInfo.VERIFY_TYPE.AD;
-  console.log('info==>', info);
 
   if (!info._id) {
     return cb && cb(i18n.t('fieldIsNotExistError', { field: '_id' }));
