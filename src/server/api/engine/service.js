@@ -225,7 +225,7 @@ service.deleteGroup = function deleteGroup(id, cb) {
 
 /* engine */
 const insertEngine = function insertGroup(info, cb) {
-  if(!info._id) {
+  if (!info._id) {
     info._id = uuid.v1();
   }
   engineInfo.insertOne(info, (err, r) => {

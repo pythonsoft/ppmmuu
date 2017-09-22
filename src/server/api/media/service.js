@@ -253,24 +253,24 @@ service.getEsMediaList = function getEsMediaList(info, cb) {
   };
   const key = 'cachedMediaList';
   redisClient.get(key, (err, obj) => {
-    if(obj){
+    if (obj) {
       return cb & cb(null, JSON.parse(obj));
     }
     service.getSearchConfig((err, rs) => {
       if (err) {
         return cb && cb(i18n.t('databaseError'));
       }
-    
+
       if (!rs.searchSelectConfigs.length) {
         return cb & cb(null, result);
       }
-    
+
       const categories = rs.searchSelectConfigs[0].items;
-    
+
       if (!categories.length) {
         return cb & cb(null, result);
       }
-    
+
       loopGetCategoryList(categories, 0);
     });
   });

@@ -9,6 +9,7 @@ const express = require('express');
 const router = express.Router();
 const service = require('./service');
 const isLogin = require('../../middleware/login');
+const result = require('../../common/result');
 
 router.use(isLogin.middleware);
 router.use(isLogin.hasAccessMiddleware);
@@ -377,6 +378,96 @@ router.get('/deleteTemplate', (req, res) => {
   const id = req.query.templateId;
   res.set('Content-Type', 'application/json');
   service.deleteTemplate({ id }, res);
+});
+
+/**
+ * @permissionName: 转码文件和传输
+ * @permissionPath: /job/downloadAndTransfer
+ * @apiName: downloadAndTransfer
+ * @apiFuncType: post
+ * @apiFuncUrl: /job/downloadAndTransfer
+ * @swagger
+ * /job/downloadAndTransfer:
+ *   post:
+ *     description: 转码文件和传输
+ *     tags:
+ *       - v1
+ *       -
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: 转码文件和传输
+ *         schema:
+ *           type: object
+ *           required:
+ *             - downloadParams
+ *             - receiverId
+ *             - receiverType
+ *           properties:
+ *             downloadParams:
+ *               type: object
+ *               description: 转码参数
+ *               properties:
+ *                 objectid:
+ *                   type: string
+ *                   example: aa
+ *                 inpoint:
+ *                   type: integer
+ *                   description: '起始帧'
+ *                   example: 0
+ *                 outpoint:
+ *                   type: integer
+ *                   description: '结束帧'
+ *                   example: 412435
+ *                 filename:
+ *                   type: string
+ *                   example: adas
+ *                 filetypeid:
+ *                   type: string
+ *                   example: asf
+ *                 destination:
+ *                   type: string
+ *                   description: '相对路劲'
+ *                   example: asf
+ *                 targetname:
+ *                   type: string
+ *                   description: '文件名,不需要文件名后缀'
+ *                   example: asf
+ *
+ *             receiverId:
+ *               type: string
+ *               description: acceptor _id
+ *               example: "frfqwrqw"
+ *             receiverType:
+ *               type: string
+ *               description: acceptor type
+ *               example: 1
+ *             userId:
+ *               type: string
+ *               example: "frfqwrqw"
+ *             userName:
+ *               type: string
+ *               example: 'asdasd'
+ *     responses:
+ *       200:
+ *         description: GroupInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.post('/downloadAndTransfer', (req, res) => {
+  service.downloadAndTransfer(req, (err, r) => res.json(result.json(err, r)));
 });
 
 module.exports = router;
