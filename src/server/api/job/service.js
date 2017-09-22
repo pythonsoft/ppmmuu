@@ -15,6 +15,14 @@ const JOB_API_SERVER_URL = `http://${config.TRANSCODE_API_SERVER.hostname}:${con
 const HttpRequest = require('../../common/httpRequest');
 
 const request = new HttpRequest({
+  hostname: config.JOB_API_SERVER.hostname,
+  port: config.JOB_API_SERVER.port,
+  headers: {
+    'Transfer-Encoding': 'chunked',
+  },
+});
+
+const requestTemplate = new HttpRequest({
   hostname: config.TRANSCODE_API_SERVER.hostname,
   port: config.TRANSCODE_API_SERVER.port,
   headers: {
@@ -173,8 +181,8 @@ service.listTemplate = function listTemplate(listTemplateParams, res) {
     page: 1,
     pageSize: 99,
   }, listTemplateParams);
-
-  request.get('/TemplateService/list', params, res);
+  
+  requestTemplate.get('/TemplateService/list', params, res);
 };
 
 service.query = function query(queryParams, res) {
@@ -302,7 +310,7 @@ service.deleteTemplate = function del(deleteParams, res) {
   if (!params.id) {
     return res.end(errorCall('jobDeleteParamsIdIsNull'));
   }
-  request.get('/TemplateService/delete', params, res);
+  requestTemplate.get('/TemplateService/delete', params, res);
 };
 
 module.exports = service;
