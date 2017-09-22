@@ -324,11 +324,11 @@ service.getDirectAuthorizeAcceptorList = function getDirectAuthorizeAcceptorList
     if (err) {
       return cb && cb(i18n.t('databaseError'));
     }
-    
+
     if (!user) {
       return cb && cb(i18n.t('userNotFind'));
     }
-    
+
     const mediaExpressUser = user.mediaExpressUser;
     if (!mediaExpressUser.username) {
       return cb && cb(i18n.t('unBindMediaExpressUser'));
@@ -337,7 +337,7 @@ service.getDirectAuthorizeAcceptorList = function getDirectAuthorizeAcceptorList
       email: mediaExpressUser.username,
       password: mediaExpressUser.password,
     };
-    
+
     let url = `${config.mediaExpressUrl}login`;
     utils.requestCallApiGetCookie(url, 'POST', loginForm, '', (err, cookie) => {
       if (err) {
@@ -346,7 +346,7 @@ service.getDirectAuthorizeAcceptorList = function getDirectAuthorizeAcceptorList
       if (!cookie) {
         return cb && cb(i18n.t('bindMediaExpressUserNeedRefresh'));
       }
-      
+
       url = `${config.mediaExpressUrl}directAuthorize/acceptorList?t=${new Date().getTime()}`;
       utils.requestCallApi(url, 'GET', '', cookie, (err, rs) => {
         if (err) {
@@ -355,7 +355,7 @@ service.getDirectAuthorizeAcceptorList = function getDirectAuthorizeAcceptorList
         if (rs.status !== 0) {
           return cb && cb(i18n.t('requestCallApiError', { error: rs.result }));
         }
-        
+
         return cb && cb(null, rs.result);
       });
     });
