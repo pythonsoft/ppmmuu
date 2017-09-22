@@ -14,29 +14,29 @@ class FileInfo extends DB {
 
     this.struct = {
       _id: { type: 'string', default() { return uuid.v1(); }, allowUpdate: false },
+      objectid: { type: 'string', validation: 'require' },
       name: { type: 'string', validation: 'require' },
       size: { type: 'number', validation: 'require' },
-      realPath: { type: 'number', validation: 'require' },
-      path: { type: 'number', validation: 'require' },
+      realPath: { type: 'string', validation: 'require' },
+      path: { type: 'string', validation: 'require' },
       type: { type: 'string', allowUpdate: false, validation: 'require', default: () => FileInfo.TYPE.ORIGINAL },
       createdTime: { type: 'date', validation: 'require', allowUpdate: false },
       available: { type: 'string', default: () => FileInfo.AVAILABLE.NO },
       lastModifyTime: { type: 'date', validation: 'require' },
       description: { type: 'string' },
       details: { type: 'object' },
-
       archivePath: { type: 'string', validation: 'require' },
-      status: { type: 'string', validation: 'require' },
+      status: { type: 'string', validation: 'require', default: () => FileInfo.STATUS.UNKNOW },
     };
   }
 }
 
 FileInfo.TYPE = {
-  ORIGINAL: '0',
-  LOW_BIT_VIDEO: '1',
-  SUBTITLE: '2',
+  ORIGINAL: '0', // 源文件
+  LOW_BIT_VIDEO: '1', // 低码流
+  SUBTITLE: '2', //字幕
   THUMB: '3', // 缩略图
-  OTHER: '4',
+  OTHER: '4', // 其它
 };
 
 FileInfo.AVAILABLE = {

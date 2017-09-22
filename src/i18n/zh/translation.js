@@ -594,15 +594,35 @@ module.exports = {
     message: '{{error}}',
   },
   requestCallApiFailed: {
-    code: '-900001',
+    code: '-90001',
     message: 'api请求超时',
   },
   unBindMediaExpressUser: {
-    code: '-900002',
+    code: '-90002',
     message: '没有绑定快传账户，请先绑定',
   },
   bindMediaExpressUserNeedRefresh: {
-    code: '-900003',
+    code: '-90003',
     message: '绑定的快传账号用户名或密码发生变化，请重新绑定',
+  },
+  libraryCatalogTaskInfoIsNull: {
+    code: '-100001',
+    message: '输入的编目任务信息为空',
+  },
+  libraryCatalogTaskIdIsNull: {
+    code: '-100002',
+    message: '输入的编目任务Id为空',
+  },
+  libraryAssignCatalogTaskOwnerIdIsNull: {
+    code: '-100003',
+    message: ' 派发任务时OwnerId为空',
+  },
+  libraryCreateCatalogInfoIsNull: {
+    code: '-100004',
+    message: '创建编目信息时，编目信息为空',
+  },
+  libraryCreateCatalogInfoFieldIsNull: {
+    code: '-100005',
+    message: '创建编目信息时，{{field}}为空',
   },
 };
