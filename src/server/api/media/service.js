@@ -251,23 +251,28 @@ service.getEsMediaList = function getEsMediaList(info, cb) {
       loopGetCategoryList(categories, index + 1);
     });
   };
-
-  service.getSearchConfig((err, rs) => {
-    if (err) {
-      return cb && cb(i18n.t('databaseError'));
+  const key = 'cachedMediaList';
+  redisClient.get(key, (err, obj) => {
+    if(obj){
+      return cb & cb(null, JSON.parse(obj));
     }
-
-    if (!rs.searchSelectConfigs.length) {
-      return cb & cb(null, result);
-    }
-
-    const categories = rs.searchSelectConfigs[0].items;
-
-    if (!categories.length) {
-      return cb & cb(null, result);
-    }
-
-    loopGetCategoryList(categories, 0);
+    service.getSearchConfig((err, rs) => {
+      if (err) {
+        return cb && cb(i18n.t('databaseError'));
+      }
+    
+      if (!rs.searchSelectConfigs.length) {
+        return cb & cb(null, result);
+      }
+    
+      const categories = rs.searchSelectConfigs[0].items;
+    
+      if (!categories.length) {
+        return cb & cb(null, result);
+      }
+    
+      loopGetCategoryList(categories, 0);
+    });
   });
 };
 
