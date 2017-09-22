@@ -785,4 +785,69 @@ router.get('/deleteJob', (req, res) => {
   jobServce.delete({ jobId, userId: req.ex.userId }, res);
 });
 
+/**
+ * @permissionName: 获取直传模式授权列表
+ * @permissionPath: /user/directAuthorize/acceptorList
+ * @apiName: directAuthorizeAcceptorList
+ * @apiFuncType: get
+ * @apiFuncUrl: /user/directAuthorize/acceptorList
+ * @swagger
+ * /user/directAuthorize/acceptorList:
+ *   get:
+ *     description: 获取绑定的快传账户的直传模式授权列表
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       -
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: EngineGroupInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *              properties:
+ *                acceptor:
+ *                  type: object
+ *                  description: '接收方信息'
+ *                  properties:
+ *                    _id:
+ *                      type: string
+ *                    targetType:
+ *                      type: number
+ *                      description: '0:个人,1:组织,2:全部'
+ *                    name:
+ *                      type: string
+ *                      description: '依据targetType对应个人或组织名字'
+ *                    avatar:
+ *                      type: object
+ *                      description: '头像'
+ *                sender:
+ *                  type: object
+ *                  description: '发送方信息'
+ *                  properties:
+ *                    _id:
+ *                      type: string
+ *                    targetType:
+ *                      type: number
+ *                      description: '0:个人,1:组织,2:全部'
+ *                    name:
+ *                      type: string
+ *                      description: '依据targetType对应个人或组织名字'
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.get('/directAuthorize/acceptorList', (req, res) => {
+  const _id = req.ex.userId;
+  service.getDirectAuthorizeAcceptorList(_id, (err, data) => res.json(result.json(err, data)));
+});
+
 module.exports = router;

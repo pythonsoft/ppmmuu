@@ -553,6 +553,18 @@ module.exports = {
     code: '-50024',
     message: '没有操作权限',
   },
+  joShortDownloadParams: {
+    code: '-50025',
+    message: '缺少downloadParams参数',
+  },
+  joShortReceiverId: {
+    code: '-50026',
+    message: '缺少receiverId参数',
+  },
+  joShortReceiverType: {
+    code: '-50027',
+    message: '缺少receiverType参数',
+  },
   notImplementedVerityType: {
     code: '-60000',
     message: '未实装的verifyType',

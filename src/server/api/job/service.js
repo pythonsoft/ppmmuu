@@ -8,6 +8,9 @@ const config = require('../../config');
 const utils = require('../../common/utils');
 const i18n = require('i18next');
 const result = require('../../common/result');
+const UserInfo = require('../user/userInfo');
+
+const userInfo = new UserInfo();
 
 const templateService = require('../template/service');
 
@@ -15,6 +18,14 @@ const JOB_API_SERVER_URL = `http://${config.TRANSCODE_API_SERVER.hostname}:${con
 const HttpRequest = require('../../common/httpRequest');
 
 const request = new HttpRequest({
+  hostname: config.JOB_API_SERVER.hostname,
+  port: config.JOB_API_SERVER.port,
+  headers: {
+    'Transfer-Encoding': 'chunked',
+  },
+});
+
+const requestTemplate = new HttpRequest({
   hostname: config.TRANSCODE_API_SERVER.hostname,
   port: config.TRANSCODE_API_SERVER.port,
   headers: {
@@ -174,7 +185,7 @@ service.listTemplate = function listTemplate(listTemplateParams, res) {
     pageSize: 99,
   }, listTemplateParams);
 
-  request.get('/TemplateService/list', params, res);
+  requestTemplate.get('/TemplateService/list', params, res);
 };
 
 service.query = function query(queryParams, res) {
@@ -302,7 +313,102 @@ service.deleteTemplate = function del(deleteParams, res) {
   if (!params.id) {
     return res.end(errorCall('jobDeleteParamsIdIsNull'));
   }
-  request.get('/TemplateService/delete', params, res);
+  requestTemplate.get('/TemplateService/delete', params, res);
+};
+
+const getMediaExpressEmail = function getMediaExpressEmail(loginForm, receiver, cb) {
+  let url = `${config.mediaExpressUrl}login`;
+  utils.requestCallApiGetCookie(url, 'POST', loginForm, '', (err, cookie) => {
+    if (err) {
+      return cb && cb(err);
+    }
+    if (!cookie) {
+      return cb && cb(i18n.t('bindMediaExpressUserNeedRefresh'));
+    }
+
+    url = `${config.mediaExpressUrl}directAuthorize/getEmail?t=${new Date().getTime()}`;
+    utils.requestCallApi(url, 'GET', receiver, cookie, (err, rs) => {
+      if (err) {
+        return cb && cb(err);
+      }
+      if (rs.status !== 0) {
+        return cb && cb(i18n.t('requestCallApiError', { error: rs.result }));
+      }
+
+      return cb && cb(null, rs.result);
+    });
+  });
+};
+service.downloadAndTransfer = function downloadAndTransfer(req, cb) {
+  const info = req.body;
+  const userId = req.ex.userId;
+  const downloadParams = info.downloadParams || '';
+  const receiverId = info.receiverId || '';
+  const receiverType = info.receiverType || '';
+  if (!downloadParams) {
+    return cb && cb(i18n.t('joShortDownloadParams'));
+  }
+  if (!receiverId) {
+    return cb && cb(i18n.t('joShortReceiverId'));
+  }
+  if (!receiverType) {
+    return cb && cb(i18n.t('joShortReceiverType'));
+  }
+
+  const params = {
+    downloadParams,
+    transferParams: {
+      captcha: '',
+      alias: '',
+      encrypt: 0,
+      receiver: '',
+      TransferMode: 'direct',
+      hasCaptcha: 'false',
+      userName: '',
+      password: '',
+    },
+    userId: '',
+    userName: '',
+  };
+
+  userInfo.collection.findOne({ _id: userId }, (err, doc) => {
+    if (err) {
+      return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
+    }
+    if (!doc) {
+      return cb && cb(i18n.t('userNotFind'));
+    }
+
+    const mediaExpressUser = doc.mediaExpressUser || {};
+    params.transferParams.userName = mediaExpressUser.username;
+    params.transferParams.password = mediaExpressUser.password;
+
+    const loginForm = {
+      email: mediaExpressUser.username,
+      password: mediaExpressUser.password,
+    };
+
+    const receiver = {
+      _id: receiverId,
+      type: receiverType,
+    };
+    getMediaExpressEmail(loginForm, receiver, (err, email) => {
+      if (err) {
+        return cb && cb(err);
+      }
+
+      params.transferParams.receiver = email;
+
+      const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/JobService/downloadAndTransfer`;
+      utils.requestCallApi(url, 'POST', params, '', (err, rs) => {
+        if (err) {
+          return cb && cb(err);
+        }
+
+        return cb && cb(null, rs);
+      });
+    });
+  });
 };
 
 module.exports = service;

@@ -302,7 +302,7 @@ router.get('/getMediaList', (req, res) => {
  *
  */
 router.get('/getEsMediaList', (req, res) => {
-  service.getMediaList(req.query, (err, doc) => res.json(result.json(err, doc)));
+  service.getEsMediaList(req.query, (err, doc) => res.json(result.json(err, doc)));
 });
 
 /**
