@@ -11,16 +11,16 @@ const result = require('../../common/result');
 
 const templateService = require('../template/service');
 
+const JOB_API_SERVER_URL = `http://${config.TRANSCODE_API_SERVER.hostname}:${config.TRANSCODE_API_SERVER.port}`;
 const HttpRequest = require('../../common/httpRequest');
 
 const request = new HttpRequest({
-  hostname: config.JOB_API_SERVER.hostname,
-  port: config.JOB_API_SERVER.port,
+  hostname: config.TRANSCODE_API_SERVER.hostname,
+  port: config.TRANSCODE_API_SERVER.port,
   headers: {
     'Transfer-Encoding': 'chunked',
   },
 });
-
 const service = {};
 
 const errorCall = function errorCall(str) {
@@ -101,8 +101,16 @@ service.createJson = function createJson(createJsonParams, res) {
   if (!params.template) {
     return res.end(errorCall('jobCreateTemplateParamsCreateJsonIsNull'));
   }
-  params.template = JSON.parse(params.template);
-  request.post('/TemplateService/create', params, res);
+
+  const url = `${JOB_API_SERVER_URL}/TemplateService/create`;
+  params.template = JSON.stringify(params.template);
+  utils.requestCallApi(url, 'POST', params, '', (err, rs) => {
+    if (err) {
+      return res.json(result.fail(err));
+    }
+
+    return res.json(rs);
+  });
 };
 
 service.updateJson = function updateJson(updateJsonParams, res) {
@@ -115,8 +123,16 @@ service.updateJson = function updateJson(updateJsonParams, res) {
   if (!params.template) {
     return res.end(errorCall('jobCreateTemplateParamsCreateJsonIsNull'));
   }
-  params.template = JSON.parse(params.template);
-  request.post('/TemplateService/update', params, res);
+
+  const url = `${JOB_API_SERVER_URL}/TemplateService/update`;
+  params.template = JSON.stringify(params.template);
+  utils.requestCallApi(url, 'POST', params, '', (err, rs) => {
+    if (err) {
+      return res.json(result.fail(err));
+    }
+
+    return res.json(rs);
+  });
 };
 
 service.list = function list(listParams, res) {

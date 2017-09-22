@@ -114,3 +114,7 @@ if (process.env.NODE_ENV === 'development') {
 } else {
   runServer();
 }
+
+process.on('uncaughtException', (err) => {
+  console.log(`Caught exception: ${err}`);
+});
