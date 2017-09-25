@@ -19,10 +19,10 @@ class CatalogTaskInfo extends DB {
       assignee: { type: 'object', default: { _id: '', name: '' } },
       owner: { type: 'object', default: { _id: '', name: '' } },
       department: { type: 'object', default: { _id: '', name: '' } },
-      lastSendBacker: { type: 'object', default: { _id: '', name: '' } }, //退回者
-      lastSubmitter: { type: 'object', default: { _id: '', name: '' } }, //最后提交人
+      lastSendBacker: { type: 'object', default: { _id: '', name: '' } }, // 退回者
+      lastSubmitter: { type: 'object', default: { _id: '', name: '' } }, // 最后提交人
       status: { type: 'string', validation: 'require', default: () => CatalogTaskInfo.STATUS.PREPARE },
-      taskList: { type: 'array' }, //存放任务的ID
+      taskList: { type: 'array' }, // 存放任务的ID
       createdTime: { type: 'date', validation: 'require', allowUpdate: false },
       lastModifyTime: { type: 'date', validation: 'require' },
       description: { type: 'string' },
@@ -32,7 +32,7 @@ class CatalogTaskInfo extends DB {
 }
 
 CatalogTaskInfo.STATUS = {
-  PREPARE: '0', //待编目
+  PREPARE: '0', // 待编目
   DOING: '1', // 编目中
   SUBMITTED: '2', // 已提交
   DELETE: '3', // 已删除
