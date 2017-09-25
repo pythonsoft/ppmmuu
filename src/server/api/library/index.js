@@ -633,7 +633,6 @@ router.post('/resumeCatalogTask', (req, res) => {
   service.resumeCatalogTask(taskIds, req.ex.userInfo._id, req.ex.userInfo.name, (err, docs) => res.json(result.json(err, docs)));
 });
 
-
 /**
  * @permissionName: 列举编目信息
  * @permissionPath: /library/listCatalog
