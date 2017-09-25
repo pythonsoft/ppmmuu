@@ -15,6 +15,7 @@ router.use(isLogin.middleware);
 router.use(isLogin.hasAccessMiddleware);
 
 /**
+ * @permissionModule: '任务,下载'
  * @permissionName: download
  * @permissionPath: /job/download
  * @apiName: download

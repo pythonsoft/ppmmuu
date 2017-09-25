@@ -163,6 +163,13 @@ router.post('/createCatalogTask', (req, res) => {
  *         type: string
  *         default: '20'
  *         collectionFormat: csv
+ *       - in: query
+ *         name: keyword
+ *         description: ''
+ *         required: false
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
  *     responses:
  *       200:
  *         description:
@@ -254,8 +261,9 @@ router.get('/listDepartmentCatalogTask', (req, res) => {
   const fieldsNeed = req.query.fieldsNeed || '';
   const page = req.query.page || 1;
   const pageSize = req.query.pageSize || 20;
+  const keyword = req.query.keyword || '';
 
-  service.listCatalogTask(status, departmentId, ownerId, assigneeId, objectId, sortFields, fieldsNeed, page, pageSize, (err, docs) => res.json(result.json(err, docs)));
+  service.listCatalogTask(status, departmentId, ownerId, assigneeId, objectId, sortFields, fieldsNeed, page, pageSize, keyword, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
@@ -323,8 +331,9 @@ router.get('/listMyCatalogTask', (req, res) => {
   const fieldsNeed = req.query.fieldsNeed || '';
   const page = req.query.page || 1;
   const pageSize = req.query.pageSize || 20;
+  const keyword = req.query.keyword || '';
 
-  service.listCatalogTask(status, departmentId, ownerId, assigneeId, objectId, sortFields, fieldsNeed, page, pageSize, (err, docs) => res.json(result.json(err, docs)));
+  service.listCatalogTask(status, departmentId, ownerId, assigneeId, objectId, sortFields, fieldsNeed, page, pageSize, keyword, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**

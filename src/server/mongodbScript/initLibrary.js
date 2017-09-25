@@ -16,7 +16,11 @@ const catalogInfo = new CatalogInfo();
 const userInfo = new UserInfo();
 const fileInfo = new FileInfo();
 
-const objectId = '7B5AE857-733F-5790-4459-53DE094FDBB3&t=1506304041671';
+let objectId = '7B5AE857-733F-5790-4459-53DE094FDBB6';
+const objectIds = [];
+for(let i =0, len = 20; i < len; i++){
+  objectIds.push(uuid.v1());
+}
 
 const catalogtaskinfo = {
   name: 'test',
@@ -40,13 +44,16 @@ catalogTaskInfo.collection.findOne({ objectId }, (err, doc) => {
     const ownerName = doc ? doc.name : '';
     const departmentId = doc ? doc.department._id : '';
     const departmentName = doc ? doc.department.name : '';
-    service.createCatalogTask(catalogtaskinfo, ownerId, ownerName, departmentId, departmentName, (err) => {
-      if (err) {
-        console.log('error:', err.message);
-        return;
-      }
-      const fileinfos = [
-        {
+    for(let i = 0, len = objectIds.length; i < len; i++) {
+      objectId = objectIds[i];
+      catalogtaskinfo.objectId = objectId;
+      catalogtaskinfo._id = uuid.v1();
+      service.createCatalogTask(catalogtaskinfo, ownerId, ownerName, departmentId, departmentName, (err) => {
+        if (err) {
+          console.log('error:', err.message);
+          return;
+        }
+        const file = {
           _id: uuid.v1(),
           objectId,
           name: 'file1',
@@ -61,51 +68,26 @@ catalogTaskInfo.collection.findOne({ objectId }, (err, doc) => {
           createdTime: new Date(),
           lastModifyTime: new Date(),
           details: {},
-        },
-        {
-          _id: uuid.v1(),
-          objectId,
-          name: 'file2',
-          size: 1024 * 1024 * 40,
-          realPath: '/user/local/steven',
-          path: '/local/steven',
-          type: '1',
-          available: '1',
-          status: '1',
-          description: '',
-          archivePath: '',
-          createdTime: new Date(),
-          lastModifyTime: new Date(),
-          details: {},
-        },
-        {
-          _id: uuid.v1(),
-          objectId,
-          name: 'file3',
-          size: 1024 * 1024 * 50,
-          realPath: '/user/local/steven',
-          path: '/local/steven',
-          type: '1',
-          available: '1',
-          status: '2',
-          description: '',
-          archivePath: '',
-          createdTime: new Date(),
-          lastModifyTime: new Date(),
-          details: {},
-        },
-      ];
-      fileInfo.collection.insert(fileinfos, (err) => {
-        if (err) {
-          console.log('error==>', err.message);
-        }
-        fileInfo.collection.find({ objectId }).toArray((err, docs) => {
-          if (err) {
-            console.log('error===>', err.message);
+        };
+        const fileinfos = [];
+        for (let key in FileInfo.TYPE) {
+          for (let key1 in FileInfo.STATUS) {
+            const newFile = Object.assign({}, file);
+            newFile.type = FileInfo.TYPE[key];
+            newFile.status = FileInfo.STATUS[key1];
+            newFile._id = uuid.v1();
+            fileinfos.push(newFile);
           }
-
-          const infos = [
-            {
+        }
+        fileInfo.collection.insert(fileinfos, (err) => {
+          if (err) {
+            console.log('error==>', err.message);
+          }
+          fileInfo.collection.find({objectId}).toArray((err, docs) => {
+            if (err) {
+              console.log('error===>', err.message);
+            }
+            const info = {
               _id: uuid.v1(),
               objectId,
               fileId: docs[0]._id,
@@ -137,82 +119,24 @@ catalogTaskInfo.collection.findOne({ objectId }, (err, doc) => {
               createdTime: new Date(),
               lastModifyTime: new Date(),
               details: {},
-            },
-            {
-              _id: uuid.v1(),
-              objectId,
-              fileId: docs[1]._id,
-              englishName: 'testtt2',
-              chineseName: '测试2',
-              keyword: 'gggg',
-              content: '这是一个测试2',
-              source: '',
-              version: '1.0.0',
-              keyman: '鲁豫',
-              language: 'putonghua',
-              root: '',
-              type: '素材',
-              inpoint: 1000,
-              outpoint: 2000,
-              available: '0',
-              materialDate: {
-                form: '2017-03-22',
-                to: '2017-03-25',
-              },
-              owner: {
-                _id: ownerId,
-                name: ownerName,
-              },
-              department: {
-                _id: departmentId,
-                name: departmentName,
-              },
-              createdTime: new Date(),
-              lastModifyTime: new Date(),
-              details: {},
-            },
-            {
-              _id: uuid.v1(),
-              objectId,
-              fileId: docs[2]._id,
-              englishName: 'testtt3',
-              chineseName: '测试3',
-              keyword: 'gggg',
-              content: '这是一个测试3',
-              source: '',
-              version: '1.0.0',
-              keyman: '鲁豫',
-              language: 'putonghua',
-              root: '',
-              type: '素材',
-              inpoint: 2000,
-              outpoint: 3000,
-              available: '0',
-              materialDate: {
-                form: '2017-03-22',
-                to: '2017-03-26',
-              },
-              owner: {
-                _id: ownerId,
-                name: ownerName,
-              },
-              department: {
-                _id: departmentId,
-                name: departmentName,
-              },
-              createdTime: new Date(),
-              lastModifyTime: new Date(),
-              details: {},
-            },
-          ];
-
-          catalogInfo.collection.insert(infos, (err) => {
-            if (err) {
-              console.log(err.message);
+            };
+        
+            const infos = [];
+            for (let i = 0, len = docs.length; i < len; i++) {
+              const newInfo = JSON.parse(JSON.stringify(info));
+              newInfo._id = uuid.v1();
+              newInfo.fileId = docs[i]._id;
+              infos.push(newInfo);
             }
+        
+            catalogInfo.collection.insert(infos, (err) => {
+              if (err) {
+                console.log(err.message);
+              }
+            });
           });
         });
       });
-    });
+    }
   });
 });
