@@ -42,7 +42,7 @@ router.use(isLogin.hasAccessMiddleware);
  *             name:
  *               type: string
  *               description: ''
- *               example: ""
+ *               example: "aa"
  *             objectId:
  *               type: string
  *               description: ''
@@ -640,7 +640,7 @@ router.get('/listCatalog', (req, res) => {
  *             keyman:
  *               type: string
  *               description: ''
- *               example: "
+ *               example: ""
  *             language:
  *               type: string
  *               description: ''
@@ -755,7 +755,7 @@ router.post('/createCatalog', (req, res) => {
  *             keyman:
  *               type: string
  *               description: ''
- *               example: "
+ *               example: ""
  *             language:
  *               type: string
  *               description: ''
@@ -870,7 +870,7 @@ router.post('/updateCatalog', (req, res) => {
  *             description:
  *               type: string
  *               description: ''
- *               example: "
+ *               example: ""
  *             archivePath:
  *               type: string
  *               description: ''
@@ -956,7 +956,7 @@ router.post('/createFile', (req, res) => {
  *             description:
  *               type: string
  *               description: ''
- *               example: "
+ *               example: ""
  *             archivePath:
  *               type: string
  *               description: ''

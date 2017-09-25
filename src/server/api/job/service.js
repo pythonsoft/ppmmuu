@@ -339,6 +339,7 @@ const getMediaExpressEmail = function getMediaExpressEmail(loginForm, receiver, 
     });
   });
 };
+
 service.downloadAndTransfer = function downloadAndTransfer(req, cb) {
   const info = req.body;
   const userId = req.ex.userId;
