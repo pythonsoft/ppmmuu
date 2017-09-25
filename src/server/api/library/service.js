@@ -39,8 +39,8 @@ service.listCatalogTask = function listCatalogTask(status, departmentId, ownerId
     }
   }
 
-  if(keyword){
-    query.name = {"$regex":keyword, "$options":"i"};
+  if (keyword) {
+    query.name = { $regex: keyword, $options: 'i' };
   }
 
   if (departmentId) {
@@ -92,7 +92,7 @@ service.createCatalogTask = function createCatalogTask(info, creatorId, creatorN
   catalogTaskInfo.insertOne(info, (err, r) => {
     if (err) {
       logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
+      return cb && cb(err);
     }
 
     return cb && cb(null, r);
@@ -128,13 +128,13 @@ const setCatalogInfoAndFileInfoAvailable = function setCatalogInfoAndFileInfoAva
   catalogInfo.collection[actionName](q, updateInfo, (err) => {
     if (err) {
       logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
+      return cb && cb(err);
     }
 
     fileInfo.collection[actionName](q, updateInfo, (err, r) => {
       if (err) {
         logger.error(err.message);
-        return cb && cb(i18n.t('databaseError'));
+        return cb && cb(err);
       }
 
       return cb && cb(null, r);
@@ -167,7 +167,7 @@ service.updateCatalogTask = function updateCatalogTask(taskId, info, cb) {
   catalogTaskInfo.updateOne(q, info, (err, r) => {
     if (err) {
       logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
+      return cb && cb(err);
     }
 
     if (info.workflowStatus === CatalogTaskInfo.WORKFLOW_STATUS.SUCCESS) {
@@ -215,7 +215,7 @@ service.deleteCatalogTask = function deleteCatalogTask(taskIds, cb) {
   }, (err, r) => {
     if (err) {
       logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
+      return cb && cb(err);
     }
 
     // 将相关的编目信息及文件变为不可见
@@ -277,7 +277,7 @@ service.assignCatalogTask = function assignCatalogTask(taskIds, ownerId, assigne
     }, (err, r) => {
       if (err) {
         logger.error(err.message);
-        return cb && cb(i18n.t('databaseError'));
+        return cb && cb(err);
       }
 
       return cb && cb(null, r);
@@ -318,7 +318,7 @@ service.applyCatalogTask = function applyCatalogTask(taskIds, ownerId, ownerName
   }, (err, r) => {
     if (err) {
       logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
+      return cb && cb(err);
     }
 
     return cb && cb(null, r);
@@ -364,10 +364,10 @@ service.sendBackCatalogTask = function sendBackCatalogTask(taskIds, sendBackerId
       lastModifyTime: new Date(),
       status: CatalogTaskInfo.STATUS.PREPARE,
       lastSendBacker: { _id: sendBackerId, name: sendBackerName },
-    }, (err, r) => {
+    }, (err) => {
       if (err) {
         logger.error(err.message);
-        return cb && cb(i18n.t('databaseError'));
+        return cb && cb(err);
       }
 
       setCatalogInfoAndFileInfoAvailable(objectIds, CatalogInfo.AVAILABLE.NO, (err, r) => cb && cb(null, r));
@@ -414,10 +414,10 @@ service.submitCatalogTask = function submitCatalogTask(taskIds, submitterId, sub
       lastModifyTime: new Date(),
       status: CatalogTaskInfo.STATUS.PREPARE,
       lastSubmitter: { _id: submitterId, name: submitterName },
-    }, (err, r) => {
+    }, (err) => {
       if (err) {
         logger.error(err.message);
-        return cb && cb(i18n.t('databaseError'));
+        return cb && cb(err);
       }
 
       setCatalogInfoAndFileInfoAvailable(objectIds, CatalogInfo.AVAILABLE.YES, (err, r) => cb && cb(null, r));
@@ -463,10 +463,10 @@ service.resumeCatalogTask = function resumeCatalogTask(taskIds, cb) {
     catalogTaskInfo[actionName](query, {
       lastModifyTime: new Date(),
       status: CatalogTaskInfo.STATUS.PREPARE,
-    }, (err, r) => {
+    }, (err) => {
       if (err) {
         logger.error(err.message);
-        return cb && cb(i18n.t('databaseError'));
+        return cb && cb(err);
       }
 
       setCatalogInfoAndFileInfoAvailable(objectIds, CatalogInfo.AVAILABLE.NO, (err, r) => cb && cb(null, r));
@@ -520,8 +520,8 @@ service.createCatalog = function createCatalog(ownerId, ownerName, info, cb) {
     info._id = uuid.v1();
   }
 
-  if (parentId) {
-    catalogInfo.collection.findOne({ _id: parentId }, { fields: { _id: true } }, (err, doc) => {
+  if (info.parentId) {
+    catalogInfo.collection.findOne({ _id: info.parentId }, { fields: { _id: true } }, (err, doc) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
@@ -534,17 +534,17 @@ service.createCatalog = function createCatalog(ownerId, ownerName, info, cb) {
       catalogInfo.insertOne(info, (err, r) => {
         if (err) {
           logger.error(err.message);
-          return cb && cb(i18n.t('databaseError'));
+          return cb && cb(err);
         }
 
         return cb && cb(null, r);
       });
     });
   } else {
-    catalogInfo.insertOne(info, () => {
+    catalogInfo.insertOne(info, (err, r) => {
       if (err) {
         logger.error(err.message);
-        return cb && cb(i18n.t('databaseError'));
+        return cb && cb(err);
       }
 
       return cb && cb(null, r);
@@ -608,7 +608,7 @@ service.createFile = function createFile(info, cb) {
   fileInfo.insertOne(info, (err, r) => {
     if (err) {
       logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
+      return cb && cb(err);
     }
 
     return cb && cb(null, r);
