@@ -413,7 +413,7 @@ service.submitCatalogTask = function submitCatalogTask(taskIds, submitterId, sub
 
     catalogTaskInfo[actionName](query, {
       lastModifyTime: new Date(),
-      status: CatalogTaskInfo.STATUS.PREPARE,
+      status: CatalogTaskInfo.STATUS.SUBMITTED,
       lastSubmitter: { _id: submitterId, name: submitterName },
     }, (err) => {
       if (err) {
