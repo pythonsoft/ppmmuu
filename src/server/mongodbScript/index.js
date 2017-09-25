@@ -8,3 +8,4 @@ require('./initUser');
 require('./initConfig');
 require('./initIVideo');
 require('./initPermissionInfo');
+require('./initLibrary');
