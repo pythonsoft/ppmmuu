@@ -565,6 +565,10 @@ module.exports = {
     code: '-50027',
     message: '缺少receiverType参数',
   },
+  joShortTemplateId: {
+    code: '-50028',
+    message: '缺少templateId参数',
+  },
   notImplementedVerityType: {
     code: '-60000',
     message: '未实装的verifyType',
