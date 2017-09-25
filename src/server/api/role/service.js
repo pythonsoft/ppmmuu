@@ -34,6 +34,11 @@ const userInfo = new UserInfo();
 
 const service = {};
 
+const SEARCH_TYPE = {
+  USER: '0',
+  GROUP: '1'
+}
+
 /* role */
 service.listRole = function listRole(page, pageSize, keyword, fields, cb) {
   const query = {};
@@ -534,7 +539,7 @@ service.searchUserOrGroup = function searchUserOrGroup(info, cb) {
   const limit = info.limit || 10;
   const query = {};
 
-  if (type !== '0' && type !== '1') {
+  if (type !== SEARCH_TYPE.USER && type !== SEARCH_TYPE.GROUP) {
     return cb && cb(i18n.t('searchUserOrGroupTypeNotCorrect'));
   }
 
@@ -562,7 +567,7 @@ service.searchUserOrGroup = function searchUserOrGroup(info, cb) {
     });
   };
 
-  if (type === '0') {
+  if (type === SEARCH_TYPE.USER) {
     if(departmentId){
       query['department._id'] = departmentId;
     }
