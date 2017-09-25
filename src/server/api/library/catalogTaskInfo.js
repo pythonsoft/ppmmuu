@@ -26,7 +26,7 @@ class CatalogTaskInfo extends DB {
       lastResume: { type: 'object', default: { _id: '', name: '' } }, // 最后删除人
       status: { type: 'string', validation: 'require', default: () => CatalogTaskInfo.STATUS.PREPARE },
       workflowStatus: { type: 'string', validation: 'require', default: () => CatalogTaskInfo.STATUS.PREPARE },
-      taskList: { type: 'object' }, // 存放任务的ID, 结构为 { catalogId: '', taskList: [] }
+      jobId: { type: 'string' }, // 对应该工作流中的jobId
       createdTime: { type: 'date', validation: 'require', allowUpdate: false },
       lastModifyTime: { type: 'date', validation: 'require' },
       description: { type: 'string' },
