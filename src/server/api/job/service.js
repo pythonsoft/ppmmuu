@@ -339,7 +339,6 @@ const getMediaExpressEmail = function getMediaExpressEmail(loginForm, receiver, 
     });
   });
 };
-
 service.downloadAndTransfer = function downloadAndTransfer(req, cb) {
   const info = req.body;
   const userId = req.ex.userId;
@@ -410,6 +409,7 @@ service.downloadAndTransfer = function downloadAndTransfer(req, cb) {
       });
     });
   });
+  requestTemplate.get('/TemplateService/delete', params, res);
 };
 
 module.exports = service;
