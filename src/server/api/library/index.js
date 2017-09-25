@@ -534,6 +534,107 @@ router.post('/submitCatalogTask', (req, res) => {
 });
 
 /**
+ * @permissionName: 删除任务
+ * @permissionPath: /library/deleteCatalogTask
+ * @apiName: deleteCatalogTask
+ * @apiFuncType: post
+ * @apiFuncUrl: /library/deleteCatalogTask
+ * @swagger
+ * /library/deleteCatalogTask:
+ *   post:
+ *     description: 删除任务
+ *     tags:
+ *       - v1
+ *       - library
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: 删除任务
+ *         schema:
+ *           type: object
+ *           required:
+ *             - taskIds
+ *           properties:
+ *             taskIds:
+ *               type: string
+ *               description: task's ids which you wish
+ *               example: "xxxxx or xxxx,xxxx,xxx"
+ *     responses:
+ *       200:
+ *         description: CatalogTaskInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.post('/deleteCatalogTask', (req, res) => {
+  const taskIds = req.body.taskIds || '';
+
+  service.deleteCatalogTask(taskIds, req.ex.userInfo._id, req.ex.userInfo.name, (err, docs) => res.json(result.json(err, docs)));
+});
+
+/**
+ * @permissionName: 恢复任务
+ * @permissionPath: /library/resumeCatalogTask
+ * @apiName: resumeCatalogTask
+ * @apiFuncType: post
+ * @apiFuncUrl: /library/resumeCatalogTask
+ * @swagger
+ * /library/resumeCatalogTask:
+ *   post:
+ *     description: 恢复任务
+ *     tags:
+ *       - v1
+ *       - library
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: 恢复任务
+ *         schema:
+ *           type: object
+ *           required:
+ *             - taskIds
+ *           properties:
+ *             taskIds:
+ *               type: string
+ *               description: task's ids which you wish
+ *               example: "xxxxx or xxxx,xxxx,xxx"
+ *     responses:
+ *       200:
+ *         description: CatalogTaskInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.post('/resumeCatalogTask', (req, res) => {
+  const taskIds = req.body.taskIds || '';
+
+  service.resumeCatalogTask(taskIds, req.ex.userInfo._id, req.ex.userInfo.name, (err, docs) => res.json(result.json(err, docs)));
+});
+
+
+/**
  * @permissionName: 列举编目信息
  * @permissionPath: /library/listCatalog
  * @apiName: listCatalog

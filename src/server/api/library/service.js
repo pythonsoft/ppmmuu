@@ -194,7 +194,7 @@ service.updateCatalogTask = function updateCatalogTask(taskId, info, cb) {
 };
 
 // 删除任务
-service.deleteCatalogTask = function deleteCatalogTask(taskIds, cb) {
+service.deleteCatalogTask = function deleteCatalogTask(taskIds, lastDeleterId, lastDeleterName, cb) {
   if (!taskIds || taskIds.length === 0) {
     return cb && cb(i18n.t('libraryCatalogTaskIdIsNull'));
   }
@@ -212,6 +212,7 @@ service.deleteCatalogTask = function deleteCatalogTask(taskIds, cb) {
   catalogTaskInfo[actionName](query, {
     status: CatalogTaskInfo.STATUS.DELETE,
     lastModifyTime: new Date(),
+    lastDeleter: { _id: lastDeleterId, name: lastDeleterName },
   }, (err, r) => {
     if (err) {
       logger.error(err.message);
@@ -425,8 +426,8 @@ service.submitCatalogTask = function submitCatalogTask(taskIds, submitterId, sub
   });
 };
 
-// 恢复操作，删除后才可以进行此操作
-service.resumeCatalogTask = function resumeCatalogTask(taskIds, cb) {
+// 恢复任务，删除后才可以进行此操作
+service.resumeCatalogTask = function resumeCatalogTask(taskIds, resumeId, resumeName, cb) {
   if (!taskIds || taskIds.length === 0) {
     return cb && cb(i18n.t('libraryCatalogTaskIdIsNull'));
   }
@@ -463,6 +464,7 @@ service.resumeCatalogTask = function resumeCatalogTask(taskIds, cb) {
     catalogTaskInfo[actionName](query, {
       lastModifyTime: new Date(),
       status: CatalogTaskInfo.STATUS.PREPARE,
+      lastResume: { _id: resumeId, name: resumeName },
     }, (err) => {
       if (err) {
         logger.error(err.message);
