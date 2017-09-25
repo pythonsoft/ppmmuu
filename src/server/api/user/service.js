@@ -15,10 +15,12 @@ const Login = require('../../middleware/login');
 const SearchHistoryInfo = require('./searchHistoryInfo');
 const WatchingHistoryInfo = require('./watchingHistoryInfo');
 const UserInfo = require('./userInfo');
+const PermissionGroup = require('../role/permissionGroup');
 
 const userInfo = new UserInfo();
 const searchHistoryInfo = new SearchHistoryInfo();
 const watchingHistoryInfo = new WatchingHistoryInfo();
+const permissionGroup = new PermissionGroup();
 
 const groupUserService = require('../group/userService');
 
@@ -361,5 +363,16 @@ service.getDirectAuthorizeAcceptorList = function getDirectAuthorizeAcceptorList
     });
   });
 };
+
+service.getMenusByIndex = function getMenusByIndex(indexArr, cb){
+  permissionGroup.collection.find({index: {$in: indexArr}}).toArray(function(err, docs){
+    if(err){
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+    
+    return cb && cb(null, docs);
+  })
+}
 
 module.exports = service;

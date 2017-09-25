@@ -530,6 +530,7 @@ service.updateRolePermission = function updateRoleAddPermission(info, isAdd, cb)
 service.searchUserOrGroup = function searchUserOrGroup(info, cb) {
   const type = info.type;
   const keyword = info.keyword || '';
+  const departmentId = info.departmentId || '';
   const limit = info.limit || 10;
   const query = {};
 
@@ -562,6 +563,9 @@ service.searchUserOrGroup = function searchUserOrGroup(info, cb) {
   };
 
   if (type === '0') {
+    if(departmentId){
+      query['department._id'] = departmentId;
+    }
     searchUser(query);
   } else {
     searchGroup(query);
