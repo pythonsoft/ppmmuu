@@ -177,8 +177,9 @@ router.get('/listCatalogTask', (req, res) => {
   const fieldsNeed = req.query.fieldsNeed || '';
   const page = req.query.page || 1;
   const pageSize = req.query.pageSize || 20;
+  const keyword = req.query.keyword || '';
 
-  service.listCatalogTask(status, departmentId, ownerId, assigneeId, objectId, sortFields, fieldsNeed, page, pageSize, (err, docs) => res.json(result.json(err, docs)));
+  service.listCatalogTask(status, departmentId, ownerId, assigneeId, objectId, sortFields, fieldsNeed, page, pageSize, keyword, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
