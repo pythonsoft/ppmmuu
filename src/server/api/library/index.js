@@ -76,12 +76,12 @@ router.use(isLogin.hasAccessMiddleware);
  *                  type: string
  */
 router.post('/createCatalogTask', (req, res) => {
-  const ownerId = req.ex.userInfo._id;
-  const ownerName = req.ex.userInfo.name;
-  const departmentId = req.ex.userInfo.department._id;
-  const departmentName = req.ex.userInfo.department.name;
+  const creatorId = req.ex.userInfo._id;
+  const creatorName = req.ex.userInfo.name;
+  const departmentId = req.body.departmentId;
+  const departmentName = req.body.departmentName;
 
-  service.createCatalogTask(req.body, ownerId, ownerName, departmentId, departmentName, (err, docs) => res.json(result.json(err, docs)));
+  service.createCatalogTask(req.body, creatorId, creatorName, departmentId, departmentName, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
@@ -892,7 +892,7 @@ router.post('/updateCatalog', (req, res) => {
  *                  type: string
  */
 router.post('/createFile', (req, res) => {
-  service.createFile(req.body, (err, docs) => res.json(result.json(err, docs)))
+  service.createFile(req.body, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
@@ -978,7 +978,7 @@ router.post('/createFile', (req, res) => {
  *                  type: string
  */
 router.post('/updateFile', (req, res) => {
-  service.updateFile(req.body.id, req.body, (err, docs) => res.json(result.json(err, docs)))
+  service.updateFile(req.body.id, req.body, (err, docs) => res.json(result.json(err, docs)));
 });
 
 module.exports = router;
