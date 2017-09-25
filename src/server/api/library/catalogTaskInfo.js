@@ -22,6 +22,8 @@ class CatalogTaskInfo extends DB {
       department: { type: 'object', default: { _id: '', name: '' } },
       lastSendBacker: { type: 'object', default: { _id: '', name: '' } }, // 退回者
       lastSubmitter: { type: 'object', default: { _id: '', name: '' } }, // 最后提交人
+      lastDeleter: { type: 'object', default: { _id: '', name: '' } }, // 最后删除人
+      lastResume: { type: 'object', default: { _id: '', name: '' } }, // 最后删除人
       status: { type: 'string', validation: 'require', default: () => CatalogTaskInfo.STATUS.PREPARE },
       workflowStatus: { type: 'string', validation: 'require', default: () => CatalogTaskInfo.STATUS.PREPARE },
       taskList: { type: 'object' }, // 存放任务的ID, 结构为 { catalogId: '', taskList: [] }
