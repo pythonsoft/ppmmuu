@@ -8,9 +8,13 @@ const config = require('../../config');
 const utils = require('../../common/utils');
 const i18n = require('i18next');
 const result = require('../../common/result');
+const UserInfo = require('../user/userInfo');
+
+const userInfo = new UserInfo();
 
 const templateService = require('../template/service');
 
+const JOB_API_SERVER_URL = `http://${config.TRANSCODE_API_SERVER.hostname}:${config.TRANSCODE_API_SERVER.port}`;
 const HttpRequest = require('../../common/httpRequest');
 
 const request = new HttpRequest({
@@ -21,6 +25,13 @@ const request = new HttpRequest({
   },
 });
 
+const requestTemplate = new HttpRequest({
+  hostname: config.TRANSCODE_API_SERVER.hostname,
+  port: config.TRANSCODE_API_SERVER.port,
+  headers: {
+    'Transfer-Encoding': 'chunked',
+  },
+});
 const service = {};
 
 const errorCall = function errorCall(str) {
@@ -70,7 +81,7 @@ service.download = function download(userInfo, downloadParams, res) {
 
   templateService.getDownloadPath(userInfo, templateId, (err, downloadPath) => {
     if (err) {
-      return res.end(result.fail(err));
+      return res.end(JSON.stringify(result.fail(err)));
     }
 
     params.destination = downloadPath;
@@ -101,8 +112,16 @@ service.createJson = function createJson(createJsonParams, res) {
   if (!params.template) {
     return res.end(errorCall('jobCreateTemplateParamsCreateJsonIsNull'));
   }
-  params.template = JSON.parse(params.template);
-  request.post('/TemplateService/create', params, res);
+
+  const url = `${JOB_API_SERVER_URL}/TemplateService/create`;
+  params.template = JSON.stringify(params.template);
+  utils.requestCallApi(url, 'POST', params, '', (err, rs) => {
+    if (err) {
+      return res.json(result.fail(err));
+    }
+
+    return res.json(rs);
+  });
 };
 
 service.updateJson = function updateJson(updateJsonParams, res) {
@@ -115,8 +134,16 @@ service.updateJson = function updateJson(updateJsonParams, res) {
   if (!params.template) {
     return res.end(errorCall('jobCreateTemplateParamsCreateJsonIsNull'));
   }
-  params.template = JSON.parse(params.template);
-  request.post('/TemplateService/update', params, res);
+
+  const url = `${JOB_API_SERVER_URL}/TemplateService/update`;
+  params.template = JSON.stringify(params.template);
+  utils.requestCallApi(url, 'POST', params, '', (err, rs) => {
+    if (err) {
+      return res.json(result.fail(err));
+    }
+
+    return res.json(rs);
+  });
 };
 
 service.list = function list(listParams, res) {
@@ -158,7 +185,7 @@ service.listTemplate = function listTemplate(listTemplateParams, res) {
     pageSize: 99,
   }, listTemplateParams);
 
-  request.get('/TemplateService/list', params, res);
+  requestTemplate.get('/TemplateService/list', params, res);
 };
 
 service.query = function query(queryParams, res) {
@@ -286,7 +313,122 @@ service.deleteTemplate = function del(deleteParams, res) {
   if (!params.id) {
     return res.end(errorCall('jobDeleteParamsIdIsNull'));
   }
-  request.get('/TemplateService/delete', params, res);
+  requestTemplate.get('/TemplateService/delete', params, res);
+};
+
+const getMediaExpressEmail = function getMediaExpressEmail(loginForm, receiver, cb) {
+  let url = `${config.mediaExpressUrl}login`;
+  utils.requestCallApiGetCookie(url, 'POST', loginForm, '', (err, cookie) => {
+    if (err) {
+      return cb && cb(err);
+    }
+    if (!cookie) {
+      return cb && cb(i18n.t('bindMediaExpressUserNeedRefresh'));
+    }
+
+    url = `${config.mediaExpressUrl}directAuthorize/getEmail?t=${new Date().getTime()}`;
+    utils.requestCallApi(url, 'GET', receiver, cookie, (err, rs) => {
+      if (err) {
+        return cb && cb(err);
+      }
+      if (rs.status !== 0) {
+        return cb && cb(i18n.t('requestCallApiError', { error: rs.result }));
+      }
+
+      return cb && cb(null, rs.result);
+    });
+  });
+};
+
+service.downloadAndTransfer = function downloadAndTransfer(req, cb) {
+  const info = req.body;
+  const userId = req.ex.userId;
+  const userName = req.ex.userInfo.name;
+  const downloadParams = info.downloadParams || '';
+  const receiverId = info.receiverId || '';
+  const receiverType = info.receiverType || '';
+  const templateId = info.templateId || '';
+
+  if (!downloadParams) {
+    return cb && cb(i18n.t('joShortDownloadParams'));
+  }
+  if (!receiverId) {
+    return cb && cb(i18n.t('joShortReceiverId'));
+  }
+  if (!receiverType) {
+    return cb && cb(i18n.t('joShortReceiverType'));
+  }
+  if (!templateId) {
+    return cb && cb(i18n.t('joShortTemplateId'));
+  }
+
+  const params = {
+    downloadParams,
+    transferParams: {
+      captcha: '',
+      alias: '',
+      encrypt: 0,
+      receiver: '',
+      TransferMode: 'direct',
+      hasCaptcha: 'false',
+      userName: '',
+      password: '',
+    },
+    userId: userId,
+    userName: userName,
+  };
+
+  userInfo.collection.findOne({ _id: userId }, (err, doc) => {
+    if (err) {
+      return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
+    }
+    if (!doc) {
+      return cb && cb(i18n.t('userNotFind'));
+    }
+
+    const mediaExpressUser = doc.mediaExpressUser || {};
+    params.transferParams.userName = mediaExpressUser.username;
+    params.transferParams.password = mediaExpressUser.password;
+
+    const loginForm = {
+      email: mediaExpressUser.username,
+      password: mediaExpressUser.password,
+    };
+
+    const receiver = {
+      _id: receiverId,
+      type: receiverType,
+    };
+    templateService.getDownloadPath(doc, templateId, (err, downloadPath) => {
+      if (err) {
+        return cb && cb(err);
+      }
+  
+      params.downloadParams.destination = downloadPath;
+      getMediaExpressEmail(loginForm, receiver, (err, email) => {
+        if (err) {
+          return cb && cb(err);
+        }
+    
+        params.transferParams.receiver = email;
+        params.transferParams = JSON.stringify(params.transferParams);
+        params.downloadParams = JSON.stringify(params.downloadParams);
+        console.log(JSON.stringify(params));
+    
+        const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/JobService/downloadAndTransfer`;
+        utils.requestCallApi(url, 'POST', params, '', (err, rs) => {
+          if (err) {
+            return cb && cb(err);
+          }
+      
+          if (rs.status === '0') {
+            return cb && cb(null, 'ok');
+          }
+          return cb && cb(i18n.t('requestCallApiError', {error: rs.statusInfo.message}));
+        });
+      });
+    })
+  });
 };
 
 module.exports = service;

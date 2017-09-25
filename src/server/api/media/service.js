@@ -235,7 +235,6 @@ service.getEsMediaList = function getEsMediaList(info, cb) {
         key: 'program_type',
         value: category,
       }],
-      q: `program_type:${category}`,
       source: 'id,duration,name,ccid,program_type,program_name_cn,hd_flag,program_name_en,last_modify,f_str_03',
       sort: [{
         key: 'last_modify',
@@ -252,23 +251,28 @@ service.getEsMediaList = function getEsMediaList(info, cb) {
       loopGetCategoryList(categories, index + 1);
     });
   };
-
-  service.getSearchConfig((err, rs) => {
-    if (err) {
-      return cb && cb(i18n.t('databaseError'));
+  const key = 'cachedMediaList';
+  redisClient.get(key, (err, obj) => {
+    if (obj) {
+      return cb & cb(null, JSON.parse(obj));
     }
+    service.getSearchConfig((err, rs) => {
+      if (err) {
+        return cb && cb(i18n.t('databaseError'));
+      }
 
-    if (!rs.searchSelectConfigs.length) {
-      return cb & cb(null, result);
-    }
+      if (!rs.searchSelectConfigs.length) {
+        return cb & cb(null, result);
+      }
 
-    const categories = rs.searchSelectConfigs[0].items;
+      const categories = rs.searchSelectConfigs[0].items;
 
-    if (!categories.length) {
-      return cb & cb(null, result);
-    }
+      if (!categories.length) {
+        return cb & cb(null, result);
+      }
 
-    loopGetCategoryList(categories, 0);
+      loopGetCategoryList(categories, 0);
+    });
   });
 };
 
@@ -373,8 +377,8 @@ service.esSearch = function esSearch(info, cb, userId, videoIds) {
   // search by videoId will overwrite original keywords
   const match = info.match || [];
   if (videoIds) {
-    const vIdL = videoIds.split(',');
-    info.match = [{ _id: vIdL }];
+    videoIds = videoIds.split(',').join(' ');
+    info.match = [{ _id: videoIds }];
   }
   const body = getEsOptions(info);
   const url = `${config.esBaseUrl}es/program/_search`;
@@ -473,10 +477,15 @@ service.xml2srt = (info, cb) => {
     const rs = JSON.parse(response.body);
     rs.status = '0';
 
+    if (Object.keys(rs.result).length === 0) {
+      rs.result = '';
+    }
+
     const parser = new Xml2Srt(rs.result);
     parser.getSrtStr((err, r) => {
       if (err) {
-        return cb(err);
+        logger.error(err);
+        return cb(i18n.t('getSubtitleFailed'));
       }
       rs.result = r;
       return cb(null, rs);

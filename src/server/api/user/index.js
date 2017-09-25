@@ -554,7 +554,7 @@ router.post('/clearWatchHistory', (req, res) => {
  *             _id:
  *               type: string
  *               example: ''
- *               description: 'ObjectId'
+ *               description: 'uuid'
  *             name:
  *               type: string
  *               example: ''
@@ -584,7 +584,25 @@ router.post('/clearWatchHistory', (req, res) => {
  *               description: '0:未激活,1:正常,2:已删除.默认是1'
  *     responses:
  *       200:
- *         description: remove history
+ *         description: UserInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *              description: '0表示成功,其他表示失败'
+ *              example: '0'
+ *            data:
+ *              type: string
+ *              description: '如果status是0,那么data是"ok",否则是空的object'
+ *              example: 'ok'
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *                  description: '如果status不是0，那么这里是出错的信息,否则是"ok"'
+ *                  example: 'ok'
  */
 router.post('/adAccountSync', (req, res) => {
   service.adAccountSync(req.body, (err, r) => res.json(result.json(err, r)));
@@ -765,6 +783,71 @@ router.get('/deleteJob', (req, res) => {
   const jobId = req.query.jobId;
   res.set('Content-Type', 'application/json');
   jobServce.delete({ jobId, userId: req.ex.userId }, res);
+});
+
+/**
+ * @permissionName: 获取直传模式授权列表
+ * @permissionPath: /user/directAuthorize/acceptorList
+ * @apiName: directAuthorizeAcceptorList
+ * @apiFuncType: get
+ * @apiFuncUrl: /user/directAuthorize/acceptorList
+ * @swagger
+ * /user/directAuthorize/acceptorList:
+ *   get:
+ *     description: 获取绑定的快传账户的直传模式授权列表
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       -
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: EngineGroupInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *              properties:
+ *                acceptor:
+ *                  type: object
+ *                  description: '接收方信息'
+ *                  properties:
+ *                    _id:
+ *                      type: string
+ *                    targetType:
+ *                      type: number
+ *                      description: '0:个人,1:组织,2:全部'
+ *                    name:
+ *                      type: string
+ *                      description: '依据targetType对应个人或组织名字'
+ *                    avatar:
+ *                      type: object
+ *                      description: '头像'
+ *                sender:
+ *                  type: object
+ *                  description: '发送方信息'
+ *                  properties:
+ *                    _id:
+ *                      type: string
+ *                    targetType:
+ *                      type: number
+ *                      description: '0:个人,1:组织,2:全部'
+ *                    name:
+ *                      type: string
+ *                      description: '依据targetType对应个人或组织名字'
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.get('/directAuthorize/acceptorList', (req, res) => {
+  const _id = req.ex.userId;
+  service.getDirectAuthorizeAcceptorList(_id, (err, data) => res.json(result.json(err, data)));
 });
 
 module.exports = router;

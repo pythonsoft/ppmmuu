@@ -469,6 +469,10 @@ module.exports = {
     code: '-40013',
     message: '默认目录不能删除',
   },
+  ivideoDefaultDirectoryIsNull: {
+    code: '-40013',
+    message: '默认目录不存在',
+  },
   joDownloadParamsIsNull: {
     code: '-50001',
     message: '下载参数为空，请正确传入参数',
@@ -549,6 +553,22 @@ module.exports = {
     code: '-50024',
     message: '没有操作权限',
   },
+  joShortDownloadParams: {
+    code: '-50025',
+    message: '缺少downloadParams参数',
+  },
+  joShortReceiverId: {
+    code: '-50026',
+    message: '缺少receiverId参数',
+  },
+  joShortReceiverType: {
+    code: '-50027',
+    message: '缺少receiverType参数',
+  },
+  joShortTemplateId: {
+    code: '-50028',
+    message: '缺少templateId参数',
+  },
   notImplementedVerityType: {
     code: '-60000',
     message: '未实装的verifyType',
@@ -590,15 +610,59 @@ module.exports = {
     message: '{{error}}',
   },
   requestCallApiFailed: {
-    code: '-900001',
+    code: '-90001',
     message: 'api请求超时',
   },
   unBindMediaExpressUser: {
-    code: '-900002',
+    code: '-90002',
     message: '没有绑定快传账户，请先绑定',
   },
   bindMediaExpressUserNeedRefresh: {
-    code: '-900003',
+    code: '-90003',
     message: '绑定的快传账号用户名或密码发生变化，请重新绑定',
+  },
+  libraryCatalogTaskInfoIsNull: {
+    code: '-100001',
+    message: '输入的编目任务信息为空',
+  },
+  libraryCatalogTaskIdIsNull: {
+    code: '-100002',
+    message: '输入的编目任务Id为空',
+  },
+  libraryAssignCatalogTaskOwnerIdIsNull: {
+    code: '-100003',
+    message: ' 派发任务时OwnerId为空',
+  },
+  libraryCreateCatalogInfoIsNull: {
+    code: '-100004',
+    message: '创建编目信息时，编目信息为空',
+  },
+  libraryCreateCatalogInfoFieldIsNull: {
+    code: '-100005',
+    message: '创建编目信息时，{{field}}为空',
+  },
+  libraryCreateCatalogTaskInfoFieldIsNull: {
+    code: '-100006',
+    message: '创建编目信息时，{{field}}为空',
+  },
+  libraryCatalogTaskSubmitNull: {
+    code: '-100007',
+    message: '没有可以提交的编目任务',
+  },
+  libraryParentCatalogIsNotExist: {
+    code: '-100008',
+    message: '父级编目信息不存在',
+  },
+  libraryFileInfoIsNull: {
+    code: '-100009',
+    message: '创建文件信息时，文件信息为空',
+  },
+  libraryFileInfoFieldIsNull: {
+    code: '-100010',
+    message: '创建文件信息时，{{field}}为空',
+  },
+  libraryObjectIdIsNull: {
+    code: '-100010',
+    message: 'object id 为空',
   },
 };
