@@ -14,19 +14,19 @@ class FileInfo extends DB {
 
     this.struct = {
       _id: { type: 'string', default() { return uuid.v1(); }, allowUpdate: false },
-      objectid: { type: 'string', validation: 'require' },
+      objectId: { type: 'string', validation: 'require' },
       name: { type: 'string', validation: 'require' },
       size: { type: 'number', validation: 'require' },
       realPath: { type: 'string', validation: 'require' },
       path: { type: 'string', validation: 'require' },
       type: { type: 'string', allowUpdate: false, validation: 'require', default: () => FileInfo.TYPE.ORIGINAL },
-      createdTime: { type: 'date', validation: 'require', allowUpdate: false },
       available: { type: 'string', default: () => FileInfo.AVAILABLE.NO },
-      lastModifyTime: { type: 'date', validation: 'require' },
-      description: { type: 'string' },
-      details: { type: 'object' },
-      archivePath: { type: 'string', validation: 'require' },
       status: { type: 'string', validation: 'require', default: () => FileInfo.STATUS.UNKNOW },
+      description: { type: 'string' },
+      archivePath: { type: 'string' },
+      createdTime: { type: 'date', validation: 'require', allowUpdate: false },
+      lastModifyTime: { type: 'date', validation: 'require' },
+      details: { type: 'object' },
     };
   }
 }

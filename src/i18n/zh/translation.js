@@ -637,4 +637,28 @@ module.exports = {
     code: '-100005',
     message: '创建编目信息时，{{field}}为空',
   },
+  libraryCreateCatalogTaskInfoFieldIsNull: {
+    code: '-100006',
+    message: '创建编目信息时，{{field}}为空',
+  },
+  libraryCatalogTaskSubmitNull: {
+    code: '-100007',
+    message: '没有可以提交的编目任务',
+  },
+  libraryParentCatalogIsNotExist: {
+    code: '-100008',
+    message: '父级编目信息不存在',
+  },
+  libraryFileInfoIsNull: {
+    code: '-100009',
+    message: '创建文件信息时，文件信息为空',
+  },
+  libraryFileInfoFieldIsNull: {
+    code: '-100010',
+    message: '创建文件信息时，{{field}}为空',
+  },
+  libraryObjectIdIsNull: {
+    code: '-100010',
+    message: 'object id 为空',
+  },
 };

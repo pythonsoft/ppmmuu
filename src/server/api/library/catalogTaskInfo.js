@@ -20,10 +20,11 @@ class CatalogTaskInfo extends DB {
       owner: { type: 'object', default: { _id: '', name: '' } },
       department: { type: 'object', default: { _id: '', name: '' } },
       lastSendBacker: { type: 'object', default: { _id: '', name: '' } }, //退回者
+      lastSubmitter: { type: 'object', default: { _id: '', name: '' } }, //最后提交人
       status: { type: 'string', validation: 'require', default: () => CatalogTaskInfo.STATUS.PREPARE },
       taskList: { type: 'array' }, //存放任务的ID
       createdTime: { type: 'date', validation: 'require', allowUpdate: false },
-      modifyTime: { type: 'date', validation: 'require' },
+      lastModifyTime: { type: 'date', validation: 'require' },
       description: { type: 'string' },
       details: { type: 'object' },
     };
