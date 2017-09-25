@@ -410,6 +410,7 @@ service.downloadAndTransfer = function downloadAndTransfer(req, cb) {
       });
     });
   });
+  requestTemplate.get('/TemplateService/delete', params, res);
 };
 
 module.exports = service;
