@@ -9,6 +9,7 @@ const utils = require('../../common/utils');
 const config = require('../../config');
 const i18n = require('i18next');
 
+const uuid = require('uuid');
 const EngineGroupInfo = require('./engineGroupInfo');
 
 const engineGroupInfo = new EngineGroupInfo();
@@ -224,6 +225,7 @@ service.deleteGroup = function deleteGroup(id, cb) {
 
 /* engine */
 const insertEngine = function insertGroup(info, cb) {
+  info._id = uuid();
   engineInfo.insertOne(info, (err, r) => {
     if (err) {
       logger.error(err.message);
@@ -252,6 +254,29 @@ service.addEngine = function addEngine(info, cb) {
     insertEngine(info, cb);
   }
 };
+
+function updateEngineInfo(cb) {
+  engineInfo.collection.find().toArray((err, docs) => {
+    if (err) {
+      logger.error(err);
+    }
+    sc.socket.emit('sendSysInfo', docs.map(item => item.intranetIp), (err, r) => {
+      if (err) {
+        logger.error(err);
+      }
+      const writes = r.map(item => ({ updateOne: {
+        filter: { intranetIp: item.ip },
+        update: { $set: { modifyTime: new Date() } },
+      } }));
+      if (writes.length === 0) {
+        return cb(null);
+      }
+      engineInfo.collection.bulkWrite(writes, { ordered: true, w: 1 }, (err, r) => cb(err, r));
+    });
+  });
+}
+
+service.updateEngineInfo = updateEngineInfo;
 
 service.listEngine = function listEngine(keyword, groupId, page, pageSize, sortFields, fieldsNeed, cb) {
   const query = {};
@@ -444,12 +469,6 @@ service.listAction = function listAction(ip, configProcessName, cb) {
   if (!configProcessName) {
     return cb && cb(i18n.t('configProcessNameCanNotBeNull'));
   }
-
-//   const docs = [
-//     { ps_node: { name: 'ps_node', command: 'ps aux | grep node', description: '显示所有的node进程' } },
-//     { ps_java: { name: 'ps_java', command: 'ps aux | grep java', description: '显示所有的java进程' } },
-//     { ps_php: { name: 'ps_php', command: 'ps aux | grep php', description: '显示所有的php进程' } },
-//   ];
 
   // processId or process name from config
   sc.socket.emit('action', { ip, action: 'getActions', process: configProcessName }, (err, result) => {

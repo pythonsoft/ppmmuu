@@ -26,7 +26,7 @@ const renewHistoryList = function renewHistoryList() {
         hl: 'off',
       };
       mediaService.solrSearch(query, (err, doc) => {
-        if (err) {
+        if (err || !doc.docs[0]) {
           watchingHistoryInfo.collection.findOneAndUpdate(
             { _id: r.value._id },
             { $set: { status: WatchingHistoryInfo.STATUS.UNAVAILABLE } },

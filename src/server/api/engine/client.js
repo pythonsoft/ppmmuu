@@ -29,7 +29,7 @@ class SocketClient {
 
     this.socket = clientConnect(url, {
       reconnection: true,
-      reconnectionAttempts: 5,
+      reconnectionAttempts: 10,
       reconnectionDelay: 500,
     });
 
