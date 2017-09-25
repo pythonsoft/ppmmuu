@@ -125,6 +125,10 @@ module.exports = {
     code: '-1',
     message: '数据库异常.',
   },
+  databaseErrorDetail: {
+    code: '-2',
+    message: '{{error}}',
+  },
   validateError: {
     code: '-10',
     message: '参数 {{param}} 不正确',
@@ -369,6 +373,18 @@ module.exports = {
     code: '-13007',
     message: '媒体库搜索配置项配置出错',
   },
+  getSubtitleFailed: {
+    code: '-13008',
+    message: '获取字幕失败',
+  },
+  getSubtitleError: {
+    code: '-13009',
+    message: '{{error}}',
+  },
+  objectIdIsNull: {
+    code: '-13010',
+    message: 'objectid参数为空',
+  },
   setupFailed: {
     code: '-20001',
     message: '安装监控客户端失败',
@@ -453,6 +469,10 @@ module.exports = {
     code: '-40013',
     message: '默认目录不能删除',
   },
+  ivideoDefaultDirectoryIsNull: {
+    code: '-40013',
+    message: '默认目录不存在',
+  },
   joDownloadParamsIsNull: {
     code: '-50001',
     message: '下载参数为空，请正确传入参数',
@@ -529,6 +549,22 @@ module.exports = {
     code: '-50023',
     message: '下载参数destination为空，请正确传入参数',
   },
+  joDownloadPermissionDeny: {
+    code: '-50024',
+    message: '没有操作权限',
+  },
+  joShortDownloadParams: {
+    code: '-50025',
+    message: '缺少downloadParams参数',
+  },
+  joShortReceiverId: {
+    code: '-50026',
+    message: '缺少receiverId参数',
+  },
+  joShortReceiverType: {
+    code: '-50027',
+    message: '缺少receiverType参数',
+  },
   notImplementedVerityType: {
     code: '-60000',
     message: '未实装的verifyType',
@@ -564,5 +600,65 @@ module.exports = {
   idIsNull: {
     code: '-80000',
     message: 'id为空',
+  },
+  requestCallApiError: {
+    code: '-90000',
+    message: '{{error}}',
+  },
+  requestCallApiFailed: {
+    code: '-90001',
+    message: 'api请求超时',
+  },
+  unBindMediaExpressUser: {
+    code: '-90002',
+    message: '没有绑定快传账户，请先绑定',
+  },
+  bindMediaExpressUserNeedRefresh: {
+    code: '-90003',
+    message: '绑定的快传账号用户名或密码发生变化，请重新绑定',
+  },
+  libraryCatalogTaskInfoIsNull: {
+    code: '-100001',
+    message: '输入的编目任务信息为空',
+  },
+  libraryCatalogTaskIdIsNull: {
+    code: '-100002',
+    message: '输入的编目任务Id为空',
+  },
+  libraryAssignCatalogTaskOwnerIdIsNull: {
+    code: '-100003',
+    message: ' 派发任务时OwnerId为空',
+  },
+  libraryCreateCatalogInfoIsNull: {
+    code: '-100004',
+    message: '创建编目信息时，编目信息为空',
+  },
+  libraryCreateCatalogInfoFieldIsNull: {
+    code: '-100005',
+    message: '创建编目信息时，{{field}}为空',
+  },
+  libraryCreateCatalogTaskInfoFieldIsNull: {
+    code: '-100006',
+    message: '创建编目信息时，{{field}}为空',
+  },
+  libraryCatalogTaskSubmitNull: {
+    code: '-100007',
+    message: '没有可以提交的编目任务',
+  },
+  libraryParentCatalogIsNotExist: {
+    code: '-100008',
+    message: '父级编目信息不存在',
+  },
+  libraryFileInfoIsNull: {
+    code: '-100009',
+    message: '创建文件信息时，文件信息为空',
+  },
+  libraryFileInfoFieldIsNull: {
+    code: '-100010',
+    message: '创建文件信息时，{{field}}为空',
+  },
+  libraryObjectIdIsNull: {
+    code: '-100010',
+    message: 'object id 为空',
   },
 };

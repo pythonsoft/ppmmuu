@@ -7,6 +7,7 @@
 const logger = require('../../common/log')('error');
 const utils = require('../../common/utils');
 const i18n = require('i18next');
+const config = require('../../config');
 
 const GroupInfo = require('./groupInfo');
 
@@ -29,6 +30,8 @@ service.listGroup = function listGroup(parentId, type, page, pageSize, cb) {
 
   if (parentId) {
     q.parentId = parentId;
+  } else {
+    q.parentId = '';
   }
 
   if (type !== '') {
@@ -331,6 +334,45 @@ service.updateGroupInfo = function updateGroupInfo(info, cb) {
     }
 
     return cb && cb(null, 'ok');
+  });
+};
+
+service.bindMediaExpress = function bindMediaExpress(info, cb) {
+  const struct = {
+    _id: { type: 'string', validation: 'require' },
+    username: { type: 'string', validation: 'require' },
+    password: { type: 'string', validation: 'require' },
+  };
+  const err = utils.validation(info, struct);
+  if (err) {
+    return cb && cb(err);
+  }
+
+  const mediaExpressUser = {
+    email: info.username,
+    password: info.password,
+  };
+
+  const url = `${config.mediaExpressUrl}login`;
+  const method = 'POST';
+
+  utils.requestCallApi(url, method, mediaExpressUser, '', (err, rs) => {
+    if (err) {
+      return cb && cb(err);
+    }
+    if (rs.status !== 0) {
+      return cb && cb(i18n.t('requestCallApiError', { error: rs.result.message }));
+    }
+    mediaExpressUser.username = mediaExpressUser.email;
+    delete mediaExpressUser.email;
+    userInfo.collection.findOneAndUpdate({ _id: info._id }, { $set: { mediaExpressUser } }, (err) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
+      }
+
+      return cb && cb(null, 'ok');
+    });
   });
 };
 

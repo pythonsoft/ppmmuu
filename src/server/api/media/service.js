@@ -14,7 +14,8 @@ const ConfigurationInfo = require('../configuration/configurationInfo');
 const SearchHistoryInfo = require('../user/searchHistoryInfo');
 const WatchingHistoryInfo = require('../user/watchingHistoryInfo');
 const uuid = require('uuid');
-const OpenCC = require('opencc');
+const nodecc = require('node-opencc');
+const Xml2Srt = require('../../common/parseXmlSub');
 
 const HttpRequest = require('../../common/httpRequest');
 
@@ -22,8 +23,6 @@ const rq = new HttpRequest({
   hostname: config.HKAPI.hostname,
   port: config.HKAPI.port,
 });
-
-const opencc = new OpenCC('s2t.json');
 
 const configurationInfo = new ConfigurationInfo();
 const searchHistoryInfo = new SearchHistoryInfo();
@@ -87,7 +86,7 @@ service.solrSearch = function solrSearch(info, cb, userId, videoIds) {
   info.wt = info.wt.trim().toLowerCase();
 
   // convert simplified to tranditional
-  info.q = opencc.convertSync(info.q);
+  info.q = nodecc.simplifiedToTraditional(info.q);
 
   // search by videoId will overwrite original keywords
   if (videoIds) {
@@ -143,14 +142,38 @@ service.solrSearch = function solrSearch(info, cb, userId, videoIds) {
   });
 };
 
-service.defaultMediaList = function defaultMediaList(cb) {
-  redisClient.get('cachedMediaList', (err, obj) => {
-    if (err) {
-      logger.error(err);
-      return cb && cb(err);
-    }
-
-    return cb && cb(null, JSON.parse(obj || '[]'));
+service.defaultMediaList = function defaultMediaList(cb, userId) {
+  const key = 'cachedMediaList';
+  redisClient.get(key, (err, obj) => {
+    service.getWatchHistoryForMediaPage(userId, (error, r) => {
+      if (error) {
+        logger.error(error.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+      if (err) {
+        logger.error(err.message);
+      }
+      if (!obj || err) {
+        service.getEsMediaList({ pageSize: 12 }, (err, rs) => {
+          if (err) {
+            logger.error(err.message);
+          }
+          rs = rs || [];
+          redisClient.set(key, JSON.stringify(rs));
+          redisClient.EXPIRE(key, 60 * 3);
+          rs.push({ category: '瀏覽歷史', docs: r });
+          return cb && cb(null, rs);
+        });
+      } else {
+        try {
+          obj = JSON.parse(obj);
+        } catch (e) {
+          return cb && cb(e);
+        }
+        obj.push({ category: '瀏覽歷史', docs: r });
+        return cb && cb(null, obj || []);
+      }
+    });
   });
 };
 
@@ -169,7 +192,6 @@ service.getMediaList = function getMediaList(info, cb) {
       sort: 'last_modify desc',
       start: 0,
       rows: pageSize,
-      hl: 'off',
     };
     service.solrSearch(query, (err, r) => {
       if (err) {
@@ -199,6 +221,214 @@ service.getMediaList = function getMediaList(info, cb) {
   });
 };
 
+service.getEsMediaList = function getEsMediaList(info, cb) {
+  const pageSize = info.pageSize || 4;
+  const result = [];
+
+  const loopGetCategoryList = function loopGetCategoryList(categories, index) {
+    if (index >= categories.length) {
+      return cb && cb(null, result);
+    }
+    const category = categories[index].label;
+    const options = {
+      match: [{
+        key: 'program_type',
+        value: category,
+      }],
+      source: 'id,duration,name,ccid,program_type,program_name_cn,hd_flag,program_name_en,last_modify,f_str_03',
+      sort: [{
+        key: 'last_modify',
+        value: 'desc',
+      }],
+      start: 0,
+      pageSize,
+    };
+    service.esSearch(options, (err, r) => {
+      if (err) {
+        return cb && cb(err);
+      }
+      result.push({ category, docs: r.docs });
+      loopGetCategoryList(categories, index + 1);
+    });
+  };
+  const key = 'cachedMediaList';
+  redisClient.get(key, (err, obj) => {
+    if (obj) {
+      return cb & cb(null, JSON.parse(obj));
+    }
+    service.getSearchConfig((err, rs) => {
+      if (err) {
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      if (!rs.searchSelectConfigs.length) {
+        return cb & cb(null, result);
+      }
+
+      const categories = rs.searchSelectConfigs[0].items;
+
+      if (!categories.length) {
+        return cb & cb(null, result);
+      }
+
+      loopGetCategoryList(categories, 0);
+    });
+  });
+};
+
+const getEsOptions = function getEsOptions(info) {
+  let match = info.match || [];
+  let should = info.should || [];
+  const hl = info.hl || '';
+  const sort = info.sort || [];
+  const start = info.start || 0;
+  const pageSize = info.pageSize || 24;
+  const source = info.source || '';
+
+  // convert simplified to tranditional
+  match = JSON.parse(nodecc.simplifiedToTraditional(JSON.stringify(match)));
+  should = JSON.parse(nodecc.simplifiedToTraditional(JSON.stringify(should)));
+  const getHighLightFields = function getHighLightFields(fields) {
+    const obj = {};
+    fields = fields.split(',');
+    for (let i = 0, len = fields.length; i < len; i++) {
+      obj[fields[i]] = {};
+    }
+    return obj;
+  };
+
+  const formatMust = function formatMust(arr) {
+    const rs = [];
+    for (let i = 0, len = arr.length; i < len; i++) {
+      const temp = arr[i];
+      if (temp.value) {
+        const item = {
+          match: {},
+        };
+        item.match[temp.key] = temp.value;
+        rs.push(item);
+      }
+    }
+    return rs;
+  };
+
+  const formatSort = function formatSort(arr) {
+    const rs = [];
+    for (let i = 0, len = arr.length; i < len; i++) {
+      const temp = arr[i];
+      if (temp.value) {
+        const item = {};
+        item[temp.key] = {
+          order: temp.value,
+        };
+        rs.push(item);
+      }
+    }
+    return rs;
+  };
+
+  const must = formatMust(match);
+  const shoulds = formatMust(should);
+  const sorts = formatSort(sort);
+  const highlight = getHighLightFields(hl);
+
+  const options = {
+    _source: source.split(','),
+    from: start * 1,
+    size: pageSize * 1,
+  };
+
+  if (must.length && shoulds.length) {
+    options.query = {
+      bool: {
+        must,
+        should: shoulds,
+      },
+    };
+  } else if (must.length) {
+    options.query = {
+      bool: {
+        must,
+      },
+    };
+  } else if (shoulds.length) {
+    options.query = {
+      bool: {
+        should: shoulds,
+      },
+    };
+  }
+
+  if (sorts.length) {
+    options.sort = sorts;
+  }
+
+  if (!utils.isEmptyObject(highlight)) {
+    options.highlight = {
+      require_field_match: false,
+      fields: highlight,
+    };
+  }
+
+  return options;
+};
+
+service.esSearch = function esSearch(info, cb, userId, videoIds) {
+  // search by videoId will overwrite original keywords
+  const match = info.match || [];
+  if (videoIds) {
+    videoIds = videoIds.split(',').join(' ');
+    info.match = [{ _id: videoIds }];
+  }
+  const body = getEsOptions(info);
+  const url = `${config.esBaseUrl}es/program/_search`;
+  const options = {
+    method: 'POST',
+    url,
+    body,
+    json: true,
+  };
+
+  utils.commonRequestCallApi(options, (err, rs) => {
+    if (err) {
+      return cb && cb(err);
+    }
+    const newRs = {
+      docs: [],
+      QTime: rs.took,
+      numFound: rs.hits.total,
+    };
+    const hits = rs.hits.hits || [];
+    for (let i = 0, len = hits.length; i < len; i++) {
+      const _source = hits[i]._source || {};
+      const highlight = hits[i].highlight || {};
+      for (const key in _source) {
+        if (highlight[key]) {
+          _source[key] = highlight[key].join('');
+        }
+      }
+      newRs.docs.push(_source);
+    }
+
+    let fullText = '';
+    for (let i = 0, len = match.length; i < len; i++) {
+      if (match[i].key === 'full_text') {
+        fullText = match[i].value;
+        break;
+      }
+    }
+    if (userId && fullText) {
+      saveSearch(fullText, userId, (err) => {
+        if (err) {
+          logger.error(err);
+        }
+      });
+    }
+
+    return cb && cb(null, newRs);
+  });
+};
+
 service.getIcon = function getIcon(info, res) {
   const struct = {
     objectid: { type: 'string', validation: 'require' },
@@ -214,6 +444,53 @@ service.getIcon = function getIcon(info, res) {
     logger.error(error);
     res.end(error.message);
   }).pipe(res);
+};
+
+service.xml2srt = (info, cb) => {
+  const struct = {
+    objectid: { type: 'string', validation: 'require' },
+  };
+  const err = utils.validation(info, struct);
+
+  if (err) {
+    return cb(err);
+  }
+
+  const options = {
+    uri: `${config.hongkongUrl}get_subtitle`,
+    method: 'GET',
+    encoding: 'utf-8',
+    qs: info,
+  };
+
+  request(options, (error, response) => {
+    if (error) {
+      logger.error(error);
+      return cb(i18n.t('getSubtitleError', { error }));
+    }
+
+    if (response.statusCode !== 200) {
+      logger.error(response.body);
+      return cb(i18n.t('getSubtitleFailed'));
+    }
+
+    const rs = JSON.parse(response.body);
+    rs.status = '0';
+
+    if (Object.keys(rs.result).length === 0) {
+      rs.result = '';
+    }
+
+    const parser = new Xml2Srt(rs.result);
+    parser.getSrtStr((err, r) => {
+      if (err) {
+        logger.error(err);
+        return cb(i18n.t('getSubtitleFailed'));
+      }
+      rs.result = r;
+      return cb(null, rs);
+    });
+  });
 };
 
 service.getObject = function getObject(info, cb) {

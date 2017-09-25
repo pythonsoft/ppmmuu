@@ -154,6 +154,71 @@ router.get('/solrSearch', (req, res) => {
   service.solrSearch(req.query, (err, doc) => res.json(result.json(err, doc)), req.ex.userId);
 });
 
+
+/**
+ * @apiName: esSearch
+ * @apiFuncType: post
+ * @apiFuncUrl: /media/esSearch
+ * @swagger
+ * /media/esSearch:
+ *   post:
+ *     description: 媒体库es搜索
+ *     tags:
+ *       - v1
+ *       - Search
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: 媒体库es搜索
+ *         schema:
+ *           type: object
+ *           properties:
+ *             match:
+ *               type: array
+ *               description: '条件, key:字段, value：值'
+ *               example: [{key: "publish_status", value: 1}, {key: "full_text", value: "鏘鏘三人行"}]
+ *             should:
+ *               type: array
+ *               description: '关联度, key:字段, value：值'
+ *               example: [{key: "name", value: "鏘鏘三人行"}]
+ *             source:
+ *               type: string
+ *               description: '需要的字段'
+ *               example: "id,duration,name,ccid,program_type,program_name_cn,hd_flag,program_name_en,last_modify,f_str_03,f_str_187"
+ *             hl:
+ *               type: string
+ *               description: '需要高亮的字段'
+ *               example: "name,program_name_cn,program_name_en,f_str_03,f_str_187"
+ *             start:
+ *               type: number
+ *               description: '从第几个开始搜索'
+ *               example: 0
+ *             pageSize:
+ *               type: number
+ *               description: '每页数量'
+ *               example: 20
+ *     responses:
+ *       200:
+ *         description: GroupInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.post('/esSearch', (req, res) => {
+  service.esSearch(req.body, (err, doc) => res.json(result.json(err, doc)), req.ex.userId);
+});
+
 /**
  * 用于mobile
  * @apiName: getMediaList
@@ -198,6 +263,49 @@ router.get('/getMediaList', (req, res) => {
 });
 
 /**
+ * 用于mobile
+ * @apiName: getEsMediaList
+ * @apiFuncType: get
+ * @apiFuncUrl: /media/getEsMediaList
+ * @swagger
+ * /media/getEsMediaList:
+ *   get:
+ *     description: 获取媒体库手机版首页
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - Search
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: pageSize
+ *         description: "每个分类个数"
+ *         required: true
+ *         type: string
+ *         default: 4
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *
+ */
+router.get('/getEsMediaList', (req, res) => {
+  service.getEsMediaList(req.query, (err, doc) => res.json(result.json(err, doc)));
+});
+
+/**
  * @apiName: defaultMedia
  * @apiFuncType: get
  * @apiFuncUrl: /media/defaultMedia
@@ -216,7 +324,7 @@ router.get('/getMediaList', (req, res) => {
  *         description: defaultmedia list
  */
 router.get('/defaultMedia', (req, res) => {
-  service.defaultMediaList((err, r) => res.json(result.json(err, r)));
+  service.defaultMediaList((err, r) => res.json(result.json(err, r)), req.ex.userId);
 });
 
 /**
@@ -348,7 +456,7 @@ router.get('/getObject', (req, res) => {
  *       - application/json
  *     parameters:
  *       - in: query
- *         name: objectId
+ *         name: objectid
  *         required: true
  *         type: string
  *         default: "FE1748B4-69F9-4CAB-8CC0-5EB8A35CB717"
@@ -369,18 +477,19 @@ router.get('/getObject', (req, res) => {
  *                  type: string
  */
 router.get('/getStream', (req, res) => {
-  service.getStream(req.query.objectId, (err, doc) => {
-    if (typeof doc.status === 'number') {
+  service.getStream(req.query.objectid, (err, doc) => {
+    if (doc) {
       doc.status += '';
+
+      if (doc.status === '0' && req.ex.userId) {
+        service.saveWatching(req.ex.userId, req.query.objectid, (err) => {
+          if (err) {
+            logger.error(err);
+          }
+        });
+      }
     }
-    if (doc && doc.status === '0' && req.ex.userId) {
-      service.saveWatching(req.ex.userId, req.query.objectId, (err, r) => {
-        if (err) {
-          logger.error(err);
-        }
-        console.log(r);
-      });
-    }
+
     return res.json(doc);
   });
 });
@@ -425,6 +534,34 @@ router.get('/getSearchHistory', (req, res) => {
  */
 router.get('/getWatchHistory', (req, res) => {
   service.getWatchHistoryForMediaPage(req.ex.userId, (err, docs) => res.json(result.json(err, docs)));
+});
+
+/**
+ * @apiName: xml2srt
+ * @apiFuncType: get
+ * @apiFuncUrl: /media/xml2srt
+ * @swagger
+ * /media/xml2srt:
+ *   get:
+ *     description: 获得视频播放地址
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: objectid
+ *         required: true
+ *         type: string
+ *         default: "30EAF8CB-A40A-4BD8-9F8E-20111E9AEC8A"
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: xml2srt
+ */
+router.get('/xml2srt', (req, res) => {
+  service.xml2srt(req.query, (err, r) => res.json(result.json(err, r)));
 });
 
 module.exports = router;

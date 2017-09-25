@@ -48,9 +48,13 @@ function setCookie2(res, doc, cb) {
       httpOnly: true,
     });
 
+    delete info.permissions;
+    delete info.mediaExpressUser;
+
     return cb && cb(null, {
       token,
       menu,
+      userInfo: info,
     });
   });
 }
@@ -123,7 +127,7 @@ const loginHandle = function loginHandle(username, password, cb) {
   });
 };
 
-service.getToken = function (res, username, password, cb) {
+service.getToken = function getToken(res, username, password, cb) {
   loginHandle(username, password, (err, doc) => {
     if (err) {
       return cb && cb(err);
@@ -282,6 +286,80 @@ service.removeSearchHistory = (ids, userId, cb) => {
     filter._id = { $in: ids.split(',') };
   }
   searchHistoryInfo.collection.deleteMany(filter, null, (err, r) => cb && cb(err, r));
+};
+
+/**
+ * 同步AD账户
+ * @param info
+ * @param cb
+ * @returns {*}
+ */
+service.adAccountSync = function adAccountSync(info, cb) {
+  info.verifyType = UserInfo.VERIFY_TYPE.AD;
+
+  if (!info._id) {
+    return cb && cb(i18n.t('fieldIsNotExistError', { field: '_id' }));
+  }
+
+  const result = userInfo.assign(info);
+
+  if (result.err) {
+    return cb & cb(result.err);
+  }
+
+  const doc = result.doc;
+
+  userInfo.collection.findOneAndUpdate({ _id: info._id }, { $set: doc }, { upsert: true }, (err) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
+    }
+
+    return cb && cb(null, 'ok');
+  });
+};
+
+service.getDirectAuthorizeAcceptorList = function getDirectAuthorizeAcceptorList(_id, cb) {
+  userInfo.collection.findOne({ _id }, (err, user) => {
+    if (err) {
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if (!user) {
+      return cb && cb(i18n.t('userNotFind'));
+    }
+
+    const mediaExpressUser = user.mediaExpressUser;
+    if (!mediaExpressUser.username) {
+      return cb && cb(i18n.t('unBindMediaExpressUser'));
+    }
+    const loginForm = {
+      email: mediaExpressUser.username,
+      password: mediaExpressUser.password,
+    };
+
+    let url = `${config.mediaExpressUrl}login`;
+    utils.requestCallApiGetCookie(url, 'POST', loginForm, '', (err, cookie) => {
+      if (err) {
+        return cb && cb(err);
+      }
+      if (!cookie) {
+        return cb && cb(i18n.t('bindMediaExpressUserNeedRefresh'));
+      }
+
+      url = `${config.mediaExpressUrl}directAuthorize/acceptorList?t=${new Date().getTime()}`;
+      utils.requestCallApi(url, 'GET', '', cookie, (err, rs) => {
+        if (err) {
+          return cb && cb(err);
+        }
+        if (rs.status !== 0) {
+          return cb && cb(i18n.t('requestCallApiError', { error: rs.result }));
+        }
+
+        return cb && cb(null, rs.result);
+      });
+    });
+  });
 };
 
 module.exports = service;

@@ -19,17 +19,17 @@ class TemplateInfo extends DB {
       type: { type: 'string', allowUpdate: false, validation: 'require', default: () => TemplateInfo.TYPE.DOWNLOAD },
       modifyTime: { type: 'date', validation: 'require' },
       description: { type: 'string' },
-      details: { type: 'object' }
+      details: { type: 'object' },
     };
   }
 
   createDownloadInfo(script, bucketId) {
     return { script, bucketId };
   }
-};
+}
 
 TemplateInfo.TYPE = {
-  DOWNLOAD: '1'
+  DOWNLOAD: '1',
 };
 
 module.exports = TemplateInfo;

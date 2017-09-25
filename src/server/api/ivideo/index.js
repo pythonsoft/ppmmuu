@@ -196,7 +196,7 @@ router.post('/createDirectory', (req, res) => {
  *              example: ''
  *            snippet:
  *              type: object
- *              example: '{ thumb:"base64/image...", input: 0, output: 1, duration: 1, objectId: "" }'
+ *              example: '{ thumb:"base64/image...", input: 0, output: 1, duration: 1, objectId: "", fileTypeId: "" }'
  *     responses:
  *       200:
  *         description: IVideo

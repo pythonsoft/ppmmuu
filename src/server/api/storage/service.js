@@ -269,7 +269,7 @@ service.updatePath = function updatePath(pathId, info = {}, cb) {
 
   info.modifyTime = new Date();
 
-  if(info._id) {
+  if (info._id) {
     delete info._id;
   }
 
@@ -322,15 +322,15 @@ service.deletePath = function deletePath(pathId, cb) {
 };
 
 service.getPaths = function getPaths(ids, cb) {
-  if(!paths) {
+  if (!ids) {
     return cb && cb(i18n.t('pathIdIsNull'));
   }
 
   const query = {};
 
-  if(ids.constructor === Array) {
-    query._id = { $in: ids }
-  }else {
+  if (ids.constructor === Array) {
+    query._id = { $in: ids };
+  } else {
     query.id = { $in: ids.replace(/\s/g, '').split(',') };
   }
 

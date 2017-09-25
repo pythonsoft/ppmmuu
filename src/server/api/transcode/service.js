@@ -6,6 +6,10 @@
 
 const config = require('../../config');
 const i18n = require('i18next');
+const utils = require('../../common/utils');
+const UserInfo = require('../user/userInfo');
+
+const userInfo = new UserInfo();
 
 const HttpRequest = require('../../common/httpRequest');
 

@@ -8,6 +8,7 @@ const logger = require('../../common/log')('error');
 const utils = require('../../common/utils');
 const config = require('../../config');
 const i18n = require('i18next');
+const uuid = require('uuid');
 
 const EngineGroupInfo = require('./engineGroupInfo');
 
@@ -224,6 +225,9 @@ service.deleteGroup = function deleteGroup(id, cb) {
 
 /* engine */
 const insertEngine = function insertGroup(info, cb) {
+  if (!info._id) {
+    info._id = uuid.v1();
+  }
   engineInfo.insertOne(info, (err, r) => {
     if (err) {
       logger.error(err.message);

@@ -8,10 +8,12 @@
 config.host = 'localhost:8080';
 config.domain = `http://${config.host}`;
 config.mongodb = {
-  umpURL: 'mongodb://10.0.15.62:27017/ump_v1',
+  // umpURL: 'mongodb://10.0.15.62:27017/ump_v1',
+  umpURL: 'mongodb://172.19.223.130:27017/ump_v1',
 };
 
-config.redis_host = '10.0.15.69';
+// config.redis_host = '10.0.15.69';
+config.redis_host = '172.19.223.163';
 config.redis_port = 6379;
 config.redis_opts = { auth_pass: 'phoenixtv2017' };
 config.KEY = 'secret';
@@ -36,13 +38,13 @@ config.JOB_API_SERVER = {
 };
 
 // solr搜索地址
-config.solrBaseUrl = 'http://solr.szdev.cn/solr/';
-// es搜索地址
-config.esBaseUrl = 'http://10.0.15.204:9200/';
+// config.solrBaseUrl = 'http://solr.szdev.cn/solr/';
+config.solrBaseUrl = 'http://hk.solr.szdev.cn/solr/';
 // 香港检索基础api地址
 config.hongkongUrl = 'http://w2.phoenixtv.com/mamapi/';
 // ump fe api地址
-config.umpFeAPI = process.env.NODE_ENV === 'development' ? 'http://localhost:8080' : 'http://api.szdev.cn';
+// config.umpFeAPI = process.env.NODE_ENV === 'development' ? 'http://localhost:8080' : 'http://api.szdev.cn';
+config.umpFeAPI = 'http://hk.api.szdev.cn';
 
 config.archiveAppId = '9f6d42fe-0329-43aa-bcac-a30e00c66d7c';
 
@@ -65,4 +67,4 @@ config.adminMenuPermission = config.normalMenuPermission.concat(['management']);
 
 
 // 快传api地址
-config.mediaExpressUrl = 'https://console.szdev.cn/';
+config.mediaExpressUrl = 'https://console.cloudifeng.com/';

@@ -6,7 +6,7 @@ const logger = require('../common/log')('error');
 
 const watchingHistoryInfo = new WatchingHistoryInfo();
 
-const renewHistoryList = function() {
+const renewHistoryList = function renewHistoryList() {
   watchingHistoryInfo.collection.findOneAndUpdate(
     { status: WatchingHistoryInfo.STATUS.UNAVAILABLE },
     { $set: { status: WatchingHistoryInfo.STATUS.PROCESSING } },
@@ -17,19 +17,20 @@ const renewHistoryList = function() {
       if (err || !r.value) {
         return false;
       }
-      const query = {
-        q: '',
-        fl: 'id,duration,name,ccid,program_type,program_name_cn,hd_flag,program_name_en,last_modify,f_str_03',
-        sort: 'last_modify desc',
+      const options = {
+        source: 'id,duration,name,ccid,program_type,program_name_cn,hd_flag,program_name_en,last_modify,f_str_03',
+        sort: [{
+          key: 'last_modify',
+          value: 'desc',
+        }],
         start: 0,
-        rows: 1,
-        hl: 'off',
+        pageSize: 1,
       };
-      mediaService.solrSearch(query, (err, doc) => {
-        if (err) {
+      mediaService.esSearch(options, (err, doc) => {
+        if (err || !doc.docs[0]) {
           watchingHistoryInfo.collection.findOneAndUpdate(
             { _id: r.value._id },
-            { $set: { status: 'unavailable' } },
+            { $set: { status: WatchingHistoryInfo.STATUS.UNAVAILABLE } },
             {
               returnOriginal: false,
             }, (err) => {
@@ -44,8 +45,8 @@ const renewHistoryList = function() {
               $set: {
                 status: WatchingHistoryInfo.STATUS.AVAILABLE,
                 videoContent: doc.docs[0],
-                updatedTime: new Date()
-              }
+                updatedTime: new Date(),
+              },
             },
             {
               returnOriginal: false,
@@ -57,6 +58,6 @@ const renewHistoryList = function() {
         }
       }, null, r.value.videoId);
     });
-}
+};
 
-setInterval(renewHistoryList, 1000 * 60);
+setInterval(renewHistoryList, 1000 * 6);
