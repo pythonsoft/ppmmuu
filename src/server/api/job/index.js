@@ -427,15 +427,11 @@ router.get('/deleteTemplate', (req, res) => {
  *                 filetypeid:
  *                   type: string
  *                   example: asf
- *                 destination:
- *                   type: string
- *                   description: '相对路劲'
- *                   example: asf
- *                 targetname:
- *                   type: string
- *                   description: '文件名,不需要文件名后缀'
- *                   example: asf
  *
+ *             templateId:
+ *               type: string
+ *               description: template _id
+ *               example: "frfqwrqw"
  *             receiverId:
  *               type: string
  *               description: acceptor _id
@@ -444,12 +440,6 @@ router.get('/deleteTemplate', (req, res) => {
  *               type: string
  *               description: acceptor type
  *               example: 1
- *             userId:
- *               type: string
- *               example: "frfqwrqw"
- *             userName:
- *               type: string
- *               example: 'asdasd'
  *     responses:
  *       200:
  *         description: GroupInfo

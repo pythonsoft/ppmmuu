@@ -28,7 +28,7 @@ const service = {};
 /* catalog task */
 
 // 列出编目任务
-service.listCatalogTask = function listCatalogTask(status, departmentId, ownerId, assigneeId, objectId, sortFields = '-createdTime', fieldsNeed, page = 1, pageSize = 20, cb) {
+service.listCatalogTask = function listCatalogTask(status, departmentId, ownerId, assigneeId, objectId, sortFields = '-createdTime', fieldsNeed, page = 1, pageSize = 20, keyword, cb) {
   const query = { };
 
   if (status) {
@@ -37,6 +37,10 @@ service.listCatalogTask = function listCatalogTask(status, departmentId, ownerId
     } else {
       query.status = status;
     }
+  }
+
+  if(keyword){
+    query.name = {"$regex":keyword, "$options":"i"};
   }
 
   if (departmentId) {

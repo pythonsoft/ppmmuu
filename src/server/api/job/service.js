@@ -343,9 +343,12 @@ const getMediaExpressEmail = function getMediaExpressEmail(loginForm, receiver, 
 service.downloadAndTransfer = function downloadAndTransfer(req, cb) {
   const info = req.body;
   const userId = req.ex.userId;
+  const userName = req.ex.userInfo.name;
   const downloadParams = info.downloadParams || '';
   const receiverId = info.receiverId || '';
   const receiverType = info.receiverType || '';
+  const templateId = info.templateId || '';
+
   if (!downloadParams) {
     return cb && cb(i18n.t('joShortDownloadParams'));
   }
@@ -354,6 +357,9 @@ service.downloadAndTransfer = function downloadAndTransfer(req, cb) {
   }
   if (!receiverType) {
     return cb && cb(i18n.t('joShortReceiverType'));
+  }
+  if (!templateId) {
+    return cb && cb(i18n.t('joShortTemplateId'));
   }
 
   const params = {
@@ -368,8 +374,8 @@ service.downloadAndTransfer = function downloadAndTransfer(req, cb) {
       userName: '',
       password: '',
     },
-    userId: '',
-    userName: '',
+    userId: userId,
+    userName: userName,
   };
 
   userInfo.collection.findOne({ _id: userId }, (err, doc) => {
@@ -393,24 +399,36 @@ service.downloadAndTransfer = function downloadAndTransfer(req, cb) {
       _id: receiverId,
       type: receiverType,
     };
-    getMediaExpressEmail(loginForm, receiver, (err, email) => {
+    templateService.getDownloadPath(doc, templateId, (err, downloadPath) => {
       if (err) {
         return cb && cb(err);
       }
-
-      params.transferParams.receiver = email;
-
-      const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/JobService/downloadAndTransfer`;
-      utils.requestCallApi(url, 'POST', params, '', (err, rs) => {
+  
+      params.downloadParams.destination = downloadPath;
+      getMediaExpressEmail(loginForm, receiver, (err, email) => {
         if (err) {
           return cb && cb(err);
         }
-
-        return cb && cb(null, rs);
+    
+        params.transferParams.receiver = email;
+        params.transferParams = JSON.stringify(params.transferParams);
+        params.downloadParams = JSON.stringify(params.downloadParams);
+        console.log(JSON.stringify(params));
+    
+        const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/JobService/downloadAndTransfer`;
+        utils.requestCallApi(url, 'POST', params, '', (err, rs) => {
+          if (err) {
+            return cb && cb(err);
+          }
+      
+          if (rs.status === '0') {
+            return cb && cb(null, 'ok');
+          }
+          return cb && cb(i18n.t('requestCallApiError', {error: rs.statusInfo.message}));
+        });
       });
-    });
+    })
   });
-  requestTemplate.get('/TemplateService/delete', params, res);
 };
 
 module.exports = service;
