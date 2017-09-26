@@ -16,12 +16,11 @@ const catalogInfo = new CatalogInfo();
 const userInfo = new UserInfo();
 const fileInfo = new FileInfo();
 
-let objectId = '2F641EEB-8A2F-4D30-B33C-099FCE7A1F2A';
-const objectIds = [];
+let objectId = '6C842811-F9B4-417F-B359-54A8875CEBBC';
+const objectIds = ['6C842811-F9B4-417F-B359-54A8875CEBBC'];
 // for (let i = 0, len = 20; i < len; i++) {
 //   objectIds.push(uuid.v1());
 // }
-objectIds.push(objectId);
 
 const catalogtaskinfo = {
   name: '时事大破解',
@@ -80,7 +79,7 @@ catalogTaskInfo.collection.findOne({ objectId }, (err, doc) => {
             fileinfos.push(newFile);
           }
         }
-        fileInfo.collection.insert(fileinfos, (err) => {
+        fileInfo.insertMany(fileinfos, (err) => {
           if (err) {
             console.log('error==>', err.message);
           }
@@ -130,7 +129,7 @@ catalogTaskInfo.collection.findOne({ objectId }, (err, doc) => {
               infos.push(newInfo);
             }
 
-            catalogInfo.collection.insert(infos, (err) => {
+            catalogInfo.collection.insertMany(infos, (err) => {
               if (err) {
                 console.log(err.message);
               }
