@@ -476,6 +476,14 @@ service.resumeCatalogTask = function resumeCatalogTask(taskIds, resumeId, resume
   });
 };
 
+//todo
+service.getCatalogTask = function getCatalogTask(taskId, cb) {
+  if (!taskId) {
+    return cb && cb(i18n.t('libraryCatalogTaskIdIsNull'));
+  }
+
+};
+
 /* catalog task */
 
 /* catalog info */
