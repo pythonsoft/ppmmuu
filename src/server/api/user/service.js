@@ -364,15 +364,15 @@ service.getDirectAuthorizeAcceptorList = function getDirectAuthorizeAcceptorList
   });
 };
 
-service.getMenusByIndex = function getMenusByIndex(indexArr, cb){
-  permissionGroup.collection.find({index: {$in: indexArr}}).toArray(function(err, docs){
-    if(err){
+service.getMenusByIndex = function getMenusByIndex(indexArr, cb) {
+  permissionGroup.collection.find({ index: { $in: indexArr } }).toArray((err, docs) => {
+    if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
-    
+
     return cb && cb(null, docs);
-  })
-}
+  });
+};
 
 module.exports = service;

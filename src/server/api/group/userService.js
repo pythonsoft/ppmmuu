@@ -254,6 +254,7 @@ service.justifyUserGroup = function justifyUserGroup(info, cb) {
           return cb && cb(err);
         }
 
+        config.redisClient.del(_ids);
         return cb && cb(null, 'ok');
       });
   });

@@ -37,8 +37,8 @@ class PermissionGroup extends DB {
       _id: { type: 'string', validation: 'require', allowUpdate: false },
       name: { type: 'string', validation: 'require', allowUpdate: false },
       index: { type: 'string', validation: 'require', allowUpdate: false },
-      parentIndex: { type: 'string'},
-      description: { type: 'string'},
+      parentIndex: { type: 'string' },
+      description: { type: 'string' },
     };
   }
 }

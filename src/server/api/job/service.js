@@ -14,7 +14,7 @@ const userInfo = new UserInfo();
 
 const templateService = require('../template/service');
 
-const JOB_API_SERVER_URL = `http://${config.TRANSCODE_API_SERVER.hostname}:${config.TRANSCODE_API_SERVER.port}`;
+const TRANSCODE_API_SERVER_URL = `http://${config.TRANSCODE_API_SERVER.hostname}:${config.TRANSCODE_API_SERVER.port}`;
 const HttpRequest = require('../../common/httpRequest');
 
 const request = new HttpRequest({
@@ -113,7 +113,7 @@ service.createJson = function createJson(createJsonParams, res) {
     return res.end(errorCall('jobCreateTemplateParamsCreateJsonIsNull'));
   }
 
-  const url = `${JOB_API_SERVER_URL}/TemplateService/create`;
+  const url = `${TRANSCODE_API_SERVER_URL}/TemplateService/create`;
   params.template = JSON.stringify(params.template);
   utils.requestCallApi(url, 'POST', params, '', (err, rs) => {
     if (err) {
@@ -135,7 +135,7 @@ service.updateJson = function updateJson(updateJsonParams, res) {
     return res.end(errorCall('jobCreateTemplateParamsCreateJsonIsNull'));
   }
 
-  const url = `${JOB_API_SERVER_URL}/TemplateService/update`;
+  const url = `${TRANSCODE_API_SERVER_URL}/TemplateService/update`;
   params.template = JSON.stringify(params.template);
   utils.requestCallApi(url, 'POST', params, '', (err, rs) => {
     if (err) {

@@ -15,6 +15,7 @@ router.use(isLogin.middleware);
 router.use(isLogin.hasAccessMiddleware);
 
 /**
+ * @permissionGroup: engine
  * @permissionName: 列举小组
  * @permissionPath: /engine/listGroup
  * @apiName: listGroup
@@ -81,6 +82,7 @@ router.get('/listGroup', (req, res) => {
 });
 
 /**
+ * @permissionGroup: engine
  * @permissionName: 添加小组
  * @permissionPath: /engine/addGroup
  * @apiName: addGroup
@@ -132,6 +134,7 @@ router.post('/addGroup', (req, res) => {
 });
 
 /**
+ * @permissionGroup: engine
  * @permissionName: 删除分组
  * @permissionPath: /engine/removeGroup
  * @apiName: removeGroup
@@ -164,6 +167,7 @@ router.post('/removeGroup', (req, res) => {
 });
 
 /**
+ * @permissionGroup: engine
  * @permissionName: 获取分组的详细信息
  * @permissionPath: /engine/getGroup
  * @apiName: getGroup
@@ -196,6 +200,7 @@ router.get('/getGroup', (req, res) => {
 });
 
 /**
+ * @permissionGroup: engine
  * @permissionName: 更新组信息
  * @permissionPath: /engine/updateGroup
  * @apiName: updateGroup
@@ -251,6 +256,7 @@ router.post('/updateGroup', (req, res) => {
 /* engine */
 
 /**
+ * @permissionGroup: engine
  * @permissionName: 引擎列表
  * @permissionPath: /engine/listEngine
  * @apiName: listEngine
@@ -325,6 +331,7 @@ router.get('/listEngine', (req, res) => {
 });
 
 /**
+ * @permissionGroup: engine
  * @permissionName: 添加引擎
  * @permissionPath: /engine/addEngine
  * @apiName: addEngine
@@ -371,6 +378,7 @@ router.post('/addEngine', (req, res) => {
 });
 
 /**
+ * @permissionGroup: engine
  * @permissionName: 获取引擎的详细信息
  * @permissionPath: /engine/getEngine
  * @apiName: getEngine
@@ -413,6 +421,7 @@ router.get('/getEngine', (req, res) => {
 });
 
 /**
+ * @permissionGroup: engine
  * @permissionName: 更新引擎信息
  * @permissionPath: /engine/updateEngine
  * @apiName: updateEngine
@@ -523,6 +532,7 @@ router.post('/updateEngine', (req, res) => {
 });
 
 /**
+ * @permissionGroup: engine
  * @permissionName: 删除引擎
  * @permissionPath: /engine/removeEngine
  * @apiName: removeEngine
@@ -555,6 +565,7 @@ router.post('/removeEngine', (req, res) => {
 });
 
 /**
+ * @permissionGroup: engine
  * @permissionName: 更新引擎配置信息
  * @permissionPath: /engine/updateEngineConfiguration
  * @apiName: updateEngineConfiguration
@@ -596,6 +607,7 @@ router.post('/updateEngineConfiguration', (req, res) => {
 /* 进程 */
 
 /**
+ * @permissionGroup: engine
  * @permissionName: 列举引擎进程
  * @permissionPath: /engine/listProcess
  * @apiName: listProcess
@@ -628,6 +640,7 @@ router.get('/listProcess', (req, res) => {
 });
 
 /**
+ * @permissionGroup: engine
  * @permissionName: 列举进程命令
  * @permissionPath: /engine/listAction
  * @apiName: listAction
@@ -667,6 +680,7 @@ router.get('/listAction', (req, res) => {
 });
 
 /**
+ * @permissionGroup: engine
  * @permissionName: 执行进程action操作
  * @permissionPath: /engine/emitAction
  * @apiName: emitAction
@@ -720,6 +734,7 @@ router.post('/emitAction', (req, res) => {
 });
 
 /**
+ * @permissionGroup: engine
  * @permissionName: 安装监控
  * @permissionPath: /engine/installMonitor
  * @apiName: installMonitor
