@@ -16,6 +16,12 @@ const infos = [
     parentIndex: '',
   },
   {
+    _id: 'library',
+    name: '编目',
+    index: 'library',
+    parentIndex: '',
+  },
+  {
     _id: 'accountManagement',
     name: '账户管理',
     index: 'accountManagement',
@@ -50,24 +56,6 @@ const infos = [
     name: '存储管理',
     index: 'storageManagement',
     parentIndex: 'management',
-  },
-  {
-    _id: 'bucket',
-    name: '存储区',
-    index: 'bucket',
-    parentIndex: 'storageManagement',
-  },
-  {
-    _id: 'storagePath',
-    name: '路径',
-    index: 'storagePath',
-    parentIndex: 'storageManagement',
-  },
-  {
-    _id: 'storageTactics',
-    name: '策略',
-    index: 'storageTactics',
-    parentIndex: 'storageManagement',
   },
   {
     _id: 'bucket',

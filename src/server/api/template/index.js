@@ -15,7 +15,8 @@ router.use(isLogin.middleware);
 router.use(isLogin.hasAccessMiddleware);
 
 /**
- * @permissionName: 列举出所有模板
+ * @permissionGroup: downloadTemplate
+ * @permissionName: 下载模板列表
  * @permissionPath: /template/list
  * @apiName: list
  * @apiFuncType: get
@@ -79,7 +80,8 @@ router.get('/list', (req, res) => {
 });
 
 /**
- * @permissionName: 创建下模板
+ * @permissionGroup: downloadTemplate
+ * @permissionName: 创建下载模板
  * @permissionPath: /template/createDownloadTemplate
  * @apiName: createDownloadTemplate
  * @apiFuncType: post
@@ -135,7 +137,8 @@ router.post('/createDownloadTemplate', (req, res) => {
 });
 
 /**
- * @permissionName: 删除模板
+ * @permissionGroup: downloadTemplate
+ * @permissionName: 删除下载模板
  * @permissionPath: /template/remove
  * @apiName: remove
  * @apiFuncType: post
@@ -169,7 +172,8 @@ router.post('/remove', (req, res) => {
 });
 
 /**
- * @permissionName: 更新模板信息
+ * @permissionGroup: downloadTemplate
+ * @permissionName: 更新下载模板信息
  * @permissionPath: /template/update
  * @apiName: update
  * @apiFuncType: post
@@ -202,7 +206,8 @@ router.post('/update', (req, res) => {
 });
 
 /**
- * @permissionName: 获取模板详细信息
+ * @permissionGroup: downloadTemplate
+ * @permissionName: 获取下载模板详细信息
  * @permissionPath: /template/getDetail
  * @apiName: getDetail
  * @apiFuncType: get

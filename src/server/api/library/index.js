@@ -15,6 +15,7 @@ router.use(isLogin.middleware);
 router.use(isLogin.hasAccessMiddleware);
 
 /**
+ * @permissionGroup: library
  * @permissionName: 创建编目任务信息
  * @permissionPath: /library/createCatalogTask
  * @apiName: createCatalogTask
@@ -85,6 +86,7 @@ router.post('/createCatalogTask', (req, res) => {
 });
 
 /**
+ * @permissionGroup: library
  * @permissionName: 列举编目任务
  * @permissionPath: /library/listCatalogTask
  * @apiName: listCatalogTask
@@ -190,6 +192,7 @@ router.get('/listCatalogTask', (req, res) => {
 });
 
 /**
+ * @permissionGroup: library
  * @permissionName: 列举所在部门的编目任务
  * @permissionPath: /library/listDepartmentCatalogTask
  * @apiName: listDepartmentCatalogTask
@@ -267,6 +270,7 @@ router.get('/listDepartmentCatalogTask', (req, res) => {
 });
 
 /**
+ * @permissionGroup: library
  * @permissionName: 列举我的编目任务
  * @permissionPath: /library/listMyCatalogTask
  * @apiName: listMyCatalogTask
@@ -337,6 +341,7 @@ router.get('/listMyCatalogTask', (req, res) => {
 });
 
 /**
+ * @permissionGroup: library
  * @permissionName: 派发任务
  * @permissionPath: /library/assignCatalogTask
  * @apiName: assignCatalogTask
@@ -393,6 +398,7 @@ router.post('/assignCatalogTask', (req, res) => {
 });
 
 /**
+ * @permissionGroup: library
  * @permissionName: 认领任务
  * @permissionPath: /library/applyCatalogTask
  * @apiName: applyCatalogTask
@@ -443,6 +449,7 @@ router.post('/applyCatalogTask', (req, res) => {
 });
 
 /**
+ * @permissionGroup: library
  * @permissionName: 退回任务
  * @permissionPath: /library/sendBackCatalogTask
  * @apiName: sendBackCatalogTask
@@ -493,6 +500,7 @@ router.post('/sendBackCatalogTask', (req, res) => {
 });
 
 /**
+ * @permissionGroup: library
  * @permissionName: 提交任务
  * @permissionPath: /library/submitCatalogTask
  * @apiName: submitCatalogTask
@@ -543,6 +551,7 @@ router.post('/submitCatalogTask', (req, res) => {
 });
 
 /**
+ * @permissionGroup: library
  * @permissionName: 删除任务
  * @permissionPath: /library/deleteCatalogTask
  * @apiName: deleteCatalogTask
@@ -593,6 +602,7 @@ router.post('/deleteCatalogTask', (req, res) => {
 });
 
 /**
+ * @permissionGroup: library
  * @permissionName: 恢复任务
  * @permissionPath: /library/resumeCatalogTask
  * @apiName: resumeCatalogTask
@@ -643,6 +653,7 @@ router.post('/resumeCatalogTask', (req, res) => {
 });
 
 /**
+ * @permissionGroup: library
  * @permissionName: 列举编目信息
  * @permissionPath: /library/listCatalog
  * @apiName: listCatalog
@@ -675,6 +686,7 @@ router.get('/listCatalog', (req, res) => {
 });
 
 /**
+ * @permissionGroup: library
  * @permissionName: 创建编目信息
  * @permissionPath: /library/createCatalog
  * @apiName: createCatalog
@@ -800,6 +812,7 @@ router.post('/createCatalog', (req, res) => {
 });
 
 /**
+ * @permissionGroup: library
  * @permissionName: 更新编目信息
  * @permissionPath: /library/updateCatalog
  * @apiName: updateCatalog
@@ -915,6 +928,7 @@ router.post('/updateCatalog', (req, res) => {
 });
 
 /**
+ * @permissionGroup: library
  * @permissionName: 创建文件信息
  * @permissionPath: /library/createFile
  * @apiName: createFile
@@ -1006,6 +1020,7 @@ router.post('/createFile', (req, res) => {
 });
 
 /**
+ * @permissionGroup: library
  * @permissionName: 更新文件信息
  * @permissionPath: /library/updateFile
  * @apiName: updateFile

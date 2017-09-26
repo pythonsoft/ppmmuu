@@ -530,6 +530,7 @@ router.post('/clearWatchHistory', (req, res) => {
 });
 
 /**
+ * @permissionGroup: account
  * @permissionName: 同步AD账户
  * @permissionPath: /user/adAccountSync
  * @swagger
@@ -611,6 +612,7 @@ router.post('/adAccountSync', (req, res) => {
 
 /* downloadTask */
 /**
+ * @permissionGroup: account
  * @permissionName: user_listJob
  * @permissionPath: /user/listJob
  * @apiName: listJob
@@ -663,6 +665,7 @@ router.get('/listJob', (req, res) => {
 });
 
 /**
+ * @permissionGroup: account
  * @permissionName: user_queryJob
  * @permissionPath: /user/queryJob
  * @apiName: queryJob
@@ -694,6 +697,7 @@ router.get('/queryJob', (req, res) => {
 });
 
 /**
+ * @permissionGroup: account
  * @permissionName: user_restartJob
  * @permissionPath: /user/restartJob
  * @apiName: restartJob
@@ -725,6 +729,7 @@ router.get('/restartJob', (req, res) => {
 });
 
 /**
+ * @permissionGroup: account
  * @permissionName: user_stopJob
  * @permissionPath: /user/stopJob
  * @apiName: stopJob
@@ -756,6 +761,7 @@ router.get('/stopJob', (req, res) => {
 });
 
 /**
+ * @permissionGroup: account
  * @permissionName: user_deleteJob
  * @permissionPath: /user/deleteJob
  * @apiName: deleteJob
@@ -787,6 +793,7 @@ router.get('/deleteJob', (req, res) => {
 });
 
 /**
+ * @permissionGroup: account
  * @permissionName: 获取直传模式授权列表
  * @permissionPath: /user/directAuthorize/acceptorList
  * @apiName: directAuthorizeAcceptorList
@@ -852,6 +859,7 @@ router.get('/directAuthorize/acceptorList', (req, res) => {
 });
 
 /**
+ * @permissionGroup: account
  * @permissionName: 列举部门列表
  * @permissionPath: /user/listUserByDepartment
  * @apiName: listUserByDepartment

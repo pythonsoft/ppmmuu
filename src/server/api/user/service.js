@@ -33,6 +33,19 @@ const generateToken = function generateToken(id, expires) {
   return token;
 };
 
+const getMenuByPermissions = function getMenuByPermissions(permissions, cb){
+  if(permissions.length === 0){
+    return cb && cb(null, []);
+  }
+  const indexes = [];
+  for(let i = 0, len = permissions.length; i < len; i++){
+    indexes.push(permissions[i].groupIndex);
+  }
+  service.getMenusByIndex(indexes, function(err, menu){
+    return cb && cb(err, menu);
+  });
+}
+
 function setCookie2(res, doc, cb) {
   const expires = new Date().getTime() + config.cookieExpires;
   const token = generateToken(doc._id, expires);
@@ -41,23 +54,26 @@ function setCookie2(res, doc, cb) {
     if (err) {
       return cb && cb(i18n.t('loginCannotGetUserInfo'));
     }
-
+    
     const permissions = info.permissions || [];
-    const menu = permissions.length ? config.adminMenuPermission : config.normalMenuPermission;
-
-    res.cookie('ticket', token, {
-      expires: new Date(expires),
-      httpOnly: true,
-    });
-
-    delete info.permissions;
-    delete info.mediaExpressUser;
-
-    return cb && cb(null, {
-      token,
-      menu,
-      userInfo: info,
-    });
+    getMenuByPermissions(permissions, function(err, menu) {
+      if(err){
+        return cb && cb(err);
+      }
+      res.cookie('ticket', token, {
+        expires: new Date(expires),
+        httpOnly: true,
+      });
+  
+      delete info.permissions;
+      delete info.mediaExpressUser;
+  
+      return cb && cb(null, {
+        token,
+        menu,
+        userInfo: info,
+      });
+    })
   });
 }
 
@@ -365,14 +381,49 @@ service.getDirectAuthorizeAcceptorList = function getDirectAuthorizeAcceptorList
 };
 
 service.getMenusByIndex = function getMenusByIndex(indexArr, cb) {
-  permissionGroup.collection.find({ index: { $in: indexArr } }).toArray((err, docs) => {
-    if (err) {
-      logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
-    }
-
-    return cb && cb(null, docs);
-  });
+  const query = {};
+  const arr = [];
+  const loopGetPermissionGroup = function loopGetPermissionGroup(query) {
+    permissionGroup.collection.find(query).toArray((err, docs) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+      
+      if(!docs || docs.length === 0){
+        permissionGroup.collection.find({index: {$in: arr}}).toArray((err, docs) => {
+          if (err) {
+            logger.error(err.message);
+            return cb && cb(i18n.t('databaseError'));
+          }
+    
+          return cb && cb(null, docs);
+        });
+      }else {
+  
+        const parentIndexes = [];
+        for (let i = 0, len = docs.length; i < len; i++) {
+          parentIndexes.push(docs[i].parentIndex);
+          arr.push(docs[i].index);
+        }
+        loopGetPermissionGroup({index: {$in: parentIndexes}});
+      }
+    });
+  }
+  
+  if(indexArr.indexOf('root') === -1){
+    query['index'] = { $in: indexArr };
+    loopGetPermissionGroup(query);
+  }else{
+    permissionGroup.collection.find(query).toArray((err, docs) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+      
+      return cb && cb(null, docs);
+    });
+  }
 };
 
 module.exports = service;
