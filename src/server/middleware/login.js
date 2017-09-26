@@ -4,6 +4,7 @@
 
 'use strict';
 
+const logger = require('../common/log')('error');
 const i18n = require('i18next');
 const utils = require('../common/utils');
 const result = require('../common/result');
@@ -38,37 +39,43 @@ Login.isLogin = function isLogin(req) {
 
 Login.getUserInfo = function getUserInfo(userId, cb) {
   let info = {};
-
-  redisClient.get(userId, (err, r) => {
+  userInfo.getUserInfo(userId, '', (err, doc) => {
     if (err) {
       return cb && cb(err);
     }
 
-    if (r) {
-      info = JSON.parse(r);
-      return cb && cb(null, info);
+    if (!doc) {
+      return cb && cb(i18n.t('loginCannotFindUser'));
     }
 
-    userInfo.getUserInfo(userId, '', (err, doc) => {
+    groupService.getOwnerEffectivePermission({ _id: doc._id, type: PermissionAssignmentInfo.TYPE.USER }, (err, result) => {
       if (err) {
         return cb && cb(err);
       }
-
-      if (!doc) {
-        return cb && cb(i18n.t('loginCannotFindUser'));
-      }
-
-      groupService.getOwnerEffectivePermission({ _id: doc._id, type: PermissionAssignmentInfo.TYPE.USER }, (err, result) => {
-        if (err) {
-          return cb && cb(err);
-        }
-        info = doc;
-        info.permissions = result;
-        redisClient.set(userId, JSON.stringify(info));
-        redisClient.EXPIRE(userId, config.redisExpires);
-        return cb && cb(null, info);
-      });
+      info = doc;
+      info.permissions = result;
+      redisClient.set(userId, JSON.stringify(info));
+      redisClient.EXPIRE(userId, config.redisExpires);
+      return cb && cb(null, info);
     });
+  });
+};
+
+Login.getUserInfoRedis = function getUserInfo(userId, cb) {
+  let info = {};
+  
+  redisClient.get(userId, (err, r) => {
+    if (err) {
+      logger.error(JSON.stringify(err));
+      login.getUserInfo(userId, cb);  //如果redis报错(redis挂了)，那么就去数据库拿，这样的话我们的重新登录功能就会失效
+    }else {
+      if (r) {
+        info = JSON.parse(r);
+        return cb && cb(null, info);
+      } else {
+        return cb && cb(i18n.t('needReLogin'));
+      }
+    }
   });
 };
 
@@ -85,7 +92,7 @@ Login.middleware = function middleware(req, res, next) {
         req.body = utils.trim(req.body);
       }
 
-      Login.getUserInfo(req.ex.userId, (err, info) => {
+      Login.getUserInfoRedis(req.ex.userId, (err, info) => {
         if (err) {
           res.clearCookie('ticket');
           return res.json(result.fail(req.t('loginCannotGetUserInfo')));

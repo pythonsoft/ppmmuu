@@ -18,6 +18,7 @@ router.use(isLogin.hasAccessMiddleware);
 const service = require('./service');
 
 /**
+ * @permissionGroup: role
  * @permissionName: 角色列表
  * @permissionPath: /role/list
  * @apiName: getRoleList
@@ -26,7 +27,7 @@ const service = require('./service');
  * @swagger
  * /role/list:
  *   get:
- *     description: get list roles
+ *     description: get list roles=
  *     version: 1.0.0
  *     tags:
  *       - v1
