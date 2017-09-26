@@ -18,6 +18,7 @@ router.use(isLogin.hasAccessMiddleware);
 const service = require('./service');
 
 /**
+ * @permissionGroup: role
  * @permissionName: 角色列表
  * @permissionPath: /role/list
  * @apiName: getRoleList
@@ -26,7 +27,7 @@ const service = require('./service');
  * @swagger
  * /role/list:
  *   get:
- *     description: get list roles
+ *     description: get list roles=
  *     version: 1.0.0
  *     tags:
  *       - v1
@@ -69,6 +70,7 @@ router.get('/list', (req, res) => {
 });
 
 /**
+ * @permissionGroup: role
  * @permissionName: 角色详情
  * @permissionPath: /role/getDetail
  * @apiName: getRoleDetail
@@ -103,6 +105,7 @@ router.get('/getDetail', (req, res) => {
 });
 
 /**
+ * @permissionGroup: role
  * @permissionName: 增加角色
  * @permissionPath: /role/add
  * @apiName: postAddRole
@@ -168,6 +171,7 @@ router.post('/add', (req, res) => {
 });
 
 /**
+ * @permissionGroup: role
  * @permissionName: 编辑角色
  * @permissionPath: /role/update
  * @apiName: postUpdateRole
@@ -223,6 +227,7 @@ router.post('/update', (req, res) => {
 
 
 /**
+ * @permissionGroup: role
  * @permissionName: 编辑角色中增加权限
  * @permissionPath: /role/updateRoleAddPermission
  * @apiName: postUpdateRoleAddPermission
@@ -284,6 +289,7 @@ router.post('/updateRoleAddPermission', (req, res) => {
 });
 
 /**
+ * @permissionGroup: role
  * @permissionName: 编辑角色中删除权限
  * @permissionPath: /role/updateRoleDeletePermission
  * @apiName: postUpdateRoleDeletePermission
@@ -346,6 +352,7 @@ router.post('/updateRoleDeletePermission', (req, res) => {
 
 
 /**
+ * @permissionGroup: role
  * @permissionName: 删除角色
  * @permissionPath: /role/delete
  * @apiName: postDeleteRole
@@ -395,6 +402,7 @@ router.post('/delete', (req, res) => {
 });
 
 /*
+ * @permissionGroup: role
  * @permissionName: 权限列表
  * @permissionPath: /role/listPermission
  * @apiName: getPermissionList
@@ -471,6 +479,7 @@ router.get('/listPermission', (req, res) => {
 });
 
 /**
+ * @permissionGroup: role
  * @permissionName: 分配角色给用户或组织
  * @permissionPath: /role/assignRole
  * @apiName: postAssignRole
@@ -531,6 +540,7 @@ router.post('/assignRole', (req, res) => {
 });
 
 /**
+ * @permissionGroup: role
  * @permissionName: 删除用户或组织的角色
  * @permissionPath: /role/deleteOwnerRole
  * @apiName: postDeleteOwnerRole
@@ -574,6 +584,7 @@ router.post('/deleteOwnerRole', (req, res) => {
 });
 
 /**
+ * @permissionGroup: role
  * @permissionName: 启用或禁用权限
  * @permissionPath: /role/enablePermission
  * @apiName: postEnablePermission
@@ -631,6 +642,7 @@ router.post('/enablePermission', (req, res) => {
 });
 
 /**
+ * @permissionGroup: role
  * @permissionName: 搜索拥有特定角色的用户,组织,部门,小组
  * @permissionPath: /role/getRoleOwners
  * @apiName: getRoleOwners
@@ -685,6 +697,7 @@ router.get('/getRoleOwners', (req, res) => {
 
 
 /**
+ * @permissionGroup: role
  * @permissionName: 角色中搜索用户或组织
  * @permissionPath: /role/search/userOrGroup
  * @apiName: getRoleSearchUserOrGroup

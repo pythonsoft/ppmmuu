@@ -279,6 +279,7 @@ service.getEsMediaList = function getEsMediaList(info, cb) {
 const getEsOptions = function getEsOptions(info) {
   let match = info.match || [];
   let should = info.should || [];
+  let range = info.range || [];
   const hl = info.hl || '';
   const sort = info.sort || [];
   const start = info.start || 0;
@@ -326,11 +327,28 @@ const getEsOptions = function getEsOptions(info) {
     }
     return rs;
   };
+  
+  const formatRange = function formatRange(arr, must) {
+    for(let i = 0, len = arr.length; i < len; i++){
+      if(arr[i].key && (arr[i].gte || arr[i].lt)){
+        const rs = {"range": {}}
+        rs.range[arr[i].key] = {};
+        if(arr[i].gte){
+          rs.range[arr[i].key]['gte'] = arr[i].gte;
+        }
+        if(arr[i].lt){
+          rs.range[arr[i].key]['lt'] = arr[i].lt;
+        }
+        must.push(rs);
+      }
+    }
+  }
 
   const must = formatMust(match);
   const shoulds = formatMust(should);
   const sorts = formatSort(sort);
   const highlight = getHighLightFields(hl);
+  formatRange(range, must);
 
   const options = {
     _source: source.split(','),

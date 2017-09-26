@@ -14,6 +14,7 @@ router.use(isLogin.hasAccessMiddleware);
 const service = require('./service');
 
 /**
+ * @permissionGroup: configuration
  * @permissionName: 添加配置项
  * @permissionPath: /configuration/add
  * @apiName: postAddConfig
@@ -46,6 +47,7 @@ router.post('/add', (req, res) => {
 });
 
 /**
+ * @permissionGroup: configuration
  * @permissionName: 更新配置项
  * @permissionPath: /configuration/update
  * @apiName: postUpdateConfig
@@ -95,6 +97,7 @@ router.post('/update', (req, res) => {
 });
 
 /**
+ * @permissionGroup: configuration
  * @permissionName: 配置项列表
  * @permissionPath: /configuration/list
  * @apiName: getListConfig
@@ -125,6 +128,7 @@ router.get('/list', (req, res) => {
 });
 
 /**
+ * @permissionGroup: configuration
  * @permissionName: 删除配置项
  * @permissionPath: /configuration/delete
  * @apiName: postDeleteConfig
@@ -151,6 +155,7 @@ router.post('/delete', (req, res) => {
 });
 
 /**
+ * @permissionGroup: configuration
  * @permissionName: 添加配置组
  * @permissionPath: /configuration/addGroup
  * @apiName: postAddGroup
@@ -177,6 +182,7 @@ router.post('/addGroup', (req, res) => {
 });
 
 /**
+ * @permissionGroup: configuration
  * @permissionName: 更新配置组
  * @permissionPath: /configuration/updateGroup
  * @apiName: postUpdateGroup
@@ -203,6 +209,7 @@ router.post('/updateGroup', (req, res) => {
 });
 
 /**
+ * @permissionGroup: configuration
  * @permissionName: 配置组列表
  * @permissionPath: /configuration/listGroup
  * @apiName: getListGroup
@@ -231,6 +238,7 @@ router.get('/listGroup', (req, res) => {
 });
 
 /**
+ * @permissionGroup: configuration
  * @permissionName: 删除配置组
  * @permissionPath: /configuration/deleteGroup
  * @apiName: postDeleteGroup
