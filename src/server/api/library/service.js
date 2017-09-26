@@ -94,8 +94,8 @@ service.createCatalogTask = function createCatalogTask(info, creatorId, creatorN
       logger.error(err.message);
       return cb && cb(err);
     }
-
-    return cb && cb(null, r);
+    
+    return cb && cb(null, r.ops[0]._id);
   });
 };
 
