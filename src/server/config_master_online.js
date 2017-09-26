@@ -38,13 +38,12 @@ config.JOB_API_SERVER = {
 };
 
 // solr搜索地址
-// config.solrBaseUrl = 'http://solr.szdev.cn/solr/';
 config.solrBaseUrl = 'http://hk.solr.szdev.cn/solr/';
 // 香港检索基础api地址
 config.hongkongUrl = 'http://w2.phoenixtv.com/mamapi/';
 // ump fe api地址
 // config.umpFeAPI = process.env.NODE_ENV === 'development' ? 'http://localhost:8080' : 'http://api.szdev.cn';
-config.umpFeAPI = 'http://hk.api.szdev.cn';
+config.umpFeAPI = 'http://api.phoenixtv.com';
 
 config.archiveAppId = '9f6d42fe-0329-43aa-bcac-a30e00c66d7c';
 

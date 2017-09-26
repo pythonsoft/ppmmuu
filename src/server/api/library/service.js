@@ -452,7 +452,7 @@ service.resumeCatalogTask = function resumeCatalogTask(taskIds, resumeId, resume
     }
 
     if (!docs || docs.length === 0) {
-      return cb && cb(i18n.t('libraryCatalogTaskSubmitNull'));
+      return cb && cb(i18n.t('libraryCatalogTaskResumeNull'));
     }
 
     const objectIds = [];

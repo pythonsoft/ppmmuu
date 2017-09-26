@@ -665,4 +665,12 @@ module.exports = {
     code: '-100010',
     message: 'object id 为空',
   },
+  libraryCatalogTaskSendBackNull: {
+    code: '-100007',
+    message: '没有可以退回的编目任务',
+  },
+  libraryCatalogTaskResumeNull: {
+    code: '-100007',
+    message: '没有可以恢复的编目任务',
+  },
 };
