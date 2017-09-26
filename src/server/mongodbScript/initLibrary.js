@@ -16,8 +16,8 @@ const catalogInfo = new CatalogInfo();
 const userInfo = new UserInfo();
 const fileInfo = new FileInfo();
 
-let objectId = '6C842811-F9B4-417F-B359-54A8875CEBBC';
-const objectIds = ['6C842811-F9B4-417F-B359-54A8875CEBBC'];
+let objectId = '6C842811-F9B4-417F-B359-54A8875CEBBH';
+const objectIds = ['6C842811-F9B4-417F-B359-54A8875CEBBH'];
 // for (let i = 0, len = 20; i < len; i++) {
 //   objectIds.push(uuid.v1());
 // }
