@@ -883,8 +883,8 @@ router.get('/listUserByDepartment', (req, res) => {
 
   roleService.searchUserOrGroup({
     type: '0',
-    keyword: keyword,
-    departmentId: req.ex.userInfo.department._id
+    keyword,
+    departmentId: req.ex.userInfo.department._id,
   }, (err, docs) => res.json(result.json(err, docs)));
 });
 

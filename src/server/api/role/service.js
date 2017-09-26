@@ -36,8 +36,8 @@ const service = {};
 
 const SEARCH_TYPE = {
   USER: '0',
-  GROUP: '1'
-}
+  GROUP: '1',
+};
 
 /* role */
 service.listRole = function listRole(page, pageSize, keyword, fields, cb) {
@@ -568,7 +568,7 @@ service.searchUserOrGroup = function searchUserOrGroup(info, cb) {
   };
 
   if (type === SEARCH_TYPE.USER) {
-    if(departmentId){
+    if (departmentId) {
       query['department._id'] = departmentId;
     }
     searchUser(query);

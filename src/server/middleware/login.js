@@ -63,18 +63,17 @@ Login.getUserInfo = function getUserInfo(userId, cb) {
 
 Login.getUserInfoRedis = function getUserInfo(userId, cb) {
   let info = {};
-  
+
   redisClient.get(userId, (err, r) => {
     if (err) {
       logger.error(JSON.stringify(err));
-      login.getUserInfo(userId, cb);  //如果redis报错(redis挂了)，那么就去数据库拿，这样的话我们的重新登录功能就会失效
-    }else {
+      Login.getUserInfo(userId, cb);  // 如果redis报错(redis挂了)，那么就去数据库拿，这样的话我们的重新登录功能就会失效
+    } else {
       if (r) {
         info = JSON.parse(r);
         return cb && cb(null, info);
-      } else {
-        return cb && cb(i18n.t('needReLogin'));
       }
+      return cb && cb(i18n.t('needReLogin'));
     }
   });
 };
@@ -95,7 +94,7 @@ Login.middleware = function middleware(req, res, next) {
       Login.getUserInfoRedis(req.ex.userId, (err, info) => {
         if (err) {
           res.clearCookie('ticket');
-          return res.json(result.fail(req.t('loginCannotGetUserInfo')));
+          return res.json(result.fail(err));
         }
 
         req.ex.userInfo = info;
