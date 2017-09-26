@@ -16,14 +16,15 @@ const catalogInfo = new CatalogInfo();
 const userInfo = new UserInfo();
 const fileInfo = new FileInfo();
 
-let objectId = '7B5AE857-733F-5790-4459-53DE094FDBB6';
+let objectId = '2F641EEB-8A2F-4D30-B33C-099FCE7A1F2A';
 const objectIds = [];
-for (let i = 0, len = 20; i < len; i++) {
-  objectIds.push(uuid.v1());
-}
+// for (let i = 0, len = 20; i < len; i++) {
+//   objectIds.push(uuid.v1());
+// }
+objectIds.push(objectId);
 
 const catalogtaskinfo = {
-  name: 'test',
+  name: '时事大破解',
   objectId,
 };
 

@@ -15,9 +15,6 @@ router.use(isLogin.middleware);
 router.use(isLogin.hasAccessMiddleware);
 
 /**
- * @permissionModule: '任务,下载'
- * @permissionName: download
- * @permissionPath: /job/download
  * @apiName: download
  * @apiFuncType: post
  * @apiFuncUrl: /job/download
@@ -76,7 +73,8 @@ router.post('/download', (req, res) => {
 });
 
 /**
- * @permissionName: createTemplate
+ * @permissionGroup: transcodeTemplate
+ * @permissionName: 创建转码模板
  * @permissionPath: /job/createTemplate
  * @apiName: createTemplate
  * @apiFuncType: post
@@ -107,7 +105,8 @@ router.post('/createTemplate', (req, res) => {
 });
 
 /**
- * @permissionName: updateTemplate
+ * @permissionGroup: transcodeTemplate
+ * @permissionName: 更新转码模板
  * @permissionPath: /job/updateTemplate
  * @apiName: updateTemplate
  * @apiFuncType: post
