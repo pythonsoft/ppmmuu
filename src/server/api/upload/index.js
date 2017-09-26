@@ -9,8 +9,6 @@ const upload = require('../../common/multer').upload;
 const config = require('../../config');
 
 /**
- * @permissionName: 上传图片
- * @permissionPath: /upload/
  * @apiName: upload
  * @apiFuncType: post
  * @apiFuncUrl: /upload
