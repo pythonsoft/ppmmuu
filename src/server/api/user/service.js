@@ -33,18 +33,16 @@ const generateToken = function generateToken(id, expires) {
   return token;
 };
 
-const getMenuByPermissions = function getMenuByPermissions(permissions, cb){
-  if(permissions.length === 0){
+const getMenuByPermissions = function getMenuByPermissions(permissions, cb) {
+  if (permissions.length === 0) {
     return cb && cb(null, []);
   }
   const indexes = [];
-  for(let i = 0, len = permissions.length; i < len; i++){
+  for (let i = 0, len = permissions.length; i < len; i++) {
     indexes.push(permissions[i].groupIndex);
   }
-  service.getMenusByIndex(indexes, function(err, menu){
-    return cb && cb(err, menu);
-  });
-}
+  service.getMenusByIndex(indexes, (err, menu) => cb && cb(err, menu));
+};
 
 function setCookie2(res, doc, cb) {
   const expires = new Date().getTime() + config.cookieExpires;
@@ -54,26 +52,26 @@ function setCookie2(res, doc, cb) {
     if (err) {
       return cb && cb(i18n.t('loginCannotGetUserInfo'));
     }
-    
+
     const permissions = info.permissions || [];
-    getMenuByPermissions(permissions, function(err, menu) {
-      if(err){
+    getMenuByPermissions(permissions, (err, menu) => {
+      if (err) {
         return cb && cb(err);
       }
       res.cookie('ticket', token, {
         expires: new Date(expires),
         httpOnly: true,
       });
-  
+
       delete info.permissions;
       delete info.mediaExpressUser;
-  
+
       return cb && cb(null, {
         token,
         menu,
         userInfo: info,
       });
-    })
+    });
   });
 }
 
@@ -389,38 +387,37 @@ service.getMenusByIndex = function getMenusByIndex(indexArr, cb) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
-      
-      if(!docs || docs.length === 0){
-        permissionGroup.collection.find({index: {$in: arr}}).toArray((err, docs) => {
+
+      if (!docs || docs.length === 0) {
+        permissionGroup.collection.find({ index: { $in: arr } }).toArray((err, docs) => {
           if (err) {
             logger.error(err.message);
             return cb && cb(i18n.t('databaseError'));
           }
-    
+
           return cb && cb(null, docs);
         });
-      }else {
-  
+      } else {
         const parentIndexes = [];
         for (let i = 0, len = docs.length; i < len; i++) {
           parentIndexes.push(docs[i].parentIndex);
           arr.push(docs[i].index);
         }
-        loopGetPermissionGroup({index: {$in: parentIndexes}});
+        loopGetPermissionGroup({ index: { $in: parentIndexes } });
       }
     });
-  }
-  
-  if(indexArr.indexOf('root') === -1){
-    query['index'] = { $in: indexArr };
+  };
+
+  if (indexArr.indexOf('root') === -1) {
+    query.index = { $in: indexArr };
     loopGetPermissionGroup(query);
-  }else{
+  } else {
     permissionGroup.collection.find(query).toArray((err, docs) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
-      
+
       return cb && cb(null, docs);
     });
   }

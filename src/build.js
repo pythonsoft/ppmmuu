@@ -125,7 +125,7 @@ const generateFeApiFuncFile = function generateFeApiFuncFile() {
       permissionNames = permissionNames.concat(tempPermissionNames);
       permissionPaths = permissionPaths.concat(tempPermissionPaths);
       permissionGroups = permissionGroups.concat(tempPermissionGroups);
-      if(tempPermissionNames.length !== tempPermissionPaths.length || tempPermissionNames.length !== tempPermissionGroups.length){
+      if (tempPermissionNames.length !== tempPermissionPaths.length || tempPermissionNames.length !== tempPermissionGroups.length) {
         throw new Error(`${filename}注释有问题`);
       }
 

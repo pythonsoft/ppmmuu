@@ -10,5 +10,3 @@ require('./initIVideo');
 require('./initPermissionInfo');
 require('./initPermissionGroup');
 require('./initLibrary');
-
-
