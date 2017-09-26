@@ -94,8 +94,8 @@ service.createCatalogTask = function createCatalogTask(info, creatorId, creatorN
       logger.error(err.message);
       return cb && cb(err);
     }
-    
-    return cb && cb(null, r.ops[0]._id);
+
+    return cb && cb(null, info._id);
   });
 };
 
@@ -476,11 +476,19 @@ service.resumeCatalogTask = function resumeCatalogTask(taskIds, resumeId, resume
   });
 };
 
-//todo
 service.getCatalogTask = function getCatalogTask(taskId, cb) {
   if (!taskId) {
     return cb && cb(i18n.t('libraryCatalogTaskIdIsNull'));
   }
+
+  catalogTaskInfo.collection.findOne({ _id: taskId }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, doc);
+  });
 
 };
 
@@ -541,23 +549,23 @@ service.createCatalog = function createCatalog(ownerId, ownerName, info, cb) {
         return cb && cb(i18n.t('libraryParentCatalogIsNotExist'));
       }
 
-      catalogInfo.insertOne(info, (err, r) => {
+      catalogInfo.insertOne(info, err => {
         if (err) {
           logger.error(err.message);
           return cb && cb(err);
         }
 
-        return cb && cb(null, r);
+        return cb && cb(null, info._id);
       });
     });
   } else {
-    catalogInfo.insertOne(info, (err, r) => {
+    catalogInfo.insertOne(info, err => {
       if (err) {
         logger.error(err.message);
         return cb && cb(err);
       }
 
-      return cb && cb(null, r);
+      return cb && cb(null, info._id);
     });
   }
 };
@@ -580,6 +588,21 @@ service.updateCatalog = function updateCatalog(id, info, cb) {
     }
 
     return cb && cb(null, r);
+  });
+};
+
+service.getCatalog = function getCatalog(id, cb) {
+  if (!id) {
+    return cb && cb(i18n.t('libraryCreateCatalogInfoFieldIsNull', { field: 'id' }));
+  }
+
+  catalogInfo.collection.findOne({ _id: id }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, doc);
   });
 };
 
@@ -621,7 +644,7 @@ service.createFile = function createFile(info, cb) {
       return cb && cb(err);
     }
 
-    return cb && cb(null, r);
+    return cb && cb(null, info._id);
   });
 };
 
@@ -639,6 +662,21 @@ service.updateFile = function updateFile(id, info = {}, cb) {
     }
 
     return cb && cb(null, r);
+  });
+};
+
+service.getFile = function getFile(id, cb) {
+  if (!id) {
+    return cb && cb(i18n.t('libraryFileInfoFieldIsNull', { field: 'id' }));
+  }
+
+  fileInfo.collection.findOne({ _id: id }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, doc);
   });
 };
 
