@@ -10,7 +10,6 @@ const config = require('../../config');
 const i18n = require('i18next');
 const uuid = require('uuid');
 
-const uuid = require('uuid');
 const EngineGroupInfo = require('./engineGroupInfo');
 
 const engineGroupInfo = new EngineGroupInfo();
@@ -281,6 +280,15 @@ function updateEngineInfo(cb) {
 
 service.updateEngineInfo = updateEngineInfo;
 
+setInterval(updateEngineInfo, 1000 * 10, (err, r) => {
+  if (err) {
+    logger.error(err);
+  }
+  if (r) {
+    logger.info(`${r.upsertedCount} engine item updated`);
+  }
+});
+
 service.listEngine = function listEngine(keyword, groupId, page, pageSize, sortFields, fieldsNeed, cb) {
   const query = {};
 
@@ -297,14 +305,21 @@ service.listEngine = function listEngine(keyword, groupId, page, pageSize, sortF
     query.groupId = groupId;
   }
 
-  engineInfo.pagination(query, page, pageSize, (err, docs) => {
-    if (err) {
-      logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
-    }
-
-    return cb && cb(null, docs);
-  }, sortFields, fieldsNeed);
+  // updateEngineInfo((err, r) => {
+  //   if (err) {
+  //     logger.error(err);
+  //   }
+  //   if (r) {
+  //     logger.info(`${r.upsertedCount} engine item updated`);
+  //   }
+    engineInfo.pagination(query, page, pageSize, (err, docs) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+      return cb && cb(null, docs);
+    }, sortFields, fieldsNeed);
+  // });
 };
 
 service.getEngine = function getEngine(id, fieldsNeed, cb) {
