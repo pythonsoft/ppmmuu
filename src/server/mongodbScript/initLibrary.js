@@ -16,7 +16,7 @@ const catalogInfo = new CatalogInfo();
 const userInfo = new UserInfo();
 const fileInfo = new FileInfo();
 
-let objectId = 'B57A5092-F42B-45D4-8329-C03EF6BDF2B0';
+let objectId = '8F72A795-B23D-4BFA-A846-6F229B68EC87';
 const objectIds = ['6C842811-F9B4-417F-B359-54A8875CEBBH'];
 // for (let i = 0, len = 20; i < len; i++) {
 //   objectIds.push(uuid.v1());
@@ -59,6 +59,7 @@ catalogTaskInfo.collection.findOne({ objectId }, (err, doc) => {
           name: 'file1',
           size: 1024 * 1024 * 30,
           realPath: '/user/local/file1.mp4',
+          jobId: 'xxx',
           path: '/local',
           type: '0',
           available: '1',
@@ -98,7 +99,7 @@ catalogTaskInfo.collection.findOne({ objectId }, (err, doc) => {
               chineseName: '测试1',
               keyword: 'gggg',
               content: '这是一个测试1',
-              source: '',
+              source: 'MAM',
               version: '1.0.0',
               keyman: '鲁豫',
               language: 'putonghua',
@@ -106,6 +107,7 @@ catalogTaskInfo.collection.findOne({ objectId }, (err, doc) => {
               type: '素材',
               inpoint: 0,
               outpoint: 1000,
+              duration: '00:00:00:00',
               available: '0',
               materialDate: {
                 form: '2017-03-21',
@@ -132,7 +134,7 @@ catalogTaskInfo.collection.findOne({ objectId }, (err, doc) => {
               infos.push(newInfo);
             }
 
-            catalogInfo.collection.insertMany(infos, (err) => {
+            catalogInfo.insertMany(infos, (err) => {
               if (err) {
                 console.log(err.message);
               }
