@@ -21,7 +21,7 @@ config.redisMediaThumbExpires = 60 * 60 * 12 * 30; // 缓存媒体库缩略图�
 config.port = process.env.NODE_ENV === 'development' ? 8080 : 8080;
 
 config.engineCenter = {
-  host: '10.0.15.66',
+  host: '10.0.15.100',
   port: 3000,
 };
 
