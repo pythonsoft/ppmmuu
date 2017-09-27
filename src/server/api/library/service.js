@@ -531,6 +531,29 @@ service.createCatalog = function createCatalog(ownerId, ownerName, info, cb) {
     return cb && cb(i18n.t('libraryCreateCatalogInfoFieldIsNull', { field: 'ownerName' }));
   }
 
+  if (info.fileInfo) {
+    const fInfo = utils.merge({}, info.fileInfo);
+
+    if(!fInfo._id) {
+      return cb && cb(i18n.t('libraryCreateCatalogInfoFieldIsNull', { field: 'fileInfo._id' }));
+    }
+
+    if(!fInfo.name) {
+      return cb && cb(i18n.t('libraryCreateCatalogInfoFieldIsNull', { field: 'fileInfo.name' }));
+    }
+
+    if(!fInfo.originalPath) {
+      return cb && cb(i18n.t('libraryCreateCatalogInfoFieldIsNull', { field: 'fileInfo.originalPath' }));
+    }
+
+    if(!fInfo.size) {
+      return cb && cb(i18n.t('libraryCreateCatalogInfoFieldIsNull', { field: 'fileInfo.size' }));
+    }
+
+    info.fileInfo = null;
+    info.fileInfo = fInfo;
+  }
+
   info.owner = { _id: ownerId, name: ownerName };
 
   if (!info._id) {
