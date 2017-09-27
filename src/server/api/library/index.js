@@ -52,8 +52,8 @@ router.use(isLogin.hasAccessMiddleware);
  *               type: string
  *               description: '待编目 0, 编目中 1, 已提交 2, 已删除 3'
  *               example: ""
- *             taskList:
- *               type: string
+ *             jobs:
+ *               type: object
  *               description: ''
  *               example: ""
  *             description:
