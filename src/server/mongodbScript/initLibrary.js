@@ -132,7 +132,7 @@ catalogTaskInfo.collection.findOne({ objectId }, (err, doc) => {
               infos.push(newInfo);
             }
 
-            catalogInfo.collection.insertMany(infos, (err) => {
+            catalogInfo.insertMany(infos, (err) => {
               if (err) {
                 console.log(err.message);
               }
