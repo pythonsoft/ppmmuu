@@ -16,7 +16,7 @@ const catalogInfo = new CatalogInfo();
 const userInfo = new UserInfo();
 const fileInfo = new FileInfo();
 
-let objectId = '6C842811-F9B4-417F-B359-54A8875CEBBH';
+let objectId = 'B57A5092-F42B-45D4-8329-C03EF6BDF2B0';
 const objectIds = ['6C842811-F9B4-417F-B359-54A8875CEBBH'];
 // for (let i = 0, len = 20; i < len; i++) {
 //   objectIds.push(uuid.v1());
@@ -58,7 +58,7 @@ catalogTaskInfo.collection.findOne({ objectId }, (err, doc) => {
           objectId,
           name: 'file1',
           size: 1024 * 1024 * 30,
-          realPath: '/user/local',
+          realPath: '/user/local/file1.mp4',
           path: '/local',
           type: '0',
           available: '1',
@@ -87,10 +87,11 @@ catalogTaskInfo.collection.findOne({ objectId }, (err, doc) => {
             if (err) {
               console.log('error===>', err.message);
             }
+
             const info = {
               _id: uuid.v1(),
               objectId,
-              fileId: docs[0]._id,
+              fileInfo: { _id: docs[0]._id, name: docs[0].name, realPath: docs[0].realPath, size: docs[i].size },
               englishName: 'testtt1',
               chineseName: '测试1',
               keyword: 'gggg',

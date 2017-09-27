@@ -862,7 +862,7 @@ router.get('/listCatalog', (req, res) => {
  *             fileInfo:
  *               type: object
  *               description: catalog which file's id
- *               example: "{_id: '', name: '', originalPath: '', size: ''}"
+ *               example: "{_id: '', name: '', realPath: '', size: ''}"
  *             objectId:
  *               type: string
  *               description: ''

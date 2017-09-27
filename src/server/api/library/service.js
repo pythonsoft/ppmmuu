@@ -542,8 +542,8 @@ service.createCatalog = function createCatalog(ownerId, ownerName, info, cb) {
       return cb && cb(i18n.t('libraryCreateCatalogInfoFieldIsNull', { field: 'fileInfo.name' }));
     }
 
-    if(!fInfo.originalPath) {
-      return cb && cb(i18n.t('libraryCreateCatalogInfoFieldIsNull', { field: 'fileInfo.originalPath' }));
+    if(!fInfo.realPath) {
+      return cb && cb(i18n.t('libraryCreateCatalogInfoFieldIsNull', { field: 'fileInfo.realPath' }));
     }
 
     if(!fInfo.size) {
