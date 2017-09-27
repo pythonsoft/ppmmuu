@@ -9,12 +9,12 @@ const express = require('express');
 const router = express.Router();
 const service = require('./service');
 const isLogin = require('../../middleware/login');
-const result = require('../../common/result');
 
 router.use(isLogin.middleware);
 router.use(isLogin.hasAccessMiddleware);
 
 /**
+ * @permissionGroup: transcode
  * @permissionName: list
  * @permissionPath: /transcode/list
  * @apiName: list
@@ -75,6 +75,7 @@ router.get('/list', (req, res) => {
 });
 
 /**
+ * @permissionGroup: transcode
  * @permissionName: listChildTask
  * @permissionPath: /transcode/listChildTask
  * @apiName: listChildTask
@@ -109,6 +110,7 @@ router.get('/listChildTask', (req, res) => {
 });
 
 /**
+ * @permissionGroup: transcode
  * @permissionName: restart
  * @permissionPath: /transcode/restart
  * @apiName: restart
@@ -159,6 +161,7 @@ router.get('/restart', (req, res) => {
 });
 
 /**
+ * @permissionGroup: transcode
  * @permissionName: stop
  * @permissionPath: /transcode/stop
  * @apiName: stop

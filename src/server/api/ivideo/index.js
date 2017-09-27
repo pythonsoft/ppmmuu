@@ -17,6 +17,7 @@ router.use(isLogin.middleware);
 router.use(isLogin.hasAccessMiddleware);
 
 /**
+ * @permissionGroup: movieEditor
  * @permissionName: 初始化编辑器
  * @permissionPath: /ivideo/init
  * @apiName: init
@@ -50,6 +51,7 @@ router.get('/init', (req, res) => {
 });
 
 /**
+ * @permissionGroup: movieEditor
  * @permissionName: 列举出项目下的资源
  * @permissionPath: /ivideo/listItem
  * @apiName: listItem
@@ -123,6 +125,7 @@ router.get('/listItem', (req, res) => {
 });
 
 /**
+ * @permissionGroup: movieEditor
  * @permissionName: 创建项目下的目录
  * @permissionPath: /ivideo/createDirectory
  * @apiName: createDirectory
@@ -164,6 +167,7 @@ router.post('/createDirectory', (req, res) => {
 });
 
 /**
+ * @permissionGroup: movieEditor
  * @permissionName: 添加视频片断到项目中
  * @permissionPath: /ivideo/createItem
  * @apiName: createItem
@@ -208,6 +212,7 @@ router.post('/createItem', (req, res) => {
 });
 
 /**
+ * @permissionGroup: movieEditor
  * @permissionName: 删除资源
  * @permissionPath: /ivideo/removeItem
  * @apiName: removeItem
@@ -243,6 +248,7 @@ router.post('/removeItem', (req, res) => {
 });
 
 /**
+ * @permissionGroup: movieEditor
  * @permissionName: 更新目录或资源信息
  * @permissionPath: /ivideo/updateItem
  * @apiName: updateItem
@@ -280,6 +286,7 @@ router.post('/updateItem', (req, res) => {
 });
 
 /**
+ * @permissionGroup: movieEditor
  * @permissionName: 创建新的项目
  * @permissionPath: /ivideo/createProject
  * @apiName: createProject
@@ -317,6 +324,7 @@ router.post('/createProject', (req, res) => {
 });
 
 /**
+ * @permissionGroup: movieEditor
  * @permissionName: 删除项目
  * @permissionPath: /ivideo/removeProject
  * @apiName: removeProject
@@ -351,6 +359,7 @@ router.post('/removeProject', (req, res) => {
 });
 
 /**
+ * @permissionGroup: movieEditor
  * @permissionName: 列举出当前用户的项目
  * @permissionPath: /ivideo/listProject
  * @apiName: listProject

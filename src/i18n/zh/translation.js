@@ -117,6 +117,10 @@ module.exports = {
     code: '-3004',
     message: '登录找不到用户信息',
   },
+  needReLogin: {
+    code: '-3005',
+    message: '需要重新登录',
+  },
   noAccess: {
     code: '-4001',
     message: '无权访问此接口',
@@ -664,5 +668,13 @@ module.exports = {
   libraryObjectIdIsNull: {
     code: '-100010',
     message: 'object id 为空',
+  },
+  libraryCatalogTaskSendBackNull: {
+    code: '-100007',
+    message: '没有可以退回的编目任务',
+  },
+  libraryCatalogTaskResumeNull: {
+    code: '-100007',
+    message: '没有可以恢复的编目任务',
   },
 };

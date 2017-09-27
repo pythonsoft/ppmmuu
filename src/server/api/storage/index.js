@@ -18,6 +18,7 @@ router.use(isLogin.hasAccessMiddleware);
 const service = require('./service');
 
 /**
+ * @permissionGroup: bucket
  * @permissionName: 存储区列表
  * @permissionPath: /storage/listBucket
  * @apiName: listBucket
@@ -81,6 +82,7 @@ router.get('/listBucket', (req, res) => {
 
 
 /**
+ * @permissionGroup: bucket
  * @permissionName: 存储区详情
  * @permissionPath: /storage/getBucketDetail
  * @apiName: getBucketDetail
@@ -115,6 +117,7 @@ router.get('/getBucketDetail', (req, res) => {
 });
 
 /**
+ * @permissionGroup: bucket
  * @permissionName: 增加存储区
  * @permissionPath: /storage/addBucket
  * @apiName: addBucket
@@ -166,6 +169,7 @@ router.post('/addBucket', (req, res) => {
 });
 
 /**
+ * @permissionGroup: bucket
  * @permissionName: 编辑存储区
  * @permissionPath: /storage/updateBucket
  * @apiName: updateBucket
@@ -221,6 +225,7 @@ router.post('/updateBucket', (req, res) => {
 });
 
 /**
+ * @permissionGroup: bucket
  * @permissionName: 启动或挂起存储区
  * @permissionPath: /storage/enableBucket
  * @apiName: enableBucket
@@ -276,6 +281,7 @@ router.post('/enableBucket', (req, res) => {
 });
 
 /**
+ * @permissionGroup: bucket
  * @permissionName: 删除存储区
  * @permissionPath: /storage/deleteBucket
  * @apiName: deleteBucket
@@ -327,6 +333,7 @@ router.post('/deleteBucket', (req, res) => {
 });
 
 /**
+ * @permissionGroup: storagePath
  * @permissionName: 存储路径列表
  * @permissionPath: /storage/listPath
  * @apiName: listPath
@@ -384,6 +391,7 @@ router.get('/listPath', (req, res) => {
 
 
 /**
+ * @permissionGroup: storagePath
  * @permissionName: 存储路径详情
  * @permissionPath: /storage/getPathDetail
  * @apiName: getPathDetail
@@ -418,6 +426,7 @@ router.get('/getPathDetail', (req, res) => {
 });
 
 /**
+ * @permissionGroup: storagePath
  * @permissionName: 增加存储路径
  * @permissionPath: /storage/addPath
  * @apiName: addPath
@@ -487,6 +496,7 @@ router.post('/addPath', (req, res) => {
 });
 
 /**
+ * @permissionGroup: storagePath
  * @permissionName: 编辑存储路径
  * @permissionPath: /storage/updatePath
  * @apiName: updatePath
@@ -555,6 +565,7 @@ router.post('/updatePath', (req, res) => {
 });
 
 /**
+ * @permissionGroup: storagePath
  * @permissionName: 启动或挂起存储路径
  * @permissionPath: /storage/enablePath
  * @apiName: enablePath
@@ -611,6 +622,7 @@ router.post('/enablePath', (req, res) => {
 });
 
 /**
+ * @permissionGroup: storagePath
  * @permissionName: 删除存储路径
  * @permissionPath: /storage/deletePath
  * @apiName: deletePath
@@ -662,6 +674,7 @@ router.post('/deletePath', (req, res) => {
 });
 
 /**
+ * @permissionGroup: storageTactics
  * @permissionName: 存储策略列表
  * @permissionPath: /storage/listTactics
  * @apiName: listTactics
@@ -726,6 +739,7 @@ router.get('/listTactics', (req, res) => {
 
 
 /**
+ * @permissionGroup: storageTactics
  * @permissionName: 存储策略详情
  * @permissionPath: /storage/getTacticsDetail
  * @apiName: getTacticDetail
@@ -760,6 +774,7 @@ router.get('/getTacticsDetail', (req, res) => {
 });
 
 /**
+ * @permissionGroup: storageTactics
  * @permissionName: 增加策略
  * @permissionPath: /storage/addTactics
  * @apiName: addTactics
@@ -822,6 +837,7 @@ router.post('/addTactics', (req, res) => {
 });
 
 /**
+ * @permissionGroup: storageTactics
  * @permissionName: 编辑存储策略
  * @permissionPath: /storage/updateTactics
  * @apiName: updateTactics
@@ -888,6 +904,7 @@ router.post('/updateTactics', (req, res) => {
 });
 
 /**
+ * @permissionGroup: storageTactics
  * @permissionName: 启动或挂起策略
  * @permissionPath: /storage/enableTactics
  * @apiName: enableTactics
@@ -944,6 +961,7 @@ router.post('/enableTactics', (req, res) => {
 });
 
 /**
+ * @permissionGroup: storageTactics
  * @permissionName: 删除存储策略
  * @permissionPath: /storage/deleteTactics
  * @apiName: deleteTactics

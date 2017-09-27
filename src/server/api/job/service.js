@@ -14,7 +14,7 @@ const userInfo = new UserInfo();
 
 const templateService = require('../template/service');
 
-const JOB_API_SERVER_URL = `http://${config.TRANSCODE_API_SERVER.hostname}:${config.TRANSCODE_API_SERVER.port}`;
+const TRANSCODE_API_SERVER_URL = `http://${config.TRANSCODE_API_SERVER.hostname}:${config.TRANSCODE_API_SERVER.port}`;
 const HttpRequest = require('../../common/httpRequest');
 
 const request = new HttpRequest({
@@ -113,7 +113,7 @@ service.createJson = function createJson(createJsonParams, res) {
     return res.end(errorCall('jobCreateTemplateParamsCreateJsonIsNull'));
   }
 
-  const url = `${JOB_API_SERVER_URL}/TemplateService/create`;
+  const url = `${TRANSCODE_API_SERVER_URL}/TemplateService/create`;
   params.template = JSON.stringify(params.template);
   utils.requestCallApi(url, 'POST', params, '', (err, rs) => {
     if (err) {
@@ -135,7 +135,7 @@ service.updateJson = function updateJson(updateJsonParams, res) {
     return res.end(errorCall('jobCreateTemplateParamsCreateJsonIsNull'));
   }
 
-  const url = `${JOB_API_SERVER_URL}/TemplateService/update`;
+  const url = `${TRANSCODE_API_SERVER_URL}/TemplateService/update`;
   params.template = JSON.stringify(params.template);
   utils.requestCallApi(url, 'POST', params, '', (err, rs) => {
     if (err) {
@@ -374,8 +374,8 @@ service.downloadAndTransfer = function downloadAndTransfer(req, cb) {
       userName: '',
       password: '',
     },
-    userId: userId,
-    userName: userName,
+    userId,
+    userName,
   };
 
   userInfo.collection.findOne({ _id: userId }, (err, doc) => {
@@ -403,31 +403,31 @@ service.downloadAndTransfer = function downloadAndTransfer(req, cb) {
       if (err) {
         return cb && cb(err);
       }
-  
+
       params.downloadParams.destination = downloadPath;
       getMediaExpressEmail(loginForm, receiver, (err, email) => {
         if (err) {
           return cb && cb(err);
         }
-    
+
         params.transferParams.receiver = email;
         params.transferParams = JSON.stringify(params.transferParams);
         params.downloadParams = JSON.stringify(params.downloadParams);
         console.log(JSON.stringify(params));
-    
+
         const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/JobService/downloadAndTransfer`;
         utils.requestCallApi(url, 'POST', params, '', (err, rs) => {
           if (err) {
             return cb && cb(err);
           }
-      
+
           if (rs.status === '0') {
             return cb && cb(null, 'ok');
           }
-          return cb && cb(i18n.t('requestCallApiError', {error: rs.statusInfo.message}));
+          return cb && cb(i18n.t('requestCallApiError', { error: rs.statusInfo.message }));
         });
       });
-    })
+    });
   });
 };
 

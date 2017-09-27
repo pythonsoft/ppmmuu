@@ -10,7 +10,8 @@ const router = express.Router();
 const result = require('../../common/result');
 const service = require('./service');
 const mediaService = require('../media/service');
-const jobServce = require('../job/service');
+const jobService = require('../job/service');
+const roleService = require('../role/service');
 
 /**
  * @apiName: postUserLogin
@@ -529,6 +530,7 @@ router.post('/clearWatchHistory', (req, res) => {
 });
 
 /**
+ * @permissionGroup: account
  * @permissionName: 同步AD账户
  * @permissionPath: /user/adAccountSync
  * @swagger
@@ -610,6 +612,7 @@ router.post('/adAccountSync', (req, res) => {
 
 /* downloadTask */
 /**
+ * @permissionGroup: account
  * @permissionName: user_listJob
  * @permissionPath: /user/listJob
  * @apiName: listJob
@@ -658,10 +661,11 @@ router.get('/listJob', (req, res) => {
   const userId = req.ex.userId;
 
   res.set('Content-Type', 'application/json');
-  jobServce.list({ page: page * 1, pageSize: pageSize * 1, status, currentStep, userId }, res);
+  jobService.list({ page: page * 1, pageSize: pageSize * 1, status, currentStep, userId }, res);
 });
 
 /**
+ * @permissionGroup: account
  * @permissionName: user_queryJob
  * @permissionPath: /user/queryJob
  * @apiName: queryJob
@@ -689,10 +693,11 @@ router.get('/listJob', (req, res) => {
 router.get('/queryJob', (req, res) => {
   const jobId = req.query.jobId;
   res.set('Content-Type', 'application/json');
-  jobServce.query({ jobId }, res);
+  jobService.query({ jobId }, res);
 });
 
 /**
+ * @permissionGroup: account
  * @permissionName: user_restartJob
  * @permissionPath: /user/restartJob
  * @apiName: restartJob
@@ -720,10 +725,11 @@ router.get('/queryJob', (req, res) => {
 router.get('/restartJob', (req, res) => {
   const jobId = req.query.jobId;
   res.set('Content-Type', 'application/json');
-  jobServce.restart({ jobId, userId: req.ex.userId }, res);
+  jobService.restart({ jobId, userId: req.ex.userId }, res);
 });
 
 /**
+ * @permissionGroup: account
  * @permissionName: user_stopJob
  * @permissionPath: /user/stopJob
  * @apiName: stopJob
@@ -751,10 +757,11 @@ router.get('/restartJob', (req, res) => {
 router.get('/stopJob', (req, res) => {
   const jobId = req.query.jobId;
   res.set('Content-Type', 'application/json');
-  jobServce.stop({ jobId, userId: req.ex.userId }, res);
+  jobService.stop({ jobId, userId: req.ex.userId }, res);
 });
 
 /**
+ * @permissionGroup: account
  * @permissionName: user_deleteJob
  * @permissionPath: /user/deleteJob
  * @apiName: deleteJob
@@ -782,10 +789,11 @@ router.get('/stopJob', (req, res) => {
 router.get('/deleteJob', (req, res) => {
   const jobId = req.query.jobId;
   res.set('Content-Type', 'application/json');
-  jobServce.delete({ jobId, userId: req.ex.userId }, res);
+  jobService.delete({ jobId, userId: req.ex.userId }, res);
 });
 
 /**
+ * @permissionGroup: account
  * @permissionName: 获取直传模式授权列表
  * @permissionPath: /user/directAuthorize/acceptorList
  * @apiName: directAuthorizeAcceptorList
@@ -848,6 +856,44 @@ router.get('/deleteJob', (req, res) => {
 router.get('/directAuthorize/acceptorList', (req, res) => {
   const _id = req.ex.userId;
   service.getDirectAuthorizeAcceptorList(_id, (err, data) => res.json(result.json(err, data)));
+});
+
+/**
+ * @permissionGroup: account
+ * @permissionName: 列举部门列表
+ * @permissionPath: /user/listUserByDepartment
+ * @apiName: listUserByDepartment
+ * @apiFuncType: get
+ * @apiFuncUrl: /user/listUserByDepartment
+ * @swagger
+ * /user/listUserByDepartment:
+ *   get:
+ *     description: list catalog task
+ *     tags:
+ *       - v1
+ *       - user
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: keyword
+ *         description: ''
+ *         required: false
+ *         type: string
+ *         default: '0'
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description:
+ * */
+router.get('/listUserByDepartment', (req, res) => {
+  const keyword = req.query.keyword || '';
+
+  roleService.searchUserOrGroup({
+    type: '0',
+    keyword,
+    departmentId: req.ex.userInfo.department._id,
+  }, (err, docs) => res.json(result.json(err, docs)));
 });
 
 module.exports = router;

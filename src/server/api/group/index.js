@@ -15,6 +15,7 @@ router.use(isLogin.middleware);
 router.use(isLogin.hasAccessMiddleware);
 
 /**
+ * @permissionGroup: account
  * @permissionName: 组列表
  * @permissionPath: /group/list
  * @apiName: getGroupList
@@ -73,6 +74,7 @@ router.get('/list', (req, res) => {
 });
 
 /**
+ * @permissionGroup: account
  * @permissionName: 组的详情
  * @permissionPath: /group/getDetail
  * @apiName: getGroupDetail
@@ -106,6 +108,7 @@ router.get('/getDetail', (req, res) => {
 });
 
 /**
+ * @permissionGroup: account
  * @permissionName: 添加组
  * @permissionPath: /group/add
  * @apiName: postAddGroup
@@ -166,6 +169,7 @@ router.post('/add', (req, res) => {
 });
 
 /**
+ * @permissionGroup: account
  * @permissionName: 删除组
  * @permissionPath: /group/delete
  * @apiName: postDeleteGroup
@@ -214,6 +218,7 @@ router.post('/delete', (req, res) => {
 });
 
 /**
+ * @permissionGroup: account
  * @permissionName: 组成员列表
  * @permissionPath: /group/listUser
  * @apiName: getGroupUserList
@@ -278,6 +283,7 @@ router.get('/listUser', (req, res) => {
 
 
 /**
+ * @permissionGroup: account
  * @permissionName: 查看成员详情
  * @permissionPath: /group/userDetail
  * @apiName: getGroupUserDetail
@@ -311,6 +317,7 @@ router.get('/userDetail', (req, res) => {
 });
 
 /**
+ * @permissionGroup: account
  * @permissionName: 添加组成员
  * @permissionPath: /group/addUser
  * @apiName: postGroupAddUser
@@ -384,6 +391,7 @@ router.post('/addUser', (req, res) => {
 });
 
 /**
+ * @permissionGroup: account
  * @permissionName: 删除组成员
  * @permissionPath: /group/deleteGroupUser
  * @apiName: postDeleteGroupUser
@@ -433,6 +441,7 @@ router.post('/deleteGroupUser', (req, res) => {
 });
 
 /**
+ * @permissionGroup: account
  * @permissionName: 组成员调整部门
  * @permissionPath: /group/justifyUserGroup
  * @apiName: postJustifyUserGroup
@@ -490,6 +499,7 @@ router.post('/justifyUserGroup', (req, res) => {
 
 
 /**
+ * @permissionGroup: account
  * @permissionName: 禁用或启用组用户
  * @permissionPath: /group/enableUser
  * @apiName: postEnableGroupUser
@@ -542,6 +552,7 @@ router.post('/enableUser', (req, res) => {
 });
 
 /**
+ * @permissionGroup: account
  * @permissionName: 修改组成员信息
  * @permissionPath: /group/updateUser
  * @apiName: postGroupUpdateUser
@@ -601,6 +612,7 @@ router.post('/updateUser', (req, res) => {
 });
 
 /**
+ * @permissionGroup: account
  * @permissionName: 获取公司或部门或小组或成员权限
  * @permissionPath: /group/getOwnerPermission
  * @apiName: getOwnerPermission
@@ -632,6 +644,7 @@ router.get('/getOwnerPermission', (req, res) => {
 });
 
 /**
+ * @permissionGroup: account
  * @permissionName: 获取公司或部门或小组或成员生效权限
  * @permissionPath: /group/getOwnerEffectivePermission
  * @apiName: getOwnerEffectivePermission
@@ -671,6 +684,7 @@ router.get('/getOwnerEffectivePermission', (req, res) => {
 
 
 /**
+ * @permissionGroup: account
  * @permissionName: 更新公司或部门或小组或成员的权限
  * @permissionPath: /group/updateOwnerPermission
  * @apiName: postUpdateOwnerPermission
@@ -736,6 +750,7 @@ router.post('/updateOwnerPermission', (req, res) => {
 });
 
 /**
+ * @permissionGroup: account
  * @permissionName: 修改公司或部门或组的属性
  * @permissionPath: /group/updateGroupInfo
  * @apiName: postUpdateGroupInfo
@@ -810,6 +825,7 @@ router.post('/updateGroupInfo', (req, res) => {
 
 
 /**
+ * @permissionGroup: account
  * @permissionName: 搜索公司成员
  * @permissionPath: /group/searchUser
  * @apiName: getGroupSearchUser
@@ -847,6 +863,7 @@ router.get('/searchUser', (req, res) => {
 });
 
 /**
+ * @permissionGroup: account
  * @permissionName: 绑定快传账户
  * @permissionPath: /group/bindMediaExpressUser
  * @apiName: postBindMediaExpressUser

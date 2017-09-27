@@ -15,7 +15,8 @@ router.use(isLogin.middleware);
 router.use(isLogin.hasAccessMiddleware);
 
 /**
- * @permissionName: download
+ * @permissionGroup: movieEditor
+ * @permissionName: 下载任务
  * @permissionPath: /job/download
  * @apiName: download
  * @apiFuncType: post
@@ -75,7 +76,8 @@ router.post('/download', (req, res) => {
 });
 
 /**
- * @permissionName: createTemplate
+ * @permissionGroup: transcodeTemplate
+ * @permissionName: 创建转码模板
  * @permissionPath: /job/createTemplate
  * @apiName: createTemplate
  * @apiFuncType: post
@@ -106,7 +108,8 @@ router.post('/createTemplate', (req, res) => {
 });
 
 /**
- * @permissionName: updateTemplate
+ * @permissionGroup: transcodeTemplate
+ * @permissionName: 更新转码模板
  * @permissionPath: /job/updateTemplate
  * @apiName: updateTemplate
  * @apiFuncType: post
@@ -137,7 +140,8 @@ router.post('/updateTemplate', (req, res) => {
 });
 
 /**
- * @permissionName: listJob
+ * @permissionGroup: download
+ * @permissionName: 下载任务列表
  * @permissionPath: /job/list
  * @apiName: listJob
  * @apiFuncType: get
@@ -193,7 +197,8 @@ router.get('/list', (req, res) => {
 });
 
 /**
- * @permissionName: listTemplate
+ * @permissionGroup: transcodeTemplate
+ * @permissionName: 转码模板列表
  * @permissionPath: /job/listTemplate
  * @apiName: listTemplate
  * @apiFuncType: get
@@ -231,7 +236,8 @@ router.get('/listTemplate', (req, res) => {
 });
 
 /**
- * @permissionName: queryJob
+ * @permissionGroup: download
+ * @permissionName: 下载任务详情
  * @permissionPath: /job/query
  * @apiName: queryJob
  * @apiFuncType: get
@@ -261,7 +267,8 @@ router.get('/query', (req, res) => {
 });
 
 /**
- * @permissionName: restartJob
+ * @permissionGroup: download
+ * @permissionName: 下载任务重启
  * @permissionPath: /job/restart
  * @apiName: restartJob
  * @apiFuncType: get
@@ -291,7 +298,8 @@ router.get('/restart', (req, res) => {
 });
 
 /**
- * @permissionName: stopJob
+ * @permissionGroup: download
+ * @permissionName: 下载任务停止
  * @permissionPath: /job/stop
  * @apiName: stopJob
  * @apiFuncType: get
@@ -321,7 +329,8 @@ router.get('/stop', (req, res) => {
 });
 
 /**
- * @permissionName: deleteJob
+ * @permissionGroup: download
+ * @permissionName: 下载任务删除
  * @permissionPath: /job/delete
  * @apiName: deleteJob
  * @apiFuncType: get
@@ -351,7 +360,8 @@ router.get('/delete', (req, res) => {
 });
 
 /**
- * @permissionName: deleteTemplate
+ * @permissionGroup: transcodeTemplate
+ * @permissionName: 删除转码模板
  * @permissionPath: /job/deleteTemplate
  * @apiName: deleteTemplate
  * @apiFuncType: get
@@ -381,7 +391,8 @@ router.get('/deleteTemplate', (req, res) => {
 });
 
 /**
- * @permissionName: 转码文件和传输
+ * @permissionGroup: movieEditor
+ * @permissionName: 下载任务传输对接凤云快传
  * @permissionPath: /job/downloadAndTransfer
  * @apiName: downloadAndTransfer
  * @apiFuncType: post
@@ -427,15 +438,11 @@ router.get('/deleteTemplate', (req, res) => {
  *                 filetypeid:
  *                   type: string
  *                   example: asf
- *                 destination:
- *                   type: string
- *                   description: '相对路劲'
- *                   example: asf
- *                 targetname:
- *                   type: string
- *                   description: '文件名,不需要文件名后缀'
- *                   example: asf
  *
+ *             templateId:
+ *               type: string
+ *               description: template _id
+ *               example: "frfqwrqw"
  *             receiverId:
  *               type: string
  *               description: acceptor _id
@@ -444,12 +451,6 @@ router.get('/deleteTemplate', (req, res) => {
  *               type: string
  *               description: acceptor type
  *               example: 1
- *             userId:
- *               type: string
- *               example: "frfqwrqw"
- *             userName:
- *               type: string
- *               example: 'asdasd'
  *     responses:
  *       200:
  *         description: GroupInfo

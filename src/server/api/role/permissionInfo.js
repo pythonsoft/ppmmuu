@@ -48,6 +48,7 @@ class PermissionInfo extends DB {
       createdTime: { type: 'date', allowUpdate: false },
       modifyTime: { type: 'date' },
       description: { type: 'string' },
+      groupIndex: { type: 'string' },
       detail: { type: 'object' },
       status: { type: 'string', default: PermissionInfo.STATUS.NORMAL, validation: this.validateStatus },
     };
