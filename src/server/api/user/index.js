@@ -656,7 +656,7 @@ router.post('/adAccountSync', (req, res) => {
 router.get('/listJob', (req, res) => {
   const page = req.query.page;
   const pageSize = req.query.pageSize;
-  const status = req.query.status;
+  const status = req.query.status || '';
   const currentStep = req.query.currentStep;
   const userId = req.ex.userId;
 

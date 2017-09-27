@@ -970,6 +970,7 @@ router.post('/createCatalog', (req, res) => {
  *         schema:
  *           type: object
  *           required:
+ *             - id
  *             - englishName
  *             - chineseName
  *             - content
@@ -983,6 +984,10 @@ router.post('/createCatalog', (req, res) => {
  *             - available
  *             - materialDate
  *           properties:
+ *             id:
+ *               type: string
+ *               description: ''
+ *               example: ""
  *             englishName:
  *               type: string
  *               description: ''
