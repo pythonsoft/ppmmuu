@@ -87,6 +87,74 @@ router.post('/createCatalogTask', (req, res) => {
 
 /**
  * @permissionGroup: library
+ * @permissionName: 更新编目任务信息
+ * @permissionPath: /library/updateCatalogTask
+ * @apiName: updateCatalogTask
+ * @apiFuncType: post
+ * @apiFuncUrl: /library/updateCatalogTask
+ * @swagger
+ * /library/updateCatalogTask:
+ *   post:
+ *     description: 更新编目任务信息
+ *     tags:
+ *       - v1
+ *       - library
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: 更新编目任务信息
+ *         schema:
+ *           type: object
+ *           required:
+ *             - taskId
+ *           properties:
+ *             taskId:
+ *               type: string
+ *               description: ''
+ *               example: "aa"
+ *             workflowStatus:
+ *               type: string
+ *               description: '等待 0, DOING 1, SUCCESS 2, ERROR 3'
+ *               example: ""
+ *             jobs:
+ *               type: object
+ *               description: ''
+ *               example: ""
+ *     responses:
+ *       200:
+ *         description: CatalogTaskInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.post('/updateCatalogTask', (req, res) => {
+  const updateDoc = {};
+
+  if (req.body.workflowStatus) {
+    updateDoc.workflowStatus = req.body.workflowStatus;
+  }
+
+  if (req.body.jobs) {
+    updateDoc.workflowStatus = req.body.jobs;
+  }
+
+  service.updateCatalogTask(req.body.taskId, updateDoc, (err, docs) => res.json(result.json(err, docs)));
+});
+
+
+/**
+ * @permissionGroup: library
  * @permissionName: 列举编目任务
  * @permissionPath: /library/listCatalogTask
  * @apiName: listCatalogTask

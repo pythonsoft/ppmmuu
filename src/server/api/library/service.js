@@ -89,7 +89,7 @@ service.createCatalogTask = function createCatalogTask(info, creatorId, creatorN
   info.createdTime = t;
   info.lastModifyTime = t;
 
-  catalogTaskInfo.insertOne(info, (err, r) => {
+  catalogTaskInfo.insertOne(info, err => {
     if (err) {
       logger.error(err.message);
       return cb && cb(err);
@@ -489,7 +489,6 @@ service.getCatalogTask = function getCatalogTask(taskId, cb) {
 
     return cb && cb(null, doc);
   });
-
 };
 
 /* catalog task */
@@ -549,7 +548,7 @@ service.createCatalog = function createCatalog(ownerId, ownerName, info, cb) {
         return cb && cb(i18n.t('libraryParentCatalogIsNotExist'));
       }
 
-      catalogInfo.insertOne(info, err => {
+      catalogInfo.insertOne(info, (err) => {
         if (err) {
           logger.error(err.message);
           return cb && cb(err);
@@ -559,7 +558,7 @@ service.createCatalog = function createCatalog(ownerId, ownerName, info, cb) {
       });
     });
   } else {
-    catalogInfo.insertOne(info, err => {
+    catalogInfo.insertOne(info, (err) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(err);
@@ -638,7 +637,7 @@ service.createFile = function createFile(info, cb) {
     info._id = uuid.v1();
   }
 
-  fileInfo.insertOne(info, (err, r) => {
+  fileInfo.insertOne(info, err => {
     if (err) {
       logger.error(err.message);
       return cb && cb(err);
