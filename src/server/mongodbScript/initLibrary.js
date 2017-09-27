@@ -88,6 +88,8 @@ catalogTaskInfo.collection.findOne({ objectId }, (err, doc) => {
               console.log('error===>', err.message);
             }
 
+            if(docs.length === 0) { return false; }
+
             const info = {
               _id: uuid.v1(),
               objectId,
