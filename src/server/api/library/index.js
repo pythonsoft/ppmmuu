@@ -152,7 +152,6 @@ router.post('/updateCatalogTask', (req, res) => {
   service.updateCatalogTask(req.body.taskId, updateDoc, (err, docs) => res.json(result.json(err, docs)));
 });
 
-
 /**
  * @permissionGroup: library
  * @permissionName: 列举编目任务
@@ -895,6 +894,10 @@ router.get('/listCatalog', (req, res) => {
  *               type: string
  *               description: ''
  *               example: ""
+ *             duration:
+ *               type: string
+ *               description: ''
+ *               example: "00:00:00:00"
  *             keyman:
  *               type: string
  *               description: ''
