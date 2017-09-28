@@ -130,7 +130,13 @@ catalogTaskInfo.collection.findOne({ objectId }, (err, doc) => {
             for (let i = 0, len = docs.length; i < len; i++) {
               const newInfo = JSON.parse(JSON.stringify(info));
               newInfo._id = uuid.v1();
-              newInfo.fileInfo = { _id: docs[0]._id, name: docs[0].name, realPath: docs[0].realPath, size: docs[i].size };
+              newInfo.fileInfo = {
+                _id: docs[0]._id,
+                name: docs[0].name,
+                realPath: docs[0].realPath,
+                size: docs[i].size,
+                type: docs[i].type,
+              };
               infos.push(newInfo);
             }
 
