@@ -947,7 +947,7 @@ router.get('/listCatalog', (req, res) => {
  *                  type: string
  */
 router.post('/createCatalog', (req, res) => {
-  service.createCatalog(req.ex.userInfo._id, req.ex.userInfo.name, req.body, (err, docs) => res.json(result.json(err, docs)));
+  service.createCatalog(req.ex.userInfo._id, req.ex.userInfo.name, req.body, (err, id) => res.json(result.json(err, id)));
 });
 
 /**
@@ -1248,6 +1248,40 @@ router.post('/createFile', (req, res) => {
  */
 router.post('/updateFile', (req, res) => {
   service.updateFile(req.body.id, req.body, (err, docs) => res.json(result.json(err, docs)));
+});
+
+/**
+ * @permissionGroup: library
+ * @permissionName: 获取文件详细信息
+ * @permissionPath: /library/listFile
+ * @apiName: listFile
+ * @apiFuncType: get
+ * @apiFuncUrl: /library/listFile
+ * @swagger
+ * /library/listFile:
+ *   get:
+ *     description: get file list
+ *     tags:
+ *       - v1
+ *       - library
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: objectId
+ *         description: ''
+ *         required: true
+ *         type: string
+ *         default: '0'
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description:
+ * */
+router.get('/listFile', (req, res) => {
+  const objectId = req.query.objectId || '';
+
+  service.listFile(objectId, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**

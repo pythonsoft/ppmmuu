@@ -16,8 +16,8 @@ const catalogInfo = new CatalogInfo();
 const userInfo = new UserInfo();
 const fileInfo = new FileInfo();
 
-let objectId = '8F72A795-B23D-4BFA-A846-6F229B68EC87';
-const objectIds = ['6C842811-F9B4-417F-B359-54A8875CEBBH'];
+let objectId = 'E42A3857-6C11-47A5-BCE8-18C06DF8C245';
+const objectIds = ['E42A3857-6C11-47A5-BCE8-18C06DF8C245'];
 // for (let i = 0, len = 20; i < len; i++) {
 //   objectIds.push(uuid.v1());
 // }
@@ -94,7 +94,7 @@ catalogTaskInfo.collection.findOne({ objectId }, (err, doc) => {
             const info = {
               _id: uuid.v1(),
               objectId,
-              fileInfo: { _id: docs[0]._id, name: docs[0].name, realPath: docs[0].realPath, size: docs[i].size },
+              fileInfo: {},
               englishName: 'testtt1',
               chineseName: '测试1',
               keyword: 'gggg',
@@ -130,7 +130,7 @@ catalogTaskInfo.collection.findOne({ objectId }, (err, doc) => {
             for (let i = 0, len = docs.length; i < len; i++) {
               const newInfo = JSON.parse(JSON.stringify(info));
               newInfo._id = uuid.v1();
-              newInfo.fileId = docs[i]._id;
+              newInfo.fileInfo = { _id: docs[0]._id, name: docs[0].name, realPath: docs[0].realPath, size: docs[i].size };
               infos.push(newInfo);
             }
 
