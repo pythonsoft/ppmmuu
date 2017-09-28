@@ -1252,7 +1252,7 @@ router.post('/updateFile', (req, res) => {
 
 /**
  * @permissionGroup: library
- * @permissionName: 获取文件详细信息
+ * @permissionName: 获取文件列表
  * @permissionPath: /library/listFile
  * @apiName: listFile
  * @apiFuncType: get
