@@ -18,6 +18,203 @@ const templateInfo = new TemplateInfo();
 
 const service = {};
 
+const TemplateGroupInfo = require('./templateGroupInfo');
+
+const templateGroupInfo = new TemplateGroupInfo();
+
+const insertGroup = function insertGroup(info, cb) {
+  templateGroupInfo.insertOne(info, (err, r) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, r);
+  });
+};
+
+service.addGroup = function addGroup(info, cb) {
+  if (info.parentId) {
+    templateGroupInfo.collection.findOne({ _id: info.parentId }, { fields: { _id: 1 } }, (err, doc) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      if (!doc) {
+        return cb && cb(i18n.t('parentEngineGroupInfoIsNull'));
+      }
+
+      insertGroup(info, cb);
+    });
+  } else {
+    insertGroup(info, cb);
+  }
+};
+
+service.getGroup = function getGroup(id, cb) {
+  if (!id) {
+    return cb && cb(i18n.t('engineGroupIdIsNull'));
+  }
+
+  templateGroupInfo.collection.findOne({ _id: id }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if (!doc) {
+      return cb && cb(i18n.t('engineGroupInfoIsNull'));
+    }
+
+    return cb && cb(null, doc);
+  });
+};
+
+service.listGroup = function listGroup(parentId, page, pageSize, sortFields, fieldsNeed, cb, isIncludeChildren) {
+  const q = {};
+
+  q.parentId = parentId || '';
+
+  templateGroupInfo.pagination(q, page, pageSize, (err, docs) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if (isIncludeChildren && docs.docs.length !== 0) {
+      const ids = [];
+
+      for (let i = 0, len = docs.docs.length; i < len; i++) {
+        ids.push(docs.docs[i]._id);
+      }
+
+      let cursor = templateGroupInfo.collection.find({ parentId: { $in: ids } });
+
+      if (fieldsNeed) {
+        const fields = utils.formatSortOrFieldsParams(fieldsNeed, false);
+        fields.parentId = 1;
+        cursor = cursor.project(fields);
+      }
+
+      cursor.toArray((err, childrenInfo) => {
+        if (err) {
+          logger.error(err.message);
+          return cb && cb(i18n.t('databaseError'));
+        }
+
+        for (let i = 0, len = docs.docs.length; i < len; i++) {
+          docs.docs[i].children = null;
+          for (let j = 0, l = childrenInfo.length; j < l; j++) {
+            if (docs.docs[i]._id === childrenInfo[j].parentId) {
+              if (!docs.docs[i].children) {
+                docs.docs[i].children = [];
+              }
+              docs.docs[i].children.push(childrenInfo[j]);
+            }
+          }
+        }
+
+        return cb && cb(null, docs);
+      });
+    } else {
+      return cb && cb(null, docs);
+    }
+  }, sortFields, fieldsNeed);
+};
+
+service.listChildGroup = function listChildGroup(id, fields, cb) {
+  if (!id) {
+    return cb && cb(i18n.t('engineGroupIdIsNull'));
+  }
+
+  const q = {};
+
+  if (id.constructor === Array) {
+    q.parentId = { $in: id };
+  } else {
+    q.parentId = id;
+  }
+
+  let cursor = templateGroupInfo.collection.find(q);
+
+  if (fields) {
+    cursor = cursor.project(utils.formatSortOrFieldsParams(fields));
+  }
+
+  cursor.toArray((err, docs) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, docs);
+  });
+};
+
+service.updateGroup = function updateGroup(id, updateDoc = {}, cb) {
+  if (!id) {
+    return cb && cb(i18n.t('engineGroupIdIsNull'));
+  }
+
+  if (!updateDoc.modifyTime) {
+    updateDoc.modifyTime = new Date();
+  }
+
+  templateGroupInfo.updateOne({ _id: id }, updateDoc, (err, r) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, r);
+  });
+};
+
+service.deleteGroup = function deleteGroup(id, cb) {
+  if (!id) {
+    return cb && cb(i18n.t('engineGroupIdIsNull'));
+  }
+
+  templateGroupInfo.collection.findOne({ _id: id }, { fields: { _id: 1, deleteDeny: 1, type: 1 } }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if (!doc) {
+      return cb && cb(i18n.t('engineGroupInfoIsNull'));
+    }
+
+    if (doc.deleteDeny === TemplateGroupInfo.DELETE_DENY.YES) {
+      return cb && cb(i18n.t('engineGroupDeleteDenyIsYes'));
+    }
+
+    templateGroupInfo.collection.removeOne({ _id: doc._id }, (err) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      templateGroupInfo.collection.update({ parentId: doc._id }, { $set: { parentId: '' } }, (err) => {
+        if (err) {
+          logger.error(err.message);
+          return cb && cb(i18n.t('databaseError'));
+        }
+
+        templateInfo.collection.update({ groupId: doc._id }, { $set: { groupId: '' } }, (err, r) => {
+          if (err) {
+            logger.error(err.message);
+            return cb && cb(i18n.t('databaseError'));
+          }
+
+          return cb && cb(null, r);
+        });
+      });
+    });
+  });
+};
+
 const checkPathId = function checkPathId(ids, docs) {
   const notExistIds = [];
   const docsMap = {};
@@ -131,12 +328,12 @@ service.list = function list(type, sortFields = '-createdTime', fieldsNeed, page
   templateInfo.pagination(query, page, pageSize, cb, sortFields, fieldsNeed);
 };
 
-service.createTemplate = function createTemplate(creatorId, id, name, type = TemplateInfo.TYPE.DOWNLOAD, description, details, cb) {
+service.createTemplate = function createTemplate(creatorId, id, name, type = TemplateInfo.TYPE.DOWNLOAD, description, details, cb, groupId) {
   if (!id) {
     return cb && cb(i18n.t('templateIdIsNotExist'));
   }
 
-  const info = { _id: id, creatorId, name, type, description, details };
+  const info = { _id: id, creatorId, name, type, description, details, groupId };
   const t = new Date();
 
   info.createdTime = t;
@@ -154,14 +351,14 @@ service.createTemplate = function createTemplate(creatorId, id, name, type = Tem
   return false;
 };
 
-service.createDownloadTemplate = function createDownloadTemplate(creatorId, id, name, description, bucketId, script, cb) {
+service.createDownloadTemplate = function createDownloadTemplate(creatorId, id, name, description, bucketId, script, cb, groupId) {
   if (!bucketId) {
     return cb && cb(i18n.t('templateStorageIdIsNotExist'));
   }
 
   const details = { bucketId, script };
 
-  service.createTemplate(creatorId, id, name, TemplateInfo.TYPE.DOWNLOAD, description, details, cb);
+  service.createTemplate(creatorId, id, name, TemplateInfo.TYPE.DOWNLOAD, description, details, cb, groupId);
 
   return false;
 };
