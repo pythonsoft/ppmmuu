@@ -343,7 +343,7 @@ service.sendBackCatalogTask = function sendBackCatalogTask(taskIds, sendBackerId
   }
 
   // 只有在编目中这状态下的才可以退回
-  query.status = CatalogTaskInfo.STATUS.DOING;
+  query.status = { $in: [ CatalogTaskInfo.STATUS.DOING, CatalogTaskInfo.STATUS.SUBMITTED ]};
 
   catalogTaskInfo.collection.find(query).project(utils.formatSortOrFieldsParams('objectId,_id')).toArray((err, docs) => {
     if (err) {
@@ -562,7 +562,7 @@ service.createCatalog = function createCatalog(ownerId, ownerName, info, cb) {
   }
 
   if (info.parentId) {
-    catalogInfo.collection.findOne({ _id: info.parentId }, { fields: { _id: true } }, (err, doc) => {
+    catalogInfo.collection.findOne({ _id: info.parentId }, (err, doc) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
@@ -571,6 +571,16 @@ service.createCatalog = function createCatalog(ownerId, ownerName, info, cb) {
       if (!doc) {
         return cb && cb(i18n.t('libraryParentCatalogIsNotExist'));
       }
+
+      if(!info.fileInfo || utils.isEmptyObject(info.fileInfo)) {
+        info.fileInfo = doc.fileInfo;
+      }
+
+      if(!info.source) {
+        info.fileInfo = doc.source;
+      }
+
+      info.department = doc.department;
 
       catalogInfo.insertOne(info, (err) => {
         if (err) {
