@@ -21,7 +21,6 @@ class CatalogInfo extends DB {
           realPath: '',
           size: '0',
           type: '',
-          duration: '0'
         };
       }},
       objectId: { type: 'string', validation: 'require' },
