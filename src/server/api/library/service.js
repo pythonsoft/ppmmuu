@@ -528,7 +528,12 @@ service.createCatalog = function createCatalog(ownerId, ownerName, info, cb) {
   }
 
   if (info.fileInfo) {
-    const fInfo = utils.merge({}, info.fileInfo);
+    const fInfo = utils.merge({
+      _id: '',
+      name: '',
+      realPath: '',
+      size: '0'
+    }, info.fileInfo);
 
     if(!fInfo._id) {
       return cb && cb(i18n.t('libraryCreateCatalogInfoFieldIsNull', { field: 'fileInfo._id' }));
@@ -573,7 +578,7 @@ service.createCatalog = function createCatalog(ownerId, ownerName, info, cb) {
           return cb && cb(err);
         }
 
-        return cb && cb(null, info._id);
+        return cb && cb(null, { _id: info._id });
       });
     });
   } else {
@@ -583,7 +588,7 @@ service.createCatalog = function createCatalog(ownerId, ownerName, info, cb) {
         return cb && cb(err);
       }
 
-      return cb && cb(null, info._id);
+      return cb && cb(null, { _id: info._id });
     });
   }
 };
