@@ -519,10 +519,6 @@ service.createCatalog = function createCatalog(ownerId, ownerName, info, cb) {
     return cb && cb(i18n.t('libraryCreateCatalogInfoFieldIsNull', { field: 'objectId' }));
   }
 
-  if (!info.fileId) {
-    return cb && cb(i18n.t('libraryCreateCatalogInfoFieldIsNull', { field: 'fileId' }));
-  }
-
   if (!ownerId) {
     return cb && cb(i18n.t('libraryCreateCatalogInfoFieldIsNull', { field: 'ownerId' }));
   }
