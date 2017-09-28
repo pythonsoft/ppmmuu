@@ -534,7 +534,6 @@ service.createCatalog = function createCatalog(ownerId, ownerName, info, cb) {
       realPath: '',
       size: '0',
       type: '',
-      duration: '0'
     }, info.fileInfo);
 
     if(!fInfo._id) {
