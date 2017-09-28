@@ -577,7 +577,7 @@ service.createCatalog = function createCatalog(ownerId, ownerName, info, cb) {
       }
 
       if(!info.source) {
-        info.fileInfo = doc.source;
+        info.source = doc.source;
       }
 
       info.department = doc.department;
