@@ -668,7 +668,7 @@ service.createFile = function createFile(info, cb) {
     return cb && cb(i18n.t('libraryFileInfoFieldIsNull', { field: 'objectId' }));
   }
 
-  if (info._id) {
+  if (!info._id) {
     info._id = uuid.v1();
   }
 
