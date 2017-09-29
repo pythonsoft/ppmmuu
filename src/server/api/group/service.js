@@ -169,13 +169,13 @@ service.addGroup = function addGroup(info, cb) {
       return cb && cb(err);
     }
 
-    groupInfo.insertOne(info, (err) => {
+    groupInfo.insertOne(info, (err, r) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
 
-      return cb && cb(null, 'ok');
+      return cb && cb(null, r.ops[0]);
     });
   });
 };

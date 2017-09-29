@@ -202,17 +202,65 @@ const infos = [
     parentIndex: 'lineShelf',
   },
   {
-    _id: 'onlineLineShelf',
+    _id: 'onlineShelf',
     name: '已上架',
-    index: 'onlineLineShelf',
+    index: 'onlineShelf',
     parentIndex: 'lineShelf',
   },
   {
-    _id: 'offlineLineShelf',
+    _id: 'offlineShelf',
     name: '下架',
-    index: 'offlineLineShelf',
+    index: 'offlineShelf',
     parentIndex: 'lineShelf',
   },
+  {
+    _id: 'departmentTask',
+    name: '部门任务',
+    index: 'departmentTask',
+    parentIndex: 'library',
+  },
+  {
+    _id: 'department_catalog_task_unassigned',
+    name: '待认领',
+    index: 'department_catalog_task_unassigned',
+    parentIndex: 'departmentTask',
+  },
+  {
+    _id: 'department_catalog_task_all',
+    name: '全部',
+    index: 'department_catalog_task_all',
+    parentIndex: 'departmentTask',
+  },
+  {
+    _id: 'personalTask',
+    name: '我的任务',
+    index: 'personalTask',
+    parentIndex: 'library',
+  },
+  {
+    _id: 'personal_catalog_task_doing',
+    name: '编目中',
+    index: 'personal_catalog_task_doing',
+    parentIndex: 'personalTask',
+  },
+  {
+    _id: 'personal_catalog_task_submitted',
+    name: '已提交',
+    index: 'personal_catalog_task_submitted',
+    parentIndex: 'personalTask',
+  },
+  {
+    _id: 'personal_catalog_task_deleted',
+    name: '已删除',
+    index: 'personal_catalog_task_deleted',
+    parentIndex: 'personalTask',
+  },
+  {
+    _id: 'personal_catalog_task_all',
+    name: '全部',
+    index: 'personal_catalog_task_all',
+    parentIndex: 'personalTask',
+  }
 ];
 
 permissionGroup.collection.removeMany({}, (err) => {

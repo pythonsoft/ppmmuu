@@ -552,6 +552,7 @@ router.post('/clearWatchHistory', (req, res) => {
  *             - _id
  *             - name
  *             - email
+ *             - companyName
  *           properties:
  *             _id:
  *               type: string
@@ -560,6 +561,10 @@ router.post('/clearWatchHistory', (req, res) => {
  *             name:
  *               type: string
  *               example: ''
+ *             companyName:
+ *               type: string
+ *               description: '公司名字'
+ *               example: '凤凰卫视'
  *             title:
  *               type: string
  *               example: ''

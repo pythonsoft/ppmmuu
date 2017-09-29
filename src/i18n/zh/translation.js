@@ -185,6 +185,10 @@ module.exports = {
     code: '-5009',
     message: '上一级组织信息不存在',
   },
+  createCompanyFailed: {
+    code: '-5010',
+    message: '创建公司失败',
+  },
   getUserOrDepartmentRoleAndPermissionsNoId: {
     code: '-6001',
     message: '获取用户或部门角色和权限详情没有参数_id',

@@ -293,7 +293,7 @@ router.get('/getCatalogTask', (req, res) => {
 });
 
 /**
- * @permissionGroup: library
+ * @permissionGroup: departmentTask
  * @permissionName: 列举所在部门的编目任务
  * @permissionPath: /library/listDepartmentCatalogTask
  * @apiName: listDepartmentCatalogTask
