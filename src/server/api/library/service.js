@@ -89,7 +89,7 @@ service.createCatalogTask = function createCatalogTask(info, creatorId, creatorN
   info.createdTime = t;
   info.lastModifyTime = t;
 
-  catalogTaskInfo.insertOne(info, err => {
+  catalogTaskInfo.insertOne(info, (err) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(err);
@@ -536,19 +536,19 @@ service.createCatalog = function createCatalog(ownerId, ownerName, info, cb) {
       type: '',
     }, info.fileInfo);
 
-    if(!fInfo._id) {
+    if (!fInfo._id) {
       return cb && cb(i18n.t('libraryCreateCatalogInfoFieldIsNull', { field: 'fileInfo._id' }));
     }
 
-    if(!fInfo.name) {
+    if (!fInfo.name) {
       return cb && cb(i18n.t('libraryCreateCatalogInfoFieldIsNull', { field: 'fileInfo.name' }));
     }
 
-    if(!fInfo.realPath) {
+    if (!fInfo.realPath) {
       return cb && cb(i18n.t('libraryCreateCatalogInfoFieldIsNull', { field: 'fileInfo.realPath' }));
     }
 
-    if(!fInfo.size) {
+    if (!fInfo.size) {
       return cb && cb(i18n.t('libraryCreateCatalogInfoFieldIsNull', { field: 'fileInfo.size' }));
     }
 
@@ -672,7 +672,7 @@ service.createFile = function createFile(info, cb) {
     info._id = uuid.v1();
   }
 
-  fileInfo.insertOne(info, err => {
+  fileInfo.insertOne(info, (err) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(err);

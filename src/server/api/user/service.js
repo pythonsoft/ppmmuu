@@ -39,7 +39,9 @@ const getMenuByPermissions = function getMenuByPermissions(permissions, cb) {
   }
   const indexes = [];
   for (let i = 0, len = permissions.length; i < len; i++) {
-    indexes.push(permissions[i].groupIndex);
+    if (permissions[i].action !== '拒绝') {
+      indexes.push(permissions[i].groupIndex);
+    }
   }
   service.getMenusByIndex(indexes, (err, menu) => cb && cb(err, menu));
 };
