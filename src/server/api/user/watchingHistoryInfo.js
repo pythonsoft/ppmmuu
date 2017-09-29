@@ -36,7 +36,7 @@ class WatchingHistoryInfo extends DB {
       userId: { type: 'string', validation: 'require' },
       videoId: { type: 'string', validation: 'require' },
       createdTime: { type: 'date', allowUpdate: false },
-      updatedTime: { type: 'date', allowUpdate: true },
+      updatedTime: { type: 'date' },
       count: { type: 'number', default: 1 },
       videoContent: { type: 'object', default: {} },
       status: { type: 'string', default: 'unavailable' },
