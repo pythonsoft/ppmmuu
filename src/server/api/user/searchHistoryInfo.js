@@ -34,7 +34,7 @@ class SearchHistoryInfo extends DB {
       userId: { type: 'string', validation: 'require' },
       keyword: { type: 'string', validation: 'require' },
       createdTime: { type: 'date', allowUpdate: false },
-      updatedTime: { type: 'date', allowUpdate: true },
+      updatedTime: { type: 'date' },
       count: { type: 'number', default: 1 },
     };
   }

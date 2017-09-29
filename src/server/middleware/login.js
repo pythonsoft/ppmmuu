@@ -22,7 +22,7 @@ const Login = {};
 
 Login.isLogin = function isLogin(req) {
   const query = utils.trim(req.query);
-  const ticket = query.ticket || (req.cookies.ticket || req.header('token')) || (req.body || req.body.ticket);
+  const ticket = query.ticket || (req.cookies.ticket || req.header('ump-ticket')) || (req.body || req.body.ticket);
 
   if (!ticket) {
     return false;

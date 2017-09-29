@@ -262,19 +262,21 @@ function updateEngineInfo(cb) {
     if (err) {
       logger.error(err);
     }
-    sc.socket.emit('sendSysInfo', docs.map(item => item.intranetIp), (err, r) => {
-      if (err) {
-        logger.error(err);
-      }
-      const writes = r.map(item => ({ updateOne: {
-        filter: { intranetIp: item.ip },
-        update: { $set: { modifyTime: new Date() } },
-      } }));
-      if (writes.length === 0) {
-        return cb(null);
-      }
-      engineInfo.collection.bulkWrite(writes, { ordered: true, w: 1 }, (err, r) => cb(err, r));
-    });
+    if (docs && docs.length !== 0) {
+      sc.socket.emit('sendSysInfo', docs.map(item => item.intranetIp), (err, r) => {
+        if (err) {
+          logger.error(err);
+        }
+        const writes = r.map(item => ({ updateOne: {
+          filter: { intranetIp: item.ip },
+          update: { $set: { modifyTime: new Date() } },
+        } }));
+        if (writes.length === 0) {
+          return cb(null);
+        }
+        engineInfo.collection.bulkWrite(writes, { ordered: true, w: 1 }, (err, r) => cb(err, r));
+      });
+    }
   });
 }
 

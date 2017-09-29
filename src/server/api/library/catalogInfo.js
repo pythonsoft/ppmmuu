@@ -14,7 +14,15 @@ class CatalogInfo extends DB {
 
     this.struct = {
       _id: { type: 'string', default() { return uuid.v1(); }, allowUpdate: false },
-      fileInfo: { type: 'object', validation: 'require', default() { return { _id: '', name: '', realPath: '', size: '0' }; } },
+      fileInfo: { type: 'object', validation: 'require', default() {
+        return {
+          _id: '',
+          name: '',
+          realPath: '',
+          size: '0',
+          type: '',
+        };
+      }},
       objectId: { type: 'string', validation: 'require' },
       englishName: { type: 'string', validation: 'require' },
       chineseName: { type: 'string', validation: 'require' },
@@ -29,6 +37,7 @@ class CatalogInfo extends DB {
       type: { type: 'string', validation: 'require' }, // 类型：素材，节目，其它
       inpoint: { type: 'number', validation: 'require' },
       outpoint: { type: 'number', validation: 'require' },
+      duration: { type: 'string' },
       available: { type: 'string', default: () => CatalogInfo.AVAILABLE.NO },
       materialDate: { type: 'object', default() { return { from: '', to: '' }; } }, // 素材日期 { from: '2017-03-21', to: '2017-03-21' }
       owner: { type: 'object', default() { return { _id: '', name: '' }; } },

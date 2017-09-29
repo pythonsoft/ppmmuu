@@ -95,7 +95,7 @@ service.createCatalogTask = function createCatalogTask(info, creatorId, creatorN
       return cb && cb(err);
     }
 
-    return cb && cb(null, info._id);
+    return cb && cb(null, { _id: info._id });
   });
 };
 
@@ -343,7 +343,7 @@ service.sendBackCatalogTask = function sendBackCatalogTask(taskIds, sendBackerId
   }
 
   // 只有在编目中这状态下的才可以退回
-  query.status = CatalogTaskInfo.STATUS.DOING;
+  query.status = { $in: [ CatalogTaskInfo.STATUS.DOING, CatalogTaskInfo.STATUS.SUBMITTED ]};
 
   catalogTaskInfo.collection.find(query).project(utils.formatSortOrFieldsParams('objectId,_id')).toArray((err, docs) => {
     if (err) {
@@ -519,10 +519,6 @@ service.createCatalog = function createCatalog(ownerId, ownerName, info, cb) {
     return cb && cb(i18n.t('libraryCreateCatalogInfoFieldIsNull', { field: 'objectId' }));
   }
 
-  if (!info.fileId) {
-    return cb && cb(i18n.t('libraryCreateCatalogInfoFieldIsNull', { field: 'fileId' }));
-  }
-
   if (!ownerId) {
     return cb && cb(i18n.t('libraryCreateCatalogInfoFieldIsNull', { field: 'ownerId' }));
   }
@@ -532,7 +528,13 @@ service.createCatalog = function createCatalog(ownerId, ownerName, info, cb) {
   }
 
   if (info.fileInfo) {
-    const fInfo = utils.merge({}, info.fileInfo);
+    const fInfo = utils.merge({
+      _id: '',
+      name: '',
+      realPath: '',
+      size: '0',
+      type: '',
+    }, info.fileInfo);
 
     if (!fInfo._id) {
       return cb && cb(i18n.t('libraryCreateCatalogInfoFieldIsNull', { field: 'fileInfo._id' }));
@@ -561,7 +563,7 @@ service.createCatalog = function createCatalog(ownerId, ownerName, info, cb) {
   }
 
   if (info.parentId) {
-    catalogInfo.collection.findOne({ _id: info.parentId }, { fields: { _id: true } }, (err, doc) => {
+    catalogInfo.collection.findOne({ _id: info.parentId }, (err, doc) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
@@ -571,13 +573,23 @@ service.createCatalog = function createCatalog(ownerId, ownerName, info, cb) {
         return cb && cb(i18n.t('libraryParentCatalogIsNotExist'));
       }
 
+      if(!info.fileInfo || utils.isEmptyObject(info.fileInfo)) {
+        info.fileInfo = doc.fileInfo;
+      }
+
+      if(!info.source) {
+        info.source = doc.source;
+      }
+
+      info.department = doc.department;
+
       catalogInfo.insertOne(info, (err) => {
         if (err) {
           logger.error(err.message);
           return cb && cb(err);
         }
 
-        return cb && cb(null, info._id);
+        return cb && cb(null, { _id: info._id });
       });
     });
   } else {
@@ -587,7 +599,7 @@ service.createCatalog = function createCatalog(ownerId, ownerName, info, cb) {
         return cb && cb(err);
       }
 
-      return cb && cb(null, info._id);
+      return cb && cb(null, { _id: info._id });
     });
   }
 };
@@ -666,7 +678,7 @@ service.createFile = function createFile(info, cb) {
       return cb && cb(err);
     }
 
-    return cb && cb(null, info._id);
+    return cb && cb(null, { _id: info._id });
   });
 };
 

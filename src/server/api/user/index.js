@@ -383,7 +383,7 @@ router.post('/changePassword', (req, res) => {
  */
 router.get('/getSearchHistory', (req, res) => {
   const page = req.query.page || 1;
-  const pageSize = req.query.pageSize || 999;
+  const pageSize = req.query.pageSize || 30;
 
   mediaService.getSearchHistory(req.ex.userId, (err, docs) => res.json(result.json(err, docs)), page, pageSize);
 });
@@ -656,7 +656,7 @@ router.post('/adAccountSync', (req, res) => {
 router.get('/listJob', (req, res) => {
   const page = req.query.page;
   const pageSize = req.query.pageSize;
-  const status = req.query.status;
+  const status = req.query.status || '';
   const currentStep = req.query.currentStep;
   const userId = req.ex.userId;
 

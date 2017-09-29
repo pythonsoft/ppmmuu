@@ -598,7 +598,7 @@ service.getStream = function getStream(objectId, res) {
 };
 
 service.getSearchHistory = (userId, cb, page, pageSize) => {
-  searchHistoryInfo.pagination({ userId }, page, pageSize, (err, doc) => cb && cb(err, doc), 'updatedTime', '');
+  searchHistoryInfo.pagination({ userId }, page, pageSize, (err, doc) => cb && cb(err, doc), '-updatedTime', null);
 };
 
 service.getSearchHistoryForMediaPage = (userId, cb) => {
@@ -614,7 +614,7 @@ service.getSearchHistoryForMediaPage = (userId, cb) => {
 };
 
 service.getWatchHistory = (userId, cb, page, pageSize) => {
-  watchingHistoryInfo.pagination({ userId, status: 'available' }, page, pageSize, (err, doc) => cb && cb(err, doc), 'updatedTime', '');
+  watchingHistoryInfo.pagination({ userId, status: 'available' }, page, pageSize, (err, doc) => cb && cb(err, doc), '-updatedTime', '');
 };
 
 service.getWatchHistoryForMediaPage = (userId, cb) => {

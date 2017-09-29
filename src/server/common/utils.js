@@ -209,7 +209,7 @@ utils.formatSortOrFieldsParams = function formatSortOrFieldsParams(sortString, i
   const flag = isSort ? flags.sorts : flags.fields;
 
   for (let i = 0, len = arr.length; i < len; i++) {
-    sorts[arr[i].trim()] = /^-/.test(arr[i]) ? flag[0] : flag[1];
+    sorts[arr[i].trim().replace('-', '')] = /^-/.test(arr[i]) ? flag[0] : flag[1];
   }
 
   return sorts;
