@@ -15,7 +15,7 @@ class FileInfo extends DB {
     this.struct = {
       _id: { type: 'string', default() { return uuid.v1(); }, allowUpdate: false },
       objectId: { type: 'string', validation: 'require' },
-      jobId: { type: 'string', validation: 'require' },
+      jobId: { type: 'string' },
       name: { type: 'string', validation: 'require' },
       size: { type: 'number', validation: 'require' },
       realPath: { type: 'string', validation: 'require' },
