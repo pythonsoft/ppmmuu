@@ -27,7 +27,6 @@ const config = require('../../config');
 class PermissionGroup extends DB {
   constructor() {
     const indexes = [
-      { key: { name: 1 }, name: 'permission_group_name', unique: true },
       { key: { index: 1 }, name: 'permission_group_index', unique: true },
     ];
 

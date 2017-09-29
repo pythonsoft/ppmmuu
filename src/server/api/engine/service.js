@@ -312,13 +312,13 @@ service.listEngine = function listEngine(keyword, groupId, page, pageSize, sortF
   //   if (r) {
   //     logger.info(`${r.upsertedCount} engine item updated`);
   //   }
-    engineInfo.pagination(query, page, pageSize, (err, docs) => {
-      if (err) {
-        logger.error(err.message);
-        return cb && cb(i18n.t('databaseError'));
-      }
-      return cb && cb(null, docs);
-    }, sortFields, fieldsNeed);
+  engineInfo.pagination(query, page, pageSize, (err, docs) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+    return cb && cb(null, docs);
+  }, sortFields, fieldsNeed);
   // });
 };
 

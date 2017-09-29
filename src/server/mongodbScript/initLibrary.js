@@ -9,15 +9,17 @@ const CatalogInfo = require('../api/library/catalogInfo');
 const UserInfo = require('../api/user/userInfo');
 const FileInfo = require('../api/library/fileInfo');
 const service = require('../api/library/service');
+const ShelfTaskInfo = require('../api/shelves/ShelfTaskInfo');
 const uuid = require('uuid');
 
 const catalogTaskInfo = new CatalogTaskInfo();
+const shelfTaskInfo = new ShelfTaskInfo();
 const catalogInfo = new CatalogInfo();
 const userInfo = new UserInfo();
 const fileInfo = new FileInfo();
 
-let objectId = 'B57A5092-F42B-45D4-8329-C03EF6BDF2B0';
-const objectIds = ['6C842811-F9B4-417F-B359-54A8875CEBBH'];
+let objectId = 'EA7D28E2-953D-4427-BFC7-484AF216D064';
+const objectIds = ['EA7D28E2-953D-4427-BFC7-484AF216D064'];
 // for (let i = 0, len = 20; i < len; i++) {
 //   objectIds.push(uuid.v1());
 // }
@@ -63,6 +65,7 @@ catalogTaskInfo.collection.findOne({ objectId }, (err, doc) => {
           type: '0',
           available: '1',
           status: '1',
+          jobId: 'asdasfsaf',
           description: '',
           archivePath: '',
           createdTime: new Date(),
@@ -141,3 +144,4 @@ catalogTaskInfo.collection.findOne({ objectId }, (err, doc) => {
     }
   });
 });
+

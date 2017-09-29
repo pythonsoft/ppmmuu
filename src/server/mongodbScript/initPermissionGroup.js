@@ -135,6 +135,84 @@ const infos = [
     index: 'managementFeedback',
     parentIndex: 'help',
   },
+  {
+    _id: 'shelf',
+    name: '上架',
+    index: 'shelf',
+    parentIndex: '',
+  },
+  {
+    _id: 'departmentShelf',
+    name: '部门任务',
+    index: 'departmentShelf',
+    parentIndex: 'shelf',
+  },
+  {
+    _id: 'prepareDepartmentShelf',
+    name: '待认领',
+    index: 'prepareDepartmentShelf',
+    parentIndex: 'departmentShelf',
+  },
+  {
+    _id: 'allDepartmentShelf',
+    name: '全部',
+    index: 'allDepartmentShelf',
+    parentIndex: 'departmentShelf',
+  },
+  {
+    _id: 'myShelf',
+    name: '我的任务',
+    index: 'myShelf',
+    parentIndex: 'shelf',
+  },
+  {
+    _id: 'doingMyShelf',
+    name: '处理中',
+    index: 'doingMyShelf',
+    parentIndex: 'myShelf',
+  },
+  {
+    _id: 'submittedMyShelf',
+    name: '已提交',
+    index: 'submittedMyShelf',
+    parentIndex: 'myShelf',
+  },
+  {
+    _id: 'deletedMyShelf',
+    name: '已删除',
+    index: 'deletedMyShelf',
+    parentIndex: 'myShelf',
+  },
+  {
+    _id: 'allMyShelf',
+    name: '全部',
+    index: 'allMyShelf',
+    parentIndex: 'myShelf',
+  },
+  {
+    _id: 'lineShelf',
+    name: '上架管理',
+    index: 'lineShelf',
+    parentIndex: 'shelf',
+  },
+  {
+    _id: 'prepareLineShelf',
+    name: '待上架',
+    index: 'prepareLineShelf',
+    parentIndex: 'lineShelf',
+  },
+  {
+    _id: 'onlineLineShelf',
+    name: '已上架',
+    index: 'onlineLineShelf',
+    parentIndex: 'lineShelf',
+  },
+  {
+    _id: 'offlineLineShelf',
+    name: '下架',
+    index: 'offlineLineShelf',
+    parentIndex: 'lineShelf',
+  },
 ];
 
 permissionGroup.collection.removeMany({}, (err) => {

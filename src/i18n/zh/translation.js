@@ -677,4 +677,56 @@ module.exports = {
     code: '-100007',
     message: '没有可以恢复的编目任务',
   },
+  shelfStatusNotCorrect: {
+    code: '-110001',
+    message: '状态不正确',
+  },
+  shelfShortIds: {
+    code: '-110002',
+    message: '缺少参数_ids',
+  },
+  shelfExistOtherStatus: {
+    code: '-110003',
+    message: '存在其他状态的任务，请先剔除掉',
+  },
+  shelfExistDeleteStatus: {
+    code: '-110004',
+    message: '存在状态为删除的任务，请先剔除掉',
+  },
+  shelfShortDealer: {
+    code: '-110005',
+    message: '缺少参数dealer',
+  },
+  shelfShortId: {
+    code: '-110006',
+    message: '缺少参数_id',
+  },
+  shelfNotFind: {
+    code: '-110007',
+    message: '找不到任务',
+  },
+  shelfCanNotSave: {
+    code: '-110008',
+    message: '不是处理中的任务不能保存或提交',
+  },
+  shelfExistNotDoingStatus: {
+    code: '-11009',
+    message: '不是处理中的任务不能退回',
+  },
+  shelfExistNotSubmittedStatus: {
+    code: '-11010',
+    message: '存在状态不是待上架的任务,请先剔除掉',
+  },
+  shelfExistNotOnlineStatus: {
+    code: '-11011',
+    message: '存在状态不是上架的任务,请先剔除掉',
+  },
+  NotOfflineStatusCanNotEditAgain: {
+    code: '-11012',
+    message: '状态不是下架的任务不能再编辑',
+  },
+  shelfHasExists: {
+    code: '-11013',
+    message: '之前上架过',
+  },
 };

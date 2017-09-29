@@ -39,6 +39,8 @@ const SEARCH_TYPE = {
   GROUP: '1',
 };
 
+service.SEARCH_TYPE = SEARCH_TYPE;
+
 /* role */
 service.listRole = function listRole(page, pageSize, keyword, fields, cb) {
   const query = {};
