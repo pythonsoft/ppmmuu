@@ -146,7 +146,7 @@ router.post('/updateCatalogTask', (req, res) => {
   }
 
   if (req.body.jobs) {
-    updateDoc.workflowStatus = req.body.jobs;
+    updateDoc.jobs = req.body.jobs;
   }
 
   service.updateCatalogTask(req.body.taskId, updateDoc, (err, docs) => res.json(result.json(err, docs)));
