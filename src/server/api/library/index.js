@@ -146,7 +146,7 @@ router.post('/updateCatalogTask', (req, res) => {
   }
 
   if (req.body.jobs) {
-    updateDoc.workflowStatus = req.body.jobs;
+    updateDoc.jobs = req.body.jobs;
   }
 
   service.updateCatalogTask(req.body.taskId, updateDoc, (err, docs) => res.json(result.json(err, docs)));
@@ -1316,6 +1316,18 @@ router.get('/getFile', (req, res) => {
   const id = req.query.id || '';
 
   service.getFile(id, (err, docs) => res.json(result.json(err, docs)));
+});
+
+const data = {
+  "taskId":"d73926d0-a4f1-11e7-8e81-ede017a0533a",
+  "objectId":"d14233f8-ee52-4842-ac58-9054b0985ec8",
+  "name":"mu name",
+  "workflowStatus":"0",
+  "jobs":{"d73cd050-a4f1-11e7-8e81-ede017a0533a":"created"}
+};
+
+service.updateCatalogTask(data.taskId, data, (err, r) => {
+  console.log('eeee --->', err, r);
 });
 
 module.exports = router;
