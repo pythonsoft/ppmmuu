@@ -95,7 +95,7 @@ service.createCatalogTask = function createCatalogTask(info, creatorId, creatorN
       return cb && cb(err);
     }
 
-    return cb && cb(null, info._id);
+    return cb && cb(null, { _id: info._id });
   });
 };
 
@@ -678,7 +678,7 @@ service.createFile = function createFile(info, cb) {
       return cb && cb(err);
     }
 
-    return cb && cb(null, info._id);
+    return cb && cb(null, { _id: info._id });
   });
 };
 
