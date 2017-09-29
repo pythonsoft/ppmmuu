@@ -386,7 +386,7 @@ service.sendBackShelf = function sendBackShelf(req, cb) {
       return cb && cb(i18n.t('shelfExistNotDoingStatus'));
     }
     const updateInfo = {
-      status: ShelfTaskInfo.STATUS.DELETE,
+      status: ShelfTaskInfo.STATUS.PREPARE,
       lastDeleter: {
         _id: userInfo._id,
         name: userInfo.name,
