@@ -16,12 +16,15 @@ const SearchHistoryInfo = require('./searchHistoryInfo');
 const WatchingHistoryInfo = require('./watchingHistoryInfo');
 const UserInfo = require('./userInfo');
 const PermissionGroup = require('../role/permissionGroup');
+const GroupInfo =require('../group/groupInfo');
 
 const userInfo = new UserInfo();
 const searchHistoryInfo = new SearchHistoryInfo();
 const watchingHistoryInfo = new WatchingHistoryInfo();
 const permissionGroup = new PermissionGroup();
+const groupInfo = new GroupInfo();
 
+const groupService = require('../group/service');
 const groupUserService = require('../group/userService');
 
 const service = {};
@@ -306,6 +309,36 @@ service.removeSearchHistory = (ids, userId, cb) => {
   searchHistoryInfo.collection.deleteMany(filter, null, (err, r) => cb && cb(err, r));
 };
 
+const getGroupByNameOrCreate = function getGroupByNameOrCreate(name, cb){
+  groupInfo.collection.findOne({ name: name, type: GroupInfo.TYPE.COMPANY}, function(err, doc){
+    if(err){
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
+    }
+    if(doc){
+      return cb && cb(null, doc);
+    }
+    
+    const info = {
+      type: GroupInfo.TYPE.COMPANY,
+      name: name,
+      parentId: ''
+    };
+    
+    groupService.addGroup(info, function(err, doc){
+      if(err){
+        return cb && cb(err);
+      }
+      
+      if(!doc){
+        return cb && cb(i18n.t('createCompanyFailed'));
+      }
+      
+      return cb && cb(null, doc);
+    })
+  })
+}
+
 /**
  * 同步AD账户
  * @param info
@@ -318,7 +351,13 @@ service.adAccountSync = function adAccountSync(info, cb) {
   if (!info._id) {
     return cb && cb(i18n.t('fieldIsNotExistError', { field: '_id' }));
   }
-
+  
+  if(!info.companyName){
+    return cb && cb(i18n.t('fieldIsNotExistError', { field: 'companyName' }));
+  }
+  
+  const companyName = utils.trim(info.companyName);
+  
   const result = userInfo.assign(info);
 
   if (result.err) {
@@ -326,15 +365,22 @@ service.adAccountSync = function adAccountSync(info, cb) {
   }
 
   const doc = result.doc;
-
-  userInfo.collection.findOneAndUpdate({ _id: info._id }, { $set: doc }, { upsert: true }, (err) => {
-    if (err) {
-      logger.error(err.message);
-      return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
+  
+  getGroupByNameOrCreate(companyName, function(err, r) {
+    if(err){
+      return cb && cb(err);
     }
-
-    return cb && cb(null, 'ok');
-  });
+    doc.company._id = r._id;
+    doc.company.name = r.name;
+    userInfo.collection.findOneAndUpdate({_id: info._id}, {$set: doc}, {upsert: true}, (err) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseErrorDetail', {error: err.message}));
+      }
+    
+      return cb && cb(null, 'ok');
+    });
+  })
 };
 
 service.getDirectAuthorizeAcceptorList = function getDirectAuthorizeAcceptorList(_id, cb) {
