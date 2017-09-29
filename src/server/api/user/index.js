@@ -383,7 +383,7 @@ router.post('/changePassword', (req, res) => {
  */
 router.get('/getSearchHistory', (req, res) => {
   const page = req.query.page || 1;
-  const pageSize = req.query.pageSize || 999;
+  const pageSize = req.query.pageSize || 30;
 
   mediaService.getSearchHistory(req.ex.userId, (err, docs) => res.json(result.json(err, docs)), page, pageSize);
 });
