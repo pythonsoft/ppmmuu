@@ -50,7 +50,10 @@ const listDepartmentShelfTask = function listDepartmentShelfTask(req, cb) {
   }
 
   if (keyword) {
-    query.name = { $regex: keyword, $options: 'i' };
+    query.$or = [
+      {name:{ $regex: keyword, $options: 'i' }},
+      {programNO:{ $regex: keyword, $options: 'i' }},
+    ];
   }
 
   query['department._id'] = userInfo.department._id;
@@ -263,7 +266,12 @@ service.listMyselfShelfTask = function listMyselfShelfTask(req, cb) {
   }
 
   if (keyword) {
-    query.name = { $regex: keyword, $options: 'i' };
+    query.$or = [
+      {name:{ $regex: keyword, $options: 'i' }},
+      {programNO:{ $regex: keyword, $options: 'i' }},
+      {'dealer.name':{ $regex: keyword, $options: 'i' }},
+      {'assignee.name':{ $regex: keyword, $options: 'i' }},
+    ];
   }
 
   query['department._id'] = userInfo.department._id;
@@ -430,7 +438,10 @@ service.listLineShelfTask = function listLineShelfTask(req, cb) {
   }
 
   if (keyword) {
-    query.name = { $regex: keyword, $options: 'i' };
+    query.$or = [
+      {name:{ $regex: keyword, $options: 'i' }},
+      {programNO:{ $regex: keyword, $options: 'i' }},
+    ];
   }
 
   query['department._id'] = userInfo.department._id;
