@@ -6,10 +6,6 @@
 
 const config = require('../../config');
 const i18n = require('i18next');
-const utils = require('../../common/utils');
-const UserInfo = require('../user/userInfo');
-
-const userInfo = new UserInfo();
 
 const HttpRequest = require('../../common/httpRequest');
 
@@ -77,10 +73,6 @@ service.restart = function restart(parentTaskId, taskId, type, res) {
 
 service.stop = function restart(parentTaskId, taskId, type, res) {
   execCommand('stop', parentTaskId, taskId, type, res);
-};
-
-service.createTemplate = function createTemplate(template, cb) {
-
 };
 
 module.exports = service;

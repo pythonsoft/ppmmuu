@@ -34,7 +34,7 @@ class FileInfo extends DB {
 FileInfo.TYPE = {
   ORIGINAL: '0', // 源文件
   LOW_BIT_VIDEO: '1', // 低码流
-  SUBTITLE: '2', //字幕
+  SUBTITLE: '2', // 字幕
   THUMB: '3', // 缩略图
   OTHER: '4', // 其它
 };

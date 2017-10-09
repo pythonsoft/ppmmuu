@@ -892,7 +892,7 @@ router.post('/updateCatalog', (req, res) => {
  *                  type: string
  */
 router.post('/createFile', (req, res) => {
-  service.createFile(req.body, (err, docs) => res.json(result.json(err, docs)))
+  service.createFile(req.body, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
@@ -978,7 +978,7 @@ router.post('/createFile', (req, res) => {
  *                  type: string
  */
 router.post('/updateFile', (req, res) => {
-  service.updateFile(req.body.id, req.body, (err, docs) => res.json(result.json(err, docs)))
+  service.updateFile(req.body.id, req.body, (err, docs) => res.json(result.json(err, docs)));
 });
 
 module.exports = router;
