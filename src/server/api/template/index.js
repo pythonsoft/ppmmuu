@@ -381,8 +381,10 @@ router.post('/createDownloadTemplate', (req, res) => {
   const script = req.body.script;
   const id = req.body.id;
   const groupId = req.body.groupId;
+  const transcodeTemplates = (req.body.transcodeTemplates || '').split(',');
+  const transcodeTemplateSelector = req.body.transcodeTemplateSelector || '';
 
-  service.createDownloadTemplate(userId, id, name, description, bucketId, script, err => res.json(result.json(err, 'ok')), groupId);
+  service.createDownloadTemplate(userId, id, name, description, bucketId, script, err => res.json(result.json(err, 'ok')), groupId, transcodeTemplates, transcodeTemplateSelector);
 });
 
 /**
