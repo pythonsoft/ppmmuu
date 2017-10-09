@@ -45,8 +45,6 @@ config.hongkongUrl = 'http://w2.phoenixtv.com/mamapi/';
 // config.umpFeAPI = process.env.NODE_ENV === 'development' ? 'http://localhost:8080' : 'http://api.szdev.cn';
 config.umpFeAPI = 'http://ump-api.phoenixtv.com';
 
-config.archiveAppId = '9f6d42fe-0329-43aa-bcac-a30e00c66d7c';
-
 config.HKAPI = {
   hostname: 'w2.phoenixtv.com',
   port: 80,

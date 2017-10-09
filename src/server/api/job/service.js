@@ -210,7 +210,7 @@ service.query = function query(queryParams, res) {
 const checkOwner = function checkOwner(jobId, userId, cb) {
   request.get('/JobService/query', { jobId }, (err, rs) => {
     if (err) {
-      return cb && cb(err);
+      return cb && cb(JSON.stringify(result.fail(err)));
     }
 
     if (rs.status !== '0') {

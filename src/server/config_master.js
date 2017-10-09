@@ -41,10 +41,9 @@ config.solrBaseUrl = 'http://solr.szdev.cn/solr/';
 config.esBaseUrl = 'http://10.0.15.204:9200/';
 // 香港检索基础api地址
 config.hongkongUrl = 'http://w2.phoenixtv.com/mamapi/';
+
 // ump fe api地址
 config.umpFeAPI = process.env.NODE_ENV === 'development' ? 'http://localhost:8080' : 'http://api.szdev.cn';
-
-config.archiveAppId = '9f6d42fe-0329-43aa-bcac-a30e00c66d7c';
 
 config.HKAPI = {
   hostname: 'w2.phoenixtv.com',

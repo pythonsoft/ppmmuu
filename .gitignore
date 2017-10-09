@@ -145,3 +145,4 @@ fabric.properties
 *.orig
 
 # End of https://www.gitignore.io/api/git
+test/
