@@ -371,7 +371,7 @@ router.get('/listDepartmentCatalogTask', (req, res) => {
 });
 
 /**
- * @permissionGroup: library
+ * @permissionGroup: personalTask
  * @permissionName: 列举我的编目任务
  * @permissionPath: /library/listMyCatalogTask
  * @apiName: listMyCatalogTask
@@ -442,7 +442,7 @@ router.get('/listMyCatalogTask', (req, res) => {
 });
 
 /**
- * @permissionGroup: library
+ * @permissionGroup: departmentTask
  * @permissionName: 派发任务
  * @permissionPath: /library/assignCatalogTask
  * @apiName: assignCatalogTask
@@ -550,7 +550,7 @@ router.post('/applyCatalogTask', (req, res) => {
 });
 
 /**
- * @permissionGroup: library
+ * @permissionGroup: personalTask
  * @permissionName: 退回任务
  * @permissionPath: /library/sendBackCatalogTask
  * @apiName: sendBackCatalogTask
@@ -601,7 +601,7 @@ router.post('/sendBackCatalogTask', (req, res) => {
 });
 
 /**
- * @permissionGroup: library
+ * @permissionGroup: personalTask
  * @permissionName: 提交任务
  * @permissionPath: /library/submitCatalogTask
  * @apiName: submitCatalogTask
@@ -703,7 +703,7 @@ router.post('/deleteCatalogTask', (req, res) => {
 });
 
 /**
- * @permissionGroup: library
+ * @permissionGroup: departmentTask
  * @permissionName: 恢复任务
  * @permissionPath: /library/resumeCatalogTask
  * @apiName: resumeCatalogTask
