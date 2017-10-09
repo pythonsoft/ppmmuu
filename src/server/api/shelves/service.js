@@ -53,6 +53,8 @@ const listDepartmentShelfTask = function listDepartmentShelfTask(req, cb) {
     query.$or = [
       { name: { $regex: keyword, $options: 'i' } },
       { programNO: { $regex: keyword, $options: 'i' } },
+      { 'assignee.name': { $regex: keyword, $options: 'i' } },
+      { 'dealer.name': { $regex: keyword, $options: 'i' } },
     ];
   }
 
@@ -441,6 +443,8 @@ service.listLineShelfTask = function listLineShelfTask(req, cb) {
     query.$or = [
       { name: { $regex: keyword, $options: 'i' } },
       { programNO: { $regex: keyword, $options: 'i' } },
+      { 'assignee.name': { $regex: keyword, $options: 'i' } },
+      { 'dealer.name': { $regex: keyword, $options: 'i' } },
     ];
   }
 
