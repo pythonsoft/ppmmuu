@@ -549,46 +549,62 @@ router.post('/clearWatchHistory', (req, res) => {
  *         schema:
  *           type: object
  *           required:
- *             - _id
- *             - name
- *             - email
- *             - companyName
+ *             - infos
  *           properties:
- *             _id:
- *               type: string
- *               example: ''
- *               description: 'uuid'
- *             name:
- *               type: string
- *               example: ''
- *             companyName:
- *               type: string
- *               description: '公司名字'
- *               example: '凤凰卫视'
- *             title:
- *               type: string
- *               example: ''
- *               description: '职位头衔'
- *             employeeId:
- *               type: string
- *               example: ''
- *               description: '工号'
- *             email:
- *               type: string
- *               example: '12345678@qq.com'
- *               description: '邮箱'
- *             phone:
- *               type: string
- *               example: ''
- *               description: '手机号'
- *             photo:
- *               type: string
- *               example: ''
- *               description: '头像地址'
- *             status:
- *               type: string
- *               example: ''
- *               description: '0:未激活,1:正常,2:已删除.默认是1'
+ *             infos:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 required:
+ *                   - _id
+ *                   - name
+ *                   - companyName
+ *                   - email
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                     example: ''
+ *                     description: 'uuid'
+ *                   name:
+ *                     type: string
+ *                     example: ''
+ *                   companyName:
+ *                     type: string
+ *                     description: '公司名字'
+ *                     example: '凤凰卫视'
+ *                   verifyType:
+ *                     type: string
+ *                     description: '登录验证方式, 1:域验证, 2:webos验证'
+ *                     default: '1'
+ *                     example: '1'
+ *                   title:
+ *                     type: string
+ *                     example: ''
+ *                     description: '职位头衔'
+ *                   employeeId:
+ *                     type: string
+ *                     example: ''
+ *                     description: '工号'
+ *                   email:
+ *                     type: string
+ *                     example: '12345678@qq.com'
+ *                     description: '邮箱'
+ *                   phone:
+ *                     type: string
+ *                     example: ''
+ *                     description: '手机号'
+ *                   photo:
+ *                     type: string
+ *                     example: ''
+ *                     description: '头像地址'
+ *                   status:
+ *                     type: string
+ *                     example: ''
+ *                     description: '0:未激活,1:正常,2:已删除.默认是1'
+ *               example: [{"_id": "bbbbb", "name": "vzvzv", "companyName": "小红书", "verifyType": "1", "email": "bbcc@qq.com"},
+ *                    {"_id": "bbbbbc", "name": "vbvb", "companyName": "小黄书", "verifyType": "2", "email": "bbcd@qq.com"},
+ *                     {"_id": "bbbbbd", "name": "vcvc", "companyName": "小蓝书", "verifyType": "1", "email": "bbce@qq.com"},
+ *                    {"_id": "bbbbbe", "name": "vdvd", "companyName": "小黑书", "verifyType": "2", "email": "bbcf@qq.com"}]
  *     responses:
  *       200:
  *         description: UserInfo
@@ -612,7 +628,7 @@ router.post('/clearWatchHistory', (req, res) => {
  *                  example: 'ok'
  */
 router.post('/adAccountSync', (req, res) => {
-  service.adAccountSync(req.body, (err, r) => res.json(result.json(err, r)));
+  service.batchAdAccountSync(req.body.infos, (err, r) => res.json(result.json(err, r)));
 });
 
 /* downloadTask */
