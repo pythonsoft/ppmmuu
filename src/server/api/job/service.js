@@ -112,6 +112,7 @@ service.download = function download(userInfo, downloadParams, res) {
       userName: userInfo.name,
     };
     const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/JobService/download`;
+
     utils.requestCallApi(url, 'POST', p, '', (err, rs) => {
       if (err) {
         return res.json(result.fail(err));
@@ -214,7 +215,7 @@ service.query = function query(queryParams, res) {
 const checkOwner = function checkOwner(jobId, userId, cb) {
   request.get('/JobService/query', { jobId }, (err, rs) => {
     if (err) {
-      return cb && cb(err);
+      return cb && cb(JSON.stringify(result.fail(err)));
     }
 
     if (rs.status !== '0') {

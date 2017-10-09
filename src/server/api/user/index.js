@@ -120,7 +120,7 @@ router.get('/getToken', (req, res) => {
   const username = req.query.username || '';
   const password = req.query.password || '';
 
-  service.getToken(res, username, password, (err, token) => res.json(result.json(err, token)));
+  service.login(res, username, password, (err, data) => res.json(result.json(err, data.token)));
 });
 
 const isLogin = require('../../middleware/login');

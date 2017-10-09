@@ -188,8 +188,8 @@ router.post('/updateTemplate', (req, res) => {
 router.get('/list', (req, res) => {
   const page = req.query.page;
   const pageSize = req.query.pageSize;
-  const status = req.query.status || '-1';
-  const currentStep = req.query.currentStep;
+  const status = req.query.status;
+  const currentStep = req.query.currentStep || '-1';
   const userId = req.query.userId;
 
   res.set('Content-Type', 'application/json');

@@ -148,17 +148,6 @@ const loginHandle = function loginHandle(username, password, cb) {
   });
 };
 
-service.getToken = function getToken(res, username, password, cb) {
-  loginHandle(username, password, (err, doc) => {
-    if (err) {
-      return cb && cb(err);
-    }
-
-    const token = generateToken(doc._id);
-    return cb && cb(null, token);
-  });
-};
-
 service.login = function login(res, username, password, cb) {
   loginHandle(username, password, (err, doc) => {
     if (err) {
