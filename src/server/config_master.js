@@ -21,7 +21,7 @@ config.redisMediaThumbExpires = 60 * 60 * 12 * 30; // 缓存媒体库缩略图�
 config.port = process.env.NODE_ENV === 'development' ? 8080 : 8080;
 
 config.engineCenter = {
-  host: '10.0.15.66',
+  host: '10.0.15.100',
   port: 3000,
 };
 
@@ -41,10 +41,9 @@ config.solrBaseUrl = 'http://solr.szdev.cn/solr/';
 config.esBaseUrl = 'http://10.0.15.204:9200/';
 // 香港检索基础api地址
 config.hongkongUrl = 'http://w2.phoenixtv.com/mamapi/';
+
 // ump fe api地址
 config.umpFeAPI = process.env.NODE_ENV === 'development' ? 'http://localhost:8080' : 'http://api.szdev.cn';
-
-config.archiveAppId = '9f6d42fe-0329-43aa-bcac-a30e00c66d7c';
 
 config.HKAPI = {
   hostname: 'w2.phoenixtv.com',
@@ -60,7 +59,7 @@ config.uploadPath = path.join(__dirname, '../../uploads/');
 // 允许跨域访问的地址列表
 config.whitelist = ['http://localhost:8000', 'http://localhost:8080', 'http://10.0.15.68:8000', 'http://10.0.15.105:8000', 'http://10.0.15.105:8080'];
 
-config.normalMenuPermission = ['mediaCenter', 'taskCenter', 'personalCenter'];
+config.normalMenuPermission = ['mediaCenter', 'taskCenter', 'personalCenter', 'library'];
 config.adminMenuPermission = config.normalMenuPermission.concat(['management']);
 
 

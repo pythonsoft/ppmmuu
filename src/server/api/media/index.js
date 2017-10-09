@@ -154,7 +154,6 @@ router.get('/solrSearch', (req, res) => {
   service.solrSearch(req.query, (err, doc) => res.json(result.json(err, doc)), req.ex.userId);
 });
 
-
 /**
  * @apiName: esSearch
  * @apiFuncType: post
@@ -183,6 +182,10 @@ router.get('/solrSearch', (req, res) => {
  *               type: array
  *               description: '关联度, key:字段, value：值'
  *               example: [{key: "name", value: "鏘鏘三人行"}]
+ *             range:
+ *               type: array
+ *               description: '时间范围, key:字段, gte：大于, lt: 小于'
+ *               example: [{key: "f_date_162", gte: "2017-09-10T16:00:00.000Z", lt: "2017-10-24T16:00:00.000Z"}, {key: "f_date_36", gte: "2017-09-03T16:00:00.000Z", lt: "2017-10-23T16:00:00.000Z"}]
  *             source:
  *               type: string
  *               description: '需要的字段'

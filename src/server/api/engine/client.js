@@ -5,7 +5,6 @@
 'use strict';
 
 const clientConnect = require('socket.io-client');
-const config = require('../../config');
 
 class SocketClient {
   constructor(options) {
@@ -29,7 +28,7 @@ class SocketClient {
 
     this.socket = clientConnect(url, {
       reconnection: true,
-      reconnectionAttempts: 5,
+      reconnectionAttempts: Infinity,
       reconnectionDelay: 500,
     });
 
@@ -48,9 +47,5 @@ class SocketClient {
   }
 
 }
-
-const sc = new SocketClient(config.engineCenter);
-
-sc.connect();
 
 module.exports = SocketClient;

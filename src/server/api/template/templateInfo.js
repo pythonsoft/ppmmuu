@@ -20,6 +20,8 @@ class TemplateInfo extends DB {
       modifyTime: { type: 'date', validation: 'require' },
       description: { type: 'string' },
       details: { type: 'object' },
+      groupId: { type: 'string' },
+      transcodeTemplateDetail: { type: 'object' },
     };
   }
 

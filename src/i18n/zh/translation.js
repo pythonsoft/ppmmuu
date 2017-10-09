@@ -117,6 +117,10 @@ module.exports = {
     code: '-3004',
     message: '登录找不到用户信息',
   },
+  needReLogin: {
+    code: '-3005',
+    message: '需要重新登录',
+  },
   noAccess: {
     code: '-4001',
     message: '无权访问此接口',
@@ -180,6 +184,10 @@ module.exports = {
   parentGroupInfoIsNotExist: {
     code: '-5009',
     message: '上一级组织信息不存在',
+  },
+  createCompanyFailed: {
+    code: '-5010',
+    message: '创建公司失败',
   },
   getUserOrDepartmentRoleAndPermissionsNoId: {
     code: '-6001',
@@ -565,6 +573,10 @@ module.exports = {
     code: '-50027',
     message: '缺少receiverType参数',
   },
+  joShortTemplateId: {
+    code: '-50028',
+    message: '缺少templateId参数',
+  },
   notImplementedVerityType: {
     code: '-60000',
     message: '未实装的verifyType',
@@ -660,5 +672,65 @@ module.exports = {
   libraryObjectIdIsNull: {
     code: '-100010',
     message: 'object id 为空',
+  },
+  libraryCatalogTaskSendBackNull: {
+    code: '-100007',
+    message: '没有可以退回的编目任务',
+  },
+  libraryCatalogTaskResumeNull: {
+    code: '-100007',
+    message: '没有可以恢复的编目任务',
+  },
+  shelfStatusNotCorrect: {
+    code: '-110001',
+    message: '状态不正确',
+  },
+  shelfShortIds: {
+    code: '-110002',
+    message: '缺少参数_ids',
+  },
+  shelfExistOtherStatus: {
+    code: '-110003',
+    message: '存在其他状态的任务，请先剔除掉',
+  },
+  shelfExistDeleteStatus: {
+    code: '-110004',
+    message: '存在状态为删除的任务，请先剔除掉',
+  },
+  shelfShortDealer: {
+    code: '-110005',
+    message: '缺少参数dealer',
+  },
+  shelfShortId: {
+    code: '-110006',
+    message: '缺少参数_id',
+  },
+  shelfNotFind: {
+    code: '-110007',
+    message: '找不到任务',
+  },
+  shelfCanNotSave: {
+    code: '-110008',
+    message: '不是处理中的任务不能保存或提交',
+  },
+  shelfExistNotDoingStatus: {
+    code: '-11009',
+    message: '不是处理中的任务不能退回',
+  },
+  shelfExistNotSubmittedStatus: {
+    code: '-11010',
+    message: '存在状态不是待上架的任务,请先剔除掉',
+  },
+  shelfExistNotOnlineStatus: {
+    code: '-11011',
+    message: '存在状态不是上架的任务,请先剔除掉',
+  },
+  NotOfflineStatusCanNotEditAgain: {
+    code: '-11012',
+    message: '状态不是下架的任务不能再编辑',
+  },
+  shelfHasExists: {
+    code: '-11013',
+    message: '之前上架过',
   },
 };

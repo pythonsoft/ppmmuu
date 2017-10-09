@@ -257,6 +257,40 @@ service.addEngine = function addEngine(info, cb) {
   }
 };
 
+function updateEngineInfo(cb) {
+  engineInfo.collection.find().toArray((err, docs) => {
+    if (err) {
+      logger.error(err);
+    }
+    if (docs && docs.length !== 0) {
+      sc.socket.emit('sendSysInfo', docs.map(item => item.intranetIp), (err, r) => {
+        if (err) {
+          logger.error(err);
+        }
+        const writes = r.map(item => ({ updateOne: {
+          filter: { intranetIp: item.ip },
+          update: { $set: { modifyTime: new Date() } },
+        } }));
+        if (writes.length === 0) {
+          return cb(null);
+        }
+        engineInfo.collection.bulkWrite(writes, { ordered: true, w: 1 }, (err, r) => cb(err, r));
+      });
+    }
+  });
+}
+
+service.updateEngineInfo = updateEngineInfo;
+
+setInterval(updateEngineInfo, 1000 * 10, (err, r) => {
+  if (err) {
+    logger.error(err);
+  }
+  if (r) {
+    logger.info(`${r.upsertedCount} engine item updated`);
+  }
+});
+
 service.listEngine = function listEngine(keyword, groupId, page, pageSize, sortFields, fieldsNeed, cb) {
   const query = {};
 
@@ -273,14 +307,21 @@ service.listEngine = function listEngine(keyword, groupId, page, pageSize, sortF
     query.groupId = groupId;
   }
 
+  // updateEngineInfo((err, r) => {
+  //   if (err) {
+  //     logger.error(err);
+  //   }
+  //   if (r) {
+  //     logger.info(`${r.upsertedCount} engine item updated`);
+  //   }
   engineInfo.pagination(query, page, pageSize, (err, docs) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
-
     return cb && cb(null, docs);
   }, sortFields, fieldsNeed);
+  // });
 };
 
 service.getEngine = function getEngine(id, fieldsNeed, cb) {
@@ -448,12 +489,6 @@ service.listAction = function listAction(ip, configProcessName, cb) {
   if (!configProcessName) {
     return cb && cb(i18n.t('configProcessNameCanNotBeNull'));
   }
-
-//   const docs = [
-//     { ps_node: { name: 'ps_node', command: 'ps aux | grep node', description: '显示所有的node进程' } },
-//     { ps_java: { name: 'ps_java', command: 'ps aux | grep java', description: '显示所有的java进程' } },
-//     { ps_php: { name: 'ps_php', command: 'ps aux | grep php', description: '显示所有的php进程' } },
-//   ];
 
   // processId or process name from config
   sc.socket.emit('action', { ip, action: 'getActions', process: configProcessName }, (err, result) => {

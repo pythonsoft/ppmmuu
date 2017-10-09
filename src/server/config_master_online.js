@@ -38,15 +38,12 @@ config.JOB_API_SERVER = {
 };
 
 // solr搜索地址
-// config.solrBaseUrl = 'http://solr.szdev.cn/solr/';
 config.solrBaseUrl = 'http://hk.solr.szdev.cn/solr/';
 // 香港检索基础api地址
 config.hongkongUrl = 'http://w2.phoenixtv.com/mamapi/';
 // ump fe api地址
 // config.umpFeAPI = process.env.NODE_ENV === 'development' ? 'http://localhost:8080' : 'http://api.szdev.cn';
-config.umpFeAPI = 'http://hk.api.szdev.cn';
-
-config.archiveAppId = '9f6d42fe-0329-43aa-bcac-a30e00c66d7c';
+config.umpFeAPI = 'http://ump-api.phoenixtv.com';
 
 config.HKAPI = {
   hostname: 'w2.phoenixtv.com',
@@ -62,9 +59,8 @@ config.uploadPath = path.join(__dirname, '../../uploads/');
 // 允许跨域访问的地址列表
 config.whitelist = ['http://localhost:8000', 'http://localhost:8080', 'http://10.0.15.68:8000', 'http://10.0.15.105:8000', 'http://10.0.15.105:8080'];
 
-config.normalMenuPermission = ['mediaCenter', 'taskCenter', 'personalCenter'];
+config.normalMenuPermission = ['mediaCenter', 'taskCenter', 'personalCenter', 'library'];
 config.adminMenuPermission = config.normalMenuPermission.concat(['management']);
-
 
 // 快传api地址
 config.mediaExpressUrl = 'https://console.cloudifeng.com/';

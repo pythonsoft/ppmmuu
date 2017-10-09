@@ -13,6 +13,7 @@ const feApiPath = path.join(buildPath, 'api');
 
 let permissionNames = [];
 let permissionPaths = [];
+let permissionGroups = [];
 
 del.sync(path.resolve('build'));
 del.sync(apiPathFile);
@@ -119,9 +120,14 @@ const generateFeApiFuncFile = function generateFeApiFuncFile() {
 
       const tempPermissionNames = getArrByPattern(codeStr, /@permissionName: (.*)/g);
       const tempPermissionPaths = getArrByPattern(codeStr, /@permissionPath: (.*)/g);
+      const tempPermissionGroups = getArrByPattern(codeStr, /@permissionGroup: (.*)/g);
 
       permissionNames = permissionNames.concat(tempPermissionNames);
       permissionPaths = permissionPaths.concat(tempPermissionPaths);
+      permissionGroups = permissionGroups.concat(tempPermissionGroups);
+      if (tempPermissionNames.length !== tempPermissionPaths.length || tempPermissionNames.length !== tempPermissionGroups.length) {
+        throw new Error(`${filename}注释有问题`);
+      }
 
       if (funcNameArr.length !== funcTypeArr.length || funcNameArr.length !== funcUrlArr.length) {
         throw new Error('funcNameArr cannot match funcTypeArr length or funcUrlArr length');
@@ -151,6 +157,7 @@ const axios = require('../config');
 
 const initPermissionInfo = function initPermissionInfo() {
   permissionNames.push('所有权限');
+  permissionGroups.push('root');
   permissionPaths.push('all');
 
   console.log('write permission files');
@@ -160,6 +167,7 @@ const initPermissionInfo = function initPermissionInfo() {
     }
     let result = data.replace(/const permissionNames = .*/g, `const permissionNames = ${JSON.stringify(permissionNames)}`);
     result = result.replace(/const permissionPaths = .*/g, `const permissionPaths = ${JSON.stringify(permissionPaths)}`);
+    result = result.replace(/const permissionGroups = .*/g, `const permissionGroups = ${JSON.stringify(permissionGroups)}`);
     fs.writeFile(initPermissionPath, result, 'utf8', (err) => {
       if (err) return console.log(err);
     });

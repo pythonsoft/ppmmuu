@@ -15,11 +15,16 @@ const Login = require('../../middleware/login');
 const SearchHistoryInfo = require('./searchHistoryInfo');
 const WatchingHistoryInfo = require('./watchingHistoryInfo');
 const UserInfo = require('./userInfo');
+const PermissionGroup = require('../role/permissionGroup');
+const GroupInfo = require('../group/groupInfo');
 
 const userInfo = new UserInfo();
 const searchHistoryInfo = new SearchHistoryInfo();
 const watchingHistoryInfo = new WatchingHistoryInfo();
+const permissionGroup = new PermissionGroup();
+const groupInfo = new GroupInfo();
 
+const groupService = require('../group/service');
 const groupUserService = require('../group/userService');
 
 const service = {};
@@ -29,6 +34,19 @@ const generateToken = function generateToken(id, expires) {
   const token = Token.create(id, exp, config.KEY);
 
   return token;
+};
+
+const getMenuByPermissions = function getMenuByPermissions(permissions, cb) {
+  if (permissions.length === 0) {
+    return cb && cb(null, []);
+  }
+  const indexes = [];
+  for (let i = 0, len = permissions.length; i < len; i++) {
+    if (permissions[i].action !== '拒绝') {
+      indexes.push(permissions[i].groupIndex);
+    }
+  }
+  service.getMenusByIndex(indexes, (err, menu) => cb && cb(err, menu));
 };
 
 function setCookie2(res, doc, cb) {
@@ -41,20 +59,23 @@ function setCookie2(res, doc, cb) {
     }
 
     const permissions = info.permissions || [];
-    const menu = permissions.length ? config.adminMenuPermission : config.normalMenuPermission;
+    getMenuByPermissions(permissions, (err, menu) => {
+      if (err) {
+        return cb && cb(err);
+      }
+      res.cookie('ticket', token, {
+        expires: new Date(expires),
+        httpOnly: true,
+      });
 
-    res.cookie('ticket', token, {
-      expires: new Date(expires),
-      httpOnly: true,
-    });
+      delete info.permissions;
+      delete info.mediaExpressUser;
 
-    delete info.permissions;
-    delete info.mediaExpressUser;
-
-    return cb && cb(null, {
-      token,
-      menu,
-      userInfo: info,
+      return cb && cb(null, {
+        token,
+        menu,
+        userInfo: info,
+      });
     });
   });
 }
@@ -124,17 +145,6 @@ const loginHandle = function loginHandle(username, password, cb) {
     } else {
       return cb && cb(i18n.t('notImplementedVerityType'));
     }
-  });
-};
-
-service.getToken = function getToken(res, username, password, cb) {
-  loginHandle(username, password, (err, doc) => {
-    if (err) {
-      return cb && cb(err);
-    }
-
-    const token = generateToken(doc._id);
-    return cb && cb(null, token);
   });
 };
 
@@ -288,6 +298,82 @@ service.removeSearchHistory = (ids, userId, cb) => {
   searchHistoryInfo.collection.deleteMany(filter, null, (err, r) => cb && cb(err, r));
 };
 
+const getGroupByNameOrCreate = function getGroupByNameOrCreate(name, cb) {
+  groupInfo.collection.findOne({ name, type: GroupInfo.TYPE.COMPANY }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
+    }
+    if (doc) {
+      return cb && cb(null, doc);
+    }
+
+    const info = {
+      type: GroupInfo.TYPE.COMPANY,
+      name,
+      parentId: '',
+    };
+
+    groupService.addGroup(info, (err, doc) => {
+      if (err) {
+        return cb && cb(err);
+      }
+
+      if (!doc) {
+        return cb && cb(i18n.t('createCompanyFailed'));
+      }
+
+      return cb && cb(null, doc);
+    });
+  });
+};
+
+const getGroupsByNamesOrCreate = function getGroupsByNamesOrCreate(names, cb) {
+  groupInfo.collection.find({ name: { $in: names }, type: GroupInfo.TYPE.COMPANY, parentId: '' }).toArray((err, docs) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
+    }
+    const rs = {};
+    const insertNames = JSON.parse(JSON.stringify(names));
+    if (docs) {
+      const len = docs.length;
+      for (let i = 0; i < len; i++) {
+        const doc = docs[i];
+        const index = insertNames.indexOf(doc.name);
+        rs[doc.name] = doc._id;
+        if (index !== -1) {
+          insertNames.splice(index, 1);
+        }
+      }
+      if (len === names.length) {
+        return cb && cb(null, rs);
+      }
+    }
+
+    const infos = [];
+    for (let j = 0, len1 = insertNames.length; j < len1; j++) {
+      const info = {
+        type: GroupInfo.TYPE.COMPANY,
+        name: insertNames[j],
+        parentId: '',
+      };
+      infos.push(info);
+    }
+    groupInfo.insertMany(infos, (err, r) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
+      }
+      const newGroups = r.ops || [];
+      for (let k = 0, len2 = newGroups.length; k < len2; k++) {
+        rs[newGroups[k].name] = newGroups[k]._id;
+      }
+      return cb && cb(null, rs);
+    });
+  });
+};
+
 /**
  * 同步AD账户
  * @param info
@@ -295,11 +381,19 @@ service.removeSearchHistory = (ids, userId, cb) => {
  * @returns {*}
  */
 service.adAccountSync = function adAccountSync(info, cb) {
-  info.verifyType = UserInfo.VERIFY_TYPE.AD;
+  if (!info.verifyType) {
+    info.verifyType = UserInfo.VERIFY_TYPE.AD;
+  }
 
   if (!info._id) {
     return cb && cb(i18n.t('fieldIsNotExistError', { field: '_id' }));
   }
+
+  if (!info.companyName) {
+    return cb && cb(i18n.t('fieldIsNotExistError', { field: 'companyName' }));
+  }
+
+  const companyName = utils.trim(info.companyName);
 
   const result = userInfo.assign(info);
 
@@ -309,13 +403,122 @@ service.adAccountSync = function adAccountSync(info, cb) {
 
   const doc = result.doc;
 
-  userInfo.collection.findOneAndUpdate({ _id: info._id }, { $set: doc }, { upsert: true }, (err) => {
+  getGroupByNameOrCreate(companyName, (err, r) => {
     if (err) {
-      logger.error(err.message);
-      return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
+      return cb && cb(err);
+    }
+    doc.company._id = r._id;
+    doc.company.name = r.name;
+    userInfo.collection.findOneAndUpdate({ _id: info._id }, { $set: doc }, { upsert: true }, (err) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
+      }
+
+      return cb && cb(null, 'ok');
+    });
+  });
+};
+
+service.batchAdAccountSync = function batchAdAccountSync(infos, cb) {
+  const companyNames = [];
+  const orignalInfos = JSON.parse(JSON.stringify(infos));
+  const userIds = [];
+  for (let i = 0, len = infos.length; i < len; i++) {
+    const info = infos[i];
+    if (!info.verifyType) {
+      info.verifyType = UserInfo.VERIFY_TYPE.AD;
     }
 
-    return cb && cb(null, 'ok');
+    if (!info._id) {
+      return cb && cb(i18n.t('fieldIsNotExistError', { field: '_id' }));
+    }
+
+    if (!info.companyName) {
+      return cb && cb(i18n.t('fieldIsNotExistError', { field: 'companyName' }));
+    }
+
+    const companyName = utils.trim(info.companyName);
+    orignalInfos[i].companyName = companyName;
+    if (companyNames.indexOf(companyName) === -1) {
+      companyNames.push(companyName);
+    }
+    userIds.push(info._id);
+  }
+  const result = userInfo.assignMany(infos);
+
+  if (result.err) {
+    return cb & cb(result.err);
+  }
+
+  const docs = result.docs;
+
+  getGroupsByNamesOrCreate(companyNames, (err, rs) => {
+    if (err) {
+      return cb && cb(err);
+    }
+    for (let i = 0, len = orignalInfos.length; i < len; i++) {
+      const name = orignalInfos[i].companyName;
+      const _id = rs[name];
+      docs[i].company = {
+        name,
+        _id,
+      };
+    }
+
+    userInfo.collection.find({ _id: { $in: userIds } }).toArray((err, users) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
+      }
+      const insertUsers = [];
+      const updateUserIds = [];
+      const updateUsers = [];
+      if (users) {
+        const len1 = users.length;
+        for (let j = 0; j < len1; j++) {
+          const _id = users[j]._id;
+          updateUserIds.push(_id);
+        }
+      }
+
+      for (let k = 0, len2 = docs.length; k < len2; k++) {
+        const _id = docs[k]._id;
+        if (updateUserIds.indexOf(_id) !== -1) {
+          updateUsers.push(docs[k]);
+        } else {
+          insertUsers.push(docs[k]);
+        }
+      }
+
+      const loopUpdateUser = function loopUpdateUser(index) {
+        if (index >= updateUsers.length) {
+          return cb && cb(null, 'ok');
+        }
+        const info = updateUsers[index];
+
+        userInfo.collection.findOneAndUpdate({ _id: info._id }, { $set: info }, { upsert: true }, (err) => {
+          if (err) {
+            logger.error(err.message);
+            return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
+          }
+
+          loopUpdateUser(index + 1);
+        });
+      };
+
+      if (insertUsers.length) {
+        userInfo.insertMany(insertUsers, (err) => {
+          if (err) {
+            return cb && cb(err);
+          }
+
+          loopUpdateUser(0);
+        });
+      } else {
+        loopUpdateUser(0);
+      }
+    });
   });
 };
 
@@ -360,6 +563,51 @@ service.getDirectAuthorizeAcceptorList = function getDirectAuthorizeAcceptorList
       });
     });
   });
+};
+
+service.getMenusByIndex = function getMenusByIndex(indexArr, cb) {
+  const query = {};
+  const arr = [];
+  const loopGetPermissionGroup = function loopGetPermissionGroup(query) {
+    permissionGroup.collection.find(query).toArray((err, docs) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      if (!docs || docs.length === 0) {
+        permissionGroup.collection.find({ index: { $in: arr } }).toArray((err, docs) => {
+          if (err) {
+            logger.error(err.message);
+            return cb && cb(i18n.t('databaseError'));
+          }
+
+          return cb && cb(null, docs);
+        });
+      } else {
+        const parentIndexes = [];
+        for (let i = 0, len = docs.length; i < len; i++) {
+          parentIndexes.push(docs[i].parentIndex);
+          arr.push(docs[i].index);
+        }
+        loopGetPermissionGroup({ index: { $in: parentIndexes } });
+      }
+    });
+  };
+
+  if (indexArr.indexOf('root') === -1) {
+    query.index = { $in: indexArr };
+    loopGetPermissionGroup(query);
+  } else {
+    permissionGroup.collection.find(query).toArray((err, docs) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      return cb && cb(null, docs);
+    });
+  }
 };
 
 module.exports = service;

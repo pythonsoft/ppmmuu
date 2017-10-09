@@ -279,6 +279,7 @@ service.getEsMediaList = function getEsMediaList(info, cb) {
 const getEsOptions = function getEsOptions(info) {
   let match = info.match || [];
   let should = info.should || [];
+  const range = info.range || [];
   const hl = info.hl || '';
   const sort = info.sort || [];
   const start = info.start || 0;
@@ -327,10 +328,27 @@ const getEsOptions = function getEsOptions(info) {
     return rs;
   };
 
+  const formatRange = function formatRange(arr, must) {
+    for (let i = 0, len = arr.length; i < len; i++) {
+      if (arr[i].key && (arr[i].gte || arr[i].lt)) {
+        const rs = { range: {} };
+        rs.range[arr[i].key] = {};
+        if (arr[i].gte) {
+          rs.range[arr[i].key].gte = arr[i].gte;
+        }
+        if (arr[i].lt) {
+          rs.range[arr[i].key].lt = arr[i].lt;
+        }
+        must.push(rs);
+      }
+    }
+  };
+
   const must = formatMust(match);
   const shoulds = formatMust(should);
   const sorts = formatSort(sort);
   const highlight = getHighLightFields(hl);
+  formatRange(range, must);
 
   const options = {
     _source: source.split(','),
@@ -573,14 +591,19 @@ service.getStream = function getStream(objectId, res) {
   const err = utils.validation({ objectId }, struct);
 
   if (err) {
-    return res.end(JSON.stringify({ status: 1, data: {}, statusInfo: { code: 10000, message: err.message } }));
+    const rs = { status: 1, data: {}, statusInfo: { code: 10000, message: err.message } };
+
+    if (typeof res === 'function') {
+      return res && res(rs);
+    }
+    return res.end(JSON.stringify(rs));
   }
 
   rq.get('/mamapi/get_stream', { objectid: objectId }, res);
 };
 
 service.getSearchHistory = (userId, cb, page, pageSize) => {
-  searchHistoryInfo.pagination({ userId }, page, pageSize, (err, doc) => cb && cb(err, doc), 'updatedTime', '');
+  searchHistoryInfo.pagination({ userId }, page, pageSize, (err, doc) => cb && cb(err, doc), '-updatedTime', null);
 };
 
 service.getSearchHistoryForMediaPage = (userId, cb) => {
@@ -596,7 +619,7 @@ service.getSearchHistoryForMediaPage = (userId, cb) => {
 };
 
 service.getWatchHistory = (userId, cb, page, pageSize) => {
-  watchingHistoryInfo.pagination({ userId, status: 'available' }, page, pageSize, (err, doc) => cb && cb(err, doc), 'updatedTime', '');
+  watchingHistoryInfo.pagination({ userId, status: 'available' }, page, pageSize, (err, doc) => cb && cb(err, doc), '-updatedTime', '');
 };
 
 service.getWatchHistoryForMediaPage = (userId, cb) => {

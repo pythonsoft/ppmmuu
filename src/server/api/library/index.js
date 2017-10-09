@@ -15,6 +15,7 @@ router.use(isLogin.middleware);
 router.use(isLogin.hasAccessMiddleware);
 
 /**
+ * @permissionGroup: library
  * @permissionName: 创建编目任务信息
  * @permissionPath: /library/createCatalogTask
  * @apiName: createCatalogTask
@@ -42,7 +43,7 @@ router.use(isLogin.hasAccessMiddleware);
  *             name:
  *               type: string
  *               description: ''
- *               example: ""
+ *               example: "aa"
  *             objectId:
  *               type: string
  *               description: ''
@@ -51,8 +52,8 @@ router.use(isLogin.hasAccessMiddleware);
  *               type: string
  *               description: '待编目 0, 编目中 1, 已提交 2, 已删除 3'
  *               example: ""
- *             taskList:
- *               type: string
+ *             jobs:
+ *               type: object
  *               description: ''
  *               example: ""
  *             description:
@@ -76,15 +77,83 @@ router.use(isLogin.hasAccessMiddleware);
  *                  type: string
  */
 router.post('/createCatalogTask', (req, res) => {
-  const ownerId = req.ex.userInfo._id;
-  const ownerName = req.ex.userInfo.name;
-  const departmentId = req.ex.userInfo.department._id;
-  const departmentName = req.ex.userInfo.department.name;
+  const creatorId = req.ex.userInfo._id;
+  const creatorName = req.ex.userInfo.name;
+  const departmentId = req.body.departmentId;
+  const departmentName = req.body.departmentName;
 
-  service.createCatalogTask(req.body, ownerId, ownerName, departmentId, departmentName, (err, docs) => res.json(result.json(err, docs)));
+  service.createCatalogTask(req.body, creatorId, creatorName, departmentId, departmentName, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
+ * @permissionGroup: library
+ * @permissionName: 更新编目任务信息
+ * @permissionPath: /library/updateCatalogTask
+ * @apiName: updateCatalogTask
+ * @apiFuncType: post
+ * @apiFuncUrl: /library/updateCatalogTask
+ * @swagger
+ * /library/updateCatalogTask:
+ *   post:
+ *     description: 更新编目任务信息
+ *     tags:
+ *       - v1
+ *       - library
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: 更新编目任务信息
+ *         schema:
+ *           type: object
+ *           required:
+ *             - taskId
+ *           properties:
+ *             taskId:
+ *               type: string
+ *               description: ''
+ *               example: "aa"
+ *             workflowStatus:
+ *               type: string
+ *               description: '等待 0, DOING 1, SUCCESS 2, ERROR 3'
+ *               example: ""
+ *             jobs:
+ *               type: object
+ *               description: ''
+ *               example: ""
+ *     responses:
+ *       200:
+ *         description: CatalogTaskInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.post('/updateCatalogTask', (req, res) => {
+  const updateDoc = {};
+
+  if (req.body.workflowStatus) {
+    updateDoc.workflowStatus = req.body.workflowStatus;
+  }
+
+  if (req.body.jobs) {
+    updateDoc.jobs = req.body.jobs;
+  }
+
+  service.updateCatalogTask(req.body.taskId, updateDoc, (err, docs) => res.json(result.json(err, docs)));
+});
+
+/**
+ * @permissionGroup: library
  * @permissionName: 列举编目任务
  * @permissionPath: /library/listCatalogTask
  * @apiName: listCatalogTask
@@ -163,6 +232,13 @@ router.post('/createCatalogTask', (req, res) => {
  *         type: string
  *         default: '20'
  *         collectionFormat: csv
+ *       - in: query
+ *         name: keyword
+ *         description: ''
+ *         required: false
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
  *     responses:
  *       200:
  *         description:
@@ -177,11 +253,47 @@ router.get('/listCatalogTask', (req, res) => {
   const fieldsNeed = req.query.fieldsNeed || '';
   const page = req.query.page || 1;
   const pageSize = req.query.pageSize || 20;
+  const keyword = req.query.keyword || '';
 
-  service.listCatalogTask(status, departmentId, ownerId, assigneeId, objectId, sortFields, fieldsNeed, page, pageSize, (err, docs) => res.json(result.json(err, docs)));
+  service.listCatalogTask(status, departmentId, ownerId, assigneeId, objectId, sortFields, fieldsNeed, page, pageSize, keyword, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
+ * @permissionGroup: library
+ * @permissionName: 获取编目任务详细信息
+ * @permissionPath: /library/getCatalogTask
+ * @apiName: getCatalogTask
+ * @apiFuncType: get
+ * @apiFuncUrl: /library/getCatalogTask
+ * @swagger
+ * /library/getCatalogTask:
+ *   get:
+ *     description: get catalog task detail
+ *     tags:
+ *       - v1
+ *       - library
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: id
+ *         description: ''
+ *         required: false
+ *         type: string
+ *         default: '0'
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description:
+ * */
+router.get('/getCatalogTask', (req, res) => {
+  const id = req.query.id || '';
+
+  service.getCatalogTask(id, (err, docs) => res.json(result.json(err, docs)));
+});
+
+/**
+ * @permissionGroup: departmentTask
  * @permissionName: 列举所在部门的编目任务
  * @permissionPath: /library/listDepartmentCatalogTask
  * @apiName: listDepartmentCatalogTask
@@ -253,11 +365,13 @@ router.get('/listDepartmentCatalogTask', (req, res) => {
   const fieldsNeed = req.query.fieldsNeed || '';
   const page = req.query.page || 1;
   const pageSize = req.query.pageSize || 20;
+  const keyword = req.query.keyword || '';
 
-  service.listCatalogTask(status, departmentId, ownerId, assigneeId, objectId, sortFields, fieldsNeed, page, pageSize, (err, docs) => res.json(result.json(err, docs)));
+  service.listCatalogTask(status, departmentId, ownerId, assigneeId, objectId, sortFields, fieldsNeed, page, pageSize, keyword, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
+ * @permissionGroup: personalTask
  * @permissionName: 列举我的编目任务
  * @permissionPath: /library/listMyCatalogTask
  * @apiName: listMyCatalogTask
@@ -322,11 +436,13 @@ router.get('/listMyCatalogTask', (req, res) => {
   const fieldsNeed = req.query.fieldsNeed || '';
   const page = req.query.page || 1;
   const pageSize = req.query.pageSize || 20;
+  const keyword = req.query.keyword || '';
 
-  service.listCatalogTask(status, departmentId, ownerId, assigneeId, objectId, sortFields, fieldsNeed, page, pageSize, (err, docs) => res.json(result.json(err, docs)));
+  service.listCatalogTask(status, departmentId, ownerId, assigneeId, objectId, sortFields, fieldsNeed, page, pageSize, keyword, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
+ * @permissionGroup: departmentTask
  * @permissionName: 派发任务
  * @permissionPath: /library/assignCatalogTask
  * @apiName: assignCatalogTask
@@ -383,6 +499,7 @@ router.post('/assignCatalogTask', (req, res) => {
 });
 
 /**
+ * @permissionGroup: library
  * @permissionName: 认领任务
  * @permissionPath: /library/applyCatalogTask
  * @apiName: applyCatalogTask
@@ -433,6 +550,7 @@ router.post('/applyCatalogTask', (req, res) => {
 });
 
 /**
+ * @permissionGroup: personalTask
  * @permissionName: 退回任务
  * @permissionPath: /library/sendBackCatalogTask
  * @apiName: sendBackCatalogTask
@@ -483,6 +601,7 @@ router.post('/sendBackCatalogTask', (req, res) => {
 });
 
 /**
+ * @permissionGroup: personalTask
  * @permissionName: 提交任务
  * @permissionPath: /library/submitCatalogTask
  * @apiName: submitCatalogTask
@@ -533,6 +652,143 @@ router.post('/submitCatalogTask', (req, res) => {
 });
 
 /**
+ * @permissionGroup: library
+ * @permissionName: 删除任务
+ * @permissionPath: /library/deleteCatalogTask
+ * @apiName: deleteCatalogTask
+ * @apiFuncType: post
+ * @apiFuncUrl: /library/deleteCatalogTask
+ * @swagger
+ * /library/deleteCatalogTask:
+ *   post:
+ *     description: 删除任务
+ *     tags:
+ *       - v1
+ *       - library
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: 删除任务
+ *         schema:
+ *           type: object
+ *           required:
+ *             - taskIds
+ *           properties:
+ *             taskIds:
+ *               type: string
+ *               description: task's ids which you wish
+ *               example: "xxxxx or xxxx,xxxx,xxx"
+ *     responses:
+ *       200:
+ *         description: CatalogTaskInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.post('/deleteCatalogTask', (req, res) => {
+  const taskIds = req.body.taskIds || '';
+
+  service.deleteCatalogTask(taskIds, req.ex.userInfo._id, req.ex.userInfo.name, (err, docs) => res.json(result.json(err, docs)));
+});
+
+/**
+ * @permissionGroup: departmentTask
+ * @permissionName: 恢复任务
+ * @permissionPath: /library/resumeCatalogTask
+ * @apiName: resumeCatalogTask
+ * @apiFuncType: post
+ * @apiFuncUrl: /library/resumeCatalogTask
+ * @swagger
+ * /library/resumeCatalogTask:
+ *   post:
+ *     description: 恢复任务
+ *     tags:
+ *       - v1
+ *       - library
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: 恢复任务
+ *         schema:
+ *           type: object
+ *           required:
+ *             - taskIds
+ *           properties:
+ *             taskIds:
+ *               type: string
+ *               description: task's ids which you wish
+ *               example: "xxxxx or xxxx,xxxx,xxx"
+ *     responses:
+ *       200:
+ *         description: CatalogTaskInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.post('/resumeCatalogTask', (req, res) => {
+  const taskIds = req.body.taskIds || '';
+
+  service.resumeCatalogTask(taskIds, req.ex.userInfo._id, req.ex.userInfo.name, (err, docs) => res.json(result.json(err, docs)));
+});
+
+/**
+ * @permissionGroup: library
+ * @permissionName: 获取编目详细信息
+ * @permissionPath: /library/getCatalog
+ * @apiName: getCatalog
+ * @apiFuncType: get
+ * @apiFuncUrl: /library/getCatalog
+ * @swagger
+ * /library/getCatalog:
+ *   get:
+ *     description: get catalog task detail
+ *     tags:
+ *       - v1
+ *       - library
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: id
+ *         description: ''
+ *         required: false
+ *         type: string
+ *         default: '0'
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description:
+ * */
+router.get('/getCatalog', (req, res) => {
+  const id = req.query.id || '';
+
+  service.getCatalog(id, (err, docs) => res.json(result.json(err, docs)));
+});
+
+/**
+ * @permissionGroup: library
  * @permissionName: 列举编目信息
  * @permissionPath: /library/listCatalog
  * @apiName: listCatalog
@@ -565,6 +821,7 @@ router.get('/listCatalog', (req, res) => {
 });
 
 /**
+ * @permissionGroup: library
  * @permissionName: 创建编目信息
  * @permissionPath: /library/createCatalog
  * @apiName: createCatalog
@@ -586,7 +843,7 @@ router.get('/listCatalog', (req, res) => {
  *         schema:
  *           type: object
  *           required:
- *             - fileId
+ *             - fileInfo
  *             - objectId
  *             - englishName
  *             - chineseName
@@ -601,10 +858,10 @@ router.get('/listCatalog', (req, res) => {
  *             - available
  *             - materialDate
  *           properties:
- *             fileId:
- *               type: string
+ *             fileInfo:
+ *               type: object
  *               description: catalog which file's id
- *               example: ""
+ *               example: "{_id: '', name: '', realPath: '', size: '', type: '', duration: '0'}"
  *             objectId:
  *               type: string
  *               description: ''
@@ -637,10 +894,14 @@ router.get('/listCatalog', (req, res) => {
  *               type: string
  *               description: ''
  *               example: ""
+ *             duration:
+ *               type: string
+ *               description: ''
+ *               example: "00:00:00:00"
  *             keyman:
  *               type: string
  *               description: ''
- *               example: "
+ *               example: ""
  *             language:
  *               type: string
  *               description: ''
@@ -686,10 +947,11 @@ router.get('/listCatalog', (req, res) => {
  *                  type: string
  */
 router.post('/createCatalog', (req, res) => {
-  service.createCatalog(req.ex.userInfo._id, req.ex.userInfo.name, req.body, (err, docs) => res.json(result.json(err, docs)));
+  service.createCatalog(req.ex.userInfo._id, req.ex.userInfo.name, req.body, (err, id) => res.json(result.json(err, id)));
 });
 
 /**
+ * @permissionGroup: library
  * @permissionName: 更新编目信息
  * @permissionPath: /library/updateCatalog
  * @apiName: updateCatalog
@@ -711,6 +973,7 @@ router.post('/createCatalog', (req, res) => {
  *         schema:
  *           type: object
  *           required:
+ *             - id
  *             - englishName
  *             - chineseName
  *             - content
@@ -724,6 +987,10 @@ router.post('/createCatalog', (req, res) => {
  *             - available
  *             - materialDate
  *           properties:
+ *             id:
+ *               type: string
+ *               description: ''
+ *               example: ""
  *             englishName:
  *               type: string
  *               description: ''
@@ -755,7 +1022,7 @@ router.post('/createCatalog', (req, res) => {
  *             keyman:
  *               type: string
  *               description: ''
- *               example: "
+ *               example: ""
  *             language:
  *               type: string
  *               description: ''
@@ -805,6 +1072,7 @@ router.post('/updateCatalog', (req, res) => {
 });
 
 /**
+ * @permissionGroup: library
  * @permissionName: 创建文件信息
  * @permissionPath: /library/createFile
  * @apiName: createFile
@@ -870,7 +1138,7 @@ router.post('/updateCatalog', (req, res) => {
  *             description:
  *               type: string
  *               description: ''
- *               example: "
+ *               example: ""
  *             archivePath:
  *               type: string
  *               description: ''
@@ -896,6 +1164,7 @@ router.post('/createFile', (req, res) => {
 });
 
 /**
+ * @permissionGroup: library
  * @permissionName: 更新文件信息
  * @permissionPath: /library/updateFile
  * @apiName: updateFile
@@ -956,7 +1225,7 @@ router.post('/createFile', (req, res) => {
  *             description:
  *               type: string
  *               description: ''
- *               example: "
+ *               example: ""
  *             archivePath:
  *               type: string
  *               description: ''
@@ -979,6 +1248,74 @@ router.post('/createFile', (req, res) => {
  */
 router.post('/updateFile', (req, res) => {
   service.updateFile(req.body.id, req.body, (err, docs) => res.json(result.json(err, docs)));
+});
+
+/**
+ * @permissionGroup: library
+ * @permissionName: 获取文件列表
+ * @permissionPath: /library/listFile
+ * @apiName: listFile
+ * @apiFuncType: get
+ * @apiFuncUrl: /library/listFile
+ * @swagger
+ * /library/listFile:
+ *   get:
+ *     description: get file list
+ *     tags:
+ *       - v1
+ *       - library
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: objectId
+ *         description: ''
+ *         required: true
+ *         type: string
+ *         default: '0'
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description:
+ * */
+router.get('/listFile', (req, res) => {
+  const objectId = req.query.objectId || '';
+
+  service.listFile(objectId, (err, docs) => res.json(result.json(err, docs)));
+});
+
+/**
+ * @permissionGroup: library
+ * @permissionName: 获取文件详细信息
+ * @permissionPath: /library/getFile
+ * @apiName: getFile
+ * @apiFuncType: get
+ * @apiFuncUrl: /library/getFile
+ * @swagger
+ * /library/getFile:
+ *   get:
+ *     description: get catalog task detail
+ *     tags:
+ *       - v1
+ *       - library
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: id
+ *         description: ''
+ *         required: false
+ *         type: string
+ *         default: '0'
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description:
+ * */
+router.get('/getFile', (req, res) => {
+  const id = req.query.id || '';
+
+  service.getFile(id, (err, docs) => res.json(result.json(err, docs)));
 });
 
 module.exports = router;

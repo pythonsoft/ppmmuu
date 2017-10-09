@@ -18,11 +18,15 @@ class CatalogTaskInfo extends DB {
       objectId: { type: 'string', validation: 'require' },
       assignee: { type: 'object', default: { _id: '', name: '' } },
       owner: { type: 'object', default: { _id: '', name: '' } },
+      creator: { type: 'object', default: { _id: '', name: '' } },
       department: { type: 'object', default: { _id: '', name: '' } },
       lastSendBacker: { type: 'object', default: { _id: '', name: '' } }, // 退回者
       lastSubmitter: { type: 'object', default: { _id: '', name: '' } }, // 最后提交人
+      lastDeleter: { type: 'object', default: { _id: '', name: '' } }, // 最后删除人
+      lastResume: { type: 'object', default: { _id: '', name: '' } }, // 最后删除人
       status: { type: 'string', validation: 'require', default: () => CatalogTaskInfo.STATUS.PREPARE },
-      taskList: { type: 'array' }, // 存放任务的ID
+      workflowStatus: { type: 'string', validation: 'require', default: () => CatalogTaskInfo.STATUS.PREPARE },
+      jobs: { type: 'object' }, // 对应该工作流中的job
       createdTime: { type: 'date', validation: 'require', allowUpdate: false },
       lastModifyTime: { type: 'date', validation: 'require' },
       description: { type: 'string' },
@@ -36,6 +40,13 @@ CatalogTaskInfo.STATUS = {
   DOING: '1', // 编目中
   SUBMITTED: '2', // 已提交
   DELETE: '3', // 已删除
+};
+
+CatalogTaskInfo.WORKFLOW_STATUS = {
+  PREPARE: '0', // 等待
+  DOING: '1', // 处理中
+  SUCCESS: '2', // 成功
+  ERROR: '1000', // 失败
 };
 
 module.exports = CatalogTaskInfo;

@@ -15,7 +15,256 @@ router.use(isLogin.middleware);
 router.use(isLogin.hasAccessMiddleware);
 
 /**
- * @permissionName: 列举出所有模板
+ * @permissionGroup: downloadTemplate
+ * @permissionName: addTemplateGroup
+ * @permissionPath: /template/addGroup
+ * @apiName: addTemplateGroup
+ * @apiFuncType: post
+ * @apiFuncUrl: /template/addGroup
+ * @swagger
+ * /template/addGroup:
+ *   post:
+ *     description: add template group
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - TemplateGroupInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: id
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: parentId
+ *         description:
+ *         required: false
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: name
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: TemplateGroupInfo
+ */
+router.post('/addGroup', (req, res) => {
+  const parentId = req.body.parentId;
+  const name = req.body.name;
+  const _id = req.body.id;
+
+  const info = {
+    parentId,
+    name,
+    creator: {
+      _id: req.ex.userInfo._id,
+      name: req.ex.userInfo.name,
+    },
+    _id,
+  };
+
+  service.addGroup(info, err => res.json(result.json(err, 'ok')));
+});
+
+/**
+ * @permissionGroup: downloadTemplate
+ * @permissionName: listTemplateGroup
+ * @permissionPath: /template/listGroup
+ * @apiName: listTemplateGroup
+ * @apiFuncType: get
+ * @apiFuncUrl: /template/listGroup
+ * @swagger
+ * /template/listGroup:
+ *   get:
+ *     description: list template group
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - TemplateGroupInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: parentId
+ *         description:
+ *         required: false
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: page
+ *         description:
+ *         required: false
+ *         type: integer
+ *         default: 1
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: pageSize
+ *         description:
+ *         required: false
+ *         type: integer
+ *         default: 999
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: fields
+ *         description:
+ *         required: false
+ *         type: integer
+ *         default: 999
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: isIncludeChild
+ *         description:
+ *         required: false
+ *         type: string
+ *         default: '0'
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: TemplateGroupInfo
+ */
+router.get('/listGroup', (req, res) => {
+  const parentId = req.query.parentId;
+  const page = req.query.page || 1;
+  const pageSize = req.query.pageSize || 30;
+  const fields = req.query.fields || '_id,name,description';
+  const isIncludeChild = req.query.isIncludeChild === '1';
+
+  service.listGroup(parentId, page, pageSize, '-createdTime', fields, (err, docs) => res.json(result.json(err, docs)), isIncludeChild);
+});
+
+/**
+ * @permissionGroup: downloadTemplate
+ * @permissionName: removeTemplateGroup
+ * @permissionPath: /template/removeGroup
+ * @apiName: removeTemplateGroup
+ * @apiFuncType: post
+ * @apiFuncUrl: /template/removeGroup
+ * @swagger
+ * /template/removeGroup:
+ *   post:
+ *     description: remove template group
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - TemplateGroupInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: groupId
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: TemplateGroupInfo
+ */
+router.post('/removeGroup', (req, res) => {
+  service.deleteGroup(req.body.groupId, err => res.json(result.json(err, 'ok')));
+});
+
+/**
+ * @permissionGroup: downloadTemplate
+ * @permissionName: getTemplateGroup
+ * @permissionPath: /template/getGroup
+ * @apiName: getGroup
+ * @apiFuncType: get
+ * @apiFuncUrl: /template/getGroup
+ * @swagger
+ * /template/getGroup:
+ *   get:
+ *     description: get template group detail information
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - TemplateGroupInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: groupId
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: TemplateGroupInfo
+ */
+router.get('/getGroup', (req, res) => {
+  service.getGroup(req.query.groupId, (err, doc) => res.json(result.json(err, doc)));
+});
+
+/**
+ * @permissionGroup: downloadTemplate
+ * @permissionName: updateTemplateGroup
+ * @permissionPath: /template/updateGroup
+ * @apiName: updateTemplateGroup
+ * @apiFuncType: post
+ * @apiFuncUrl: /template/updateGroup
+ * @swagger
+ * /template/updateGroup:
+ *   post:
+ *     description: update template group information
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - TemplateGroupInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: groupId
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: name
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: description
+ *         description:
+ *         required: false
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: deleteDeny
+ *         description:
+ *         required: false
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: TemplateGroupInfo
+ */
+router.post('/updateGroup', (req, res) => {
+  service.updateGroup(req.body.groupId, req.body, (err, doc) => res.json(result.json(err, doc)));
+});
+
+/**
+ * @permissionGroup: downloadTemplate
+ * @permissionName: 下载模板列表
  * @permissionPath: /template/list
  * @apiName: list
  * @apiFuncType: get
@@ -79,7 +328,8 @@ router.get('/list', (req, res) => {
 });
 
 /**
- * @permissionName: 创建下模板
+ * @permissionGroup: downloadTemplate
+ * @permissionName: 创建下载模板
  * @permissionPath: /template/createDownloadTemplate
  * @apiName: createDownloadTemplate
  * @apiFuncType: post
@@ -130,12 +380,16 @@ router.post('/createDownloadTemplate', (req, res) => {
   const bucketId = req.body.bucketId;
   const script = req.body.script;
   const id = req.body.id;
+  const groupId = req.body.groupId;
+  const transcodeTemplates = (req.body.transcodeTemplates || '').split(',');
+  const transcodeTemplateSelector = req.body.transcodeTemplateSelector || '';
 
-  service.createDownloadTemplate(userId, id, name, description, bucketId, script, err => res.json(result.json(err, 'ok')));
+  service.createDownloadTemplate(userId, id, name, description, bucketId, script, err => res.json(result.json(err, 'ok')), groupId, transcodeTemplates, transcodeTemplateSelector);
 });
 
 /**
- * @permissionName: 删除模板
+ * @permissionGroup: downloadTemplate
+ * @permissionName: 删除下载模板
  * @permissionPath: /template/remove
  * @apiName: remove
  * @apiFuncType: post
@@ -169,7 +423,8 @@ router.post('/remove', (req, res) => {
 });
 
 /**
- * @permissionName: 更新模板信息
+ * @permissionGroup: downloadTemplate
+ * @permissionName: 更新下载模板信息
  * @permissionPath: /template/update
  * @apiName: update
  * @apiFuncType: post
@@ -202,7 +457,8 @@ router.post('/update', (req, res) => {
 });
 
 /**
- * @permissionName: 获取模板详细信息
+ * @permissionGroup: downloadTemplate
+ * @permissionName: 获取下载模板详细信息
  * @permissionPath: /template/getDetail
  * @apiName: getDetail
  * @apiFuncType: get
