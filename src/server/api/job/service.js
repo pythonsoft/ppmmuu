@@ -38,6 +38,19 @@ const errorCall = function errorCall(str) {
   return JSON.stringify({ status: 1, data: {}, statusInfo: i18n.t(str) });
 };
 
+service.listTemplate = function listTemplate(listTemplateParams, res) {
+  if (!listTemplateParams) {
+    return res.end(errorCall('jobListTemplateParamsIsNull'));
+  }
+
+  const params = utils.merge({
+    page: 1,
+    pageSize: 99,
+  }, listTemplateParams);
+
+  requestTemplate.get('/TemplateService/list', params, res);
+};
+
 service.download = function download(userInfo, downloadParams, res) {
   if (!downloadParams) {
     return res.end(errorCall('joDownloadParamsIsNull'));
@@ -81,6 +94,10 @@ service.download = function download(userInfo, downloadParams, res) {
   }
 
   const templateId = downloadParams.templateId;
+
+  templateService.getTranscodeTemplate(templateId, (err, r) => {
+    console.log(`err: ${err}, r: ${JSON.stringify(r)}`);
+  });
 
   templateService.getDownloadPath(userInfo, templateId, (err, downloadPath) => {
     if (err) {
@@ -176,19 +193,6 @@ service.list = function list(listParams, res) {
   }
 
   request.get('/JobService/list', params, res);
-};
-
-service.listTemplate = function listTemplate(listTemplateParams, res) {
-  if (!listTemplateParams) {
-    return res.end(errorCall('jobListTemplateParamsIsNull'));
-  }
-
-  const params = utils.merge({
-    page: 1,
-    pageSize: 99,
-  }, listTemplateParams);
-
-  requestTemplate.get('/TemplateService/list', params, res);
 };
 
 service.query = function query(queryParams, res) {

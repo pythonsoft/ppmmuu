@@ -21,6 +21,7 @@ class TemplateInfo extends DB {
       description: { type: 'string' },
       details: { type: 'object' },
       groupId: { type: 'string' },
+      transcodeTemplateDetail: { type: 'object' },
     };
   }
 
