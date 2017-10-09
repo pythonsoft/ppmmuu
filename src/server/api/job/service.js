@@ -112,6 +112,7 @@ service.download = function download(userInfo, downloadParams, res) {
       userName: userInfo.name,
     };
     const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/JobService/download`;
+
     utils.requestCallApi(url, 'POST', p, '', (err, rs) => {
       if (err) {
         return res.json(result.fail(err));

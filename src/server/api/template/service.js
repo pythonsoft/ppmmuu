@@ -11,6 +11,7 @@ const utils = require('../../common/utils');
 const i18n = require('i18next');
 
 const storageService = require('../storage/service');
+const jobService = require('../job/service');
 
 const TemplateInfo = require('./templateInfo');
 
@@ -487,26 +488,14 @@ function runTemplateSelector(info, code) {
   return sandbox.result;
 }
 
-function listTemplate(listTemplateParams, res) {
-  if (!listTemplateParams) {
-    return res.end(errorCall('jobListTemplateParamsIsNull'));
-  }
-
-  const params = utils.merge({
-    page: 1,
-    pageSize: 99,
-  }, listTemplateParams);
-
-  requestTemplate.get('/TemplateService/list', params, res);
-}
-
 function filterTranscodeTemplates(doc = {}, cb) {
   const r = doc;
+
   if (!doc.transcodeTemplateDetail || !doc.transcodeTemplateDetail.transcodeTemplateSelector) {
     return cb && cb(null, r.transcodeTemplateDetail ? r.transcodeTemplateDetail.r.transcodeTemplates : []);
   }
 
-  listTemplate({ page: 1, pageSize: 999 }, (err, templateInfo) => {
+  jobService.listTemplate({ page: 1, pageSize: 999 }, (err, templateInfo) => {
     if (err) {
       return cb && cb(err);
     }
@@ -532,6 +521,7 @@ function filterTranscodeTemplates(doc = {}, cb) {
       transcodeTemplates: ids,
       templates: info,
     }, r.transcodeTemplateDetail.transcodeTemplateSelector);
+
     return cb && cb(null, r.transcodeTemplateDetail.transcodeTemplates);
   });
 }
