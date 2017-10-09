@@ -593,11 +593,10 @@ service.getStream = function getStream(objectId, res) {
   if (err) {
     const rs = { status: 1, data: {}, statusInfo: { code: 10000, message: err.message } };
 
-    if(typeof res === 'function') {
+    if (typeof res === 'function') {
       return res && res(rs);
-    }else {
-      return res.end(JSON.stringify(rs));
     }
+    return res.end(JSON.stringify(rs));
   }
 
   rq.get('/mamapi/get_stream', { objectid: objectId }, res);
