@@ -377,7 +377,7 @@ router.get('/list', (req, res) => {
  *              example: 'download: 1, download_mediaexpress: 2, default: 1'
  *            transcodeTemplates:
  *              type: string
- *              example: '[{ _id: "", name: "" }, ...] default: ""
+ *              example: '[{ _id: "", name: "" }, ...] default: ""'
  *            transcodeTemplateSelector:
  *              type: string
  *              example: ''
