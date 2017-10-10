@@ -556,31 +556,29 @@ function filterTranscodeTemplates(doc = {}, cb) {
     return cb && cb(null, doc.transcodeTemplateDetail ? doc.transcodeTemplateDetail.transcodeTemplates : '');
   }
 
-  jobService.listTemplate({ page: 1, pageSize: 999 }, (err, templateInfo) => {
+  jobService.listTemplate({ page: 1, pageSize: 999 }, (err, rs) => {
     if (err) {
       return cb && cb(err);
     }
 
-    if (!templateInfo) {
+    if (!rs) {
       return cb && cb(i18n.t('templateBucketIsNotExist'));
     }
 
-    const ids = doc.transcodeTemplateDetail.transcodeTemplates;
+    const transcodeTemplates = doc.transcodeTemplateDetail.transcodeTemplates;
     const info = { };
-    for (const id of ids) {
-      for (const template of templateInfo.data.docs) {
-        if (template.id === id) {
-          info[id] = template;
+
+    for(let i = 0, len = transcodeTemplates.length; i < len; i++) {
+      for(let j = 0, l = rs.data.docs.length; l < j; j++) {
+        if(rs.data.docs[j].id === transcodeTemplates[i]._id) {
+          info[transcodeTemplates[i]._id] = rs.data.docs[j];
         }
-      }
-      if (!info[id]) {
-        info[id] = {};
       }
     }
 
     const transcodeTemplate = runTemplateSelector({
-      transcodeTemplates: ids,
-      templates: info,
+      transcodeTemplatesInfo: info,
+      templateInfo: doc,
     }, doc.transcodeTemplateDetail.transcodeTemplateSelector);
 
     return cb && cb(null, transcodeTemplate);
