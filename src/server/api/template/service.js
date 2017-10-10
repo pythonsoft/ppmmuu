@@ -8,6 +8,7 @@ const vm = require('vm');
 
 const logger = require('../../common/log')('error');
 const utils = require('../../common/utils');
+const result = require('../../common/result');
 const i18n = require('i18next');
 
 const storageService = require('../storage/service');
@@ -337,7 +338,7 @@ service.createTemplate = function createTemplate(params, cb) {
     type: TemplateInfo.TYPE.DOWNLOAD,
     description: '',
     groupId: '',
-    transcodeTemplateDetail: { transcodeTemplates: '', transcodeTemplateSelector: '' },
+    transcodeTemplateDetail: '',
     details: {}
   }, params);
 
@@ -365,6 +366,34 @@ service.createTemplate = function createTemplate(params, cb) {
   return false;
 };
 
+function composeTranscodeTemplates(transcodeTemplates) {
+  try {
+
+    let ts = null;
+
+    if(transcodeTemplates) {
+      ts = JSON.parse(transcodeTemplates);
+
+      if(ts.constructor !== Array) {
+        return { status: '1', result: i18n.t('templateTranscodeTemplatesInvalidJSON') };
+      }
+
+      for(let i = 0, len = transcodeTemplates.length; i < len; i++) {
+        if(transcodeTemplates[i].hasOwnProperty('_id') && transcodeTemplates[i].hasOwnProperty('name')) {
+          ts.push(utils.merge({ _id: '', name: '' }, transcodeTemplates[i]));
+        }
+      }
+
+      return { status: '0', result: ts };
+    }
+
+    return { status: '0', result: ts };
+
+  }catch (e) {
+    return { status: '0', result: i18n.t('templateTranscodeTemplatesInvalidJSON') };
+  }
+}
+
 service.createDownloadTemplate = function createDownloadTemplate(params, cb) {
   const info = utils.merge({
     creatorId: '',
@@ -383,37 +412,22 @@ service.createDownloadTemplate = function createDownloadTemplate(params, cb) {
     return cb && cb(i18n.t('templateStorageIdIsNotExist'));
   }
 
-  try{
+  const rs = composeTranscodeTemplates(info.transcodeTemplates);
 
-    if(!info.transcodeTemplates) {
-      info.transcodeTemplates = JSON.parse(info.transcodeTemplates);
-    }
+  if(rs.status !== '0') {
+    return cb && cb(rs.result);
+  } else if(rs.result) {
 
-    if(info.transcodeTemplates.constructor !== Array) {
-      return cb && cb(i18n.t('templateTranscodeTemplatesInvalidJSON'));
-    }
+    info.transcodeTemplateDetail = {
+      transcodeTemplates: rs.result,
+      transcodeTemplateSelector: info.transcodeTemplateSelector
+    };
 
-    const ts = [];
-
-    for(let i = 0, len = info.transcodeTemplates.length; i < len; i++) {
-      if(info.transcodeTemplates[i].hasOwnProperty('_id') && info.transcodeTemplates[i].hasOwnProperty('name')) {
-        ts.push(utils.merge({ _id: '', name }, info.transcodeTemplates[i]));
-      }
-    }
-
-    info.transcodeTemplates = ts;
-
-    const details = { bucketId: info.bucketId, script: info.script };
-    const transcodeTemplateDetail = { transcodeTemplates: info.transcodeTemplates, transcodeTemplateSelector: info.transcodeTemplateSelector };
-
-    info.details = details;
-    info.transcodeTemplateDetail = transcodeTemplateDetail;
-
-    service.createTemplate(info, cb);
-
-  }catch (e) {
-    return cb && cb(i18n.t('templateTranscodeTemplatesInvalidJSON'))
   }
+
+  info.details = { bucketId: info.bucketId, script: info.script };
+
+  service.createTemplate(info, cb);
 
   return false;
 };
@@ -453,7 +467,18 @@ service.update = function update(id, info, cb) {
   }
 
   if (!info.type || info.type === TemplateInfo.TYPE.DOWNLOAD) {
+
     info.details = templateInfo.createDownloadInfo(info.script, info.bucketId);
+
+    if(info.transcodeTemplates) {
+      const rs = composeTranscodeTemplates(info.transcodeTemplates);
+
+      if(rs.status !== '0') {
+        return cb && cb(rs.result);
+      } else if(rs.result) {
+        info.transcodeTemplateDetail = { transcodeTemplates: rs.result, transcodeTemplateSelector: info.transcodeTemplateSelector || '' };
+      }
+    }
   }
 
   templateInfo.updateOne({ _id: id }, info, (err, r) => {
