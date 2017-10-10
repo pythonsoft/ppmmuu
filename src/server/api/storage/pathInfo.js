@@ -60,7 +60,7 @@ class PathInfo extends DB {
 
     this.struct = {
       _id: { type: 'string', default() { return uuid.v1(); }, validation: 'require' },
-      viceId: { type: 'string', validation: 'require' },     // 副标志
+      viceId: { type: 'string', validation: 'require' },     // 副标识
       name: { type: 'string', validation: 'require' },
       webServerPath: { type: 'string' },
       webClientPath: { type: 'string' },
