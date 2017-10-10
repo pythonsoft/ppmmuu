@@ -85,7 +85,7 @@ service.download = function download(userInfo, downloadParams, res) {
 
   const templateId = downloadParams.templateId;
 
-  templateService.getTranscodeTemplate(templateId, (err, r) => {
+  templateService.getTranscodeTemplate(templateId, params.filename, (err, r) => {
     console.log(`err: ${err}, r: ${JSON.stringify(r)}`);
   });
 

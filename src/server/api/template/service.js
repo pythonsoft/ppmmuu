@@ -8,8 +8,8 @@ const vm = require('vm');
 
 const logger = require('../../common/log')('error');
 const utils = require('../../common/utils');
-const result = require('../../common/result');
 const i18n = require('i18next');
+const path = require('path');
 
 const storageService = require('../storage/service');
 const jobService = require('../job/extService');
@@ -543,7 +543,7 @@ service.getDownloadPath = function getDownloadPath(userInfo, id, cb) {
 
 function runTemplateSelector(info, code) {
   let sandbox = {
-    result: [],
+    result: '',
   };
   sandbox = Object.assign(sandbox, info);
   const script = new vm.Script(code.replace(/(\r\n|\n|\r)/gm, ''));
@@ -551,7 +551,7 @@ function runTemplateSelector(info, code) {
   return sandbox.result;
 }
 
-function filterTranscodeTemplates(doc = {}, cb) {
+function filterTranscodeTemplates(doc = {}, fileInfo = {}, cb) {
   if (!doc.transcodeTemplateDetail || !doc.transcodeTemplateDetail.transcodeTemplateSelector) {
     return cb && cb(null, doc.transcodeTemplateDetail ? doc.transcodeTemplateDetail.transcodeTemplates : '');
   }
@@ -577,15 +577,16 @@ function filterTranscodeTemplates(doc = {}, cb) {
     }
 
     const transcodeTemplate = runTemplateSelector({
-      transcodeTemplatesInfo: info,
-      templateInfo: doc,
+      transcodeTemplates: info,
+      downloadTemplate: doc,
+      fileInfo: fileInfo,
     }, doc.transcodeTemplateDetail.transcodeTemplateSelector);
 
     return cb && cb(null, transcodeTemplate);
   });
 }
 
-service.getTranscodeTemplate = function getTranscodeTemplate(id, cb) {
+service.getTranscodeTemplate = function getTranscodeTemplate(id, filePath, cb) {
   if (!id) {
     return cb && cb(i18n.t('templateIdIsNotExist'));
   }
@@ -601,7 +602,11 @@ service.getTranscodeTemplate = function getTranscodeTemplate(id, cb) {
       return cb && cb(i18n.t('templateIsNotExist'));
     }
 
-    filterTranscodeTemplates(doc, cb);
+    const fileInfo = {};
+    fileInfo.ext = path.extname(filePath);
+    fileInfo.name = path.basename(filePath).replace(fileInfo.ext, '');
+
+    filterTranscodeTemplates(doc, fileInfo, cb);
   });
 };
 
