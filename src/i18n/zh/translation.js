@@ -274,8 +274,12 @@ module.exports = {
     message: '添加策略的目标类型不存在',
   },
   sourceTypeIsNotExist: {
-    code: '-9011',
+    code: '-9012',
     message: '策略类型不存在',
+  },
+  pathIdOrViceIdAndBucketIdIsNull: {
+    code: '-9013',
+    message: '请输入路径Id或路径副标识和所属存储区Id',
   },
   typeError: {
     code: '-10001',
