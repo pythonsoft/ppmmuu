@@ -474,7 +474,6 @@ function runTemplateSelector(info, code) {
 }
 
 function filterTranscodeTemplates(doc = {}, cb) {
-
   if (!doc.transcodeTemplateDetail || !doc.transcodeTemplateDetail.transcodeTemplateSelector) {
     return cb && cb(null, doc.transcodeTemplateDetail ? doc.transcodeTemplateDetail.transcodeTemplates : '');
   }
