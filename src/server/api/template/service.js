@@ -8,8 +8,8 @@ const vm = require('vm');
 
 const logger = require('../../common/log')('error');
 const utils = require('../../common/utils');
-const result = require('../../common/result');
 const i18n = require('i18next');
+const path = require('path');
 
 const storageService = require('../storage/service');
 const jobService = require('../job/extService');
@@ -543,7 +543,7 @@ service.getDownloadPath = function getDownloadPath(userInfo, id, cb) {
 
 function runTemplateSelector(info, code) {
   let sandbox = {
-    result: [],
+    result: '',
   };
   sandbox = Object.assign(sandbox, info);
   const script = new vm.Script(code.replace(/(\r\n|\n|\r)/gm, ''));
@@ -551,43 +551,42 @@ function runTemplateSelector(info, code) {
   return sandbox.result;
 }
 
-function filterTranscodeTemplates(doc = {}, cb) {
+function filterTranscodeTemplates(doc = {}, fileInfo = {}, cb) {
   if (!doc.transcodeTemplateDetail || !doc.transcodeTemplateDetail.transcodeTemplateSelector) {
     return cb && cb(null, doc.transcodeTemplateDetail ? doc.transcodeTemplateDetail.transcodeTemplates : '');
   }
 
-  jobService.listTemplate({ page: 1, pageSize: 999 }, (err, templateInfo) => {
+  jobService.listTemplate({ page: 1, pageSize: 999 }, (err, rs) => {
     if (err) {
       return cb && cb(err);
     }
 
-    if (!templateInfo) {
+    if (!rs) {
       return cb && cb(i18n.t('templateBucketIsNotExist'));
     }
 
-    const ids = doc.transcodeTemplateDetail.transcodeTemplates;
+    const transcodeTemplates = doc.transcodeTemplateDetail.transcodeTemplates;
     const info = { };
-    for (const id of ids) {
-      for (const template of templateInfo.data.docs) {
-        if (template.id === id) {
-          info[id] = template;
+
+    for(let i = 0, len = transcodeTemplates.length; i < len; i++) {
+      for(let j = 0, l = rs.data.docs.length; l < j; j++) {
+        if(rs.data.docs[j].id === transcodeTemplates[i]._id) {
+          info[transcodeTemplates[i]._id] = rs.data.docs[j];
         }
-      }
-      if (!info[id]) {
-        info[id] = {};
       }
     }
 
     const transcodeTemplate = runTemplateSelector({
-      transcodeTemplates: ids,
-      templates: info,
+      transcodeTemplates: info,
+      downloadTemplate: doc,
+      fileInfo: fileInfo,
     }, doc.transcodeTemplateDetail.transcodeTemplateSelector);
 
     return cb && cb(null, transcodeTemplate);
   });
 }
 
-service.getTranscodeTemplate = function getTranscodeTemplate(id, cb) {
+service.getTranscodeTemplate = function getTranscodeTemplate(id, filePath, cb) {
   if (!id) {
     return cb && cb(i18n.t('templateIdIsNotExist'));
   }
@@ -603,7 +602,11 @@ service.getTranscodeTemplate = function getTranscodeTemplate(id, cb) {
       return cb && cb(i18n.t('templateIsNotExist'));
     }
 
-    filterTranscodeTemplates(doc, cb);
+    const fileInfo = {};
+    fileInfo.ext = path.extname(filePath);
+    fileInfo.name = path.basename(filePath).replace(fileInfo.ext, '');
+
+    filterTranscodeTemplates(doc, fileInfo, cb);
   });
 };
 
