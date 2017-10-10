@@ -338,7 +338,7 @@ service.createTemplate = function createTemplate(params, cb) {
     description: '',
     groupId: '',
     transcodeTemplateDetail: { transcodeTemplates: '', transcodeTemplateSelector: '' },
-    details: {}
+    details: {},
   }, params);
 
   if (!info.id) {
@@ -376,27 +376,26 @@ service.createDownloadTemplate = function createDownloadTemplate(params, cb) {
     script: '',
     groupId: '',
     transcodeTemplates: '',
-    transcodeTemplateSelector: ''
+    transcodeTemplateSelector: '',
   }, params);
 
   if (!info.bucketId) {
     return cb && cb(i18n.t('templateStorageIdIsNotExist'));
   }
 
-  try{
-
-    if(!info.transcodeTemplates) {
+  try {
+    if (!info.transcodeTemplates) {
       info.transcodeTemplates = JSON.parse(info.transcodeTemplates);
     }
 
-    if(info.transcodeTemplates.constructor !== Array) {
+    if (info.transcodeTemplates.constructor !== Array) {
       return cb && cb(i18n.t('templateTranscodeTemplatesInvalidJSON'));
     }
 
     const ts = [];
 
-    for(let i = 0, len = info.transcodeTemplates.length; i < len; i++) {
-      if(info.transcodeTemplates[i].hasOwnProperty('_id') && info.transcodeTemplates[i].hasOwnProperty('name')) {
+    for (let i = 0, len = info.transcodeTemplates.length; i < len; i++) {
+      if (info.transcodeTemplates[i].hasOwnProperty('_id') && info.transcodeTemplates[i].hasOwnProperty('name')) {
         ts.push(utils.merge({ _id: '', name }, info.transcodeTemplates[i]));
       }
     }
@@ -410,9 +409,8 @@ service.createDownloadTemplate = function createDownloadTemplate(params, cb) {
     info.transcodeTemplateDetail = transcodeTemplateDetail;
 
     service.createTemplate(info, cb);
-
-  }catch (e) {
-    return cb && cb(i18n.t('templateTranscodeTemplatesInvalidJSON'))
+  } catch (e) {
+    return cb && cb(i18n.t('templateTranscodeTemplatesInvalidJSON'));
   }
 
   return false;

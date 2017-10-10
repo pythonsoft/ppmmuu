@@ -29,15 +29,24 @@ service.listBucket = function listBucket(keyword, status, page, pageSize, sortFi
   status = status === '-1' ? '' : status;
 
   if (keyword) {
-    q.$or = [
-      { name: { $regex: keyword, $options: 'i' } },
-      { _id: { $regex: keyword, $options: 'i' } },
-    ];
+    q.$or = [{
+      name: {
+        $regex: keyword,
+        $options: 'i',
+      },
+    }, {
+      _id: {
+        $regex: keyword,
+        $options: 'i',
+      },
+    }];
   }
 
   if (status) {
     if (status.indexOf(',')) {
-      q.status = { $in: utils.trim(status.split(',')) };
+      q.status = {
+        $in: utils.trim(status.split(',')),
+      };
     } else {
       q.status = status;
     }
@@ -58,7 +67,9 @@ service.getBucketDetail = function getBucketDetail(id, cb) {
     return cb && cb(i18n.t('bucketIdIsNull'));
   }
 
-  bucketInfo.collection.findOne({ _id: id }, (err, doc) => {
+  bucketInfo.collection.findOne({
+    _id: id,
+  }, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -94,7 +105,15 @@ service.updateBucket = function updateBucket(id, info = {}, cb) {
 
   info.modifyTime = new Date();
 
-  bucketInfo.findOneAndUpdate({ _id: id }, { $set: info }, { projection: { _id: 1 } }, (err, r) => {
+  bucketInfo.findOneAndUpdate({
+    _id: id,
+  }, {
+    $set: info,
+  }, {
+    projection: {
+      _id: 1,
+    },
+  }, (err, r) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -117,7 +136,15 @@ service.enableBucket = function enableBucket(id, info = {}, cb) {
   updateInfo.modifyTime = new Date();
   updateInfo.status = info.status;
 
-  bucketInfo.findOneAndUpdate({ _id: id }, { $set: updateInfo }, { projection: { _id: 1 } }, (err, r) => {
+  bucketInfo.findOneAndUpdate({
+    _id: id,
+  }, {
+    $set: updateInfo,
+  }, {
+    projection: {
+      _id: 1,
+    },
+  }, (err, r) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -136,7 +163,14 @@ service.deleteBucket = function deleteBucket(id, cb) {
     return cb && cb(i18n.t('deleteRoleNoIds'));
   }
 
-  bucketInfo.collection.findOne({ _id: id }, { fields: { _id: 1, deleteDeny: 1 } }, (err, doc) => {
+  bucketInfo.collection.findOne({
+    _id: id,
+  }, {
+    fields: {
+      _id: 1,
+      deleteDeny: 1,
+    },
+  }, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -150,19 +184,25 @@ service.deleteBucket = function deleteBucket(id, cb) {
       return cb && cb(i18n.t('bucketDeleteDeny'));
     }
 
-    tacticsInfo.collection.removeMany({ 'source._id': doc._id }, (err) => {
+    tacticsInfo.collection.removeMany({
+      'source._id': doc._id,
+    }, (err) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
 
-      pathInfo.collection.removeMany({ 'bucket._id': doc._id }, (err) => {
+      pathInfo.collection.removeMany({
+        'bucket._id': doc._id,
+      }, (err) => {
         if (err) {
           logger.error(err.message);
           return cb && cb(i18n.t('databaseError'));
         }
 
-        bucketInfo.collection.removeOne({ _id: doc._id }, (err, r) => {
+        bucketInfo.collection.removeOne({
+          _id: doc._id,
+        }, (err, r) => {
           if (err) {
             logger.error(err.message);
             return cb && cb(i18n.t('databaseError'));
@@ -183,19 +223,26 @@ service.listPath = function listPath(bucketId, status, keyword, page, pageSize, 
 
   if (bucketId) {
     if (bucketId.indexOf(',')) {
-      q['bucket._id'] = { $in: utils.trim(bucketId.split(',')) };
+      q['bucket._id'] = {
+        $in: utils.trim(bucketId.split(',')),
+      };
     } else {
       q['bucket._id'] = bucketId;
     }
   }
 
   if (keyword) {
-    q.name = { $regex: keyword, $options: 'i' };
+    q.name = {
+      $regex: keyword,
+      $options: 'i',
+    };
   }
 
   if (status) {
     if (status.indexOf(',')) {
-      q.status = { $in: utils.trim(status.split(',')) };
+      q.status = {
+        $in: utils.trim(status.split(',')),
+      };
     } else {
       q.status = status;
     }
@@ -232,6 +279,10 @@ service.getPathDetail = function getPathDetail(info, cb) {
       return cb && cb(i18n.t('databaseError'));
     }
 
+    if (!doc) {
+      return cb && cb(i18n.t('canNotFindPath'));
+    }
+
     return cb && cb(null, doc);
   });
 };
@@ -245,7 +296,14 @@ service.addPath = function addPath(bucketId, info = {}, cb) {
     return cb && cb(i18n.t('pathIdIsNull'));
   }
 
-  bucketInfo.collection.findOne({ _id: bucketId }, { fields: { _id: 1, name: 1 } }, (err, doc) => {
+  bucketInfo.collection.findOne({
+    _id: bucketId,
+  }, {
+    fields: {
+      _id: 1,
+      name: 1,
+    },
+  }, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -259,7 +317,10 @@ service.addPath = function addPath(bucketId, info = {}, cb) {
       return cb && cb(i18n.t('pathInfoIsNull'));
     }
 
-    info.bucket = { _id: doc._id, name: doc.name };
+    info.bucket = {
+      _id: doc._id,
+      name: doc.name,
+    };
 
     pathInfo.insertOne(info, (err, r) => {
       if (err) {
@@ -283,7 +344,9 @@ service.updatePath = function updatePath(pathId, info = {}, cb) {
     delete info._id;
   }
 
-  pathInfo.updateOne({ _id: pathId }, info, (err, r) => {
+  pathInfo.updateOne({
+    _id: pathId,
+  }, info, (err, r) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -302,7 +365,15 @@ service.enablePath = function enablePath(id, info = {}, cb) {
   updateInfo.modifyTime = new Date();
   updateInfo.status = info.status;
 
-  pathInfo.findOneAndUpdate({ _id: id }, { $set: updateInfo }, { projection: { _id: 1 } }, (err, r) => {
+  pathInfo.findOneAndUpdate({
+    _id: id,
+  }, {
+    $set: updateInfo,
+  }, {
+    projection: {
+      _id: 1,
+    },
+  }, (err, r) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -321,7 +392,9 @@ service.deletePath = function deletePath(pathId, cb) {
     return cb && cb(i18n.t('pathIdIsNull'));
   }
 
-  pathInfo.collection.removeOne({ _id: pathId }, (err, r) => {
+  pathInfo.collection.removeOne({
+    _id: pathId,
+  }, (err, r) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -339,9 +412,13 @@ service.getPaths = function getPaths(ids, cb) {
   const query = {};
 
   if (ids.constructor === Array) {
-    query._id = { $in: ids };
+    query._id = {
+      $in: ids,
+    };
   } else {
-    query.id = { $in: ids.replace(/\s/g, '').split(',') };
+    query.id = {
+      $in: ids.replace(/\s/g, '').split(','),
+    };
   }
 
   pathInfo.collection.find(query).toArray((err, docs) => {
@@ -362,7 +439,9 @@ service.listTactics = function listTactics(sourceId, status, keyword, page, page
 
   if (sourceId) {
     if (sourceId.indexOf(',')) {
-      q['source._id'] = { $in: utils.trim(sourceId.split(',')) };
+      q['source._id'] = {
+        $in: utils.trim(sourceId.split(',')),
+      };
     } else {
       q['source._id'] = sourceId;
     }
@@ -373,7 +452,10 @@ service.listTactics = function listTactics(sourceId, status, keyword, page, page
   }
 
   if (keyword) {
-    q.name = { $regex: keyword, $options: 'i' };
+    q.name = {
+      $regex: keyword,
+      $options: 'i',
+    };
   }
 
 
@@ -392,7 +474,9 @@ service.getTacticsDetail = function getTacticsDetail(tacticsId, cb) {
     return cb && cb(i18n.t('tacticsIdIsNull'));
   }
 
-  tacticsInfo.collection.findOne({ _id: tacticsId }, (err, doc) => {
+  tacticsInfo.collection.findOne({
+    _id: tacticsId,
+  }, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -426,7 +510,14 @@ service.addTactics = function addTactics(info = {}, cb) {
     sourceTypeName = 'path';
   }
 
-  col.collection.findOne({ _id: info.source._id }, { fields: { _id: 1, name: 1 } }, (err, doc) => {
+  col.collection.findOne({
+    _id: info.source._id,
+  }, {
+    fields: {
+      _id: 1,
+      name: 1,
+    },
+  }, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -440,7 +531,11 @@ service.addTactics = function addTactics(info = {}, cb) {
       return cb && cb(i18n.t(`${sourceTypeName}InfoIsNull`));
     }
 
-    info.source = { _id: doc._id, name: doc.name, type: info.source.type };
+    info.source = {
+      _id: doc._id,
+      name: doc.name,
+      type: info.source.type,
+    };
 
     tacticsInfo.insertOne(info, (err, r) => {
       if (err) {
@@ -460,7 +555,9 @@ service.updateTactics = function updateTactics(tacticsId, info = {}, cb) {
 
   info.modifyTime = new Date();
 
-  tacticsInfo.updateOne({ _id: tacticsId }, info, (err, r) => {
+  tacticsInfo.updateOne({
+    _id: tacticsId,
+  }, info, (err, r) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -479,7 +576,15 @@ service.enableTactics = function enableTactics(id, info = {}, cb) {
   updateInfo.modifyTime = new Date();
   updateInfo.status = info.status;
 
-  tacticsInfo.findOneAndUpdate({ _id: id }, { $set: updateInfo }, { projection: { _id: 1 } }, (err, r) => {
+  tacticsInfo.findOneAndUpdate({
+    _id: id,
+  }, {
+    $set: updateInfo,
+  }, {
+    projection: {
+      _id: 1,
+    },
+  }, (err, r) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -498,7 +603,9 @@ service.deleteTactics = function deleteTactics(tacticsId, cb) {
     return cb && cb(i18n.t('tacticsIdIsNull'));
   }
 
-  tacticsInfo.collection.removeOne({ _id: tacticsId }, (err, r) => {
+  tacticsInfo.collection.removeOne({
+    _id: tacticsId,
+  }, (err, r) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
