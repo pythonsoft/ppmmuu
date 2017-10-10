@@ -369,22 +369,27 @@ router.get('/list', (req, res) => {
  *            script:
  *              type: string
  *              example: ''
+ *            groupId:
+ *              type: string
+ *              example: ''
+ *            type:
+ *              type: string
+ *              example: 'download: 1, download_mediaexpress: 2, default: 1'
+ *            transcodeTemplates:
+ *              type: string
+ *              example: '[{ _id: "", name: "" }, ...] default: ""
+ *            transcodeTemplateSelector:
+ *              type: string
+ *              example: ''
  *     responses:
  *       200:
  *         description: template
  */
 router.post('/createDownloadTemplate', (req, res) => {
-  const userId = req.ex.userInfo._id;
-  const name = req.body.name;
-  const description = req.body.description;
-  const bucketId = req.body.bucketId;
-  const script = req.body.script;
-  const id = req.body.id;
-  const groupId = req.body.groupId;
-  const transcodeTemplates = (req.body.transcodeTemplates || '').split(',');
-  const transcodeTemplateSelector = req.body.transcodeTemplateSelector || '';
+  const info = req.body;
+  info.creatorId = req.ex.userInfo._id;
 
-  service.createDownloadTemplate(userId, id, name, description, bucketId, script, err => res.json(result.json(err, 'ok')), groupId, transcodeTemplates, transcodeTemplateSelector);
+  service.createDownloadTemplate(info, err => res.json(result.json(err, 'ok')));
 });
 
 /**
