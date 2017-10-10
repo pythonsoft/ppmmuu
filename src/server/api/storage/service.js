@@ -211,12 +211,22 @@ service.listPath = function listPath(bucketId, status, keyword, page, pageSize, 
   }, sortFields, fieldsNeed);
 };
 
-service.getPathDetail = function getPathDetail(pathId, cb) {
-  if (!pathId) {
-    return cb && cb(i18n.t('pathIdIsNull'));
+service.getPathDetail = function getPathDetail(info, cb) {
+  const pathId = info._id || '';
+  const viceId = info.viceId || '';
+  const bucketId = info.bucketId || '';
+  const query = {};
+
+  if (pathId) {
+    query._id = pathId;
+  } else if (viceId && bucketId) {
+    query.viceId = viceId;
+    query['bucket._id'] = bucketId;
+  } else {
+    return cb && cb(i18n.t('pathIdOrViceIdAndBucketIdIsNull'));
   }
 
-  pathInfo.collection.findOne({ _id: pathId }, (err, doc) => {
+  pathInfo.collection.findOne(query, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));

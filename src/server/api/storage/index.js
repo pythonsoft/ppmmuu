@@ -410,8 +410,19 @@ router.get('/listPath', (req, res) => {
  *     parameters:
  *       - in: query
  *         name: _id
- *         description:
- *         required: true
+ *         description: 路径_id
+ *         type: string
+ *         default: "1c6ad690-5583-11e7-b784-69097aa4b384"
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: viceId
+ *         description: 路径副标识
+ *         type: string
+ *         default: "1c6ad690-5583-11e7-b784-69097aa4b384"
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: bucketId
+ *         description: 路径所属存储区_id
  *         type: string
  *         default: "1c6ad690-5583-11e7-b784-69097aa4b384"
  *         collectionFormat: csv
@@ -420,9 +431,7 @@ router.get('/listPath', (req, res) => {
  *         description: BucketInfo
  */
 router.get('/getPathDetail', (req, res) => {
-  const id = req.query._id || '';
-
-  service.getPathDetail(id, (err, doc) => res.json(result.json(err, doc)));
+  service.getPathDetail(req.query, (err, doc) => res.json(result.json(err, doc)));
 });
 
 /**
