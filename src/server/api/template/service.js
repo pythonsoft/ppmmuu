@@ -11,7 +11,7 @@ const utils = require('../../common/utils');
 const i18n = require('i18next');
 
 const storageService = require('../storage/service');
-const jobService = require('../job/service');
+const jobService = require('../job/extService');
 
 const TemplateInfo = require('./templateInfo');
 
@@ -22,21 +22,6 @@ const service = {};
 const TemplateGroupInfo = require('./templateGroupInfo');
 
 const templateGroupInfo = new TemplateGroupInfo();
-
-const config = require('../../config');
-const HttpRequest = require('../../common/httpRequest');
-
-const requestTemplate = new HttpRequest({
-  hostname: config.TRANSCODE_API_SERVER.hostname,
-  port: config.TRANSCODE_API_SERVER.port,
-  headers: {
-    'Transfer-Encoding': 'chunked',
-  },
-});
-
-const errorCall = function errorCall(str) {
-  return JSON.stringify({ status: 1, data: {}, statusInfo: i18n.t(str) });
-};
 
 const insertGroup = function insertGroup(info, cb) {
   templateGroupInfo.insertOne(info, (err, r) => {
@@ -489,10 +474,9 @@ function runTemplateSelector(info, code) {
 }
 
 function filterTranscodeTemplates(doc = {}, cb) {
-  const r = doc;
 
   if (!doc.transcodeTemplateDetail || !doc.transcodeTemplateDetail.transcodeTemplateSelector) {
-    return cb && cb(null, r.transcodeTemplateDetail ? r.transcodeTemplateDetail.r.transcodeTemplates : []);
+    return cb && cb(null, doc.transcodeTemplateDetail ? doc.transcodeTemplateDetail.transcodeTemplates : '');
   }
 
   jobService.listTemplate({ page: 1, pageSize: 999 }, (err, templateInfo) => {
@@ -517,12 +501,12 @@ function filterTranscodeTemplates(doc = {}, cb) {
       }
     }
 
-    r.transcodeTemplateDetail.transcodeTemplates = runTemplateSelector({
+    const transcodeTemplate = runTemplateSelector({
       transcodeTemplates: ids,
       templates: info,
-    }, r.transcodeTemplateDetail.transcodeTemplateSelector);
+    }, doc.transcodeTemplateDetail.transcodeTemplateSelector);
 
-    return cb && cb(null, r.transcodeTemplateDetail.transcodeTemplates);
+    return cb && cb(null, transcodeTemplate);
   });
 }
 

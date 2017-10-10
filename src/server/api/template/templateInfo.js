@@ -21,7 +21,7 @@ class TemplateInfo extends DB {
       description: { type: 'string' },
       details: { type: 'object' },
       groupId: { type: 'string' },
-      transcodeTemplateDetail: { type: 'object' },
+      transcodeTemplateDetail: { type: 'object', default() { return { transcodeTemplateSelector: '', transcodeTemplates: '' } } },
     };
   }
 
@@ -32,6 +32,7 @@ class TemplateInfo extends DB {
 
 TemplateInfo.TYPE = {
   DOWNLOAD: '1',
+  DOWNLOAD_MEDIAEXPRESS: '2',
 };
 
 module.exports = TemplateInfo;
