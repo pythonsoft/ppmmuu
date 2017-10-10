@@ -281,6 +281,10 @@ module.exports = {
     code: '-9013',
     message: '请输入路径Id或路径副标识和所属存储区Id',
   },
+  canNotFindPath: {
+    code: '-9014',
+    message: '找不到路径信息',
+  },
   typeError: {
     code: '-10001',
     message: '{{field}} 输入类型错误',
