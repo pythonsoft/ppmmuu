@@ -13,6 +13,7 @@ const UserInfo = require('../user/userInfo');
 const userInfo = new UserInfo();
 
 const templateService = require('../template/service');
+const extService = require('./extService');
 
 const TRANSCODE_API_SERVER_URL = `http://${config.TRANSCODE_API_SERVER.hostname}:${config.TRANSCODE_API_SERVER.port}`;
 const HttpRequest = require('../../common/httpRequest');
@@ -38,18 +39,7 @@ const errorCall = function errorCall(str) {
   return JSON.stringify({ status: 1, data: {}, statusInfo: i18n.t(str) });
 };
 
-service.listTemplate = function listTemplate(listTemplateParams, res) {
-  if (!listTemplateParams) {
-    return res.end(errorCall('jobListTemplateParamsIsNull'));
-  }
-
-  const params = utils.merge({
-    page: 1,
-    pageSize: 99,
-  }, listTemplateParams);
-
-  requestTemplate.get('/TemplateService/list', params, res);
-};
+service.listTemplate = extService.listTemplate;
 
 service.download = function download(userInfo, downloadParams, res) {
   if (!downloadParams) {
