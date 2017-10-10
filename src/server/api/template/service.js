@@ -9,6 +9,7 @@ const vm = require('vm');
 const logger = require('../../common/log')('error');
 const utils = require('../../common/utils');
 const i18n = require('i18next');
+const path = require('path');
 
 const storageService = require('../storage/service');
 const jobService = require('../job/extService');
@@ -337,8 +338,8 @@ service.createTemplate = function createTemplate(params, cb) {
     type: TemplateInfo.TYPE.DOWNLOAD,
     description: '',
     groupId: '',
-    transcodeTemplateDetail: { transcodeTemplates: '', transcodeTemplateSelector: '' },
-    details: {},
+    transcodeTemplateDetail: '',
+    details: {}
   }, params);
 
   if (!info.id) {
@@ -365,6 +366,34 @@ service.createTemplate = function createTemplate(params, cb) {
   return false;
 };
 
+function composeTranscodeTemplates(transcodeTemplates) {
+  try {
+
+    let ts = null;
+
+    if(transcodeTemplates) {
+      ts = JSON.parse(transcodeTemplates);
+
+      if(ts.constructor !== Array) {
+        return { status: '1', result: i18n.t('templateTranscodeTemplatesInvalidJSON') };
+      }
+
+      for(let i = 0, len = transcodeTemplates.length; i < len; i++) {
+        if(transcodeTemplates[i].hasOwnProperty('_id') && transcodeTemplates[i].hasOwnProperty('name')) {
+          ts.push(utils.merge({ _id: '', name: '' }, transcodeTemplates[i]));
+        }
+      }
+
+      return { status: '0', result: ts };
+    }
+
+    return { status: '0', result: ts };
+
+  }catch (e) {
+    return { status: '0', result: i18n.t('templateTranscodeTemplatesInvalidJSON') };
+  }
+}
+
 service.createDownloadTemplate = function createDownloadTemplate(params, cb) {
   const info = utils.merge({
     creatorId: '',
@@ -376,42 +405,29 @@ service.createDownloadTemplate = function createDownloadTemplate(params, cb) {
     script: '',
     groupId: '',
     transcodeTemplates: '',
-    transcodeTemplateSelector: '',
+    transcodeTemplateSelector: ''
   }, params);
 
   if (!info.bucketId) {
     return cb && cb(i18n.t('templateStorageIdIsNotExist'));
   }
 
-  try {
-    if (!info.transcodeTemplates) {
-      info.transcodeTemplates = JSON.parse(info.transcodeTemplates);
-    }
+  const rs = composeTranscodeTemplates(info.transcodeTemplates);
 
-    if (info.transcodeTemplates.constructor !== Array) {
-      return cb && cb(i18n.t('templateTranscodeTemplatesInvalidJSON'));
-    }
+  if(rs.status !== '0') {
+    return cb && cb(rs.result);
+  } else if(rs.result) {
 
-    const ts = [];
+    info.transcodeTemplateDetail = {
+      transcodeTemplates: rs.result,
+      transcodeTemplateSelector: info.transcodeTemplateSelector
+    };
 
-    for (let i = 0, len = info.transcodeTemplates.length; i < len; i++) {
-      if (info.transcodeTemplates[i].hasOwnProperty('_id') && info.transcodeTemplates[i].hasOwnProperty('name')) {
-        ts.push(utils.merge({ _id: '', name }, info.transcodeTemplates[i]));
-      }
-    }
-
-    info.transcodeTemplates = ts;
-
-    const details = { bucketId: info.bucketId, script: info.script };
-    const transcodeTemplateDetail = { transcodeTemplates: info.transcodeTemplates, transcodeTemplateSelector: info.transcodeTemplateSelector };
-
-    info.details = details;
-    info.transcodeTemplateDetail = transcodeTemplateDetail;
-
-    service.createTemplate(info, cb);
-  } catch (e) {
-    return cb && cb(i18n.t('templateTranscodeTemplatesInvalidJSON'));
   }
+
+  info.details = { bucketId: info.bucketId, script: info.script };
+
+  service.createTemplate(info, cb);
 
   return false;
 };
@@ -451,7 +467,18 @@ service.update = function update(id, info, cb) {
   }
 
   if (!info.type || info.type === TemplateInfo.TYPE.DOWNLOAD) {
+
     info.details = templateInfo.createDownloadInfo(info.script, info.bucketId);
+
+    if(info.transcodeTemplates) {
+      const rs = composeTranscodeTemplates(info.transcodeTemplates);
+
+      if(rs.status !== '0') {
+        return cb && cb(rs.result);
+      } else if(rs.result) {
+        info.transcodeTemplateDetail = { transcodeTemplates: rs.result, transcodeTemplateSelector: info.transcodeTemplateSelector || '' };
+      }
+    }
   }
 
   templateInfo.updateOne({ _id: id }, info, (err, r) => {
@@ -516,7 +543,7 @@ service.getDownloadPath = function getDownloadPath(userInfo, id, cb) {
 
 function runTemplateSelector(info, code) {
   let sandbox = {
-    result: [],
+    result: '',
   };
   sandbox = Object.assign(sandbox, info);
   const script = new vm.Script(code.replace(/(\r\n|\n|\r)/gm, ''));
@@ -524,43 +551,42 @@ function runTemplateSelector(info, code) {
   return sandbox.result;
 }
 
-function filterTranscodeTemplates(doc = {}, cb) {
+function filterTranscodeTemplates(doc = {}, fileInfo = {}, cb) {
   if (!doc.transcodeTemplateDetail || !doc.transcodeTemplateDetail.transcodeTemplateSelector) {
     return cb && cb(null, doc.transcodeTemplateDetail ? doc.transcodeTemplateDetail.transcodeTemplates : '');
   }
 
-  jobService.listTemplate({ page: 1, pageSize: 999 }, (err, templateInfo) => {
+  jobService.listTemplate({ page: 1, pageSize: 999 }, (err, rs) => {
     if (err) {
       return cb && cb(err);
     }
 
-    if (!templateInfo) {
+    if (!rs) {
       return cb && cb(i18n.t('templateBucketIsNotExist'));
     }
 
-    const ids = doc.transcodeTemplateDetail.transcodeTemplates;
+    const transcodeTemplates = doc.transcodeTemplateDetail.transcodeTemplates;
     const info = { };
-    for (const id of ids) {
-      for (const template of templateInfo.data.docs) {
-        if (template.id === id) {
-          info[id] = template;
+
+    for(let i = 0, len = transcodeTemplates.length; i < len; i++) {
+      for(let j = 0, l = rs.data.docs.length; l < j; j++) {
+        if(rs.data.docs[j].id === transcodeTemplates[i]._id) {
+          info[transcodeTemplates[i]._id] = rs.data.docs[j];
         }
-      }
-      if (!info[id]) {
-        info[id] = {};
       }
     }
 
     const transcodeTemplate = runTemplateSelector({
-      transcodeTemplates: ids,
-      templates: info,
+      transcodeTemplates: info,
+      downloadTemplate: doc,
+      fileInfo: fileInfo,
     }, doc.transcodeTemplateDetail.transcodeTemplateSelector);
 
     return cb && cb(null, transcodeTemplate);
   });
 }
 
-service.getTranscodeTemplate = function getTranscodeTemplate(id, cb) {
+service.getTranscodeTemplate = function getTranscodeTemplate(id, filePath, cb) {
   if (!id) {
     return cb && cb(i18n.t('templateIdIsNotExist'));
   }
@@ -576,7 +602,11 @@ service.getTranscodeTemplate = function getTranscodeTemplate(id, cb) {
       return cb && cb(i18n.t('templateIsNotExist'));
     }
 
-    filterTranscodeTemplates(doc, cb);
+    const fileInfo = {};
+    fileInfo.ext = path.extname(filePath);
+    fileInfo.name = path.basename(filePath).replace(fileInfo.ext, '');
+
+    filterTranscodeTemplates(doc, fileInfo, cb);
   });
 };
 
