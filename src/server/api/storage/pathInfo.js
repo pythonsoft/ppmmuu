@@ -54,10 +54,13 @@ const config = require('../../config');
  */
 class PathInfo extends DB {
   constructor() {
-    super(config.dbInstance.umpDB, 'PathInfo');
+    super(config.dbInstance.umpDB, 'PathInfo',  [
+      { key: { viceId: 1, 'bucket._id': 1}, unique: true },
+    ]);
 
     this.struct = {
       _id: { type: 'string', default() { return uuid.v1(); }, validation: 'require' },
+      viceId: { type: 'string', validation: 'require' },     //副标志
       name: { type: 'string', validation: 'require' },
       webServerPath: { type: 'string' },
       webClientPath: { type: 'string' },
