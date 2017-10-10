@@ -613,6 +613,10 @@ module.exports = {
     code: '-70005',
     message: '存储路径不正确，请确保脚本有返回result值，当前要求存储路径为:{{downloadPath}}',
   },
+  templateTranscodeTemplatesInvalidJSON: {
+    code: '-70006',
+    message: '传入的transcodeTemplates是一个不合法的JSON结构体, [{ "_id": "", "name": "" }]',
+  },
   idIsNull: {
     code: '-80000',
     message: 'id为空',
