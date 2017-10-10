@@ -329,12 +329,25 @@ service.list = function list(type, sortFields = '-createdTime', fieldsNeed, page
   templateInfo.pagination(query, page, pageSize, cb, sortFields, fieldsNeed);
 };
 
-service.createTemplate = function createTemplate(creatorId, id, name, type = TemplateInfo.TYPE.DOWNLOAD, description, details, cb, groupId, transcodeTemplateDetail) {
-  if (!id) {
+service.createTemplate = function createTemplate(params, cb) {
+  const info = utils.merge({
+    id: '',
+    creatorId: '',
+    name: '',
+    type: TemplateInfo.TYPE.DOWNLOAD,
+    description: '',
+    groupId: '',
+    transcodeTemplateDetail: { transcodeTemplates: '', transcodeTemplateSelector: '' },
+    details: {}
+  }, params);
+
+  if (!info.id) {
     return cb && cb(i18n.t('templateIdIsNotExist'));
   }
 
-  const info = { _id: id, creatorId, name, type, description, details, groupId, transcodeTemplateDetail };
+  info._id = info.id;
+  delete info.id;
+
   const t = new Date();
 
   info.createdTime = t;
@@ -352,15 +365,55 @@ service.createTemplate = function createTemplate(creatorId, id, name, type = Tem
   return false;
 };
 
-service.createDownloadTemplate = function createDownloadTemplate(creatorId, id, name, description, bucketId, script, cb, groupId, transcodeTemplates, transcodeTemplateSelector) {
-  if (!bucketId) {
+service.createDownloadTemplate = function createDownloadTemplate(params, cb) {
+  const info = utils.merge({
+    creatorId: '',
+    id: '',
+    name: '',
+    description: '',
+    type: TemplateInfo.TYPE.DOWNLOAD,
+    bucketId: '',
+    script: '',
+    groupId: '',
+    transcodeTemplates: '',
+    transcodeTemplateSelector: ''
+  }, params);
+
+  if (!info.bucketId) {
     return cb && cb(i18n.t('templateStorageIdIsNotExist'));
   }
 
-  const details = { bucketId, script };
-  const transcodeTemplateDetail = { transcodeTemplates, transcodeTemplateSelector };
+  try{
 
-  service.createTemplate(creatorId, id, name, TemplateInfo.TYPE.DOWNLOAD, description, details, cb, groupId, transcodeTemplateDetail);
+    if(!info.transcodeTemplates) {
+      info.transcodeTemplates = JSON.parse(info.transcodeTemplates);
+    }
+
+    if(info.transcodeTemplates.constructor !== Array) {
+      return cb && cb(i18n.t('templateTranscodeTemplatesInvalidJSON'));
+    }
+
+    const ts = [];
+
+    for(let i = 0, len = info.transcodeTemplates.length; i < len; i++) {
+      if(info.transcodeTemplates[i].hasOwnProperty('_id') && info.transcodeTemplates[i].hasOwnProperty('name')) {
+        ts.push(utils.merge({ _id: '', name }, info.transcodeTemplates[i]));
+      }
+    }
+
+    info.transcodeTemplates = ts;
+
+    const details = { bucketId: info.bucketId, script: info.script };
+    const transcodeTemplateDetail = { transcodeTemplates: info.transcodeTemplates, transcodeTemplateSelector: info.transcodeTemplateSelector };
+
+    info.details = details;
+    info.transcodeTemplateDetail = transcodeTemplateDetail;
+
+    service.createTemplate(info, cb);
+
+  }catch (e) {
+    return cb && cb(i18n.t('templateTranscodeTemplatesInvalidJSON'))
+  }
 
   return false;
 };
