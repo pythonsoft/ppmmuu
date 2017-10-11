@@ -41,7 +41,7 @@ const errorCall = function errorCall(str) {
   return JSON.stringify({ status: 1, data: {}, statusInfo: i18n.t(str) });
 };
 
-const downloadRequest = function downloadRequest(bucketId, transferTemplateId, transferParams, downloadParams, userId, userName, cb) {
+const downloadRequest = function downloadRequest(bucketId, transferTemplateId = '', transferParams, downloadParams, userId, userName, cb) {
   const p = {};
 
   if (bucketId) {
