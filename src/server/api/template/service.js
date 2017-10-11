@@ -310,6 +310,7 @@ const runDownloadScript = function runDownloadScript(userInfo, bucketInfo, scrip
     }
 
     const rs = exec(userInfo, bucketInfo, execScript, docs);
+
     return cb && cb(rs.err, rs.result);
   });
 
@@ -339,7 +340,7 @@ service.createTemplate = function createTemplate(params, cb) {
     description: '',
     groupId: '',
     transcodeTemplateDetail: '',
-    details: {}
+    details: {},
   }, params);
 
   if (!info.id) {
@@ -368,18 +369,17 @@ service.createTemplate = function createTemplate(params, cb) {
 
 function composeTranscodeTemplates(transcodeTemplates) {
   try {
-
     let ts = null;
 
-    if(transcodeTemplates) {
+    if (transcodeTemplates) {
       ts = JSON.parse(transcodeTemplates);
 
-      if(ts.constructor !== Array) {
+      if (ts.constructor !== Array) {
         return { status: '1', result: i18n.t('templateTranscodeTemplatesInvalidJSON') };
       }
 
-      for(let i = 0, len = transcodeTemplates.length; i < len; i++) {
-        if(transcodeTemplates[i].hasOwnProperty('_id') && transcodeTemplates[i].hasOwnProperty('name')) {
+      for (let i = 0, len = transcodeTemplates.length; i < len; i++) {
+        if (transcodeTemplates[i]._id && transcodeTemplates[i].name) {
           ts.push(utils.merge({ _id: '', name: '' }, transcodeTemplates[i]));
         }
       }
@@ -388,8 +388,7 @@ function composeTranscodeTemplates(transcodeTemplates) {
     }
 
     return { status: '0', result: ts };
-
-  }catch (e) {
+  } catch (e) {
     return { status: '0', result: i18n.t('templateTranscodeTemplatesInvalidJSON') };
   }
 }
@@ -405,24 +404,30 @@ service.createDownloadTemplate = function createDownloadTemplate(params, cb) {
     script: '',
     groupId: '',
     transcodeTemplates: '',
-    transcodeTemplateSelector: ''
+    transcodeTemplateSelector: '',
   }, params);
 
   if (!info.bucketId) {
     return cb && cb(i18n.t('templateStorageIdIsNotExist'));
   }
 
+  if (!info.type) {
+    info.type = TemplateInfo.TYPE.DOWNLOAD;
+  }
+
+  if (!utils.isValueInObject(info.type, TemplateInfo.TYPE)) {
+    return cb && cb(i18n.t('templateTypeNotExist', { type: info.type }));
+  }
+
   const rs = composeTranscodeTemplates(info.transcodeTemplates);
 
-  if(rs.status !== '0') {
+  if (rs.status !== '0') {
     return cb && cb(rs.result);
-  } else if(rs.result) {
-
+  } else if (rs.result) {
     info.transcodeTemplateDetail = {
       transcodeTemplates: rs.result,
-      transcodeTemplateSelector: info.transcodeTemplateSelector
+      transcodeTemplateSelector: info.transcodeTemplateSelector,
     };
-
   }
 
   info.details = { bucketId: info.bucketId, script: info.script };
@@ -467,15 +472,16 @@ service.update = function update(id, info, cb) {
   }
 
   if (!info.type || info.type === TemplateInfo.TYPE.DOWNLOAD) {
+    info.type = TemplateInfo.TYPE.DOWNLOAD;
 
     info.details = templateInfo.createDownloadInfo(info.script, info.bucketId);
 
-    if(info.transcodeTemplates) {
+    if (info.transcodeTemplates) {
       const rs = composeTranscodeTemplates(info.transcodeTemplates);
 
-      if(rs.status !== '0') {
+      if (rs.status !== '0') {
         return cb && cb(rs.result);
-      } else if(rs.result) {
+      } else if (rs.result) {
         info.transcodeTemplateDetail = { transcodeTemplates: rs.result, transcodeTemplateSelector: info.transcodeTemplateSelector || '' };
       }
     }
@@ -536,7 +542,13 @@ service.getDownloadPath = function getDownloadPath(userInfo, id, cb) {
       const user = Object.assign({}, userInfo);
       user.password = '';
 
-      runDownloadScript(user, bucketInfo, doc.details.script, cb);
+      runDownloadScript(user, bucketInfo, doc.details.script, (err, downloadPath) => {
+        if (err) {
+          return cb && cb(err);
+        }
+
+        return cb && cb(null, { downloadPath, bucketInfo, templateInfo: doc });
+      });
     });
   });
 };
@@ -568,9 +580,9 @@ function filterTranscodeTemplates(doc = {}, fileInfo = {}, cb) {
     const transcodeTemplates = doc.transcodeTemplateDetail.transcodeTemplates;
     const info = { };
 
-    for(let i = 0, len = transcodeTemplates.length; i < len; i++) {
-      for(let j = 0, l = rs.data.docs.length; l < j; j++) {
-        if(rs.data.docs[j].id === transcodeTemplates[i]._id) {
+    for (let i = 0, len = transcodeTemplates.length; i < len; i++) {
+      for (let j = 0, l = rs.data.docs.length; l < j; j++) {
+        if (rs.data.docs[j].id === transcodeTemplates[i]._id) {
           info[transcodeTemplates[i]._id] = rs.data.docs[j];
         }
       }
@@ -579,7 +591,7 @@ function filterTranscodeTemplates(doc = {}, fileInfo = {}, cb) {
     const transcodeTemplate = runTemplateSelector({
       transcodeTemplates: info,
       downloadTemplate: doc,
-      fileInfo: fileInfo,
+      fileInfo,
     }, doc.transcodeTemplateDetail.transcodeTemplateSelector);
 
     return cb && cb(null, transcodeTemplate);
