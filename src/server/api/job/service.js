@@ -12,6 +12,8 @@ const UserInfo = require('../user/userInfo');
 
 const userInfo = new UserInfo();
 
+const TemplateInfo = require('../template/templateInfo');
+
 const templateService = require('../template/service');
 const extService = require('./extService');
 
@@ -39,9 +41,155 @@ const errorCall = function errorCall(str) {
   return JSON.stringify({ status: 1, data: {}, statusInfo: i18n.t(str) });
 };
 
+const downloadRequest = function downloadRequest(bucketId, transferTemplateId, transferParams, downloadParams, userId, userName, cb) {
+  const p = {};
+
+  if (bucketId) {
+    p.bucketId = bucketId;
+  }
+
+  if (transferTemplateId) {
+    p.templateId = transferTemplateId;
+  }
+
+  if (transferParams) {
+    p.transferParams = JSON.stringify(transferParams);
+  }
+
+  if (downloadParams) {
+    p.downloadParams = JSON.stringify(downloadParams);
+  }
+
+  if (userId) {
+    p.userId = userId;
+  }
+
+  if (userName) {
+    p.userName = userName;
+  }
+
+  const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/JobService/download`;
+
+  utils.requestCallApi(url, 'POST', p, '', (err, rs) => {
+    if (err) {
+      return cb && cb(err); // res.json(result.fail(err));
+    }
+
+    return cb && cb(null, rs); // res.json(rs);
+  });
+};
+
+const getMediaExpressEmail = function getMediaExpressEmail(loginForm, receiver, cb) {
+  let url = `${config.mediaExpressUrl}login`;
+  utils.requestCallApiGetCookie(url, 'POST', loginForm, '', (err, cookie) => {
+    if (err) {
+      return cb && cb(err);
+    }
+    if (!cookie) {
+      return cb && cb(i18n.t('bindMediaExpressUserNeedRefresh'));
+    }
+
+    url = `${config.mediaExpressUrl}directAuthorize/getEmail?t=${new Date().getTime()}`;
+    utils.requestCallApi(url, 'GET', receiver, cookie, (err, rs) => {
+      if (err) {
+        return cb && cb(err);
+      }
+
+      if (rs.status !== 0) {
+        return cb && cb(i18n.t('requestCallApiError', { error: rs.result }));
+      }
+
+      return cb && cb(null, rs.result);
+    });
+  });
+};
+
+const getTransferParams = function getTransferParams(bodyParams, cb) {
+  const info = utils.merge({
+    userId: '',
+    receiverId: '',
+    receiverType: '',
+    transferMode: 'direct',
+  }, bodyParams);
+
+  const receiverId = info.receiverId || '';
+  const receiverType = info.receiverType || '';
+
+  if (!receiverId) {
+    return cb && cb(i18n.t('joShortReceiverId'));
+  }
+  if (!receiverType) {
+    return cb && cb(i18n.t('joShortReceiverType'));
+  }
+
+  const transferParams = {
+    captcha: '',
+    alias: '',
+    encrypt: 0, // 加密类型，0无加密，1软加密
+    receiver: '', // 接收人邮箱 chaoningx@phoenixtv.com
+    TransferMode: info.transferMode,   // direct/direct 直传非直传
+    hasCaptcha: 'false',
+    userName: '', // 快传帐户
+    password: '',  // 快传密码
+  };
+
+  userInfo.collection.findOne({ _id: info.userId }, (err, doc) => {
+    if (err) {
+      return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
+    }
+    if (!doc) {
+      return cb && cb(i18n.t('userNotFind'));
+    }
+
+    const mediaExpressUser = doc.mediaExpressUser || {};
+    transferParams.userName = mediaExpressUser.username;
+    transferParams.password = mediaExpressUser.password;
+
+    getMediaExpressEmail({
+      email: mediaExpressUser.username,
+      password: mediaExpressUser.password,
+    }, {
+      _id: receiverId,
+      type: receiverType,
+    }, (err, email) => {
+      if (err) {
+        return cb && cb(err);
+      }
+
+      transferParams.receiver = email;
+
+      return cb && cb(null, transferParams);
+    });
+  });
+};
+
+const transcodeAndTransfer = function transcodeAndTransfer(bucketId, receiverId, receiverType, transcodeTemplateId, userInfo, transferMode, downloadParams, cb) {
+  // 获取传输参数
+  getTransferParams({
+    userId: userInfo._id,
+    receiverId,
+    receiverType,
+    TransferMode: transferMode,
+  }, (err, transferParams) => {
+    if (err) {
+      return cb && cb(result.fail(err));
+    }
+
+    // 调用下载接口
+    downloadRequest(bucketId, transcodeTemplateId, transferParams, downloadParams, userInfo._id, userInfo.name, (err, r) => {
+      if (err) {
+        return cb && cb(result.fail(err));
+      }
+
+      return cb && cb(null, r);
+    });
+  });
+  return false;
+};
+
 service.listTemplate = extService.listTemplate;
 
-service.download = function download(userInfo, downloadParams, res) {
+service.download = function download(userInfo, downloadParams, receiverId, receiverType, transferMode = 'direct', res) {
   if (!downloadParams) {
     return res.end(errorCall('joDownloadParamsIsNull'));
   }
@@ -83,33 +231,75 @@ service.download = function download(userInfo, downloadParams, res) {
     return res.end(errorCall('userNotFind'));
   }
 
-  const templateId = downloadParams.templateId;
+  const downloadTemplateId = downloadParams.templateId;
 
-  templateService.getTranscodeTemplate(templateId, params.filename, (err, r) => {
-    console.log(`err: ${err}, r: ${JSON.stringify(r)}`);
-  });
-
-  templateService.getDownloadPath(userInfo, templateId, (err, downloadPath) => {
+  // 拿到下载路径
+  templateService.getDownloadPath(userInfo, downloadTemplateId, (err, rs) => {
     if (err) {
-      return res.end(JSON.stringify(result.fail(err)));
+      return res.json(result.fail(err));
     }
 
-    params.destination = downloadPath;
+    params.destination = rs.downloadPath;
 
-    const p = {
-      downloadParams: JSON.stringify(params),
-      userId: userInfo._id,
-      userName: userInfo.name,
-    };
-    const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/JobService/download`;
+    // 需要进行使用转码模板
+    if (rs.templateInfo && rs.templateInfo.transcodeTemplateDetail && rs.templateInfo.transcodeTemplateDetail.transcodeTemplates &&
+      rs.templateInfo.transcodeTemplateDetail.transcodeTemplates.length > 0 && rs.templateInfo.transcodeTemplateDetail.transcodeTemplateSelector) {
 
-    utils.requestCallApi(url, 'POST', p, '', (err, rs) => {
+      // 获取符合条件的转码模板ID
+      templateService.getTranscodeTemplate(downloadTemplateId, params.filename, (err, transcodeTemplateId) => {
+        if (err) {
+          return res.json(result.fail(err));
+        }
+
+        // 需要使用快传进行传输
+        if (rs.templateInfo.type === TemplateInfo.TYPE.DOWNLOAD_MEDIAEXPRESS && receiverId && receiverType) {
+          transcodeAndTransfer(rs.templateInfo.details.bucketId, receiverId, receiverType, transcodeTemplateId, userInfo, transferMode, params, (err, r) => {
+            if (err) {
+              return res.json(result.fail(err));
+            }
+
+            return res.json(r);
+          });
+
+          return false;
+        }
+
+        // 调用下载接口
+        downloadRequest(rs.templateInfo.details.bucketId, transcodeTemplateId, '', params, userInfo._id, userInfo.name, (err, r) => {
+          if (err) {
+            return res.json(result.fail(err));
+          }
+
+          return res.json(r);
+        });
+      });
+
+      return false;
+    }
+
+    // 需要使用快传进行传转
+    if (rs.templateInfo.type === TemplateInfo.TYPE.DOWNLOAD_MEDIAEXPRESS && receiverId && receiverType) {
+      transcodeAndTransfer(rs.templateInfo.details.bucketId, receiverId, receiverType, '', userInfo, transferMode, params, (err, r) => {
+        if (err) {
+          return res.json(result.fail(err));
+        }
+
+        return res.json(r);
+      });
+
+      return false;
+    }
+
+    // 调用下载接口
+    downloadRequest(rs.templateInfo.details.bucketId, '', '', params, userInfo._id, userInfo.name, (err, r) => {
       if (err) {
         return res.json(result.fail(err));
       }
 
-      return res.json(rs);
+      return res.json(r);
     });
+
+    return false;
   });
 };
 
@@ -312,121 +502,6 @@ service.deleteTemplate = function del(deleteParams, res) {
     return res.end(errorCall('jobDeleteParamsIdIsNull'));
   }
   requestTemplate.get('/TemplateService/delete', params, res);
-};
-
-const getMediaExpressEmail = function getMediaExpressEmail(loginForm, receiver, cb) {
-  let url = `${config.mediaExpressUrl}login`;
-  utils.requestCallApiGetCookie(url, 'POST', loginForm, '', (err, cookie) => {
-    if (err) {
-      return cb && cb(err);
-    }
-    if (!cookie) {
-      return cb && cb(i18n.t('bindMediaExpressUserNeedRefresh'));
-    }
-
-    url = `${config.mediaExpressUrl}directAuthorize/getEmail?t=${new Date().getTime()}`;
-    utils.requestCallApi(url, 'GET', receiver, cookie, (err, rs) => {
-      if (err) {
-        return cb && cb(err);
-      }
-      if (rs.status !== 0) {
-        return cb && cb(i18n.t('requestCallApiError', { error: rs.result }));
-      }
-
-      return cb && cb(null, rs.result);
-    });
-  });
-};
-
-service.downloadAndTransfer = function downloadAndTransfer(req, cb) {
-  const info = req.body;
-  const userId = req.ex.userId;
-  const userName = req.ex.userInfo.name;
-  const downloadParams = info.downloadParams || '';
-  const receiverId = info.receiverId || '';
-  const receiverType = info.receiverType || '';
-  const templateId = info.templateId || '';
-
-  if (!downloadParams) {
-    return cb && cb(i18n.t('joShortDownloadParams'));
-  }
-  if (!receiverId) {
-    return cb && cb(i18n.t('joShortReceiverId'));
-  }
-  if (!receiverType) {
-    return cb && cb(i18n.t('joShortReceiverType'));
-  }
-  if (!templateId) {
-    return cb && cb(i18n.t('joShortTemplateId'));
-  }
-
-  const params = {
-    downloadParams,
-    transferParams: {
-      captcha: '',
-      alias: '',
-      encrypt: 0,
-      receiver: '',
-      TransferMode: 'direct',
-      hasCaptcha: 'false',
-      userName: '',
-      password: '',
-    },
-    userId,
-    userName,
-  };
-
-  userInfo.collection.findOne({ _id: userId }, (err, doc) => {
-    if (err) {
-      return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
-    }
-    if (!doc) {
-      return cb && cb(i18n.t('userNotFind'));
-    }
-
-    const mediaExpressUser = doc.mediaExpressUser || {};
-    params.transferParams.userName = mediaExpressUser.username;
-    params.transferParams.password = mediaExpressUser.password;
-
-    const loginForm = {
-      email: mediaExpressUser.username,
-      password: mediaExpressUser.password,
-    };
-
-    const receiver = {
-      _id: receiverId,
-      type: receiverType,
-    };
-    templateService.getDownloadPath(doc, templateId, (err, downloadPath) => {
-      if (err) {
-        return cb && cb(err);
-      }
-
-      params.downloadParams.destination = downloadPath;
-      getMediaExpressEmail(loginForm, receiver, (err, email) => {
-        if (err) {
-          return cb && cb(err);
-        }
-
-        params.transferParams.receiver = email;
-        params.transferParams = JSON.stringify(params.transferParams);
-        params.downloadParams = JSON.stringify(params.downloadParams);
-        console.log(JSON.stringify(params));
-
-        const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/JobService/downloadAndTransfer`;
-        utils.requestCallApi(url, 'POST', params, '', (err, rs) => {
-          if (err) {
-            return cb && cb(err);
-          }
-
-          if (rs.status === '0') {
-            return cb && cb(null, 'ok');
-          }
-          return cb && cb(i18n.t('requestCallApiError', { error: rs.statusInfo.message }));
-        });
-      });
-    });
-  });
 };
 
 module.exports = service;

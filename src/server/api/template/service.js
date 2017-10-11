@@ -261,18 +261,25 @@ const exec = function exec(userInfo, bucketInfo, execScript, pathsInfo = []) {
     sandbox[pathsInfo[i]._id] = pathsInfo[i];
   }
 
-  const s = new vm.Script(execScript);
-  s.runInNewContext(sandbox);
-
   const rs = { err: null, result: '' };
 
-  if (!sandbox.result) {
-    rs.err = i18n.t('templateDownloadPathError', { downloadPath: sandbox.result });
-  } else {
-    rs.result = sandbox.result;
+  try {
+    const s = new vm.Script(execScript);
+    s.runInNewContext(sandbox);
+
+    if (!sandbox.result) {
+      rs.err = i18n.t('templateDownloadPathError', { downloadPath: sandbox.result });
+    } else {
+      rs.result = sandbox.result;
+    }
+
+    return rs;
+  } catch (e) {
+
+    logger.error(e);
+    return rs;
   }
 
-  return rs;
 };
 
 const runDownloadScript = function runDownloadScript(userInfo, bucketInfo, script, cb) {
@@ -310,6 +317,7 @@ const runDownloadScript = function runDownloadScript(userInfo, bucketInfo, scrip
     }
 
     const rs = exec(userInfo, bucketInfo, execScript, docs);
+
     return cb && cb(rs.err, rs.result);
   });
 
@@ -378,7 +386,7 @@ function composeTranscodeTemplates(transcodeTemplates) {
       }
 
       for (let i = 0, len = transcodeTemplates.length; i < len; i++) {
-        if (transcodeTemplates[i].hasOwnProperty('_id') && transcodeTemplates[i].hasOwnProperty('name')) {
+        if (transcodeTemplates[i]._id && transcodeTemplates[i].name) {
           ts.push(utils.merge({ _id: '', name: '' }, transcodeTemplates[i]));
         }
       }
@@ -408,6 +416,14 @@ service.createDownloadTemplate = function createDownloadTemplate(params, cb) {
 
   if (!info.bucketId) {
     return cb && cb(i18n.t('templateStorageIdIsNotExist'));
+  }
+
+  if (!info.type) {
+    info.type = TemplateInfo.TYPE.DOWNLOAD;
+  }
+
+  if (!utils.isValueInObject(info.type, TemplateInfo.TYPE)) {
+    return cb && cb(i18n.t('templateTypeNotExist', { type: info.type }));
   }
 
   const rs = composeTranscodeTemplates(info.transcodeTemplates);
@@ -463,6 +479,8 @@ service.update = function update(id, info, cb) {
   }
 
   if (!info.type || info.type === TemplateInfo.TYPE.DOWNLOAD) {
+    info.type = TemplateInfo.TYPE.DOWNLOAD;
+
     info.details = templateInfo.createDownloadInfo(info.script, info.bucketId);
 
     if (info.transcodeTemplates) {
@@ -531,19 +549,30 @@ service.getDownloadPath = function getDownloadPath(userInfo, id, cb) {
       const user = Object.assign({}, userInfo);
       user.password = '';
 
-      runDownloadScript(user, bucketInfo, doc.details.script, cb);
+      runDownloadScript(user, bucketInfo, doc.details.script, (err, downloadPath) => {
+        if (err) {
+          return cb && cb(err);
+        }
+
+        return cb && cb(null, { downloadPath, bucketInfo, templateInfo: doc });
+      });
     });
   });
 };
 
 function runTemplateSelector(info, code) {
-  let sandbox = {
-    result: '',
-  };
-  sandbox = Object.assign(sandbox, info);
-  const script = new vm.Script(code.replace(/(\r\n|\n|\r)/gm, ''));
-  script.runInNewContext(sandbox);
-  return sandbox.result;
+  try {
+    let sandbox = {
+      result: '',
+    };
+    sandbox = Object.assign(sandbox, info);
+    const script = new vm.Script(code.replace(/(\r\n|\n|\r)/gm, ''));
+    script.runInNewContext(sandbox);
+    return sandbox.result;
+  } catch (e) {
+    logger.error(e);
+    return '';
+  }
 }
 
 function filterTranscodeTemplates(doc = {}, fileInfo = {}, cb) {

@@ -621,6 +621,10 @@ module.exports = {
     code: '-70006',
     message: '传入的transcodeTemplates是一个不合法的JSON结构体, [{ "_id": "", "name": "" }]',
   },
+  templateTypeNotExist: {
+    code: '-70007',
+    message: '模板类型不存在，请传入正确的类型，当前传入类型为, {{type}}',
+  },
   idIsNull: {
     code: '-80000',
     message: 'id为空',

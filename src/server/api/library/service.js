@@ -343,7 +343,7 @@ service.sendBackCatalogTask = function sendBackCatalogTask(taskIds, sendBackerId
   }
 
   // 只有在编目中这状态下的才可以退回
-  query.status = { $in: [CatalogTaskInfo.STATUS.DOING, CatalogTaskInfo.STATUS.SUBMITTED] };
+  query.status = { $in: [CatalogTaskInfo.STATUS.DOING, CatalogTaskInfo.STATUS.SUBMITTED, CatalogTaskInfo.STATUS.DELETE] };
 
   catalogTaskInfo.collection.find(query).project(utils.formatSortOrFieldsParams('objectId,_id')).toArray((err, docs) => {
     if (err) {
