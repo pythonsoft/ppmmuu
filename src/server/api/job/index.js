@@ -59,6 +59,41 @@ router.use(isLogin.hasAccessMiddleware);
  *         type: string
  *         default: ''
  *         collectionFormat: csv
+ *       - in: body
+ *         name: filetypeid
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: templateId
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: receiverId
+ *         description:
+ *         required: false
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: receiverType
+ *         description:
+ *         required: false
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: transferMode
+ *         description:
+ *         required: false
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
  *     responses:
  *       200:
  *         description:
@@ -69,10 +104,13 @@ router.post('/download', (req, res) => {
   const outpoint = req.body.outpoint;
   const filename = req.body.filename;
   const filetypeid = req.body.filetypeid;
-  const templateId = req.body.templateId;
+  const templateId = req.body.templateId; // 下载模板Id
+  const receiverId = req.body.receiverId;
+  const receiverType = req.body.receiverType;
+  const transferMode = req.body.transferMode;
 
   res.set('Content-Type', 'application/json');
-  service.download(req.ex.userInfo, { objectid, inpoint: inpoint * 1, outpoint: outpoint * 1, filename, filetypeid, templateId }, res);
+  service.download(req.ex.userInfo, { objectid, inpoint: inpoint * 1, outpoint: outpoint * 1, filename, filetypeid, templateId }, receiverId, receiverType, transferMode, res);
 });
 
 /**
@@ -388,87 +426,6 @@ router.get('/deleteTemplate', (req, res) => {
   const id = req.query.templateId;
   res.set('Content-Type', 'application/json');
   service.deleteTemplate({ id }, res);
-});
-
-/**
- * @permissionGroup: movieEditor
- * @permissionName: 下载任务传输对接凤云快传
- * @permissionPath: /job/downloadAndTransfer
- * @apiName: downloadAndTransfer
- * @apiFuncType: post
- * @apiFuncUrl: /job/downloadAndTransfer
- * @swagger
- * /job/downloadAndTransfer:
- *   post:
- *     description: 转码文件和传输
- *     tags:
- *       - v1
- *       -
- *     consumes:
- *       - application/json
- *     parameters:
- *       - in: body
- *         name: body
- *         description: 转码文件和传输
- *         schema:
- *           type: object
- *           required:
- *             - downloadParams
- *             - receiverId
- *             - receiverType
- *           properties:
- *             downloadParams:
- *               type: object
- *               description: 转码参数
- *               properties:
- *                 objectid:
- *                   type: string
- *                   example: aa
- *                 inpoint:
- *                   type: integer
- *                   description: '起始帧'
- *                   example: 0
- *                 outpoint:
- *                   type: integer
- *                   description: '结束帧'
- *                   example: 412435
- *                 filename:
- *                   type: string
- *                   example: adas
- *                 filetypeid:
- *                   type: string
- *                   example: asf
- *
- *             templateId:
- *               type: string
- *               description: template _id
- *               example: "frfqwrqw"
- *             receiverId:
- *               type: string
- *               description: acceptor _id
- *               example: "frfqwrqw"
- *             receiverType:
- *               type: string
- *               description: acceptor type
- *               example: 1
- *     responses:
- *       200:
- *         description: GroupInfo
- *         schema:
- *           type: object
- *           properties:
- *            status:
- *              type: string
- *            data:
- *              type: object
- *            statusInfo:
- *              type: object
- *              properties:
- *                message:
- *                  type: string
- */
-router.post('/downloadAndTransfer', (req, res) => {
-  service.downloadAndTransfer(req, (err, r) => res.json(result.json(err, r)));
 });
 
 module.exports = router;
