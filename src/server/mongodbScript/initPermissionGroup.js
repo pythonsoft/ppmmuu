@@ -266,7 +266,7 @@ const infos = [
     name: '全部',
     index: 'personal_catalog_task_all',
     parentIndex: 'personalTask',
-  }
+  },
 ];
 
 permissionGroup.collection.removeMany({}, (err) => {
