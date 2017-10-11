@@ -188,7 +188,7 @@ service.getMediaList = function getMediaList(info, cb) {
     const category = categories[index].label;
     const query = {
       q: `program_type:${category}`,
-      fl: 'id,duration,name,ccid,program_type,program_name_cn,hd_flag,program_name_en,last_modify,f_str_03',
+      fl: 'id,duration,name,ccid,program_type,program_name_cn,hd_flag,program_name_en,last_modify,f_str_03,from_where',
       sort: 'last_modify desc',
       start: 0,
       rows: pageSize,
@@ -235,7 +235,7 @@ service.getEsMediaList = function getEsMediaList(info, cb) {
         key: 'program_type',
         value: category,
       }],
-      source: 'id,duration,name,ccid,program_type,program_name_cn,hd_flag,program_name_en,last_modify,f_str_03',
+      source: 'id,duration,name,ccid,program_type,program_name_cn,hd_flag,program_name_en,last_modify,f_str_03,from_where',
       sort: [{
         key: 'last_modify',
         value: 'desc',
