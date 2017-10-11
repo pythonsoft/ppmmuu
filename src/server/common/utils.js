@@ -334,7 +334,7 @@ utils.baseRequestCallApi = function baseRequestCallApi(url, method, info, token,
  */
 utils.requestCallApi = function requestCallApi(url, method, info, token, cb) {
   utils.baseRequestCallApi(url, method, info, token, (err, response) => {
-    console.log('err ------>', response.body, err);
+    // console.log('requestCallApi ------>', response.body, err);
     if (err) {
       return cb && cb(err);
     }
