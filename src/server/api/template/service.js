@@ -261,18 +261,25 @@ const exec = function exec(userInfo, bucketInfo, execScript, pathsInfo = []) {
     sandbox[pathsInfo[i]._id] = pathsInfo[i];
   }
 
-  const s = new vm.Script(execScript);
-  s.runInNewContext(sandbox);
-
   const rs = { err: null, result: '' };
 
-  if (!sandbox.result) {
-    rs.err = i18n.t('templateDownloadPathError', { downloadPath: sandbox.result });
-  } else {
-    rs.result = sandbox.result;
+  try {
+    const s = new vm.Script(execScript);
+    s.runInNewContext(sandbox);
+
+    if (!sandbox.result) {
+      rs.err = i18n.t('templateDownloadPathError', { downloadPath: sandbox.result });
+    } else {
+      rs.result = sandbox.result;
+    }
+
+    return rs;
+  } catch (e) {
+
+    logger.error(e);
+    return rs;
   }
 
-  return rs;
 };
 
 const runDownloadScript = function runDownloadScript(userInfo, bucketInfo, script, cb) {
@@ -554,13 +561,18 @@ service.getDownloadPath = function getDownloadPath(userInfo, id, cb) {
 };
 
 function runTemplateSelector(info, code) {
-  let sandbox = {
-    result: '',
-  };
-  sandbox = Object.assign(sandbox, info);
-  const script = new vm.Script(code.replace(/(\r\n|\n|\r)/gm, ''));
-  script.runInNewContext(sandbox);
-  return sandbox.result;
+  try {
+    let sandbox = {
+      result: '',
+    };
+    sandbox = Object.assign(sandbox, info);
+    const script = new vm.Script(code.replace(/(\r\n|\n|\r)/gm, ''));
+    script.runInNewContext(sandbox);
+    return sandbox.result;
+  } catch (e) {
+    logger.error(e);
+    return '';
+  }
 }
 
 function filterTranscodeTemplates(doc = {}, fileInfo = {}, cb) {

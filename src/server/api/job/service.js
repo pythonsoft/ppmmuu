@@ -94,6 +94,7 @@ const getMediaExpressEmail = function getMediaExpressEmail(loginForm, receiver, 
       if (err) {
         return cb && cb(err);
       }
+
       if (rs.status !== 0) {
         return cb && cb(i18n.t('requestCallApiError', { error: rs.result }));
       }
@@ -108,7 +109,7 @@ const getTransferParams = function getTransferParams(bodyParams, cb) {
     userId: '',
     receiverId: '',
     receiverType: '',
-    transferMode: 'indirect',
+    transferMode: 'direct',
   }, bodyParams);
 
   const receiverId = info.receiverId || '';
@@ -126,7 +127,7 @@ const getTransferParams = function getTransferParams(bodyParams, cb) {
     alias: '',
     encrypt: 0, // 加密类型，0无加密，1软加密
     receiver: '', // 接收人邮箱 chaoningx@phoenixtv.com
-    TransferMode: info.transferMode,   // indirect/direct 直传非直传
+    TransferMode: info.transferMode,   // direct/direct 直传非直传
     hasCaptcha: 'false',
     userName: '', // 快传帐户
     password: '',  // 快传密码
@@ -188,7 +189,7 @@ const transcodeAndTransfer = function transcodeAndTransfer(bucketId, receiverId,
 
 service.listTemplate = extService.listTemplate;
 
-service.download = function download(userInfo, downloadParams, receiverId, receiverType, transferMode = 'indirect', res) {
+service.download = function download(userInfo, downloadParams, receiverId, receiverType, transferMode = 'direct', res) {
   if (!downloadParams) {
     return res.end(errorCall('joDownloadParamsIsNull'));
   }
@@ -243,6 +244,7 @@ service.download = function download(userInfo, downloadParams, receiverId, recei
     // 需要进行使用转码模板
     if (rs.templateInfo && rs.templateInfo.transcodeTemplateDetail && rs.templateInfo.transcodeTemplateDetail.transcodeTemplates &&
       rs.templateInfo.transcodeTemplateDetail.transcodeTemplates.length > 0 && rs.templateInfo.transcodeTemplateDetail.transcodeTemplateSelector) {
+
       // 获取符合条件的转码模板ID
       templateService.getTranscodeTemplate(downloadTemplateId, params.filename, (err, transcodeTemplateId) => {
         if (err) {
