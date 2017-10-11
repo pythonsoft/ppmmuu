@@ -745,4 +745,20 @@ module.exports = {
     code: '-11013',
     message: '之前上架过',
   },
+  subscribeInfoHasExists: {
+    code: '-12000',
+    message: '该公司已经在订阅管理中，不能重复增加',
+  },
+  subscribeInfoNotFind: {
+    code: '-12001',
+    message: '找不到订阅详情',
+  },
+  subscribeInfoShortId: {
+    code: '-12002',
+    message: '缺少参数_id',
+  },
+  subscribeInfoShortIds: {
+    code: '-12003',
+    message: '缺少参数_ids',
+  },
 };

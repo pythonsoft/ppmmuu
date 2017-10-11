@@ -112,6 +112,12 @@ const infos = [
     parentIndex: 'templateManagement',
   },
   {
+    _id: 'subscribeManagement',
+    name: '订阅管理',
+    index: 'subscribeManagement',
+    parentIndex: 'management',
+  },
+  {
     _id: 'configuration',
     name: '设置',
     index: 'configuration',
@@ -260,7 +266,7 @@ const infos = [
     name: '全部',
     index: 'personal_catalog_task_all',
     parentIndex: 'personalTask',
-  },
+  }
 ];
 
 permissionGroup.collection.removeMany({}, (err) => {
