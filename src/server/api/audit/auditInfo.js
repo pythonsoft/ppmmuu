@@ -103,7 +103,7 @@ class auditInfo extends DB {
     };
   }
 
-  createApplicatOrVerifier(info) {
+  createApplicantOrVerifier(info) {
     return utils.merge({
       _id: '',
       name: '',
