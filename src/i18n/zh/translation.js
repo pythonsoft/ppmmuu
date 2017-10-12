@@ -730,39 +730,47 @@ module.exports = {
     message: '不是处理中的任务不能保存或提交',
   },
   shelfExistNotDoingStatus: {
-    code: '-11009',
+    code: '-110009',
     message: '不是处理中的任务不能退回',
   },
   shelfExistNotSubmittedStatus: {
-    code: '-11010',
+    code: '-110010',
     message: '存在状态不是待上架的任务,请先剔除掉',
   },
   shelfExistNotOnlineStatus: {
-    code: '-11011',
+    code: '-110011',
     message: '存在状态不是上架的任务,请先剔除掉',
   },
   NotOfflineStatusCanNotEditAgain: {
-    code: '-11012',
+    code: '-110012',
     message: '状态不是下架的任务不能再编辑',
   },
   shelfHasExists: {
-    code: '-11013',
+    code: '-110013',
     message: '之前上架过',
   },
   subscribeInfoHasExists: {
-    code: '-12000',
+    code: '-120000',
     message: '该公司已经在订阅管理中，不能重复增加',
   },
   subscribeInfoNotFind: {
-    code: '-12001',
+    code: '-120001',
     message: '找不到订阅详情',
   },
   subscribeInfoShortId: {
-    code: '-12002',
+    code: '-120002',
     message: '缺少参数_id',
   },
   subscribeInfoShortIds: {
-    code: '-12003',
+    code: '-120003',
     message: '缺少参数_ids',
+  },
+  auditFieldIsNotExist: {
+    code: '-130001',
+    message: '审核任务进行时，参数 {{field}} 为空',
+  },
+  auditInfoIsNotExist: {
+    code: '-130002',
+    message: '审核任务信息不存在',
   },
 };
