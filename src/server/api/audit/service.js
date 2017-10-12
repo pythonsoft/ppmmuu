@@ -128,7 +128,7 @@ service.passOrReject = function passOrReject(isPass, ids, verifier, message = ''
     return cb && cb(i18n.t('auditFieldIsNotExist', { field: 'verifier审核人' }));
   }
 
-  const verifierInfo = auditInfo.createApplicatOrVerifier(verifier);
+  const verifierInfo = auditInfo.createApplicantOrVerifier(verifier);
 
   if (!verifierInfo.name || !verifierInfo._id) {
     return cb && cb(i18n.t('auditFieldIsNotExist', { field: 'verifier审核人部分信息' }));

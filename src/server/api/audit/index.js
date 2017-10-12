@@ -139,7 +139,9 @@ router.get('/list', (req, res) => {
   const sortFields = req.query.sortFields || '-createTime';
   const fieldsNeed = req.query.fieldsNeed || '';
 
-  service.list(keyword, '', '', type, status, page, pageSize, sortFields, fieldsNeed, (err, docs) => res.json(result.json(err, docs)));
+  const st = status === '-1' ? '' : status;
+
+  service.list(keyword, '', '', type, st, page, pageSize, sortFields, fieldsNeed, (err, docs) => res.json(result.json(err, docs)));
 });
 
 //审核授权
