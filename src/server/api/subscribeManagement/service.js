@@ -10,11 +10,13 @@ const i18n = require('i18next');
 
 const SubscribeInfo = require('./subscribeInfo');
 const SubscribeLog = require('./subscribeLog');
+const SubscribeType = require('./subscribeType');
 const GroupInfo = require('../group/groupInfo');
 
 const subscribeInfo = new SubscribeInfo();
 const groupInfo = new GroupInfo();
 const subscribeLog = new SubscribeLog();
+const subscribeType = new SubscribeType();
 
 const service = {};
 
@@ -38,7 +40,7 @@ service.listSubscribeInfo = function listSubscribeInfo(req, cb) {
   const query = {};
 
   if (status) {
-    if (SubscribeInfo.STATUS.indexOf(status) === -1) {
+    if (!utils.isValueInObject(status, SubscribeInfo.STATUS)) {
       return cb && cb(i18n.t('shelfStatusNotCorrect'));
     }
     if (status === SubscribeInfo.STATUS.USING) {
@@ -206,7 +208,10 @@ service.deleteSubscribeInfo = function deleteSubscribeInfo(req, cb) {
       return cb && cb(null, 'ok');
     }
 
-    subscribeInfo.collection.removeMany({ _id: { $in: _ids } }, (err) => {
+    const query = {};
+    query._id = { $in: _ids };
+
+    subscribeInfo.collection.removeMany(query, (err) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
@@ -253,6 +258,115 @@ service.searchCompany = function searchCompany(info, cb) {
 
     return cb && cb(null, docs);
   });
+};
+
+service.createSubscribeType = function createSubscribeType(req, cb) {
+  const info = req.body;
+  const userInfo = req.ex.userInfo;
+
+  info.creator = {
+    _id: userInfo._id,
+    name: userInfo.name,
+  };
+
+  subscribeType.insertOne(info, (err) => {
+    if (err) {
+      return cb && cb(err);
+    }
+
+    return cb && cb(null, 'ok');
+  });
+};
+
+service.updateSubscribeType = function updateSubscribeType(req, cb) {
+  const info = req.body;
+  const userInfo = req.ex.userInfo;
+
+  const struct = {
+    _id: { type: 'string', validation: 'require' },
+  };
+
+  const err = utils.validation(info, struct);
+  if (err) {
+    return cb && cb(err);
+  }
+
+  info.creator = {
+    _id: userInfo._id,
+    name: userInfo.name,
+  };
+  info.lastModifyTime = new Date();
+
+  subscribeType.updateOne({ _id: info._id }, info, (err) => {
+    if (err) {
+      return cb && cb(err);
+    }
+    return cb && cb(null, 'ok');
+  });
+};
+
+service.getSubscribeType = function getSubscribeType(info, cb) {
+  const struct = {
+    _id: { type: 'string', validation: 'require' },
+  };
+
+  const err = utils.validation(info, struct);
+  if (err) {
+    return cb && cb(err);
+  }
+
+  subscribeType.collection.findOne({ _id: info._id }, (err, doc) => {
+    if (err) {
+      return cb && cb(err);
+    }
+    if (!doc) {
+      return cb && cb(i18n.t('subscribeTypeNotFind'));
+    }
+
+    return cb && cb(null, doc);
+  });
+};
+
+service.deleteSubscribeType = function deleteSubscribeType(info, cb) {
+  let _ids = info._ids || '';
+  const struct = {
+    _ids: { type: 'string', validation: 'require' },
+  };
+
+  const err = utils.validation(info, struct);
+  if (err) {
+    return cb && cb(err);
+  }
+
+  _ids = _ids.split(',');
+  subscribeType.collection.removeMany({ _id: { $in: _ids } }, (err) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, 'ok');
+  });
+};
+
+service.listSubscribeType = function listSubscribeType(info, cb) {
+  const keyword = info.keyword || '';
+  const page = info.page || 1;
+  const pageSize = info.pageSize || 20;
+  const query = {};
+
+  if (keyword) {
+    query.name = { $regex: keyword, $options: 'i' };
+  }
+
+  subscribeType.pagination(query, page, pageSize, (err, docs) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, docs);
+  }, '-createdTime');
 };
 
 module.exports = service;

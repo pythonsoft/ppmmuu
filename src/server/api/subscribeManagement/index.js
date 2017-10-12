@@ -15,7 +15,7 @@ router.use(isLogin.middleware);
 router.use(isLogin.hasAccessMiddleware);
 
 /**
- * @permissionGroup: subscribeManagement
+ * @permissionGroup: subscribeInfo
  * @permissionName: 增加订阅公司
  * @permissionPath: /subscribeManagement/create
  * @apiName: createSubscribeInfo
@@ -92,7 +92,7 @@ router.post('/create', (req, res) => {
 });
 
 /**
- * @permissionGroup: subscribeManagement
+ * @permissionGroup: subscribeInfo
  * @permissionName: 修改订阅公司
  * @permissionPath: /subscribeManagement/update
  * @apiName: updateSubscribeInfo
@@ -168,7 +168,7 @@ router.post('/update', (req, res) => {
 });
 
 /**
- * @permissionGroup: subscribeManagement
+ * @permissionGroup: subscribeInfo
  * @permissionName: 获取订阅公司详情
  * @permissionPath: /subscribeManagement/getSubscribeInfo
  * @apiName: getSubscribeInfo
@@ -201,7 +201,7 @@ router.get('/getSubscribeInfo', (req, res) => {
 
 
 /**
- * @permissionGroup: subscribeManagement
+ * @permissionGroup: subscribeInfo
  * @permissionName: 订阅管理列表
  * @permissionPath: /subscribeManagement/list
  * @apiName: listSubscribeInfo
@@ -255,7 +255,7 @@ router.get('/list', (req, res) => {
 
 
 /**
- * @permissionGroup: subscribeManagement
+ * @permissionGroup: subscribeInfo
  * @permissionName: 删除订阅公司
  * @permissionPath: /subscribeManagement/delete
  * @apiName: deleteSubscribeInfo
@@ -305,7 +305,7 @@ router.post('/delete', (req, res) => {
 
 
 /**
- * @permissionGroup: subscribeManagement
+ * @permissionGroup: subscribeInfo
  * @permissionName: 订阅管理中搜索用户
  * @permissionPath: /subscribeManagement/searchCompany
  * @apiName: searchCompany
@@ -354,4 +354,253 @@ router.get('/searchCompany', (req, res) => {
     res.json(result.json(err, docs)));
 });
 
+/**
+ * @permissionGroup: subscribeType
+ * @permissionName: 增加订阅类型
+ * @permissionPath: /subscribeManagement/createSubscribeType
+ * @apiName: createSubscribeType
+ * @apiFuncType: post
+ * @apiFuncUrl: /subscribeManagement/createSubscribeType
+ * @swagger
+ * /subscribeManagement/createSubscribeType:
+ *   post:
+ *     description: 增加订阅类型
+ *     tags:
+ *       - v1
+ *       - SubscribeType
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: 增加订阅类型
+ *         schema:
+ *           type: object
+ *           required:
+ *             - name
+ *             - photo
+ *           properties:
+ *             name:
+ *               type: string
+ *               description: '类型名'
+ *               example: "aa"
+ *             photo:
+ *               type: string
+ *               description: '图标'
+ *               example: "aa"
+ *             description:
+ *               type: string
+ *               description: '描述'
+ *               example: ""
+ *     responses:
+ *       200:
+ *         description: SubscribeType
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.post('/createSubscribeType', (req, res) => {
+  service.createSubscribeType(req, (err, r) => res.json(result.json(err, r)));
+});
+
+/**
+ * @permissionGroup: subscribeType
+ * @permissionName: 修改订阅类型
+ * @permissionPath: /subscribeManagement/updateSubscribeType
+ * @apiName: updateSubscribeType
+ * @apiFuncType: post
+ * @apiFuncUrl: /subscribeManagement/updateSubscribeType
+ * @swagger
+ * /subscribeManagement/updateSubscribeType:
+ *   post:
+ *     description: 修改订阅类型
+ *     tags:
+ *       - v1
+ *       - SubscribeType
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: 修改订阅类型
+ *         schema:
+ *           type: object
+ *           required:
+ *             - _id
+ *             - name
+ *             - photo
+ *           properties:
+ *             _id:
+ *               type: string
+ *               description: SubscribeType _id
+ *               example: 'aa'
+ *             name:
+ *               type: string
+ *               description: '类型名'
+ *               example: "aa"
+ *             photo:
+ *               type: string
+ *               description: '图标'
+ *               example: "aa"
+ *             description:
+ *               type: string
+ *               description: '描述'
+ *               example: ""
+ *     responses:
+ *       200:
+ *         description: SubscribeType
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.post('/updateSubscribeType', (req, res) => {
+  service.updateSubscribeType(req, (err, r) => res.json(result.json(err, r)));
+});
+
+/**
+ * @permissionGroup: subscribeType
+ * @permissionName: 获取订阅类型详情
+ * @permissionPath: /subscribeManagement/getSubscribeType
+ * @apiName: getSubscribeType
+ * @apiFuncType: get
+ * @apiFuncUrl: /subscribeManagement/getSubscribeType
+ * @swagger
+ * /subscribeManagement/getSubscribeType:
+ *   get:
+ *     description: 获取订阅类型详情
+ *     tags:
+ *       - v1
+ *       - SubscribeType
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: _id
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: 'asdasdasd'
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description:
+ * */
+router.get('/getSubscribeType', (req, res) => {
+  service.getSubscribeType(req.query, (err, docs) => res.json(result.json(err, docs)));
+});
+
+
+/**
+ * @permissionGroup: subscribeType
+ * @permissionName: 订阅类型列表
+ * @permissionPath: /subscribeManagement/listSubscribeType
+ * @apiName: listSubscribeType
+ * @apiFuncType: get
+ * @apiFuncUrl: /subscribeManagement/listSubscribeType
+ * @swagger
+ * /subscribeManagement/listSubscribeType:
+ *   get:
+ *     description: 订阅类型列表
+ *     tags:
+ *       - v1
+ *       - SubscribeType
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         description:
+ *         required: false
+ *         type: string
+ *         default: '1'
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: pageSize
+ *         description: ''
+ *         required: false
+ *         type: string
+ *         default: '20'
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: keyword
+ *         description: ''
+ *         required: false
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description:
+ * */
+router.get('/listSubscribeType', (req, res) => {
+  service.listSubscribeType(req.query, (err, docs) => res.json(result.json(err, docs)));
+});
+
+
+/**
+ * @permissionGroup: subscribeType
+ * @permissionName: 删除订阅类型
+ * @permissionPath: /subscribeManagement/deleteSubscribeType
+ * @apiName: deleteSubscribeType
+ * @apiFuncType: post
+ * @apiFuncUrl: /subscribeManagement/deleteSubscribeType
+ * @swagger
+ * /subscribeManagement/deleteSubscribeType:
+ *   post:
+ *     description: 删除订阅类型
+ *     tags:
+ *       - v1
+ *       - SubscribeType
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: 删除订阅类型
+ *         schema:
+ *           type: object
+ *           required:
+ *             - _ids
+ *           properties:
+ *             _ids:
+ *               type: string
+ *               description: ''
+ *               example: "aa"
+ *     responses:
+ *       200:
+ *         description: SubscribeType
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.post('/deleteSubscribeType', (req, res) => {
+  service.deleteSubscribeType(req.body, (err, r) => res.json(result.json(err, r)));
+});
 module.exports = router;

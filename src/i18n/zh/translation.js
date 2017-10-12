@@ -765,6 +765,10 @@ module.exports = {
     code: '-120003',
     message: '缺少参数_ids',
   },
+  subscribeTypeNotFind: {
+    code: '-12004',
+    message: '找不到此订阅类型',
+  },
   auditFieldIsNotExist: {
     code: '-130001',
     message: '审核任务进行时，参数 {{field}} 为空',
@@ -780,5 +784,5 @@ module.exports = {
   auditRuleWhitelistIsInvalid: {
     code: '-130004',
     message: '审核授权白名单参数格式不正确',
-  },
+  }
 };
