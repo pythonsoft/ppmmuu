@@ -16,7 +16,7 @@ class TemplateInfo extends DB {
       name: { type: 'string', validation: 'require' },
       creatorId: { type: 'string', validation: 'require', allowUpdate: false },
       createdTime: { type: 'date', validation: 'require', allowUpdate: false },
-      type: { type: 'string', allowUpdate: false, validation: 'require', default: () => TemplateInfo.TYPE.DOWNLOAD },
+      type: { type: 'string', validation: 'require', default: () => TemplateInfo.TYPE.DOWNLOAD },
       modifyTime: { type: 'date', validation: 'require' },
       description: { type: 'string' },
       details: { type: 'object' },

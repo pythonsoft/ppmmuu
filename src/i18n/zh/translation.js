@@ -621,6 +621,10 @@ module.exports = {
     code: '-70006',
     message: '传入的transcodeTemplates是一个不合法的JSON结构体, [{ "_id": "", "name": "" }]',
   },
+  templateTypeNotExist: {
+    code: '-70007',
+    message: '模板类型不存在，请传入正确的类型，当前传入类型为, {{type}}',
+  },
   idIsNull: {
     code: '-80000',
     message: 'id为空',
@@ -744,5 +748,21 @@ module.exports = {
   shelfHasExists: {
     code: '-11013',
     message: '之前上架过',
+  },
+  subscribeInfoHasExists: {
+    code: '-12000',
+    message: '该公司已经在订阅管理中，不能重复增加',
+  },
+  subscribeInfoNotFind: {
+    code: '-12001',
+    message: '找不到订阅详情',
+  },
+  subscribeInfoShortId: {
+    code: '-12002',
+    message: '缺少参数_id',
+  },
+  subscribeInfoShortIds: {
+    code: '-12003',
+    message: '缺少参数_ids',
   },
 };
