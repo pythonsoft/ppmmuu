@@ -768,6 +768,7 @@ module.exports = {
   subscribeTypeNotFind: {
     code: '-12004',
     message: '找不到此订阅类型',
+  },
   auditFieldIsNotExist: {
     code: '-130001',
     message: '审核任务进行时，参数 {{field}} 为空',
