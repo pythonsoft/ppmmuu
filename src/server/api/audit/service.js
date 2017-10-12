@@ -14,6 +14,12 @@ const AuditInfo = require('./auditInfo');
 
 const auditInfo = new AuditInfo();
 
+const AuditRuleInfo = require('./auditRuleInfo');
+
+const auditRuleInfo = new AuditRuleInfo();
+
+const GroupInfo = require('../group/groupInfo');
+
 const service = {};
 
 /**
@@ -23,23 +29,23 @@ const service = {};
  * @param cb
  * @returns {*}
  */
-service.create = function create(info, applicant, type=AuditInfo.TYPE.DOWNLOAD, cb) {
+service.create = function create(info, applicant, type = AuditInfo.TYPE.DOWNLOAD, cb) {
   const doc = utils.merge({
     name: '',
     description: '',
     detail: '',
-    applicant: applicant,
+    applicant,
   }, info);
 
-  if(!doc.name) {
+  if (!doc.name) {
     return cb && cb(i18n.t('auditFieldIsNotExist', { field: 'name' }));
   }
 
-  if(!applicant) {
+  if (!applicant) {
     return cb && cb(i18n.t('auditFieldIsNotExist', { field: 'applicant申请人' }));
   }
 
-  if(!applicant.name || !applicant._id) {
+  if (!applicant.name || !applicant._id) {
     return cb && cb(i18n.t('auditFieldIsNotExist', { field: 'applicant申请人部分信息' }));
   }
 
@@ -72,23 +78,23 @@ service.list = function list(keyword, applicantId, verifierId, type, status, pag
     ];
   }
 
-  if(applicantId) {
-    q['applicant_id'] = applicantId;
+  if (applicantId) {
+    q.applicant_id = applicantId;
   }
 
-  if(verifierId) {
+  if (verifierId) {
     q['verifier._id'] = verifierId;
   }
 
-  if(type) {
-    q['type'] = type;
+  if (type) {
+    q.type = type;
   }
 
-  if(status) {
-    if(status.indexOf(',')) {
-      q['status'] = { '$in': utils.formatValueNeedSplitWidthFlag(status, ',', true) };
-    }else {
-      q['status'] = status;
+  if (status) {
+    if (status.indexOf(',')) {
+      q.status = { $in: utils.formatValueNeedSplitWidthFlag(status, ',', true) };
+    } else {
+      q.status = status;
     }
   }
 
@@ -113,38 +119,38 @@ service.list = function list(keyword, applicantId, verifierId, type, status, pag
  * @param cb
  * @returns {*}
  */
-service.passOrReject = function passOrReject(isPass, ids, verifier, message='', cb) {
-  if(!ids) {
+service.passOrReject = function passOrReject(isPass, ids, verifier, message = '', cb) {
+  if (!ids) {
     return cb && cb(i18n.t('auditFieldIsNotExist', { field: 'ids' }));
   }
 
-  if(!verifier) {
+  if (!verifier) {
     return cb && cb(i18n.t('auditFieldIsNotExist', { field: 'verifier审核人' }));
   }
 
   const verifierInfo = auditInfo.createApplicatOrVerifier(verifier);
 
-  if(!verifierInfo.name || !verifierInfo._id) {
+  if (!verifierInfo.name || !verifierInfo._id) {
     return cb && cb(i18n.t('auditFieldIsNotExist', { field: 'verifier审核人部分信息' }));
   }
 
   const q = {
-    status: AuditInfo.STATUS.WAITING
+    status: AuditInfo.STATUS.WAITING,
   };
 
   let actionName = '';
 
   if (ids.replace().indexOf(',')) {
-    q['_id'] = { '$in': utils.formatValueNeedSplitWidthFlag(ids, ',', true) };
+    q._id = { $in: utils.formatValueNeedSplitWidthFlag(ids, ',', true) };
     actionName = 'updateMany';
-  }else {
-    q['_id'] = ids;
+  } else {
+    q._id = ids;
     actionName = 'updateOne';
   }
 
   const updateInfo = {
     verifier: verifierInfo,
-    message: message,
+    message,
     status: isPass ? AuditInfo.STATUS.PASS : AuditInfo.STATUS.REJECT,
   };
 
@@ -161,7 +167,7 @@ service.passOrReject = function passOrReject(isPass, ids, verifier, message='', 
 };
 
 service.remove = function remove(ids, cb) {
-  if(!ids) {
+  if (!ids) {
     return cb && cb(i18n.t('auditFieldIsNotExist', { field: 'ids' }));
   }
 
@@ -169,10 +175,10 @@ service.remove = function remove(ids, cb) {
   let actionName = '';
 
   if (ids.replace().indexOf(',')) {
-    q['_id'] = { '$in': utils.formatValueNeedSplitWidthFlag(ids, ',', true) };
+    q._id = { $in: utils.formatValueNeedSplitWidthFlag(ids, ',', true) };
     actionName = 'removeMany';
-  }else {
-    q['_id'] = ids;
+  } else {
+    q._id = ids;
     actionName = 'removeOne';
   }
 
@@ -182,7 +188,7 @@ service.remove = function remove(ids, cb) {
       return cb && cb(i18n.t('databaseError'));
     }
 
-    return cb && cb(null, doc);
+    return cb && cb(null, r);
   });
 
   return false;
@@ -205,6 +211,194 @@ service.getAuditInfo = function (id, cb) {
 
     return cb && cb(null, doc);
   });
+};
+
+// 审核授权
+
+const createWhitelistInfo = function (whitelistString) {
+  if (whitelistString === '') {
+    return { err: null, doc: [] };
+  }
+
+  try {
+    const infos = JSON.parse(whitelistString);
+
+    if (infos.constructor !== Array) {
+      return { err: i18n.t('auditRuleWhitelistIsInvalid'), doc: null };
+    }
+
+    const ws = [];
+
+    for (let i = 0, len = infos.length; i < len; i++) {
+      if (infos[i]._id && infos[i].name && infos[i].type && utils.isValueInObject(infos[i].type, GroupInfo.TYPE)) {
+        ws.push(utils.merge({
+          _id: '',
+          name: '',
+          type: '', // 部门，小组，可以使用帐户系统中的分类型
+          exts: 'all', // 允许下载的文件类型，以后缀做区分，全部：all，除此外使用逗号分割，如: .mxf,.mp4
+        }, infos));
+      } else {
+        return { err: i18n.t('auditRuleWhitelistIsInvalid'), doc: null };
+      }
+    }
+
+    return { err: null, doc: ws };
+  } catch (e) {
+    return { err: i18n.t('auditRuleWhitelistIsInvalid'), doc: null };
+  }
+};
+
+const createAuditDepartment = function (permissionType, auditDepartment) {
+  if (permissionType === AuditRuleInfo.PERMISSTION_TYPE.AUDIT) {
+    if (!auditDepartment) {
+      return { err: i18n.t('auditRuleFieldIsNotExist', { field: 'auditDepartment' }), doc: null };
+    }
+
+    if (!auditDepartment._id || !auditDepartment.name) {
+      return { err: i18n.t('auditRuleFieldIsNotExist', { field: 'auditDepartment部分' }), doc: null };
+    }
+
+    const doc = utils.merge({
+      _id: '',
+      name: '',
+    }, auditDepartment);
+
+    return { err: null, doc };
+  }
+};
+
+service.createAuditRule = function createRule(info, creator, cb) {
+  const doc = utils.merge({
+    ownerName: '',
+    permissionType: AuditRuleInfo.PERMISSTION_TYPE.PUBLIC,
+    auditDepartment: '',
+    whitelist: '',
+    description: '',
+    detail: {},
+  }, info);
+
+  if (!info.ownerName) {
+    return cb && cb(i18n.t('auditRuleFieldIsNotExist', { field: 'ownerName' }));
+  }
+
+  const auditDepartmentRs = createAuditDepartment(doc.permissionType, doc.auditDepartment);
+  const rs = createWhitelistInfo(doc.whitelist);
+
+  if (auditDepartmentRs.err) {
+    return cb && cb(auditDepartmentRs.err);
+  }
+
+  if (rs.err) {
+    return cb && cb(rs.err);
+  }
+
+  const t = new Date();
+
+  doc.creator = creator;
+  doc.auditDepartment = auditDepartmentRs.doc;
+  doc.whitelist = rs.doc;
+  doc._id = uuid.v1();
+  doc.createdTime = t;
+  doc.modifyTime = t;
+
+  auditRuleInfo.insertOne(doc, (err, r) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, r);
+  });
+};
+
+service.listAuditRule = function listRule(creatorId, page, pageSize, sortFields, fieldsNeed, cb) {
+  const q = {};
+
+  if (creatorId) {
+    q['creator._id'] = creatorId;
+  }
+
+  auditRuleInfo.pagination(q, page, pageSize, (err, docs) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, docs);
+  }, sortFields, fieldsNeed);
+};
+
+service.updateAuditRule = function updateRule(info, cb) {
+  const id = info._id;
+
+  if (!id) {
+    return cb && cb(i18n.t('auditRuleFieldIsNotExist', { field: '_id' }));
+  }
+
+  const doc = utils.merge({
+    ownerName: '',
+    permissionType: AuditRuleInfo.PERMISSTION_TYPE.PUBLIC,
+    auditDepartment: '',
+    whitelist: '',
+    description: '',
+    detail: {},
+  }, info);
+
+  if (!info.ownerName) {
+    return cb && cb(i18n.t('auditRuleFieldIsNotExist', { field: 'ownerName' }));
+  }
+
+  const auditDepartmentRs = createAuditDepartment(doc.permissionType, doc.auditDepartment);
+  const rs = createWhitelistInfo(doc.whitelist);
+
+  if (auditDepartmentRs.err) {
+    return cb && cb(auditDepartmentRs.err);
+  }
+
+  if (rs.err) {
+    return cb && cb(rs.err);
+  }
+
+  doc.auditDepartment = auditDepartmentRs.doc;
+  doc.whitelist = rs.doc;
+  doc.modifyTime = new Date();
+
+  auditRuleInfo.updateOne({ _id: id }, doc, (err, r) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, r);
+  });
+};
+
+service.removeAuditRule = function updateRule(ids, cb) {
+  if (!ids) {
+    return cb && cb(i18n.t('auditRuleFieldIsNotExist', { field: 'ids' }));
+  }
+
+  const q = {};
+  let actionName = '';
+
+  if (ids.replace().indexOf(',')) {
+    q._id = { $in: utils.formatValueNeedSplitWidthFlag(ids, ',', true) };
+    actionName = 'removeMany';
+  } else {
+    q._id = ids;
+    actionName = 'removeOne';
+  }
+
+  auditRuleInfo.collection[actionName](q, (err, r) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, r);
+  });
+
+  return false;
 };
 
 module.exports = service;

@@ -9,7 +9,6 @@ const express = require('express');
 const router = express.Router();
 const service = require('./service');
 const isLogin = require('../../middleware/login');
-const result = require('../../common/result');
 
 router.use(isLogin.middleware);
 router.use(isLogin.hasAccessMiddleware);

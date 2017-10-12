@@ -13,7 +13,7 @@ const uuid = require('uuid');
 /**
  * @swagger
  * definitions:
- *   UserInfo:
+ *   AuditInfo:
  *     required:
  *       - name
  *     properties:
@@ -75,22 +75,28 @@ class auditInfo extends DB {
       lastModify: { type: 'date', validation: 'require' },
       status: { type: 'string', default: auditInfo.STATUS.WAITING, validation: v => utils.isValueInObject(v, auditInfo.STATUS) },
       type: { type: 'string', default: auditInfo.TYPE.DOWNLOAD, validation: v => utils.isValueInObject(v, auditInfo.TYPE) },
-      applicant: { type: 'object', default() { return {
-        _id: '',
-        name: '',
-        companyId: '',
-        companyName: '',
-        departmentName: '',
-        departmentId: '',
-      }}}, //申请人信息
-      verifier: { type: 'object', default() { return {
-        _id: '',
-        name: '',
-        companyId: '',
-        companyName: '',
-        departmentName: '',
-        departmentId: '',
-      }}}, //审核人信息
+      applicant: { type: 'object',
+        default() {
+          return {
+            _id: '',
+            name: '',
+            companyId: '',
+            companyName: '',
+            departmentName: '',
+            departmentId: '',
+          };
+        } }, // 申请人信息
+      verifier: { type: 'object',
+        default() {
+          return {
+            _id: '',
+            name: '',
+            companyId: '',
+            companyName: '',
+            departmentName: '',
+            departmentId: '',
+          };
+        } }, // 审核人信息
       message: { type: 'string' },
       description: { type: 'string' },
       detail: { type: 'object' },
@@ -116,10 +122,8 @@ auditInfo.STATUS = {
 };
 
 auditInfo.TYPE = {
-  DOWNLOAD: '1'
+  DOWNLOAD: '1',
 };
 
 module.exports = auditInfo;
-
-
 

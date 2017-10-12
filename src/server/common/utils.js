@@ -390,7 +390,7 @@ utils.commonRequestCallApi = function commonRequestCallApi(options, cb) {
   });
 };
 
-utils.formatValueNeedSplitWidthFlag = function formatParamsNeedSplitWidthFlag(val, flag, removeAllSpaceInValue=true) {
+utils.formatValueNeedSplitWidthFlag = function formatParamsNeedSplitWidthFlag(val, flag, removeAllSpaceInValue = true) {
   let v = val;
 
   if (removeAllSpaceInValue) {

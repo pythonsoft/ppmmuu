@@ -773,4 +773,12 @@ module.exports = {
     code: '-130002',
     message: '审核任务信息不存在',
   },
+  auditRuleFieldIsNotExist: {
+    code: '-130003',
+    message: '审核授权进行时，参数 {{field}} 为空',
+  },
+  auditRuleWhitelistIsInvalid: {
+    code: '-130004',
+    message: '审核授权白名单参数格式不正确',
+  },
 };
