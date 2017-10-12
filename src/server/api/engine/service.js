@@ -345,9 +345,15 @@ service.getEngine = function getEngine(id, fieldsNeed, cb) {
   });
 };
 
-const engineUpdate = function engineUpdate(id, updateDoc, cb) {
+const engineUpdate = function engineUpdate(id, updateDoc, cb, ip) {
   console.log('updateDoc -->', updateDoc);
-  engineInfo.updateOne({ _id: id }, updateDoc, (err, r) => {
+  const query = {};
+  if (ip) {
+    query.intranetIp = ip;
+  } else {
+    query._id = id;
+  }
+  engineInfo.updateOne(query, updateDoc, (err, r) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -518,6 +524,18 @@ service.emitAction = function emitAction(ip, configProcessName, pid, action, cb)
 
   sc.socket.emit('action', { ip, action, process: configProcessName, pid }, (err, result) => cb && cb(err ? i18n.t('ActionFailed') : null, err || result));
 };
+
+sc.socket.on('setupProgress', (result) => {
+  const ns = result[3].split('/');
+  engineUpdate(result[5], { installProgress: {
+    percent: Number(ns[0]) / Number(ns[1]),
+    step: result[4],
+  } }, (err) => {
+    if (err) {
+      logger.error(err.message);
+    }
+  }, result[5]);
+});
 
 service.installMonitor = function installMonitor(ip, username = 'root', password = '4pstvmis', cb) {
   if (!ip) {
