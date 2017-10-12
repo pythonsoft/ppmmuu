@@ -678,7 +678,7 @@ router.get('/listJob', (req, res) => {
   const page = req.query.page;
   const pageSize = req.query.pageSize;
   const status = req.query.status || '';
-  const currentStep = req.query.currentStep;
+  const currentStep = req.query.currentStep || '-1';
   const userId = req.ex.userId;
 
   res.set('Content-Type', 'application/json');
