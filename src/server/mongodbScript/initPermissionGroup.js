@@ -94,6 +94,24 @@ const infos = [
     parentIndex: 'taskManagement',
   },
   {
+    _id: 'auditManager',
+    name: '审核管理',
+    index: 'auditManager',
+    parentIndex: 'management',
+  },
+  {
+    _id: 'auditDownload',
+    name: '下载审核',
+    index: 'auditDownload',
+    parentIndex: 'auditManager',
+  },
+  {
+    _id: 'auditEmpower',
+    name: '审核授权',
+    index: 'auditEmpower',
+    parentIndex: 'auditManager',
+  },
+  {
     _id: 'templateManagement',
     name: '模板管理',
     index: 'templateManagement',

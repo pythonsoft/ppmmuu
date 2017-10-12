@@ -287,7 +287,6 @@ utils.getAllowedUpdateObj = function getAllowedUpdateObj(fields, info) {
   return rs;
 };
 
-
 /**
  * @param uri
  * @param method "POST" or "GET"
@@ -334,7 +333,7 @@ utils.baseRequestCallApi = function baseRequestCallApi(url, method, info, token,
  */
 utils.requestCallApi = function requestCallApi(url, method, info, token, cb) {
   utils.baseRequestCallApi(url, method, info, token, (err, response) => {
-    console.log('err ------>', response.body, err);
+    // console.log('requestCallApi ------>', response.body, err);
     if (err) {
       return cb && cb(err);
     }
@@ -389,6 +388,16 @@ utils.commonRequestCallApi = function commonRequestCallApi(options, cb) {
     logger.error(response.body);
     return cb && cb(i18n.t('requestCallApiFailed'));
   });
+};
+
+utils.formatValueNeedSplitWidthFlag = function formatParamsNeedSplitWidthFlag(val, flag, removeAllSpaceInValue = true) {
+  let v = val;
+
+  if (removeAllSpaceInValue) {
+    v = v.replace(/\s/g, '');
+  }
+
+  return v.split(flag);
 };
 
 module.exports = utils;

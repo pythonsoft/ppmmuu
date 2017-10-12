@@ -3,7 +3,6 @@
 // const fs = require('fs');
 // const path = require('path');
 const parseString = require('xml2js').parseString;
-// const util = require('util');
 const isStream = require('is-stream');
 
 class Xml2Srt {
@@ -67,6 +66,7 @@ class Xml2Srt {
       if (!data) {
         return cb && cb(null, '');
       }
+      console.log('data', data);
       parseString(data, (err, r) => {
         if (err) {
           return cb && cb(err);
@@ -76,15 +76,5 @@ class Xml2Srt {
     });
   }
 }
-
-// const readStream = fs.createReadStream(path.resolve(__dirname, '../../../../test/PAHDSSAUCTION33R1_F7C18A0F-75DF-4228-8A69-6BD8318AD5B7.xml'), 'utf16le');
-//
-// const parser = new Xml2Srt(readStream);
-// parser.getSrtStr((err, r) => {
-//   if (err) {
-//     console.log(err);
-//   }
-//   console.log('111', r);
-// });
 
 module.exports = Xml2Srt;
