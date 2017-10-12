@@ -118,6 +118,18 @@ const infos = [
     parentIndex: 'management',
   },
   {
+    _id: 'subscribeInfo',
+    name: '订阅信息',
+    index: 'subscribeInfo',
+    parentIndex: 'subscribeManagement',
+  },
+  {
+    _id: 'subscribeType',
+    name: '类型管理',
+    index: 'subscribeType',
+    parentIndex: 'subscribeManagement',
+  },
+  {
     _id: 'configuration',
     name: '设置',
     index: 'configuration',
@@ -268,6 +280,7 @@ const infos = [
     parentIndex: 'personalTask',
   },
 ];
+
 
 permissionGroup.collection.removeMany({}, (err) => {
   if (err) {

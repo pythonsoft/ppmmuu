@@ -765,4 +765,8 @@ module.exports = {
     code: '-12003',
     message: '缺少参数_ids',
   },
+  subscribeTypeNotFind: {
+    code: '-12004',
+    message: '找不到此订阅类型',
+  },
 };
