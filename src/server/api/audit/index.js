@@ -16,7 +16,7 @@ router.use(isLogin.middleware);
 router.use(isLogin.hasAccessMiddleware);
 
 /**
- * @permissionGroup: audit
+ * @permissionGroup: auditManager
  * @permissionName: auditPass
  * @permissionPath: /audit/pass
  * @apiName: auditPass
@@ -60,7 +60,7 @@ router.post('/pass', (req, res) => {
 });
 
 /**
- * @permissionGroup: audit
+ * @permissionGroup: auditManager
  * @permissionName: listAudit
  * @permissionPath: /audit/list
  * @apiName: listAudit
