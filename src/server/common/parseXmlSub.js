@@ -77,17 +77,4 @@ class Xml2Srt {
   }
 }
 
-// const readStream = fs.createReadStream(path.resolve(__dirname, '../../../../test/PMHDSSPPVM4R2_E795671A-8C16-43C4-99FE-89469FB66820.xml'), 'utf8');
-//
-// const parser = new Xml2Srt(readStream);
-// parser.getSrtStr((err, r) => {
-//   if (err) {
-//     console.log(err);
-//   }
-//   console.log('111', r);
-//   fs.writeFile(path.resolve(__dirname, '../../../../test/PMHDSSPPVM4R2_E795671A-8C16-43C4-99FE-89469FB66820.srt'), r, 'utf8', (err) => {
-//     console.log('err', err);
-//   });
-// });
-
 module.exports = Xml2Srt;
