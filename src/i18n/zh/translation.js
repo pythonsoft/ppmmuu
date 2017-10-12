@@ -751,7 +751,7 @@ module.exports = {
   },
   subscribeInfoHasExists: {
     code: '-120000',
-    message: '该公司已经在订阅管理中，不能重复增加',
+    message: '该公司已有订阅信息，不能重复增加',
   },
   subscribeInfoNotFind: {
     code: '-120001',
