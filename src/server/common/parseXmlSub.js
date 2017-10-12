@@ -3,7 +3,6 @@
 // const fs = require('fs');
 // const path = require('path');
 const parseString = require('xml2js').parseString;
-// const util = require('util');
 const isStream = require('is-stream');
 
 class Xml2Srt {
@@ -67,6 +66,7 @@ class Xml2Srt {
       if (!data) {
         return cb && cb(null, '');
       }
+      console.log('data', data);
       parseString(data, (err, r) => {
         if (err) {
           return cb && cb(err);
@@ -77,7 +77,7 @@ class Xml2Srt {
   }
 }
 
-// const readStream = fs.createReadStream(path.resolve(__dirname, '../../../../test/PAHDSSAUCTION33R1_F7C18A0F-75DF-4228-8A69-6BD8318AD5B7.xml'), 'utf16le');
+// const readStream = fs.createReadStream(path.resolve(__dirname, '../../../../test/PMHDSSPPVM4R2_E795671A-8C16-43C4-99FE-89469FB66820.xml'), 'utf8');
 //
 // const parser = new Xml2Srt(readStream);
 // parser.getSrtStr((err, r) => {
@@ -85,6 +85,9 @@ class Xml2Srt {
 //     console.log(err);
 //   }
 //   console.log('111', r);
+//   fs.writeFile(path.resolve(__dirname, '../../../../test/PMHDSSPPVM4R2_E795671A-8C16-43C4-99FE-89469FB66820.srt'), r, 'utf8', (err) => {
+//     console.log('err', err);
+//   });
 // });
 
 module.exports = Xml2Srt;

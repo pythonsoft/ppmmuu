@@ -198,6 +198,7 @@ class DB {
 
     const doc = result.doc;
 
+    console.log('query', query, 'doc', doc);
     this.collection.updateOne(query, { $set: doc }, (err, r) => {
       if (err) {
         return cb && cb(err);

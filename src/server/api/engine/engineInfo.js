@@ -72,9 +72,9 @@ class EngineInfo extends DB {
       description: { type: 'string' },
       configuration: { type: 'array' }, // 配置项
       detail: { type: 'object' },
+      installProgress: { type: 'object' },
     };
   }
-
 }
 
 EngineInfo.configurationItem = {
