@@ -275,11 +275,9 @@ const exec = function exec(userInfo, bucketInfo, execScript, pathsInfo = []) {
 
     return rs;
   } catch (e) {
-
     logger.error(e);
     return rs;
   }
-
 };
 
 const runDownloadScript = function runDownloadScript(userInfo, bucketInfo, script, cb) {
