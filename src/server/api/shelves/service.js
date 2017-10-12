@@ -9,6 +9,7 @@ const utils = require('../../common/utils');
 const uuid = require('uuid');
 const i18n = require('i18next');
 const roleService = require('../role/service');
+const subscribeManagementService = require('../subscribeManagement/service');
 
 const ShelfTaskInfo = require('./shelfTaskInfo');
 
@@ -578,4 +579,15 @@ service.searchUser = function searchUser(req, cb) {
   roleService.searchUserOrGroup(info, cb);
 };
 
+
+service.listSubscribeType = function listSubscribeType(cb){
+  const info = { pageSize: 999};
+  subscribeManagementService.listSubscribeType(info, function(err, rs){
+    if(err){
+      return cb && cb(err);
+    }
+    
+    return cb && cb(null, rs);
+  })
+}
 module.exports = service;
