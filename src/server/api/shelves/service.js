@@ -288,6 +288,20 @@ service.getShelfDetail = function getShelfDetail(info, cb) {
   if (!_id) {
     return cb & cb(i18n.t('shelfShortId'));
   }
+  
+  const getSubscribeTypeById = function getSubscribeTypeById(id, callback){
+    if(!id){
+      return callback && callback(null, '');
+    }
+  
+    subscribeManagementService.getSubscribeType({_id: id}, function(err, doc){
+      if(err){
+        return callback && callback(null, '');
+      }
+  
+      return callback && callback(null, doc.name);
+    })
+  }
 
   shelfTaskInfo.collection.findOne({ _id }, (err, doc) => {
     if (err) {
@@ -298,8 +312,14 @@ service.getShelfDetail = function getShelfDetail(info, cb) {
     if (!doc) {
       return cb && cb(i18n.t('shelfNotFind'));
     }
-
-    return cb && cb(null, doc);
+  
+    getSubscribeTypeById(doc.editorInfo.subscribeType, function(err, name){
+      if(err){
+        return cb && cb(err);
+      }
+      doc.editorInfo.subscribeType = name || doc.editorInfo.subscribeType;
+      return cb && cb(null, doc);
+    })
   });
 };
 
