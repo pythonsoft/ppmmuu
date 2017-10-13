@@ -384,7 +384,18 @@ service.submitShelf = function submitShelf(req, cb) {
       },
       editorInfo,
       status: ShelfTaskInfo.STATUS.SUBMITTED,
+      full_text: ''
     };
+    for(let key in doc.editorInfo){
+      if(typeof doc.editorInfo[key] === 'string') {
+        updateInfo.full_text += doc.editorInfo[key] + ' ';
+      }
+    }
+    for(let key in doc.details){
+      if(typeof doc.details[key] === 'string') {
+        updateInfo.full_text += doc.details[key] + '';
+      }
+    }
     shelfTaskInfo.collection.update({ _id, 'dealer._id': userInfo._id }, { $set: updateInfo }, (err) => {
       if (err) {
         logger.error(err.message);
@@ -536,7 +547,7 @@ service.offlineShelfTask = function offlineShelfTask(req, cb) {
         _id: userInfo._id,
         name: userInfo.name,
       },
-      lastModifyTime: new Date(),
+      lastModifyTime: new Date()
     };
     shelfTaskInfo.collection.update({ _id: { $in: _ids } }, { $set: updateInfo }, { multi: true }, (err) => {
       if (err) {
