@@ -23,6 +23,8 @@ const uuid = require('uuid');
  *         type: string
  *       whitelist:
  *         type: array
+ *         items:
+ *          type: string
  *       creator:
  *         type: object
  *       auditDepartment:

@@ -212,9 +212,6 @@ service.download = function download(userInfo, downloadParams, receiverId, recei
     return res.end(errorCall('joDownloadParamsInpointOrOutpointTypeError'));
   }
 
-  params.inpoint |= 1;
-  params.outpoint |= 1;
-
   if (params.inpoint > params.outpoint) {
     return res.end(errorCall('joDownloadParamsInpointLessThanOutpointTypeError'));
   }
