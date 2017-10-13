@@ -298,12 +298,13 @@ const infos = [
     parentIndex: 'personalTask',
   },
   {
-    _id: 'subscriptions', //ump-fe index
+    _id: 'subscriptions',
     name: '订阅',
-    index: 'subscriptions', //ump-fe index
+    index: 'subscriptions',
     parentIndex: '',
   },
 ];
+
 
 permissionGroup.collection.removeMany({}, (err) => {
   if (err) {

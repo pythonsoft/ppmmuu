@@ -784,5 +784,21 @@ module.exports = {
   auditRuleWhitelistIsInvalid: {
     code: '-130004',
     message: '审核授权白名单参数格式不正确',
+  },
+  companyHasNoSubscribeInfo: {
+    code: '-140001',
+    message: '您所在的公司没有签定订阅合同',
+  },
+  companySubscribeInfoUnused: {
+    code: '-140002',
+    message: '您所在的公司签定的订阅合同还没到开始使用时间',
+  },
+  companySubscribeInfoExpired: {
+    code: '-140003',
+    message: '您所在的公司签定的订阅合同已经过期了',
+  },
+  invalidSubscribeType: {
+    code: '-140004',
+    message: '非法的节目类型参数',
   }
 };
