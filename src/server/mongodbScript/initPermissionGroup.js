@@ -297,6 +297,12 @@ const infos = [
     index: 'personal_catalog_task_all',
     parentIndex: 'personalTask',
   },
+  {
+    _id: 'subscriptions',
+    name: '订阅',
+    index: 'subscriptions',
+    parentIndex: 'subscriptions',
+  },
 ];
 
 
