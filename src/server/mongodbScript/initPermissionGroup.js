@@ -301,7 +301,7 @@ const infos = [
     _id: 'subscriptions',
     name: '订阅',
     index: 'subscriptions',
-    parentIndex: 'subscriptions',
+    parentIndex: '',
   },
 ];
 
