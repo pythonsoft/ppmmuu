@@ -57,17 +57,17 @@ SubscribeInfo.STATUS = {
   EXPIRED: '2',
 };
 
-SubscribeInfo.getStatus = function getStatus(doc){
+SubscribeInfo.getStatus = function getStatus(doc) {
   const startTime = new Date(doc.startTime);
   const expiredTime = new Date(doc.expiredTime);
-  if(startTime > new Date()){
+  if (startTime > new Date()) {
     doc.status = SubscribeInfo.STATUS.UNUSED;
-  }else if(expiredTime > new Date()){
+  } else if (expiredTime > new Date()) {
     doc.status = SubscribeInfo.STATUS.USING;
-  }else{
+  } else {
     doc.status = SubscribeInfo.STATUS.EXPIRED;
   }
   return doc;
-}
+};
 
 module.exports = SubscribeInfo;

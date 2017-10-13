@@ -49,7 +49,7 @@ class ShelfTaskInfo extends DB {
           source: '',
           limit: '',
           cover: '',
-        } }
+        } },
     };
   }
 }

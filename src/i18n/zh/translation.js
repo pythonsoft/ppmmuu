@@ -800,5 +800,5 @@ module.exports = {
   invalidSubscribeType: {
     code: '-140004',
     message: '非法的节目类型参数',
-  }
+  },
 };
