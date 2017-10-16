@@ -70,6 +70,8 @@ function saveSearch(k, id, cb) {
     (err, r) => cb && cb(err, r));
 }
 
+service.saveSearch = saveSearch;
+
 service.solrSearch = function solrSearch(info, cb, userId, videoIds) {
   if (!info.wt) {
     info.wt = 'json';

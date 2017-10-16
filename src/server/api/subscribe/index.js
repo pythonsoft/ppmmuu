@@ -77,30 +77,46 @@ router.get('/getSubscribeTypeSummary', (req, res) => {
  *         schema:
  *           type: object
  *           properties:
+ *             keyword:
+ *               type: string
+ *               description: 关键字搜索
  *             subscribeType:
  *               type: array
+ *               items:
+ *                 type: string
  *               description: 节目类型_id数组
  *               example: ['政治','娱乐','体育']
- *             match:
+ *             FIELD323:
  *               type: array
- *               description: '条件, key:字段, value：值'
- *               example: [{key: "publish_status", value: 1}, {key: "full_text", value: "鏘鏘三人行"}]
- *             should:
+ *               items:
+ *                 type: string
+ *               description: 版本
+ *               example: ['播出版','素材版','配音字幕版']
+ *             duration:
+ *               type: object
+ *               properties:
+ *                 gte:
+ *                   type: number
+ *                   description: 大于
+ *                   example: 0
+ *                 lt:
+ *                   type: number
+ *                   description: 小于
+ *                   example: 6000
+ *               description: 时长
+ *               example: {gte: 0, lt: 6000}
+ *             sort:
  *               type: array
- *               description: '关联度, key:字段, value：值'
- *               example: [{key: "name", value: "鏘鏘三人行"}]
- *             range:
- *               type: array
- *               description: '时间范围, key:字段, gte：大于, lt: 小于'
- *               example: [{key: "f_date_162", gte: "2017-09-10T16:00:00.000Z", lt: "2017-10-24T16:00:00.000Z"}, {key: "f_date_36", gte: "2017-09-03T16:00:00.000Z", lt: "2017-10-23T16:00:00.000Z"}]
- *             source:
- *               type: string
- *               description: '需要的字段'
- *               example: "id,duration,name,ccid,program_type,program_name_cn,hd_flag,program_name_en,last_modify,f_str_03,f_str_187"
- *             hl:
- *               type: string
- *               description: '需要高亮的字段'
- *               example: "name,program_name_cn,program_name_en,f_str_03,f_str_187"
+ *               description: '排序'
+ *               example: [{'details.FIELD36': {"order": "asc"}}]
+ *             FIELD162:
+ *               type: object
+ *               description: '新闻日期'
+ *               example: {"gte": "2011-10-16T08:52:17.200Z", "lt": "2017-10-17T08:52:17.200Z"}
+ *             FIELD36:
+ *               type: object
+ *               description: '首播日期'
+ *               example: {"gte": "2011-10-16T08:52:17.200Z", "lt": "2017-10-17T08:52:17.200Z"}
  *             start:
  *               type: number
  *               description: '从第几个开始搜索'
@@ -169,6 +185,40 @@ router.post('/esSearch', (req, res) => {
  */
 router.get('/getEsMediaList', (req, res) => {
   service.getEsMediaList(req, (err, doc) => res.json(result.json(err, doc)));
+});
+
+/**
+ * @apiName: getSubscribeSearchConfig
+ * @apiFuncType: get
+ * @apiFuncUrl: /subscribe/getSubscribeSearchConfig
+ * @swagger
+ * /subscribe/getSubscribeSearchConfig:
+ *   get:
+ *     description: 订阅搜索配置项
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - Search
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *
+ */
+router.get('/getSubscribeSearchConfig', (req, res) => {
+  service.getSubscribeSearchConfig(req, (err, doc) => res.json(result.json(err, doc)));
 });
 
 module.exports = router;

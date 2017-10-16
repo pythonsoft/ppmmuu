@@ -7,16 +7,19 @@
 const logger = require('../../common/log')('error');
 const utils = require('../../common/utils');
 const i18n = require('i18next');
+const nodecc = require('node-opencc');
+const config = require('../../config');
 
 const SubscribeInfo = require('../subscribeManagement/subscribeInfo');
 const SubscribeType = require('../subscribeManagement/subscribeType');
 const ShelfInfo = require('../shelves/shelfTaskInfo');
+const ConfigurationInfo = require('../configuration/configurationInfo');
 
 const subscribeInfo = new SubscribeInfo();
 const subscribeType = new SubscribeType();
 const shelfInfo = new ShelfInfo();
+const configurationInfo = new ConfigurationInfo();
 
-const subscribeManagementService = require('../subscribeManagement/service');
 const mediaService = require('../media/service');
 
 const service = {};
@@ -30,6 +33,22 @@ const DOWNLOAD_TYPE_MAP = {
   0: '自动推送',
   1: '手动推送',
   2: '手动下载',
+};
+
+const filterDoc = function filterDoc(_source) {
+  const doc = {};
+  doc.name = _source.name;
+  doc.objectId = _source.objectId;
+  doc.programNO = _source.programNO;
+  doc.storageTime = _source.lastModifyTime;
+  doc.source = _source.editorInfo.source;
+  doc.limit = _source.editorInfo.limit;
+  doc.poster = _source.editorInfo.cover;
+  doc.inpoint = _source.details.INPOINT;
+  doc.outpoint = _source.details.OUTPOINT;
+  doc.duration = _source.details.OUTPOINT - _source.details.INPOINT;
+  doc.files = _source.files;
+  return doc;
 };
 
 const getSubscribeTypes = function getSubscribeTypes(_ids, callback) {
@@ -153,11 +172,191 @@ service.getSubscribeTypesSummary = function getSubscribeTypesSummary(req, cb) {
   });
 };
 
+service.getSubscribeSearchConfig = function getSubscribeSearchConfig(req, cb) {
+  configurationInfo.collection.findOne({ key: 'subscribeSearchConfig' }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+    if (!doc) {
+      return cb && cb(null, i18n.t('noSubscribeSearchConfig'));
+    }
+    try {
+      const configs = JSON.parse(doc.value);
+      const userInfo = req.ex.userInfo;
+      const companyId = userInfo.company._id;
+
+      // 检查subscribeType是否合法
+      subscribeInfo.collection.findOne({ _id: companyId }, (err, doc) => {
+        if (err) {
+          logger.error(err.message);
+          return cb && cb(i18n.t('databaseError'));
+        }
+
+        if (!doc) {
+          return cb && cb(null, i18n.t('companyHasNoSubscribeInfo'));
+        }
+
+        doc = SubscribeInfo.getStatus(doc);
+        if (doc.status === SubscribeInfo.STATUS.UNUSED) {
+          return cb && cb(null, i18n.t('companySubscribeInfoUnused'));
+        }
+
+        if (doc.status === SubscribeInfo.STATUS.EXPIRED) {
+          return cb && cb(null, i18n.t('companySubscribeInfoExpired'));
+        }
+
+        getSubscribeTypes(doc.subscribeType, (err, docs) => {
+          if (err) {
+            return cb && cb(err);
+          }
+
+          if (!docs || docs.length === 0) {
+            return cb && cb(null, i18n.t('companySubscribeInfoNoSubscribeType'));
+          }
+
+          configs.forEach((item) => {
+            if (item.key === 'subscribeType') {
+              const config = item;
+              docs.forEach((item) => {
+                const temp = { value: item._id, label: item.name };
+                config.items.push(temp);
+              });
+            }
+          });
+
+          return cb && cb(null, configs);
+        });
+      });
+    } catch (e) {
+      return cb && cb(null, i18n.t('subscribeSearchConfigInvalidJson'));
+    }
+  });
+};
+
+const executeEsSerach = function executeEsSearch(body, userId, keyword, cb) {
+  const url = `${config.esBaseUrl}ump_v1/ShelfTaskInfo/_search`;
+  const options = {
+    method: 'POST',
+    url,
+    body,
+    json: true,
+  };
+
+  utils.commonRequestCallApi(options, (err, rs) => {
+    if (err) {
+      return cb && cb(err);
+    }
+    const newRs = {
+      docs: [],
+      QTime: rs.took,
+      total: rs.hits.total,
+    };
+    const hits = rs.hits.hits || [];
+    for (let i = 0, len = hits.length; i < len; i++) {
+      const _source = hits[i]._source || {};
+      const highlight = hits[i].highlight || {};
+      for (const key in _source) {
+        if (highlight[key]) {
+          _source[key] = highlight[key].join('');
+        }
+      }
+      newRs.docs.push(filterDoc(_source));
+    }
+
+    if (userId && keyword) {
+      mediaService.saveSearch(keyword, userId, (err) => {
+        if (err) {
+          logger.error(err);
+        }
+      });
+    }
+    return cb && cb(null, newRs);
+  });
+};
+
+const getEsOptions = function getEsOptions(info) {
+  let subscribeType = info.subscribeType || '';
+  let FIELD323 = info.FIELD323 || '';
+  let keyword = info.keyword || '';
+  const duration = info.duration || '';
+  const sort = info.sort || '';
+  const FIELD162 = info.FIELD162 || '';
+  const FIELD36 = info.FIELD36 || '';
+  const start = info.start || 0;
+  const pageSize = info.pageSize || 28;
+  const options = {
+    _source: 'name,details,editorInfo,lastModifyTime'.split(','),
+    from: start * 1,
+    size: pageSize * 1,
+  };
+  const query = {
+    bool: { must: [] },
+  };
+  keyword = keyword.trim();
+  const musts = query.bool.must;
+
+  const status = { match: { status: ShelfInfo.STATUS.ONLINE } };
+  musts.push(status);
+
+  if (keyword) {
+    keyword = nodecc.simplifiedToTraditional(keyword);
+    const temp = { match: { full_text: keyword } };
+    musts.push(temp);
+  }
+  if (subscribeType && subscribeType.constructor.name.toLowerCase() === 'array') {
+    subscribeType = JSON.parse(nodecc.simplifiedToTraditional(JSON.stringify(subscribeType)));
+    const temp = { match: { 'editorInfo.subscribeType': subscribeType.join(' ') } };
+    musts.push(temp);
+  }
+  if (FIELD323 && FIELD323.constructor.name.toLowerCase() === 'array') {
+    FIELD323 = JSON.parse(nodecc.simplifiedToTraditional(JSON.stringify(FIELD323)));
+    const temp = { match: { 'details.FIELD323': FIELD323.join(' ') } };
+    musts.push(temp);
+  }
+  if (duration && duration.constructor.name.toLowerCase() === 'object') {
+    const temp = { range: { 'details.duration': duration } };
+    musts.push(temp);
+  }
+  if (sort && sort.constructor.name.toLowerCase() === 'array') {
+    options.sort = sort;
+  } else if (sort === 'should' && keyword) {
+    query.bool.should = [
+      { match: { name: keyword } },
+    ];
+  }
+
+  if (FIELD162 && FIELD162.constructor.name.toLowerCase() === 'object') {
+    const temp = { range: { 'details.FIELD162': FIELD162 } };
+    musts.push(temp);
+  }
+  if (FIELD36 && FIELD36.constructor.name.toLowerCase() === 'object') {
+    const temp = { range: { 'details.FIELD36': FIELD36 } };
+    musts.push(temp);
+  }
+  options.query = query;
+
+  const hl = 'name,editorInfo.source,editorInfo.limit';
+  const getHighLightFields = function getHighLightFields(fields) {
+    const obj = {};
+    fields = fields.split(',');
+    for (let i = 0, len = fields.length; i < len; i++) {
+      obj[fields[i]] = {};
+    }
+    return obj;
+  };
+  options.highlight = {
+    require_field_match: false,
+    fields: getHighLightFields(hl),
+  };
+  return options;
+};
+
 service.esSearch = function esSearch(req, cb) {
   const info = req.body;
   const userInfo = req.ex.userInfo;
   const companyId = userInfo.company._id;
-  let subscribeType = info.subscribeType || [];
+  const subscribeType = info.subscribeType || [];
 
   // 检查subscribeType是否合法
   subscribeInfo.collection.findOne({ _id: companyId }, (err, doc) => {
@@ -179,17 +378,24 @@ service.esSearch = function esSearch(req, cb) {
       return cb && cb(null, i18n.t('companySubscribeInfoExpired'));
     }
 
-    const query = {};
     if (subscribeType && subscribeType.length) {
       for (let i = 0, len = subscribeType.length; i < len; i++) {
         if (doc.subscribeType.indexOf(subscribeType[i]) === -1) {
           return cb && cb(null, i18n.t('invalidSubscribeType'));
         }
       }
-    } else {
-      subscribeType = doc.subscribeType;
     }
-    return cb && cb(null, { docs: [], numFound: 0 });
+
+    const options = getEsOptions(info);
+    let keyword = info.keyword || '';
+    keyword = keyword.trim();
+    executeEsSerach(options, userInfo._id, keyword, (err, docs) => {
+      if (err) {
+        return cb && cb(err);
+      }
+
+      return cb && cb(null, docs);
+    });
   });
 };
 
@@ -221,18 +427,7 @@ service.getEsMediaList = function getEsMediaList(req, cb) {
       docs = docs.docs;
       if (docs && docs.length) {
         docs.forEach((item) => {
-          const doc = {};
-          doc.name = item.name;
-          doc.objectId = item.objectId;
-          doc.programNO = item.programNO;
-          doc.storageTime = item.lastModifyTime;
-          doc.source = item.editorInfo.source;
-          doc.limit = item.editorInfo.limit;
-          doc.poster = item.cover;
-          doc.inpoint = item.details.INPOINT;
-          doc.outpoint = item.details.OUTPOINT;
-          doc.files = item.files;
-          category.docs.push(doc);
+          category.docs.push(filterDoc(item));
         });
         rs.category.push(category);
       }
@@ -267,6 +462,9 @@ service.getEsMediaList = function getEsMediaList(req, cb) {
     getSubscribeTypes(doc.subscribeType, (err, docs) => {
       if (err) {
         return cb && cb(err);
+      }
+      if (!docs || docs.length === 0) {
+        return cb && cb(null, i18n.t('companySubscribeInfoNoSubscribeType'));
       }
       const subscribeTypes = [];
       const subscribeNames = [];

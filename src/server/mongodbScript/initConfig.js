@@ -323,6 +323,124 @@ const mediaCenterSearchRadios = [
   },
 ];
 
+const subscribeConfig = [
+  {
+    key: 'subscribeType',
+    label: '节目类型',
+    items: [
+    ],
+    selected: '',
+    multiple: true,
+    type: 'string',
+    example: ['体育1', '娱乐1'],
+  },
+  {
+    key: 'FIELD323',
+    label: '版本',
+    items: [
+      { value: '播出版', label: '播出版' },
+      { value: '素材版', label: '素材版' },
+      { value: '配音字幕版', label: '配音字幕版' },
+      { value: '字幕分離播出版', label: '字幕分離播出版' },
+      { value: '字幕分離母版', label: '字幕分離母版' },
+      { value: '字幕版', label: '字幕版' },
+      { value: '母版', label: '母版' },
+      { value: '剪輯版', label: '剪輯版' },
+      { value: '國際版', label: '國際版' },
+      { value: '拷貝板', label: '拷貝板' },
+      { value: '播放前版', label: '播放前版' },
+      { value: '參展版', label: '參展版' },
+    ],
+    selected: '',
+    multiple: true,
+    type: 'string',
+    example: ['播出版', '參展版'],
+  },
+  {
+    key: 'duration',
+    label: '时长',
+    items: [
+      { value: { gte: 0, lt: 6000 }, label: '短片(4分钟以下)' },
+      { value: { gte: 30000 }, label: '短片(20分钟以上)' },
+    ],
+    selected: '',
+    multiple: false,
+    type: 'string',
+    example: { gte: 0, lt: 6000 },
+  },
+  {
+    key: 'sort',
+    label: '',
+    items: [
+      { value: 'should', label: '相关程度' },
+      { value: { 'detals.FIELD162': { order: 'asc' } }, label: '新闻时间由远到近' },
+      { value: { 'detals.FIELD162': { order: 'desc' } }, label: '新闻时间由近到远' },
+      { value: { 'detals.FIELD36': { order: 'desc' } }, label: '首播时间由近到远' },
+      { value: { 'detals.FIELD36': { order: 'asc' } }, label: '首播时间由远到近' },
+    ],
+    selected: '',
+    multiple: false,
+    type: 'string',
+    parentKey: '',
+    example: [{ 'detals.FIELD36': { order: 'asc' } }],
+  },
+  {
+    key: 'FIELD162',
+    label: '新闻日期',
+    selected: '',
+    multiple: false,
+    type: 'daterange',
+    parentKey: 'range',
+    example: { gte: '2017-10-16T08:52:17.200Z', lt: '2017-10-17T08:52:17.200Z' },
+  },
+  {
+    key: 'FIELD36',
+    label: '首播日期',
+    selected: '',
+    multiple: false,
+    type: 'daterange',
+    parentKey: 'range',
+    example: { gte: '2017-10-16T08:52:17.200Z', lt: '2017-10-17T08:52:17.200Z' },
+  },
+];
+
+
+const subscribeConfigKey = '订阅搜索配置';
+
+configGroup.collection.findOne({ name: subscribeConfigKey }, (err, doc) => {
+  if (err) {
+    console.log(err);
+  } else if (!doc) {
+    configGroup.insertOne({ name: subscribeConfigKey }, (err) => {
+      if (err) {
+        console.log(err);
+      }
+      configGroup.collection.findOne({ name: subscribeConfigKey }, (err, doc) => {
+        if (err) {
+          console.log(err);
+        }
+
+        if (!doc) {
+          console.log('没有创建订阅搜索配置组');
+        } else {
+          const genre = doc._id;
+          const info = {
+            key: 'subscribeSearchConfig',
+            value: JSON.stringify(subscribeConfig),
+            description: '',
+            genre,
+          };
+          configInfo.insertOne(info, (err) => {
+            if (err) {
+              throw new Error(`创建订阅搜索配置出错:${err.message}`);
+            }
+          });
+        }
+      });
+    });
+  }
+});
+
 configGroup.collection.findOne({ name: '新版媒体库搜索配置' }, { fields: { name: 1 } }, (err, doc) => {
   if (err) {
     console.log(err);
