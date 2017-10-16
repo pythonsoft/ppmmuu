@@ -209,7 +209,7 @@ router.get('/listAuditRule', (req, res) => {
   const sortFields = req.query.sortFields || '-createTime';
   const fieldsNeed = req.query.fieldsNeed || '';
 
-  service.listRole(creatorId, page, pageSize, sortFields, fieldsNeed, (err, docs) => res.json(result.json(err, docs)));
+  service.listAuditRule(creatorId, page, pageSize, sortFields, fieldsNeed, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
