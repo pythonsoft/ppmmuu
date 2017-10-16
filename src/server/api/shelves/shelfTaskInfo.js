@@ -45,11 +45,11 @@ class ShelfTaskInfo extends DB {
       details: { type: 'object' },
       editorInfo: { type: 'object',
         default: {
-          subscribeType: ShelfTaskInfo.SUBSCRIBE_TYPE.POLITIC,
+          subscribeType: '',
           source: '',
           limit: '',
           cover: '',
-        } },
+        } }
     };
   }
 }
@@ -75,11 +75,5 @@ ShelfTaskInfo.LINE_STATUS = [
   ShelfTaskInfo.STATUS.ONLINE,
   ShelfTaskInfo.STATUS.OFFLINE,
 ];
-
-ShelfTaskInfo.SUBSCRIBE_TYPE = {
-  POLITIC: '0',
-  SPORT: '1',
-  ENTERTAINMENT: '2',
-};
 
 module.exports = ShelfTaskInfo;

@@ -325,7 +325,7 @@ router.get('/listEngine', (req, res) => {
   const page = req.query.page || 1;
   const pageSize = req.query.pageSize || 20;
   const sortFields = req.query.sort || '-createdTime';
-  let fieldsNeed = req.query.fields || '_id,code,name,intranetIp,isTest,isVirtual,modifyTime,isInstallMonitor,command';
+  let fieldsNeed = req.query.fields || '_id,code,name,intranetIp,isTest,isVirtual,modifyTime,isInstallMonitor,command,installProgress';
   fieldsNeed = fieldsNeed.includes('intranetIp') ? fieldsNeed : `${fieldsNeed},intranetIp`;
 
   service.listEngine(keyword, groupId, page, pageSize, sortFields, fieldsNeed, (err, docs) => res.json(result.json(err, docs)));

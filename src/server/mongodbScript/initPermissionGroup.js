@@ -94,6 +94,24 @@ const infos = [
     parentIndex: 'taskManagement',
   },
   {
+    _id: 'auditManager',
+    name: '审核管理',
+    index: 'auditManager',
+    parentIndex: 'management',
+  },
+  {
+    _id: 'auditDownload',
+    name: '下载审核',
+    index: 'auditDownload',
+    parentIndex: 'auditManager',
+  },
+  {
+    _id: 'auditEmpower',
+    name: '审核授权',
+    index: 'auditEmpower',
+    parentIndex: 'auditManager',
+  },
+  {
     _id: 'templateManagement',
     name: '模板管理',
     index: 'templateManagement',
@@ -116,6 +134,18 @@ const infos = [
     name: '订阅管理',
     index: 'subscribeManagement',
     parentIndex: 'management',
+  },
+  {
+    _id: 'subscribeInfo',
+    name: '订阅信息',
+    index: 'subscribeInfo',
+    parentIndex: 'subscribeManagement',
+  },
+  {
+    _id: 'subscribeType',
+    name: '类型管理',
+    index: 'subscribeType',
+    parentIndex: 'subscribeManagement',
   },
   {
     _id: 'configuration',
@@ -267,7 +297,14 @@ const infos = [
     index: 'personal_catalog_task_all',
     parentIndex: 'personalTask',
   },
+  {
+    _id: 'subscriptions',
+    name: '订阅',
+    index: 'subscriptions',
+    parentIndex: '',
+  },
 ];
+
 
 permissionGroup.collection.removeMany({}, (err) => {
   if (err) {

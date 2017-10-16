@@ -9,7 +9,6 @@ const express = require('express');
 const router = express.Router();
 const service = require('./service');
 const isLogin = require('../../middleware/login');
-const result = require('../../common/result');
 
 router.use(isLogin.middleware);
 router.use(isLogin.hasAccessMiddleware);
@@ -226,7 +225,7 @@ router.post('/updateTemplate', (req, res) => {
 router.get('/list', (req, res) => {
   const page = req.query.page;
   const pageSize = req.query.pageSize;
-  const status = req.query.status;
+  const status = req.query.status || '';
   const currentStep = req.query.currentStep || '-1';
   const userId = req.query.userId;
 

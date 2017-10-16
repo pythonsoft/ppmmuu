@@ -809,4 +809,42 @@ router.get('/searchUser', (req, res) => {
     res.json(result.json(err, docs)));
 });
 
+/**
+ * @permissionGroup: myShelf
+ * @permissionName: 编辑任务中的订阅类型列表
+ * @permissionPath: /shelves/listSubscribeType
+ * @apiName: listSubscribeType
+ * @apiFuncType: get
+ * @apiFuncUrl: /shelves/listSubscribeType
+ * @swagger
+ * /shelves/listSubscribeType:
+ *   get:
+ *     description: 编辑任务中的订阅类型列表
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - ShelfTaskInfo
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: ShelfTaskInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.get('/listSubscribeType', (req, res) => {
+  service.listSubscribeType((err, docs) =>
+    res.json(result.json(err, docs)));
+});
+
 module.exports = router;
