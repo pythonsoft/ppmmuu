@@ -288,20 +288,20 @@ service.getShelfDetail = function getShelfDetail(info, cb) {
   if (!_id) {
     return cb & cb(i18n.t('shelfShortId'));
   }
-  
-  const getSubscribeTypeById = function getSubscribeTypeById(id, callback){
-    if(!id){
+
+  const getSubscribeTypeById = function getSubscribeTypeById(id, callback) {
+    if (!id) {
       return callback && callback(null, '');
     }
-  
-    subscribeManagementService.getSubscribeType({_id: id}, function(err, doc){
-      if(err){
+
+    subscribeManagementService.getSubscribeType({ _id: id }, (err, doc) => {
+      if (err) {
         return callback && callback(null, '');
       }
-  
+
       return callback && callback(null, doc.name);
-    })
-  }
+    });
+  };
 
   shelfTaskInfo.collection.findOne({ _id }, (err, doc) => {
     if (err) {
@@ -312,14 +312,14 @@ service.getShelfDetail = function getShelfDetail(info, cb) {
     if (!doc) {
       return cb && cb(i18n.t('shelfNotFind'));
     }
-  
-    getSubscribeTypeById(doc.editorInfo.subscribeType, function(err, name){
-      if(err){
+
+    getSubscribeTypeById(doc.editorInfo.subscribeType, (err, name) => {
+      if (err) {
         return cb && cb(err);
       }
       doc.editorInfo.subscribeType = name || doc.editorInfo.subscribeType;
       return cb && cb(null, doc);
-    })
+    });
   });
 };
 
@@ -384,7 +384,18 @@ service.submitShelf = function submitShelf(req, cb) {
       },
       editorInfo,
       status: ShelfTaskInfo.STATUS.SUBMITTED,
+      full_text: '',
     };
+    for (const key in doc.editorInfo) {
+      if (typeof doc.editorInfo[key] === 'string') {
+        updateInfo.full_text += `${doc.editorInfo[key]} `;
+      }
+    }
+    for (const key in doc.details) {
+      if (typeof doc.details[key] === 'string') {
+        updateInfo.full_text += `${doc.details[key]}`;
+      }
+    }
     shelfTaskInfo.collection.update({ _id, 'dealer._id': userInfo._id }, { $set: updateInfo }, (err) => {
       if (err) {
         logger.error(err.message);
@@ -600,14 +611,14 @@ service.searchUser = function searchUser(req, cb) {
 };
 
 
-service.listSubscribeType = function listSubscribeType(cb){
-  const info = { pageSize: 999};
-  subscribeManagementService.listSubscribeType(info, function(err, rs){
-    if(err){
+service.listSubscribeType = function listSubscribeType(cb) {
+  const info = { pageSize: 999 };
+  subscribeManagementService.listSubscribeType(info, (err, rs) => {
+    if (err) {
       return cb && cb(err);
     }
-    
+
     return cb && cb(null, rs);
-  })
-}
+  });
+};
 module.exports = service;

@@ -73,56 +73,45 @@ service.getGroup = function getGroup(id, cb) {
   });
 };
 
-service.listGroup = function listGroup(parentId, page, pageSize, sortFields, fieldsNeed, cb, isIncludeChildren) {
+service.listGroup = function listGroup(parentId, page, pageSize, cb) {
   const q = {};
 
-  q.parentId = parentId || '';
+  if (parentId) {
+    q.parentId = parentId;
+  } else {
+    q.parentId = '';
+  }
 
   templateGroupInfo.pagination(q, page, pageSize, (err, docs) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
-
-    if (isIncludeChildren && docs.docs.length !== 0) {
-      const ids = [];
-
-      for (let i = 0, len = docs.docs.length; i < len; i++) {
-        ids.push(docs.docs[i]._id);
+    const listArr = docs.docs;
+    const rs = [];
+    const getChildren = function getChildren(index) {
+      if (index >= listArr.length) {
+        docs.docs = rs;
+        return cb && cb(null, docs);
       }
 
-      let cursor = templateGroupInfo.collection.find({ parentId: { $in: ids } });
-
-      if (fieldsNeed) {
-        const fields = utils.formatSortOrFieldsParams(fieldsNeed, false);
-        fields.parentId = 1;
-        cursor = cursor.project(fields);
-      }
-
-      cursor.toArray((err, childrenInfo) => {
+      const temp = listArr[index];
+      templateGroupInfo.collection.find({ parentId: temp._id }, { fields: { _id: 1 } }).toArray((err, r) => {
         if (err) {
           logger.error(err.message);
           return cb && cb(i18n.t('databaseError'));
         }
-
-        for (let i = 0, len = docs.docs.length; i < len; i++) {
-          docs.docs[i].children = null;
-          for (let j = 0, l = childrenInfo.length; j < l; j++) {
-            if (docs.docs[i]._id === childrenInfo[j].parentId) {
-              if (!docs.docs[i].children) {
-                docs.docs[i].children = [];
-              }
-              docs.docs[i].children.push(childrenInfo[j]);
-            }
-          }
+        temp.children = [];
+        for (let j = 0, len = r.length; j < len; j++) {
+          const temp1 = r[j];
+          temp.children.push(temp1._id);
         }
-
-        return cb && cb(null, docs);
+        rs.push(temp);
+        getChildren(index + 1);
       });
-    } else {
-      return cb && cb(null, docs);
-    }
-  }, sortFields, fieldsNeed);
+    };
+    getChildren(0);
+  });
 };
 
 service.listChildGroup = function listChildGroup(id, fields, cb) {
@@ -322,7 +311,7 @@ const runDownloadScript = function runDownloadScript(userInfo, bucketInfo, scrip
   return false;
 };
 
-service.list = function list(type, sortFields = '-createdTime', fieldsNeed, page, pageSize = 20, cb) {
+service.list = function list(type, groupId, sortFields = '-createdTime', fieldsNeed, page, pageSize = 20, cb) {
   const query = { };
 
   if (type) {
@@ -331,6 +320,10 @@ service.list = function list(type, sortFields = '-createdTime', fieldsNeed, page
     } else {
       query.type = type;
     }
+  }
+
+  if (groupId) {
+    query.groupId = groupId;
   }
 
   templateInfo.pagination(query, page, pageSize, cb, sortFields, fieldsNeed);
