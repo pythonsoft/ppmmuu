@@ -114,20 +114,6 @@ router.post('/addGroup', (req, res) => {
  *         type: integer
  *         default: 999
  *         collectionFormat: csv
- *       - in: query
- *         name: fields
- *         description:
- *         required: false
- *         type: integer
- *         default: 999
- *         collectionFormat: csv
- *       - in: query
- *         name: isIncludeChild
- *         description:
- *         required: false
- *         type: string
- *         default: '0'
- *         collectionFormat: csv
  *     responses:
  *       200:
  *         description: TemplateGroupInfo
@@ -135,11 +121,9 @@ router.post('/addGroup', (req, res) => {
 router.get('/listGroup', (req, res) => {
   const parentId = req.query.parentId;
   const page = req.query.page || 1;
-  const pageSize = req.query.pageSize || 30;
-  const fields = req.query.fields || '_id,name,description';
-  const isIncludeChild = req.query.isIncludeChild === '1';
+  const pageSize = req.query.pageSize || 999;
 
-  service.listGroup(parentId, page, pageSize, '-createdTime', fields, (err, docs) => res.json(result.json(err, docs)), isIncludeChild);
+  service.listGroup(parentId, page, pageSize, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
@@ -286,6 +270,13 @@ router.post('/updateGroup', (req, res) => {
  *         default: '0'
  *         collectionFormat: csv
  *       - in: query
+ *         name: groupId
+ *         description: Download '0'
+ *         required: false
+ *         type: string
+ *         default: '0'
+ *         collectionFormat: csv
+ *       - in: query
  *         name: sortFields
  *         description: sort by this params
  *         required: false
@@ -323,8 +314,9 @@ router.get('/list', (req, res) => {
   const fieldsNeed = req.query.fieldsNeed || '';
   const page = req.query.page || 1;
   const pageSize = req.query.pageSize || 20;
+  const groupId = req.query.groupId || '';
 
-  service.list(type, sortFields, fieldsNeed, page, pageSize, (err, docs) => res.json(result.json(err, docs)));
+  service.list(type, groupId, sortFields, fieldsNeed, page, pageSize, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
