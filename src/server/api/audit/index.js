@@ -144,7 +144,7 @@ router.get('/list', (req, res) => {
   service.list(keyword, '', '', type, st, page, pageSize, sortFields, fieldsNeed, (err, docs) => res.json(result.json(err, docs)));
 });
 
-//审核授权
+// 审核授权
 /**
  * @permissionGroup: auditManager
  * @permissionName: listAuditRule

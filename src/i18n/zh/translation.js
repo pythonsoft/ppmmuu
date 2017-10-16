@@ -800,5 +800,17 @@ module.exports = {
   invalidSubscribeType: {
     code: '-140004',
     message: '非法的节目类型参数',
-  }
+  },
+  companySubscribeInfoNoSubscribeType: {
+    code: '-140005',
+    message: '您所在的公司签订的订阅合同没有订阅类型',
+  },
+  noSubscribeSearchConfig: {
+    code: '-140006',
+    message: '没有配置订阅搜索',
+  },
+  subscribeSearchConfigInvalidJson: {
+    code: '-140007',
+    message: '订阅搜索配置项json不正确',
+  },
 };
