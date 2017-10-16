@@ -21,4 +21,3 @@ const mediaService = require('../api/media/service');
     }
   });
 }());
-
