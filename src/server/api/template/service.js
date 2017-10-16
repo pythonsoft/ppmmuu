@@ -75,13 +75,13 @@ service.getGroup = function getGroup(id, cb) {
 
 service.listGroup = function listGroup(parentId, page, pageSize, cb) {
   const q = {};
-  
+
   if (parentId) {
     q.parentId = parentId;
   } else {
     q.parentId = '';
   }
-  
+
   templateGroupInfo.pagination(q, page, pageSize, (err, docs) => {
     if (err) {
       logger.error(err.message);
@@ -94,7 +94,7 @@ service.listGroup = function listGroup(parentId, page, pageSize, cb) {
         docs.docs = rs;
         return cb && cb(null, docs);
       }
-      
+
       const temp = listArr[index];
       templateGroupInfo.collection.find({ parentId: temp._id }, { fields: { _id: 1 } }).toArray((err, r) => {
         if (err) {
@@ -321,8 +321,8 @@ service.list = function list(type, groupId, sortFields = '-createdTime', fieldsN
       query.type = type;
     }
   }
-  
-  if(groupId){
+
+  if (groupId) {
     query.groupId = groupId;
   }
 

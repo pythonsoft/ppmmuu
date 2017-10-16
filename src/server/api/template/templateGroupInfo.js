@@ -36,7 +36,7 @@ class TemplateGroupInfo extends DB {
     super(config.dbInstance.umpDB, 'TemplateGroupInfo');
 
     this.struct = {
-      _id: { type: 'string',  default() { return uuid.v1(); }, validation: 'require' },
+      _id: { type: 'string', default() { return uuid.v1(); }, validation: 'require' },
       name: { type: 'string', validation: 'require' },
       creator: { type: 'object', default: { _id: '', name: '' }, allowUpdate: false },
       parentId: { type: 'string', allowUpdate: false },
