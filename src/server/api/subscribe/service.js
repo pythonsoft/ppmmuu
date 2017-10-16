@@ -194,9 +194,53 @@ service.esSearch = function esSearch(req, cb) {
 };
 
 service.getEsMediaList = function getEsMediaList(req, cb) {
-  const info = req.body;
+  const info = req.query;
   const userInfo = req.ex.userInfo;
   const companyId = userInfo.company._id;
+  const pageSize = info.pageSize || 7;
+  const rs = {};
+
+  const loopGetShelfTaskInfo = function loopGetShelfTaskInfo(subscribeType, subscribeNames, index, cb) {
+    if (index >= subscribeType.length) {
+      return cb && cb(null, rs);
+    }
+    const query = {
+      'editorInfo.subscribeType': subscribeType[index],
+      status: ShelfInfo.STATUS.ONLINE,
+    };
+
+    shelfInfo.pagination(query, 1, pageSize, (err, docs) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+      const category = {};
+      category.key = subscribeNames[index];
+      category.total = docs.total;
+      category.docs = [];
+      docs = docs.docs;
+      if (docs && docs.length) {
+        docs.forEach((item) => {
+          const doc = {};
+          doc.name = item.name;
+          doc.objectId = item.objectId;
+          doc.programNO = item.programNO;
+          doc.storageTime = item.lastModifyTime;
+          doc.source = item.editorInfo.source;
+          doc.limit = item.editorInfo.limit;
+          doc.poster = item.cover;
+          doc.inpoint = item.details.INPOINT;
+          doc.outpoint = item.details.OUTPOINT;
+          doc.files = item.files;
+          category.docs.push(doc);
+        });
+        rs.category.push(category);
+      }
+
+      loopGetShelfTaskInfo(subscribeType, subscribeNames, index + 1, cb);
+    }, '-createdTime');
+  };
+
   subscribeInfo.collection.findOne({ _id: companyId }, (err, doc) => {
     if (err) {
       logger.error(err.message);
@@ -215,7 +259,27 @@ service.getEsMediaList = function getEsMediaList(req, cb) {
     if (doc.status === SubscribeInfo.STATUS.EXPIRED) {
       return cb && cb(null, i18n.t('companySubscribeInfoExpired'));
     }
-    return cb && cb(null, {});
+
+    const subscribeTypes = doc.subscribeType || [];
+    if (subscribeTypes.length === 0) {
+      return cb && cb(null, i18n.t('companySubscribeInfoNoSubscribeType'));
+    }
+    getSubscribeTypes(doc.subscribeType, (err, docs) => {
+      if (err) {
+        return cb && cb(err);
+      }
+      const subscribeTypes = [];
+      const subscribeNames = [];
+      docs.forEach((item) => {
+        subscribeTypes.push(item._id);
+        subscribeNames.push(item.name);
+      });
+
+      rs.downloadSeconds = doc.downloadSeconds;
+      rs.remainDownloadSeconds = doc.remainDownloadSeconds;
+      rs.category = [];
+      loopGetShelfTaskInfo(subscribeTypes, subscribeNames, 0, cb);
+    });
   });
 };
 module.exports = service;

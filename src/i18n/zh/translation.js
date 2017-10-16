@@ -801,4 +801,8 @@ module.exports = {
     code: '-140004',
     message: '非法的节目类型参数',
   },
+  companySubscribeInfoNoSubscribeType: {
+    code: '-140005',
+    message: '您所在的公司签订的订阅合同没有订阅类型',
+  },
 };

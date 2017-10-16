@@ -43,6 +43,7 @@ class ShelfTaskInfo extends DB {
       lastModifyTime: { type: 'date', validation: 'require' },
       description: { type: 'string' },
       details: { type: 'object' },
+      files: { type: 'array' },
       full_text: { type: 'string' },
       editorInfo: { type: 'object',
         default: {
