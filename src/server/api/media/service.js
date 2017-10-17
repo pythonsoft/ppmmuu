@@ -121,7 +121,7 @@ service.getEsMediaList = function getEsMediaList(info, cb) {
         key: 'program_type',
         value: category,
       }],
-      source: 'id,duration,name,ccid,program_type,program_name_cn,hd_flag,program_name_en,last_modify,f_str_03,f_date_162,from_where',
+      source: 'id,duration,name,ccid,program_type,program_name_cn,hd_flag,program_name_en,last_modify,f_str_03,f_str_01,FIELD01,from_where',
       sort: [{
         key: 'last_modify',
         value: 'desc',
