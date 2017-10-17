@@ -292,6 +292,11 @@ const getEsOptions = function getEsOptions(info) {
     _source: 'name,details,editorInfo,lastModifyTime,files'.split(','),
     from: start * 1,
     size: pageSize * 1,
+    sort: [ {
+      "lastModifyTime": {
+        "order": "desc"
+      }
+    }]
   };
   const query = {
     bool: { must: [] },
@@ -321,8 +326,9 @@ const getEsOptions = function getEsOptions(info) {
     const temp = { range: { 'details.duration': duration } };
     musts.push(temp);
   }
-  if (sort && sort.constructor.name.toLowerCase() === 'array') {
-    options.sort = sort;
+  if (sort && sort.constructor.name.toLowerCase() === 'object') {
+    options.sort = [];
+    options.sort.push(sort);
   } else if (sort === 'should' && keyword) {
     query.bool.should = [
       { match: { name: keyword } },
