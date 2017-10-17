@@ -13,7 +13,7 @@ const config = require('../../config');
 
 class TaskInfo extends DB {
   constructor() {
-    super(config.dbInstance.umpDB, 'TaskInfo');
+    super(config.dbInstance[`${config.dbName}DB`], 'TaskInfo');
 
     this.struct = {
       _id: { type: 'string', default: () => uuid.v1() },

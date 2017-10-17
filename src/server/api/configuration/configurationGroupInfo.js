@@ -17,7 +17,7 @@ const config = require('../../config');
  */
 class ConfigurationGroupInfo extends DB {
   constructor() {
-    super(config.dbInstance.umpDB, 'ConfigurationGroupInfo');
+    super(config.dbInstance[`${config.dbName}DB`], 'ConfigurationGroupInfo');
 
     this.struct = {
       _id: { type: 'string', validation: 'require', default() { return uuid.v1(); } },

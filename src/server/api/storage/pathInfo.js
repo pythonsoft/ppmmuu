@@ -54,7 +54,7 @@ const config = require('../../config');
  */
 class PathInfo extends DB {
   constructor() {
-    super(config.dbInstance.umpDB, 'PathInfo', [
+    super(config.dbInstance[`${config.dbName}DB`], 'PathInfo', [
       { key: { viceId: 1, 'bucket._id': 1 }, unique: true },
     ]);
 

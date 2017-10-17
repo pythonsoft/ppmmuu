@@ -66,7 +66,7 @@ const uuid = require('uuid');
  */
 class auditInfo extends DB {
   constructor() {
-    super(config.dbInstance.umpDB, 'audit_auditInfo');
+    super(config.dbInstance[`${config.dbName}DB`], 'audit_auditInfo');
 
     this.struct = {
       _id: { type: 'string', default() { return uuid.v1(); }, validation: 'require' },

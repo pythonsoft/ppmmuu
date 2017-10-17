@@ -10,7 +10,7 @@ const uuid = require('uuid');
 
 class CatalogInfo extends DB {
   constructor() {
-    super(config.dbInstance.umpDB, 'Library_CatalogInfo');
+    super(config.dbInstance[`${config.dbName}DB`], 'Library_CatalogInfo');
 
     this.struct = {
       _id: { type: 'string', default() { return uuid.v1(); }, allowUpdate: false },

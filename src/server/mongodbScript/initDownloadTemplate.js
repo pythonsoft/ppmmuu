@@ -48,7 +48,8 @@ bucketInfo.collection.findOne({ _id: bucket._id }, (err, doc) => {
       const id = 'MEDIA_EXPRESS';
       const name = '凤云快传下载';
       const bucketId = bucket._id;
-      service.createDownloadTemplate(userId, id, name, description, bucketId, script, (err) => {
+      service.createDownloadTemplate({ userId, id, name, description, bucketId, script }, (err) => {
+        console.log(err);
         if (err) {
           throw new Error(`初始化下载模板失败:${err.message}`);
         }

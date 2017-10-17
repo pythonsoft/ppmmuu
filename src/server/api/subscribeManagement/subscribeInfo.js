@@ -19,7 +19,7 @@ const config = require('../../config');
  */
 class SubscribeInfo extends DB {
   constructor() {
-    super(config.dbInstance.umpDB, 'SubscribeInfo');
+    super(config.dbInstance[`${config.dbName}DB`], 'SubscribeInfo');
 
     this.struct = {
       _id: { type: 'string', allowUpdate: false, validation: 'require' },  // companyId

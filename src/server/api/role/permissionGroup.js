@@ -30,7 +30,7 @@ class PermissionGroup extends DB {
       { key: { index: 1 }, name: 'permission_group_index', unique: true },
     ];
 
-    super(config.dbInstance.umpDB, 'PermissionGroup', indexes);
+    super(config.dbInstance[`${config.dbName}DB`], 'PermissionGroup', indexes);
 
     this.struct = {
       _id: { type: 'string', validation: 'require', allowUpdate: false },

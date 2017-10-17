@@ -51,7 +51,7 @@ const utils = require('../../common/utils');
  */
 class EngineInfo extends DB {
   constructor() {
-    super(config.dbInstance.umpDB, 'EngineInfo');
+    super(config.dbInstance[`${config.dbName}DB`], 'EngineInfo');
 
     this.struct = {
       _id: { type: 'string', default() { return uuid.v1(); }, allowUpdate: false },

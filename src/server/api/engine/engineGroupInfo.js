@@ -51,7 +51,7 @@ const config = require('../../config');
  */
 class EngineGroupInfo extends DB {
   constructor() {
-    super(config.dbInstance.umpDB, 'EngineGroupInfo');
+    super(config.dbInstance[`${config.dbName}DB`], 'EngineGroupInfo');
 
     this.struct = {
       _id: { type: 'string', default() { return uuid.v1(); } },

@@ -32,7 +32,7 @@ const config = require('../../config');
  */
 class TemplateGroupInfo extends DB {
   constructor() {
-    super(config.dbInstance.umpDB, 'TemplateGroupInfo');
+    super(config.dbInstance[`${config.dbName}DB`], 'TemplateGroupInfo');
 
     this.struct = {
       _id: { type: 'string', validation: 'require' },
