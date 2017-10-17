@@ -66,7 +66,6 @@ class Xml2Srt {
       if (!data) {
         return cb && cb(null, '');
       }
-      console.log('data', data);
       parseString(data, (err, r) => {
         if (err) {
           return cb && cb(err);

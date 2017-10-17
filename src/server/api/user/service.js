@@ -298,8 +298,8 @@ service.removeSearchHistory = (ids, userId, cb) => {
   searchHistoryInfo.collection.deleteMany(filter, null, (err, r) => cb && cb(err, r));
 };
 
-const getGroupByNameOrCreate = function getGroupByNameOrCreate(name, cb) {
-  groupInfo.collection.findOne({ name, type: GroupInfo.TYPE.COMPANY }, (err, doc) => {
+const getGroupByNameOrCreate = function getGroupByNameOrCreate(query, cb) {
+  groupInfo.collection.findOne(query, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
@@ -308,13 +308,7 @@ const getGroupByNameOrCreate = function getGroupByNameOrCreate(name, cb) {
       return cb && cb(null, doc);
     }
 
-    const info = {
-      type: GroupInfo.TYPE.COMPANY,
-      name,
-      parentId: '',
-    };
-
-    groupService.addGroup(info, (err, doc) => {
+    groupService.addGroup(query, (err, doc) => {
       if (err) {
         return cb && cb(err);
       }
@@ -403,123 +397,70 @@ service.adAccountSync = function adAccountSync(info, cb) {
 
   const doc = result.doc;
 
-  getGroupByNameOrCreate(companyName, (err, r) => {
+  const getDepartmentInfo = function getDepartmentInfo(departmentName, info, callback) {
+    if (!departmentName) {
+      return callback && callback(null, null);
+    }
+
+    getGroupByNameOrCreate(info, (err, r) => {
+      if (err) {
+        return callback && callback(err);
+      }
+      return callback && callback(null, r);
+    });
+  };
+
+  getGroupByNameOrCreate({ name: companyName, type: GroupInfo.TYPE.COMPANY }, (err, r) => {
     if (err) {
       return cb && cb(err);
     }
     doc.company._id = r._id;
     doc.company.name = r.name;
-    userInfo.collection.findOneAndUpdate({ _id: info._id }, { $set: doc }, { upsert: true }, (err) => {
-      if (err) {
-        logger.error(err.message);
-        return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
-      }
 
-      return cb && cb(null, 'ok');
+    let departmentName = info.departmentName || '';
+    departmentName = departmentName.trim();
+    const departmentInfo = {
+      name: departmentName,
+      type: GroupInfo.TYPE.DEPARTMENT,
+      parentId: r._id,
+    };
+
+    getDepartmentInfo(departmentName, departmentInfo, (err, dept) => {
+      if (err) {
+        return cb && cb(err);
+      }
+      if (dept) {
+        doc.department._id = dept._id;
+        doc.department.name = dept.name;
+      }
+      userInfo.collection.findOneAndUpdate({ _id: info._id }, { $set: doc }, { upsert: true }, (err) => {
+        if (err) {
+          logger.error(err.message);
+          return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
+        }
+
+        return cb && cb(null, 'ok');
+      });
     });
   });
 };
 
 service.batchAdAccountSync = function batchAdAccountSync(infos, cb) {
-  const companyNames = [];
-  const orignalInfos = JSON.parse(JSON.stringify(infos));
-  const userIds = [];
-  for (let i = 0, len = infos.length; i < len; i++) {
-    const info = infos[i];
-    if (!info.verifyType) {
-      info.verifyType = UserInfo.VERIFY_TYPE.AD;
-    }
-
-    if (!info._id) {
-      return cb && cb(i18n.t('fieldIsNotExistError', { field: '_id' }));
-    }
-
-    if (!info.companyName) {
-      return cb && cb(i18n.t('fieldIsNotExistError', { field: 'companyName' }));
-    }
-
-    const companyName = utils.trim(info.companyName);
-    orignalInfos[i].companyName = companyName;
-    if (companyNames.indexOf(companyName) === -1) {
-      companyNames.push(companyName);
-    }
-    userIds.push(info._id);
+  if (!infos || infos.constructor.name.toLowerCase() !== 'array') {
+    return cb && cb(i18n.t('infosNotCorrect'));
   }
-  const result = userInfo.assignMany(infos);
-
-  if (result.err) {
-    return cb & cb(result.err);
-  }
-
-  const docs = result.docs;
-
-  getGroupsByNamesOrCreate(companyNames, (err, rs) => {
-    if (err) {
-      return cb && cb(err);
+  const loopSync = function loopSync(index) {
+    if (index >= infos.length) {
+      return cb && cb(null, 'ok');
     }
-    for (let i = 0, len = orignalInfos.length; i < len; i++) {
-      const name = orignalInfos[i].companyName;
-      const _id = rs[name];
-      docs[i].company = {
-        name,
-        _id,
-      };
-    }
-
-    userInfo.collection.find({ _id: { $in: userIds } }).toArray((err, users) => {
+    service.adAccountSync(infos[index], (err) => {
       if (err) {
-        logger.error(err.message);
-        return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
+        return cb && cb(err);
       }
-      const insertUsers = [];
-      const updateUserIds = [];
-      const updateUsers = [];
-      if (users) {
-        const len1 = users.length;
-        for (let j = 0; j < len1; j++) {
-          const _id = users[j]._id;
-          updateUserIds.push(_id);
-        }
-      }
-
-      for (let k = 0, len2 = docs.length; k < len2; k++) {
-        const _id = docs[k]._id;
-        if (updateUserIds.indexOf(_id) !== -1) {
-          updateUsers.push(docs[k]);
-        } else {
-          insertUsers.push(docs[k]);
-        }
-      }
-
-      const loopUpdateUser = function loopUpdateUser(index) {
-        if (index >= updateUsers.length) {
-          return cb && cb(null, 'ok');
-        }
-        const info = updateUsers[index];
-
-        userInfo.collection.findOneAndUpdate({ _id: info._id }, { $set: info }, { upsert: true }, (err) => {
-          if (err) {
-            logger.error(err.message);
-            return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
-          }
-
-          loopUpdateUser(index + 1);
-        });
-      };
-
-      if (insertUsers.length) {
-        userInfo.insertMany(insertUsers, (err) => {
-          if (err) {
-            return cb && cb(err);
-          }
-
-          loopUpdateUser(0);
-        });
-      } else {
-        loopUpdateUser(0);
-      }
+      loopSync(index + 1);
     });
-  });
+  };
+  loopSync(0);
 };
 
 service.getDirectAuthorizeAcceptorList = function getDirectAuthorizeAcceptorList(_id, cb) {

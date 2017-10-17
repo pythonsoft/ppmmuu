@@ -40,6 +40,8 @@ const filterDoc = function filterDoc(_source) {
   doc.name = _source.name;
   doc.objectId = _source.objectId;
   doc.programNO = _source.programNO;
+  doc.newsTime = _source.details.FIELD162 || null;
+  doc.playTime = _source.details.FIELD36 || null;
   doc.storageTime = _source.lastModifyTime;
   doc.source = _source.editorInfo.source;
   doc.limit = _source.editorInfo.limit;
@@ -393,7 +395,7 @@ service.esSearch = function esSearch(req, cb) {
       if (err) {
         return cb && cb(err);
       }
-      
+
       docs.downloadSeconds = doc.downloadSeconds;
       docs.remainDownloadSeconds = doc.remainDownloadSeconds;
 
