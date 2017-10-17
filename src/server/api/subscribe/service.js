@@ -37,6 +37,7 @@ const DOWNLOAD_TYPE_MAP = {
 
 const filterDoc = function filterDoc(_source) {
   const doc = {};
+  doc._id = _source._id;
   doc.name = _source.name;
   doc.objectId = _source.objectId;
   doc.programNO = _source.programNO;
@@ -426,6 +427,7 @@ service.getEsMediaList = function getEsMediaList(req, cb) {
         return cb && cb(i18n.t('databaseError'));
       }
       const category = {};
+      category._id = subscribeType[index];
       category.key = subscribeNames[index];
       category.total = docs.total;
       category.docs = [];
