@@ -25,7 +25,7 @@ const uuid = require('uuid');
  */
 class SearchHistoryInfo extends DB {
   constructor() {
-    super(config.dbInstance.umpDB, 'SearchHistoryInfo', [
+    super(config.dbInstance[`${config.dbName}DB`], 'SearchHistoryInfo', [
       { key: { userId: 1, keyword: 1 }, unique: true },
     ]);
 

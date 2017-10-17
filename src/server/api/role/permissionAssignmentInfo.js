@@ -34,7 +34,7 @@ const config = require('../../config');
  */
 class PermissionAssignmentInfo extends DB {
   constructor() {
-    super(config.dbInstance.umpDB, 'PermissionAssignmentInfo');
+    super(config.dbInstance[`${config.dbName}DB`], 'PermissionAssignmentInfo');
 
     this.struct = {
       _id: { type: 'string', validation: 'require', allowUpdate: false }, // userId or departmentId or teamId

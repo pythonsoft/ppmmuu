@@ -67,7 +67,7 @@ const uuid = require('uuid');
  */
 class UserInfo extends DB {
   constructor() {
-    super(config.dbInstance.umpDB, 'UserInfo', [
+    super(config.dbInstance[`${config.dbName}DB`], 'UserInfo', [
       { key: { name: 1 }, name: 'user_name', unique: true },
       { key: { email: 1 }, unique: true },
     ]);

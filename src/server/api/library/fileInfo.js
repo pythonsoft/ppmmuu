@@ -10,7 +10,7 @@ const uuid = require('uuid');
 
 class FileInfo extends DB {
   constructor() {
-    super(config.dbInstance.umpDB, 'Library_FileInfo');
+    super(config.dbInstance[`${config.dbName}DB`], 'Library_FileInfo');
 
     this.struct = {
       _id: { type: 'string', default() { return uuid.v1(); }, allowUpdate: false },

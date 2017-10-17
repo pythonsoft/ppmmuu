@@ -38,7 +38,7 @@ class PermissionInfo extends DB {
       { key: { path: 1 }, name: 'permission_path', unique: true },
     ];
 
-    super(config.dbInstance.umpDB, 'PermissionInfo', indexes);
+    super(config.dbInstance[`${config.dbName}DB`], 'PermissionInfo', indexes);
 
     this.struct = {
       _id: { type: 'string', validation: 'require', allowUpdate: false },

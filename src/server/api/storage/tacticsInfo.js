@@ -61,7 +61,7 @@ const config = require('../../config');
  */
 class TacticsInfo extends DB {
   constructor() {
-    super(config.dbInstance.umpDB, 'TacticsInfo');
+    super(config.dbInstance[`${config.dbName}DB`], 'TacticsInfo');
 
     this.struct = {
       _id: { type: 'string', default() { return uuid.v1(); }, validation: 'require' },
