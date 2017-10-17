@@ -393,6 +393,9 @@ service.esSearch = function esSearch(req, cb) {
       if (err) {
         return cb && cb(err);
       }
+      
+      docs.downloadSeconds = doc.downloadSeconds;
+      docs.remainDownloadSeconds = doc.remainDownloadSeconds;
 
       return cb && cb(null, docs);
     });
