@@ -381,7 +381,6 @@ const subscribeConfig = [
     selected: '',
     multiple: false,
     type: 'string',
-    parentKey: '',
     example: { 'detals.FIELD36': { order: 'asc' } },
   },
   {
@@ -401,7 +400,6 @@ const subscribeConfig = [
     example: { gte: '2017-10-16T08:52:17.200Z', lt: '2017-10-17T08:52:17.200Z' },
   },
 ];
-
 
 const subscribeConfigKey = '订阅搜索配置';
 
