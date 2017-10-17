@@ -41,6 +41,10 @@ module.exports = {
     code: '-1010',
     message: '用户名称为空',
   },
+  infosNotCorrect: {
+    code: '-1011',
+    message: '缺少参数infos或者infos类型不是数组',
+  },
   getRoleNoId: {
     code: '-2005',
     message: '获取角色详情需要参数_id',
@@ -800,5 +804,17 @@ module.exports = {
   invalidSubscribeType: {
     code: '-140004',
     message: '非法的节目类型参数',
-  }
+  },
+  companySubscribeInfoNoSubscribeType: {
+    code: '-140005',
+    message: '您所在的公司签订的订阅合同没有订阅类型',
+  },
+  noSubscribeSearchConfig: {
+    code: '-140006',
+    message: '没有配置订阅搜索',
+  },
+  subscribeSearchConfigInvalidJson: {
+    code: '-140007',
+    message: '订阅搜索配置项json不正确',
+  },
 };

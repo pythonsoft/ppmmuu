@@ -3,6 +3,7 @@
 
 const DB = require('../../common/db');
 const utils = require('../../common/utils');
+const uuid = require('uuid');
 const config = require('../../config');
 
 /**
@@ -35,7 +36,7 @@ class TemplateGroupInfo extends DB {
     super(config.dbInstance[`${config.dbName}DB`], 'TemplateGroupInfo');
 
     this.struct = {
-      _id: { type: 'string', validation: 'require' },
+      _id: { type: 'string', default() { return uuid.v1(); }, validation: 'require' },
       name: { type: 'string', validation: 'require' },
       creator: { type: 'object', default: { _id: '', name: '' }, allowUpdate: false },
       parentId: { type: 'string', allowUpdate: false },
