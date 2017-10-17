@@ -572,6 +572,10 @@ router.post('/clearWatchHistory', (req, res) => {
  *                     type: string
  *                     description: '公司名字'
  *                     example: '凤凰卫视'
+ *                   departmentName:
+ *                     type: string
+ *                     description: '部门名字'
+ *                     example: '信息部'
  *                   verifyType:
  *                     type: string
  *                     description: '登录验证方式, 1:域验证, 2:webos验证'
@@ -601,10 +605,10 @@ router.post('/clearWatchHistory', (req, res) => {
  *                     type: string
  *                     example: ''
  *                     description: '0:未激活,1:正常,2:已删除.默认是1'
- *               example: [{"_id": "bbbbb", "name": "vzvzv", "companyName": "小红书", "verifyType": "1", "email": "bbcc@qq.com"},
- *                    {"_id": "bbbbbc", "name": "vbvb", "companyName": "小黄书", "verifyType": "2", "email": "bbcd@qq.com"},
- *                     {"_id": "bbbbbd", "name": "vcvc", "companyName": "小蓝书", "verifyType": "1", "email": "bbce@qq.com"},
- *                    {"_id": "bbbbbe", "name": "vdvd", "companyName": "小黑书", "verifyType": "2", "email": "bbcf@qq.com"}]
+ *               example: [{"_id": "bbbbb", "name": "vzvzv", "companyName": "小红书", departmentName: "组织部", "verifyType": "1", "email": "bbcc@qq.com"},
+ *                    {"_id": "bbbbbc", "name": "vbvb", "companyName": "小黄书", departmentName: "搜索部", "verifyType": "2", "email": "bbcd@qq.com"},
+ *                     {"_id": "bbbbbd", "name": "vcvc", "companyName": "小蓝书", departmentName: "美术部", "verifyType": "1", "email": "bbce@qq.com"},
+ *                    {"_id": "bbbbbe", "name": "vdvd", "companyName": "小黑书", departmentName: "组织部", "verifyType": "2", "email": "bbcf@qq.com"}]
  *     responses:
  *       200:
  *         description: UserInfo

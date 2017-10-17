@@ -29,7 +29,7 @@ const uuid = require('uuid');
 class ConfigurationInfo extends DB {
   constructor() {
     const indexes = [{ key: { key: 1 }, unique: true }];
-    super(config.dbInstance.umpDB, 'ConfigurationInfo', indexes);
+    super(config.dbInstance[`${config.dbName}DB`], 'ConfigurationInfo', indexes);
 
     this.struct = {
       _id: { type: 'string', default() { return uuid.v1(); }, validation: 'require' },

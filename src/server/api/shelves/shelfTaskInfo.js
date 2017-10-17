@@ -20,7 +20,7 @@ const uuid = require('uuid');
  */
 class ShelfTaskInfo extends DB {
   constructor() {
-    super(config.dbInstance.umpDB, 'ShelfTaskInfo');
+    super(config.dbInstance[`${config.dbName}DB`], 'ShelfTaskInfo');
 
     this.struct = {
       _id: { type: 'string', default() { return uuid.v1(); }, allowUpdate: false },
@@ -47,6 +47,7 @@ class ShelfTaskInfo extends DB {
       full_text: { type: 'string' },
       editorInfo: { type: 'object',
         default: {
+          name: '',
           subscribeType: '',
           source: '',
           limit: '',

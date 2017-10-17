@@ -37,9 +37,12 @@ const DOWNLOAD_TYPE_MAP = {
 
 const filterDoc = function filterDoc(_source) {
   const doc = {};
+  doc._id = _source._id;
   doc.name = _source.name;
   doc.objectId = _source.objectId;
   doc.programNO = _source.programNO;
+  doc.newsTime = _source.details.FIELD162 || null;
+  doc.playTime = _source.details.FIELD36 || null;
   doc.storageTime = _source.lastModifyTime;
   doc.source = _source.editorInfo.source;
   doc.limit = _source.editorInfo.limit;
@@ -286,9 +289,14 @@ const getEsOptions = function getEsOptions(info) {
   const start = info.start || 0;
   const pageSize = info.pageSize || 28;
   const options = {
-    _source: 'name,details,editorInfo,lastModifyTime'.split(','),
+    _source: 'name,details,editorInfo,lastModifyTime,files'.split(','),
     from: start * 1,
     size: pageSize * 1,
+    sort: [{
+      lastModifyTime: {
+        order: 'desc',
+      },
+    }],
   };
   const query = {
     bool: { must: [] },
@@ -318,8 +326,9 @@ const getEsOptions = function getEsOptions(info) {
     const temp = { range: { 'details.duration': duration } };
     musts.push(temp);
   }
-  if (sort && sort.constructor.name.toLowerCase() === 'array') {
-    options.sort = sort;
+  if (sort && sort.constructor.name.toLowerCase() === 'object') {
+    options.sort = [];
+    options.sort.push(sort);
   } else if (sort === 'should' && keyword) {
     query.bool.should = [
       { match: { name: keyword } },
@@ -394,6 +403,9 @@ service.esSearch = function esSearch(req, cb) {
         return cb && cb(err);
       }
 
+      docs.downloadSeconds = doc.downloadSeconds;
+      docs.remainDownloadSeconds = doc.remainDownloadSeconds;
+
       return cb && cb(null, docs);
     });
   });
@@ -421,6 +433,7 @@ service.getEsMediaList = function getEsMediaList(req, cb) {
         return cb && cb(i18n.t('databaseError'));
       }
       const category = {};
+      category._id = subscribeType[index];
       category.key = subscribeNames[index];
       category.total = docs.total;
       category.docs = [];

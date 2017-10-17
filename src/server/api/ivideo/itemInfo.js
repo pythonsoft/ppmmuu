@@ -11,7 +11,7 @@ const config = require('../../config');
 
 class ItemInfo extends DB {
   constructor() {
-    super(config.dbInstance.umpDB, 'MovieEditor_ItemInfo');
+    super(config.dbInstance[`${config.dbName}DB`], 'MovieEditor_ItemInfo');
 
     this.struct = {
       _id: { type: 'string', default() { return uuid.v1(); }, validation: 'require' },

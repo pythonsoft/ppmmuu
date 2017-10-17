@@ -27,8 +27,8 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.use(cookieParser());
-app.use(bodyParser.json()); // for parsing application/json
-app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+app.use(bodyParser.json({ limit: '3mb' })); // for parsing application/json
+app.use(bodyParser.urlencoded({ limit: '3mb', extended: true })); // for parsing application/x-www-form-urlencoded
 app.use('/', express.static(path.resolve('build', 'public')));
 app.use('/uploads', express.static(config.uploadPath));
 
@@ -59,8 +59,8 @@ const initMongodb = function initMongodb(names, completeFn) {
   init(0);
 };
 
-const runServer = function runServer() {
-  initMongodb(['ump'], () => {
+const runServer = function runServer(dbName = config.dbName) {
+  initMongodb([dbName], () => {
     app.listen(config.port, () => {
       require('./apiPath.js')(app); // eslint-disable-line
       require('./mongodbScript/index');
@@ -111,6 +111,10 @@ if (process.env.NODE_ENV === 'development') {
   });
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, showExplorer, swaggerUiOptions, swaggerUiCss));
   require('./../runGulp')();
+} else if (process.env.NODE_ENV === 'test') {
+  runServer(config.dbName);
 } else {
   runServer();
 }
+
+module.exports = app;

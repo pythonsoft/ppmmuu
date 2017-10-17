@@ -41,6 +41,10 @@ module.exports = {
     code: '-1010',
     message: '用户名称为空',
   },
+  infosNotCorrect: {
+    code: '-1011',
+    message: '缺少参数infos或者infos类型不是数组',
+  },
   getRoleNoId: {
     code: '-2005',
     message: '获取角色详情需要参数_id',
