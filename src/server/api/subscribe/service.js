@@ -292,11 +292,11 @@ const getEsOptions = function getEsOptions(info) {
     _source: 'name,details,editorInfo,lastModifyTime,files'.split(','),
     from: start * 1,
     size: pageSize * 1,
-    sort: [ {
-      "lastModifyTime": {
-        "order": "desc"
-      }
-    }]
+    sort: [{
+      lastModifyTime: {
+        order: 'desc',
+      },
+    }],
   };
   const query = {
     bool: { must: [] },
