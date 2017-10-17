@@ -105,9 +105,9 @@ router.get('/getSubscribeTypeSummary', (req, res) => {
  *               description: 时长
  *               example: {gte: 0, lt: 6000}
  *             sort:
- *               type: array
+ *               type: object
  *               description: '排序'
- *               example: [{'details.FIELD36': {"order": "asc"}}]
+ *               example: {'details.FIELD36': {"order": "asc"}}
  *             FIELD162:
  *               type: object
  *               description: '新闻日期'

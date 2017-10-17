@@ -381,8 +381,7 @@ const subscribeConfig = [
     selected: '',
     multiple: false,
     type: 'string',
-    parentKey: '',
-    example: [{ 'detals.FIELD36': { order: 'asc' } }],
+    example: { 'detals.FIELD36': { order: 'asc' } },
   },
   {
     key: 'FIELD162',
@@ -390,7 +389,6 @@ const subscribeConfig = [
     selected: '',
     multiple: false,
     type: 'daterange',
-    parentKey: 'range',
     example: { gte: '2017-10-16T08:52:17.200Z', lt: '2017-10-17T08:52:17.200Z' },
   },
   {
@@ -399,11 +397,9 @@ const subscribeConfig = [
     selected: '',
     multiple: false,
     type: 'daterange',
-    parentKey: 'range',
     example: { gte: '2017-10-16T08:52:17.200Z', lt: '2017-10-17T08:52:17.200Z' },
   },
 ];
-
 
 const subscribeConfigKey = '订阅搜索配置';
 
@@ -440,6 +436,7 @@ configGroup.collection.findOne({ name: subscribeConfigKey }, (err, doc) => {
     });
   }
 });
+
 
 configGroup.collection.findOne({ name: '新版媒体库搜索配置' }, { fields: { name: 1 } }, (err, doc) => {
   if (err) {
