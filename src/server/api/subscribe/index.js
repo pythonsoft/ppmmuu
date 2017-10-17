@@ -12,7 +12,6 @@ const service = require('./service');
 const isLogin = require('../../middleware/login');
 
 router.use(isLogin.middleware);
-router.use(isLogin.hasAccessMiddleware);
 
 /**
  * @apiName: getSubscribeInfo
