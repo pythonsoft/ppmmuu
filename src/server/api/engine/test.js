@@ -9,8 +9,8 @@ chai.use(chaiHttp);
 const expect = chai.expect;
 const agent = chai.request.agent(app);
 
-describe('/engine', () => {
-  setTimeout(() => {
+setTimeout(function () {
+  describe('/engine', () => {
     before((done) => {
       agent
       .post('/user/login')
@@ -20,17 +20,19 @@ describe('/engine', () => {
         done();
       });
     });
-    run();
-  }, 5000);
 
-  describe('GET /listGroup', () => {
-    it('should get all engine groups', (done) => {
-      agent
-      .get('/engine/listGroup')
-      .end((err, res) => {
-        expect(res).to.have.status(200);
-        done();
+    describe('GET /listGroup', () => {
+      it('should get all engine groups', (done) => {
+        agent
+        .get('/engine/listGroup')
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          done();
+        });
       });
     });
   });
-});
+
+  run();
+}, 10000);
+

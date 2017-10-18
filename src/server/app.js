@@ -111,10 +111,8 @@ if (process.env.NODE_ENV === 'development') {
   });
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, showExplorer, swaggerUiOptions, swaggerUiCss));
   require('./../runGulp')();
-} else if (process.env.NODE_ENV === 'test') {
-  runServer(config.dbName);
 } else {
-  runServer();
+  runServer(config.dbName);
 }
 
 module.exports = app;

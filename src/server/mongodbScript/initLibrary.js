@@ -9,11 +9,9 @@ const CatalogInfo = require('../api/library/catalogInfo');
 const UserInfo = require('../api/user/userInfo');
 const FileInfo = require('../api/library/fileInfo');
 const service = require('../api/library/service');
-const ShelfTaskInfo = require('../api/shelves/shelfTaskInfo');
 const uuid = require('uuid');
 
 const catalogTaskInfo = new CatalogTaskInfo();
-const shelfTaskInfo = new ShelfTaskInfo();
 const catalogInfo = new CatalogInfo();
 const userInfo = new UserInfo();
 const fileInfo = new FileInfo();
