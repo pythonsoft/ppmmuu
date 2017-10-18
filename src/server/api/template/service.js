@@ -338,7 +338,10 @@ service.createTemplate = function createTemplate(params, cb) {
     subtitleType: [],
     description: '',
     groupId: '',
-    transcodeTemplateDetail: '',
+    transcodeTemplateDetail: {
+      transcodeTemplates: [],
+      transcodeTemplateSelector: '',
+    },
     details: {},
   }, params);
 
@@ -366,6 +369,11 @@ service.createTemplate = function createTemplate(params, cb) {
   return false;
 };
 
+/**
+ *
+ * @param transcodeTemplates [{ _id: '', name: '' }, ...]
+ * @returns {*}
+ */
 function composeTranscodeTemplates(transcodeTemplates) {
   try {
     let ts = null;
