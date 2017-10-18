@@ -7,6 +7,7 @@
 const express = require('express');
 
 const router = express.Router();
+const result = require('../../common/result');
 const service = require('./service');
 const isLogin = require('../../middleware/login');
 
@@ -100,7 +101,7 @@ router.use(isLogin.hasAccessMiddleware);
 router.post('/download', (req, res) => {
   res.set('Content-Type', 'application/json');
   req.body.userInfo = req.ex.userInfo;
-  service.jugeDownload(req.body, res);
+  service.jugeDownload(req.body, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**

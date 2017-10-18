@@ -801,6 +801,10 @@ module.exports = {
     code: '-130004',
     message: '审核授权白名单参数格式不正确',
   },
+  auditInfoCannotFind: {
+    code: '-130005',
+    message: '找不到审核信息',
+  },
   companyHasNoSubscribeInfo: {
     code: '-140001',
     message: '您所在的公司没有签定订阅合同',

@@ -20,6 +20,8 @@ const auditRuleInfo = new AuditRuleInfo();
 
 const GroupInfo = require('../group/groupInfo');
 
+const jobService = require('../job/service');
+
 const service = {};
 
 /**
@@ -154,18 +156,53 @@ service.passOrReject = function passOrReject(isPass, ids, verifier, message = ''
     status: isPass ? AuditInfo.STATUS.PASS : AuditInfo.STATUS.REJECT,
   };
 
-  auditInfo.collection[actionName](q, updateInfo, (err, r) => {
-    if (err) {
-      logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
-    }
 
-    if (isPass) {
+  if (isPass) {
+    auditInfo.collection.find({ _id: q._id, status: AuditInfo.STATUS.WAITING }).toArray((err, docs) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+      if (!docs || docs.length === 0) {
+        return cb && cb(i18n.t('auditInfoCannotFind'));
+      }
+      const successIds = [];
+      const updateAuditInfo = function updateAuditInfo(successIds, cb) {
+        auditInfo.collection.updateMany({ _id: { $in: successIds } }, { $set: updateInfo }, (err) => {
+          if (err) {
+            logger.error(err.message);
+            return cb && cb(i18n.t('databaseError'));
+          }
+          return cb && cb(null, 'ok');
+        });
+      };
+      const loopCreateDownload = function loopCreateDownload(docs, index) {
+        if (index >= docs.length) {
+          updateAuditInfo(successIds, cb);
+        } else {
+          jobService.download(docs[index].detail, (err) => {
+            if (err) {
+              updateAuditInfo(successIds, () => cb && cb(err));
+            } else {
+              successIds.push(docs[index]._id);
+              loopCreateDownload(docs, index + 1);
+            }
+          });
+        }
+      };
 
-    }
+      loopCreateDownload(docs, 0);
+    });
+  } else {
+    auditInfo.collection[actionName](q, updateInfo, (err, r) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
 
-    return cb && cb(null, r);
-  });
+      return cb && cb(null, 'ok');
+    });
+  }
 };
 
 service.remove = function remove(ids, cb) {

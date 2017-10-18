@@ -347,7 +347,7 @@ service.download = function download(info, cb) {
 
         // 需要使用快传进行传输
         if (rs.templateInfo.type === TemplateInfo.TYPE.DOWNLOAD_MEDIAEXPRESS && receiverId && receiverType) {
-          transcodeAndTransfer(rs.templateInfo.details.bucketId, receiverId, receiverType, transcodeTemplateId, userInfo, transferMode, params, (err, r) => {
+          transcodeAndTransfer(rs.templateInfo.details.bucketId, receiverId, receiverType, transcodeTemplateId, userInfo, transferMode, params, (err) => {
             if (err) {
               return cb && cb(err);
             }
@@ -356,7 +356,7 @@ service.download = function download(info, cb) {
           });
         } else {
           // 调用下载接口
-          downloadRequest(rs.templateInfo.details.bucketId, transcodeTemplateId, '', params, userInfo._id, userInfo.name, (err, r) => {
+          downloadRequest(rs.templateInfo.details.bucketId, transcodeTemplateId, '', params, userInfo._id, userInfo.name, (err) => {
             if (err) {
               return cb && cb(err);
             }
@@ -369,7 +369,7 @@ service.download = function download(info, cb) {
 
     // 需要使用快传进行传转
     if (rs.templateInfo.type === TemplateInfo.TYPE.DOWNLOAD_MEDIAEXPRESS && receiverId && receiverType) {
-      transcodeAndTransfer(rs.templateInfo.details.bucketId, receiverId, receiverType, '', userInfo, transferMode, params, (err, r) => {
+      transcodeAndTransfer(rs.templateInfo.details.bucketId, receiverId, receiverType, '', userInfo, transferMode, params, (err) => {
         if (err) {
           return cb && cb(err);
         }
@@ -378,7 +378,7 @@ service.download = function download(info, cb) {
       });
     } else {
       // 调用下载接口
-      downloadRequest(rs.templateInfo.details.bucketId, '', '', params, userInfo._id, userInfo.name, (err, r) => {
+      downloadRequest(rs.templateInfo.details.bucketId, '', '', params, userInfo._id, userInfo.name, (err) => {
         if (err) {
           return cb && cb(err);
         }

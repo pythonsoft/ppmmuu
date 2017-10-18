@@ -304,12 +304,14 @@ utils.baseRequestCallApi = function baseRequestCallApi(url, method, info, token,
       'content-type': 'application/x-www-form-urlencoded',
       cache: 'no-cache',
       token,
+      'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
     };
   } else {
     options.qs = info;
     options.headers = {
       'cache-control': 'no-cache',
       token,
+      'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
     };
   }
 
@@ -317,9 +319,11 @@ utils.baseRequestCallApi = function baseRequestCallApi(url, method, info, token,
     if (!error && response.statusCode === 200) {
       return cb && cb(null, response);
     } else if (error) {
+      console.log(url);
       logger.error(error);
       return cb && cb(i18n.t('requestCallApiError', { error }));
     }
+    console.log(url);
     logger.error(response.body);
     return cb && cb(i18n.t('requestCallApiFailed'));
   });
