@@ -81,17 +81,17 @@ router.get('/getSubscribeTypeSummary', (req, res) => {
  *               description: 关键字搜索
  *               example: ''
  *             subscribeType:
- *               type: array
+ *               type: string
  *               items:
  *                 type: string
  *               description: 节目类型_id数组
- *               example: ['政治','娱乐','体育']
+ *               example: "政治 娱乐 体育"
  *             FIELD323:
  *               type: array
  *               items:
  *                 type: string
  *               description: 版本
- *               example: ['播出版','素材版','配音字幕版']
+ *               example: "播出版 素材版 配音字幕版"
  *             duration:
  *               type: string
  *               example: 'e461e2f607a9c631a37f5a2403649eb0827c7298b13489e8ee997b2b588a9cdf'
