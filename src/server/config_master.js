@@ -68,5 +68,4 @@ config.adminMenuPermission = config.normalMenuPermission.concat(['management']);
 
 
 // 快传api地址
-// config.mediaExpressUrl = 'https://console.szdev.cn/';
-config.mediaExpressUrl = 'http://10.0.15.65:3001/';
+config.mediaExpressUrl = 'https://console.szdev.cn/';
