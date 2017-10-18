@@ -26,6 +26,7 @@ const groupInfo = new GroupInfo();
 
 const groupService = require('../group/service');
 const groupUserService = require('../group/userService');
+const subscribeService = require('../subscribe/service');
 
 const service = {};
 
@@ -63,6 +64,15 @@ function setCookie2(res, doc, cb) {
       if (err) {
         return cb && cb(err);
       }
+
+      if(menu && menu.length){
+        menu.push({
+          _id: 'mediaCenter',
+          name: '媒体库',
+          index: 'mediaCenter',
+          parentIndex: '',
+        });
+      }
       res.cookie('ticket', token, {
         expires: new Date(expires),
         httpOnly: true,
@@ -71,11 +81,24 @@ function setCookie2(res, doc, cb) {
       delete info.permissions;
       delete info.mediaExpressUser;
 
-      return cb && cb(null, {
-        token,
-        menu,
-        userInfo: info,
-      });
+      subscribeService.hasSubscribeInfo(doc.company._id, function(err, isExist) {
+        if(err){
+          return cb && cb(err);
+        }
+        if(isExist){
+          menu.push( {
+            _id: 'subscriptions',
+            name: '订阅',
+            index: 'subscriptions',
+            parentIndex: '',
+          });
+        }
+        return cb && cb(null, {
+          token,
+          menu,
+          userInfo: info,
+        });
+      })
     });
   });
 }
@@ -115,6 +138,7 @@ const loginHandle = function loginHandle(username, password, cb) {
       password: 1,
       verifyType: 1,
       expiredTime: 1,
+      company: 1
     },
   }, (err, doc) => {
     if (err) {

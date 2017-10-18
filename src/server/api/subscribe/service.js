@@ -74,6 +74,21 @@ const getSubscribeTypes = function getSubscribeTypes(_ids, callback) {
   });
 };
 
+//是否签订合同
+service.hasSubscribeInfo = function hasSubscribeInfo(companyId, cb){
+  subscribeInfo.collection.findOne({ _id: companyId }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if (!doc) {
+      return cb && cb(null, false);
+    }
+    return cb && cb(null, true);
+  });
+}
+
 service.getSubscribeInfo = function getSubscribeInfo(req, cb) {
   const userInfo = req.ex.userInfo;
   const companyId = userInfo.company._id;
