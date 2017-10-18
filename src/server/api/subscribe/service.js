@@ -387,8 +387,6 @@ service.esSearch = function esSearch(req, cb) {
   const userInfo = req.ex.userInfo;
   const companyId = userInfo.company._id;
   let subscribeType = info.subscribeType || '';
-  subscribeType = subscribeType.split(' ');
-  console.log(subscribeType);
 
   // 检查subscribeType是否合法
   subscribeInfo.collection.findOne({ _id: companyId }, (err, doc) => {
@@ -410,7 +408,8 @@ service.esSearch = function esSearch(req, cb) {
       return cb && cb(null, i18n.t('companySubscribeInfoExpired'));
     }
 
-    if (subscribeType && subscribeType.length) {
+    if (subscribeType) {
+      subscribeType = subscribeType.split(' ');
       for (let i = 0, len = subscribeType.length; i < len; i++) {
         if (doc.subscribeType.indexOf(subscribeType[i]) === -1) {
           return cb && cb(null, i18n.t('invalidSubscribeType'));
