@@ -295,8 +295,8 @@ const getEsOptions = function getEsOptions(info) {
   let keyword = info.keyword || '';
   let duration = info.duration || '';
   let sort = info.sort || '';
-  const FIELD162 = info.FIELD162 || '';
-  const FIELD36 = info.FIELD36 || '';
+  let FIELD162 = info.FIELD162 || '';
+  let FIELD36 = info.FIELD36 || '';
   const start = info.start || 0;
   const pageSize = info.pageSize || 28;
   const options = {
@@ -356,11 +356,30 @@ const getEsOptions = function getEsOptions(info) {
     ];
   }
 
-  if (FIELD162 && FIELD162.constructor.name.toLowerCase() === 'object') {
+  const getDateRange = function getDateRange(str) {
+    const strArr = str.split(',');
+    const len = strArr.length;
+    const rs = {};
+    if (len === 1) {
+      rs.gte = strArr[0];
+    } else {
+      if (strArr[0]) {
+        rs.gte = strArr[0];
+      }
+      if (strArr[1]) {
+        rs.lt = strArr[1];
+      }
+    }
+    return rs;
+  };
+
+  if (FIELD162 && FIELD162.constructor.name.toLowerCase() === 'string') {
+    FIELD162 = getDateRange(FIELD162);
     const temp = { range: { 'details.FIELD162': FIELD162 } };
     musts.push(temp);
   }
-  if (FIELD36 && FIELD36.constructor.name.toLowerCase() === 'object') {
+  if (FIELD36 && FIELD36.constructor.name.toLowerCase() === 'string') {
+    FIELD36 = getDateRange(FIELD36);
     const temp = { range: { 'details.FIELD36': FIELD36 } };
     musts.push(temp);
   }
