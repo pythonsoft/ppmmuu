@@ -27,7 +27,7 @@ const build = function build(code, data, message = null) {
     message = 'ok';
   }
 
-  return { status: code, data, statusInfo: { message } };
+  return { status: code, data: data, statusInfo: { message: message } };
 };
 
 result.success = function success(data, message = 'ok') {
@@ -43,6 +43,7 @@ result.json = function json(err, rs, log4jContent) {
     if (log4jContent) {
       logger.error(log4jContent);
     }
+
     return result.fail(err);
   }
 
