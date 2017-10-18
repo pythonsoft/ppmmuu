@@ -100,13 +100,13 @@ router.get('/getSubscribeTypeSummary', (req, res) => {
  *               description: '排序'
  *               example: '764a59be44d0077e719ca8f750fd3ef798e3997dcd3182ea492e1e555c1cfcf57825b4ad83665c8397477b38f985c6be'
  *             FIELD162:
- *               type: object
+ *               type: string
  *               description: '新闻日期'
- *               example: {"gte": "2004-10-16T08:52:17.200Z", "lt": "2017-10-17T08:52:17.200Z"}
+ *               example: "2004-10-16T08:52:17.200Z,2017-10-17T08:52:17.200Z"
  *             FIELD36:
- *               type: object
+ *               type: string
  *               description: '首播日期'
- *               example: {"gte": "2004-10-16T08:52:17.200Z", "lt": "2017-10-17T08:52:17.200Z"}
+ *               example: "2004-10-16T08:52:17.200Z,2017-10-17T08:52:17.200Z"
  *             start:
  *               type: number
  *               description: '从第几个开始搜索'
