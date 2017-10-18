@@ -366,7 +366,7 @@ const subscribeConfig = [
     selected: '',
     multiple: false,
     type: 'string',
-    example: { gte: 0, lt: 6000 },
+    example: '',
   },
   {
     key: 'sort',
@@ -381,7 +381,7 @@ const subscribeConfig = [
     selected: '',
     multiple: false,
     type: 'string',
-    example: { 'details.FIELD36': { order: 'asc' } },
+    example: '',
   },
   {
     key: 'FIELD162',

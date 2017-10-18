@@ -323,14 +323,14 @@ const getEsOptions = function getEsOptions(info) {
     const temp = { match: { full_text: keyword } };
     musts.push(temp);
   }
-  if (subscribeType && subscribeType.constructor.name.toLowerCase() === 'array') {
-    subscribeType = JSON.parse(nodecc.simplifiedToTraditional(JSON.stringify(subscribeType)));
-    const temp = { match: { 'editorInfo.subscribeType': subscribeType.join(' ') } };
+  if (subscribeType) {
+    subscribeType = nodecc.simplifiedToTraditional(subscribeType);
+    const temp = { match: { 'editorInfo.subscribeType': subscribeType } };
     musts.push(temp);
   }
-  if (FIELD323 && FIELD323.constructor.name.toLowerCase() === 'array') {
-    FIELD323 = JSON.parse(nodecc.simplifiedToTraditional(JSON.stringify(FIELD323)));
-    const temp = { match: { 'details.FIELD323': FIELD323.join(' ') } };
+  if (FIELD323) {
+    FIELD323 = nodecc.simplifiedToTraditional(FIELD323);
+    const temp = { match: { 'details.FIELD323': FIELD323 } };
     musts.push(temp);
   }
   if (duration) {
@@ -386,7 +386,9 @@ service.esSearch = function esSearch(req, cb) {
   const info = req.body;
   const userInfo = req.ex.userInfo;
   const companyId = userInfo.company._id;
-  const subscribeType = info.subscribeType || [];
+  let subscribeType = info.subscribeType || '';
+  subscribeType = subscribeType.split(' ');
+  console.log(subscribeType);
 
   // 检查subscribeType是否合法
   subscribeInfo.collection.findOne({ _id: companyId }, (err, doc) => {
