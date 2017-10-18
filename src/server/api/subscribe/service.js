@@ -289,14 +289,14 @@ const getEsOptions = function getEsOptions(info) {
   const start = info.start || 0;
   const pageSize = info.pageSize || 28;
   const options = {
-    _source: 'name,details,editorInfo,lastModifyTime,files'.split(','),
+    _source: 'name,details,editorInfo,lastModifyTime,files,objectId'.split(','),
     from: start * 1,
     size: pageSize * 1,
-    sort: [ {
-      "lastModifyTime": {
-        "order": "desc"
-      }
-    }]
+    sort: [{
+      lastModifyTime: {
+        order: 'desc',
+      },
+    }],
   };
   const query = {
     bool: { must: [] },

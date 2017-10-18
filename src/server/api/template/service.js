@@ -335,9 +335,13 @@ service.createTemplate = function createTemplate(params, cb) {
     creatorId: '',
     name: '',
     type: TemplateInfo.TYPE.DOWNLOAD,
+    subtitleType: [],
     description: '',
     groupId: '',
-    transcodeTemplateDetail: '',
+    transcodeTemplateDetail: {
+      transcodeTemplates: [],
+      transcodeTemplateSelector: '',
+    },
     details: {},
   }, params);
 
@@ -365,6 +369,11 @@ service.createTemplate = function createTemplate(params, cb) {
   return false;
 };
 
+/**
+ *
+ * @param transcodeTemplates [{ _id: '', name: '' }, ...]
+ * @returns {*}
+ */
 function composeTranscodeTemplates(transcodeTemplates) {
   try {
     let ts = null;
@@ -398,6 +407,7 @@ service.createDownloadTemplate = function createDownloadTemplate(params, cb) {
     name: '',
     description: '',
     type: TemplateInfo.TYPE.DOWNLOAD,
+    subtitleType: [],
     bucketId: '',
     script: '',
     groupId: '',

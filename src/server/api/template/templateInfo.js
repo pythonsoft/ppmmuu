@@ -17,6 +17,7 @@ class TemplateInfo extends DB {
       creatorId: { type: 'string', validation: 'require', allowUpdate: false },
       createdTime: { type: 'date', validation: 'require', allowUpdate: false },
       type: { type: 'string', validation: 'require', default: () => TemplateInfo.TYPE.DOWNLOAD },
+      subtitleType: { type: 'array' },
       modifyTime: { type: 'date', validation: 'require' },
       description: { type: 'string' },
       details: { type: 'object' },
@@ -34,5 +35,13 @@ TemplateInfo.TYPE = {
   DOWNLOAD: '1',
   DOWNLOAD_MEDIAEXPRESS: '2',
 };
+
+
+TemplateInfo.SUBTITLE_TYPE = {
+  PLUGIN: '0',   // 外挂字幕
+  STREAMING: '1',   // 流式字幕
+  EMBEDDED: '2',     // 内嵌字幕
+};
+
 
 module.exports = TemplateInfo;
