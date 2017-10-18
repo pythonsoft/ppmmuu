@@ -194,52 +194,52 @@ const transcodeAndTransfer = function transcodeAndTransfer(bucketId, receiverId,
 service.listTemplate = extService.listTemplate;
 
 
-service.jugeTemplateAuditAndCreateAudit = function jugeTemplateAuditAndCreateAudit(info, cb){
+service.jugeTemplateAuditAndCreateAudit = function jugeTemplateAuditAndCreateAudit(info, cb) {
   const ownerName = info.ownerName || '';
   const userInfo = info.userInfo;
   const id = info.templateId || '';
-  if(!ownerName){
+  if (!ownerName) {
     return cb && cb(null, true);
   }
   templateService.getDetail(id, (err, doc) => {
     if (err) {
       return cb && cb(err);
     }
-    
+
     if (!doc) {
       return cb && cb(i18n.t('templateIsNotExist'));
     }
-    
+
     if (!doc.details.bucketId) {
       return cb && cb(i18n.t('templateBucketIdIsNotExist'));
     }
-    
-    if(!doc.downloadAudit){
+
+    if (!doc.downloadAudit) {
       return cb && cb(null, true);
     }
-  
-    auditRuleInfo.collection.findOne({ ownerName: ownerName}, function(err, doc){
-      if(err){
+
+    auditRuleInfo.collection.findOne({ ownerName }, (err, doc) => {
+      if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
-      
-      if(!doc){
+
+      if (!doc) {
         return cb && cb(null, true);
       }
-      
-      if(doc.permissionType === AuditRuleInfo.PERMISSTION_TYPE.PUBLIC){
+
+      if (doc.permissionType === AuditRuleInfo.PERMISSTION_TYPE.PUBLIC) {
         return cb && cb(null, true);
       }
-      
+
       const whiteList = doc.whiteList || [];
-      for(let i = 0, len = whiteList.length; i < len; i++){
+      for (let i = 0, len = whiteList.length; i < len; i++) {
         const _id = whiteList[i]._id;
-        if(_id === userInfo._id || _id === userInfo.company._id ||  _id === userInfo.department._id){
+        if (_id === userInfo._id || _id === userInfo.company._id || _id === userInfo.department._id) {
           return cb && cb(null, true);
         }
       }
-      
+
       const insertInfo = {
         name: info.filename,
         description: '',
@@ -250,31 +250,31 @@ service.jugeTemplateAuditAndCreateAudit = function jugeTemplateAuditAndCreateAud
           companyId: userInfo.company._id,
           companyName: userInfo.company.name,
           departmentName: userInfo.department.name,
-          departmentId: userInfo.department._id
-        }
-      }
-      auditService.create(insertInfo, function(err){
-        if(err){
+          departmentId: userInfo.department._id,
+        },
+      };
+      auditService.create(insertInfo, (err) => {
+        if (err) {
           return cb && cb(err);
         }
-        
-        return cb && cb(null, false);
-      })
-    })
-  })
-}
 
-service.jugeDownload = function jugeDownload(info, cb){
-  service.jugeTemplateAuditAndCreateAudit(info, function(err, needDownload){
-    if(err){
+        return cb && cb(null, false);
+      });
+    });
+  });
+};
+
+service.jugeDownload = function jugeDownload(info, cb) {
+  service.jugeTemplateAuditAndCreateAudit(info, (err, needDownload) => {
+    if (err) {
       return cb && cb(err);
     }
-    if(!needDownload){
+    if (!needDownload) {
       return cb && cb(null, 'ok');
     }
     service.download(info, cb);
-  })
-}
+  });
+};
 
 service.download = function download(info, cb) {
   const userInfo = info.userInfo;
@@ -351,17 +351,16 @@ service.download = function download(info, cb) {
             if (err) {
               return cb && cb(err);
             }
-  
+
             return cb && cb(null, 'ok');
           });
-        }else {
-  
+        } else {
           // 调用下载接口
           downloadRequest(rs.templateInfo.details.bucketId, transcodeTemplateId, '', params, userInfo._id, userInfo.name, (err, r) => {
             if (err) {
               return cb && cb(err);
             }
-    
+
             return cb && cb(null, 'ok');
           });
         }
@@ -374,17 +373,16 @@ service.download = function download(info, cb) {
         if (err) {
           return cb && cb(err);
         }
-  
+
         return cb && cb(null, 'ok');
       });
-    }else {
-  
+    } else {
       // 调用下载接口
       downloadRequest(rs.templateInfo.details.bucketId, '', '', params, userInfo._id, userInfo.name, (err, r) => {
         if (err) {
           return cb && cb(err);
         }
-  
+
         return cb && cb(null, 'ok');
       });
     }

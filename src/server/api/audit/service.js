@@ -159,9 +159,9 @@ service.passOrReject = function passOrReject(isPass, ids, verifier, message = ''
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
-    
-    if(isPass){
-    
+
+    if (isPass) {
+
     }
 
     return cb && cb(null, r);
@@ -266,9 +266,8 @@ const createAuditDepartment = function (permissionType, auditDepartment) {
     }, auditDepartment);
 
     return { err: null, doc };
-  }else{
-    return {err: null, doc: null};
   }
+  return { err: null, doc: null };
 };
 
 service.createAuditRule = function createRule(info, creator, cb) {

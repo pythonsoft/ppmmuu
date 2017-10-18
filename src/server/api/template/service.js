@@ -636,11 +636,11 @@ service.getTranscodeTemplate = function getTranscodeTemplate(id, filePath, cb) {
   });
 };
 
-service.searchUserOrGroup = function searchUserOrGroup(info, cb){
+service.searchUserOrGroup = function searchUserOrGroup(info, cb) {
   roleService.searchUserOrGroup(info, cb);
-}
+};
 
-service.updateTemplateGroupUsers = function updateTemplateGroupUsers(info, cb){
+service.updateTemplateGroupUsers = function updateTemplateGroupUsers(info, cb) {
   const _id = info._id || '';
   const users = info.users;
 
@@ -654,17 +654,17 @@ service.updateTemplateGroupUsers = function updateTemplateGroupUsers(info, cb){
   }
 
   const updateInfo = {
-    users: users,
-    modifyTime: new Date()
-  }
-  templateGroupInfo.collection.updateOne({_id: _id}, {$set: updateInfo}, function(err){
-    if(err){
+    users,
+    modifyTime: new Date(),
+  };
+  templateGroupInfo.collection.updateOne({ _id }, { $set: updateInfo }, (err) => {
+    if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
 
     return cb && cb(null, 'ok');
-  })
-}
+  });
+};
 
 module.exports = service;

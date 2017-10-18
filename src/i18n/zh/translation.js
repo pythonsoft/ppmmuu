@@ -633,7 +633,7 @@ module.exports = {
     code: '-70008',
     message: '下载模板组groupId不存在',
   },
-  templateGroupCannotFind:{
+  templateGroupCannotFind: {
     code: '-70009',
     message: '下载模板组找不到',
   },

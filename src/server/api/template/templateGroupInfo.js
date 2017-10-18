@@ -45,7 +45,7 @@ class TemplateGroupInfo extends DB {
       description: { type: 'string' },
       deleteDeny: { type: 'string', default: TemplateGroupInfo.DELETE_DENY.YES, validation: v => utils.isValueInObject(v, TemplateGroupInfo.DELETE_DENY) }, // 删除保护，创建后默认为保护状态
       detail: { type: 'object' },
-      users: { type: 'array'}     //使用这个模板的人，可以是公司,部门和组织
+      users: { type: 'array' },     // 使用这个模板的人，可以是公司,部门和组织
     };
   }
 }

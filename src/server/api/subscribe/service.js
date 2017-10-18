@@ -14,7 +14,6 @@ const SubscribeInfo = require('../subscribeManagement/subscribeInfo');
 const SubscribeType = require('../subscribeManagement/subscribeType');
 const ShelfInfo = require('../shelves/shelfTaskInfo');
 const ConfigurationInfo = require('../configuration/configurationInfo');
-const Token = require('../../common/token');
 
 const subscribeInfo = new SubscribeInfo();
 const subscribeType = new SubscribeType();
@@ -229,11 +228,11 @@ service.getSubscribeSearchConfig = function getSubscribeSearchConfig(req, cb) {
             }
           });
 
-          for(let i = 0, len = configs.length; i < len; i++){
+          for (let i = 0, len = configs.length; i < len; i++) {
             const items = configs[i].items;
-            if(items && items.length){
-              for(let j = 0, len1 = items.length; j < len1; j++){
-                if(typeof items[j].value === 'object') {
+            if (items && items.length) {
+              for (let j = 0, len1 = items.length; j < len1; j++) {
+                if (typeof items[j].value === 'object') {
                   items[j].value = utils.cipher(JSON.stringify(items[j].value), config.KEY);
                 }
               }
@@ -337,19 +336,19 @@ const getEsOptions = function getEsOptions(info) {
   if (duration) {
     try {
       duration = JSON.parse(utils.decipher(duration, config.KEY));
-      const temp = {range: {'details.duration': duration}};
+      const temp = { range: { 'details.duration': duration } };
       musts.push(temp);
-    }catch(e){
-      //return {err: i18n.t('invalidSearchParams')};
+    } catch (e) {
+      // return {err: i18n.t('invalidSearchParams')};
     }
   }
-  if (sort && sort !=='should') {
+  if (sort && sort !== 'should') {
     try {
       sort = JSON.parse(utils.decipher(sort, config.KEY));
       options.sort = [];
       options.sort.push(sort);
-    }catch(e){
-      //return {err: i18n.t('invalidSearchParams')};
+    } catch (e) {
+      // return {err: i18n.t('invalidSearchParams')};
     }
   } else if (sort === 'should' && keyword) {
     query.bool.should = [
