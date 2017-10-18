@@ -157,46 +157,43 @@ service.passOrReject = function passOrReject(isPass, ids, verifier, message = ''
   };
 
 
-
   if (isPass) {
-    auditInfo.collection.find({_id:q._id, status: AuditInfo.STATUS.WAITING}).toArray(function(err, docs){
-      if(err){
+    auditInfo.collection.find({ _id: q._id, status: AuditInfo.STATUS.WAITING }).toArray((err, docs) => {
+      if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
-      if(!docs || docs.length === 0){
+      if (!docs || docs.length === 0) {
         return cb && cb(i18n.t('auditInfoCannotFind'));
       }
       const successIds = [];
-      const updateAuditInfo = function updateAuditInfo(successIds, cb){
-        auditInfo.collection.updateMany({ _id: {$in: successIds} }, {$set: updateInfo}, function(err) {
-          if(err){
+      const updateAuditInfo = function updateAuditInfo(successIds, cb) {
+        auditInfo.collection.updateMany({ _id: { $in: successIds } }, { $set: updateInfo }, (err) => {
+          if (err) {
             logger.error(err.message);
             return cb && cb(i18n.t('databaseError'));
           }
           return cb && cb(null, 'ok');
-        })
-      }
-      const loopCreateDownload = function loopCreateDownload(docs, index){
-        if(index >= docs.length){
+        });
+      };
+      const loopCreateDownload = function loopCreateDownload(docs, index) {
+        if (index >= docs.length) {
           updateAuditInfo(successIds, cb);
-        }else {
-          jobService.download(docs[index].detail, function (err) {
+        } else {
+          jobService.download(docs[index].detail, (err) => {
             if (err) {
-              updateAuditInfo(successIds, function () {
-                return cb && cb(err);
-              });
+              updateAuditInfo(successIds, () => cb && cb(err));
             } else {
               successIds.push(docs[index]._id);
               loopCreateDownload(docs, index + 1);
             }
           });
         }
-      }
+      };
 
       loopCreateDownload(docs, 0);
-    })
-  }else{
+    });
+  } else {
     auditInfo.collection[actionName](q, updateInfo, (err, r) => {
       if (err) {
         logger.error(err.message);

@@ -65,7 +65,7 @@ function setCookie2(res, doc, cb) {
         return cb && cb(err);
       }
 
-      if(menu && menu.length){
+      if (menu && menu.length) {
         menu.push({
           _id: 'mediaCenter',
           name: '媒体库',
@@ -81,12 +81,12 @@ function setCookie2(res, doc, cb) {
       delete info.permissions;
       delete info.mediaExpressUser;
 
-      subscribeService.hasSubscribeInfo(doc.company._id, function(err, isExist) {
-        if(err){
+      subscribeService.hasSubscribeInfo(doc.company._id, (err, isExist) => {
+        if (err) {
           return cb && cb(err);
         }
-        if(isExist){
-          menu.push( {
+        if (isExist) {
+          menu.push({
             _id: 'subscriptions',
             name: '订阅',
             index: 'subscriptions',
@@ -98,7 +98,7 @@ function setCookie2(res, doc, cb) {
           menu,
           userInfo: info,
         });
-      })
+      });
     });
   });
 }
@@ -138,7 +138,7 @@ const loginHandle = function loginHandle(username, password, cb) {
       password: 1,
       verifyType: 1,
       expiredTime: 1,
-      company: 1
+      company: 1,
     },
   }, (err, doc) => {
     if (err) {
