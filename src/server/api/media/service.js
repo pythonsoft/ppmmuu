@@ -280,10 +280,12 @@ const getEsOptions = function getEsOptions(info) {
 service.esSearch = function esSearch(info, cb, userId, videoIds) {
   // search by videoId will overwrite original keywords
   const match = info.match || [];
+
   if (videoIds) {
     videoIds = videoIds.split(',').join(' ');
     info.match = [{ _id: videoIds }];
   }
+
   const body = getEsOptions(info);
   const url = `${config.esBaseUrl}es/program/_search`;
   const options = {
@@ -297,15 +299,18 @@ service.esSearch = function esSearch(info, cb, userId, videoIds) {
     if (err) {
       return cb && cb(err);
     }
+
     const newRs = {
       docs: [],
       QTime: rs.took,
       numFound: rs.hits.total,
     };
     const hits = rs.hits.hits || [];
+
     for (let i = 0, len = hits.length; i < len; i++) {
       const _source = hits[i]._source || {};
       const highlight = hits[i].highlight || {};
+
       for (const key in _source) {
         if (highlight[key]) {
           _source[key] = highlight[key].join('');
@@ -315,12 +320,14 @@ service.esSearch = function esSearch(info, cb, userId, videoIds) {
     }
 
     let fullText = '';
+
     for (let i = 0, len = match.length; i < len; i++) {
       if (match[i].key === 'full_text') {
         fullText = match[i].value;
         break;
       }
     }
+
     if (userId && fullText) {
       saveSearch(fullText, userId, (err) => {
         if (err) {
