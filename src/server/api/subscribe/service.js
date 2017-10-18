@@ -228,6 +228,17 @@ service.getSubscribeSearchConfig = function getSubscribeSearchConfig(req, cb) {
             }
           });
 
+          for (let i = 0, len = configs.length; i < len; i++) {
+            const items = configs[i].items;
+            if (items && items.length) {
+              for (let j = 0, len1 = items.length; j < len1; j++) {
+                if (typeof items[j].value === 'object') {
+                  items[j].value = utils.cipher(JSON.stringify(items[j].value), config.KEY);
+                }
+              }
+            }
+          }
+
           return cb && cb(null, configs);
         });
       });
@@ -282,8 +293,8 @@ const getEsOptions = function getEsOptions(info) {
   let subscribeType = info.subscribeType || '';
   let FIELD323 = info.FIELD323 || '';
   let keyword = info.keyword || '';
-  const duration = info.duration || '';
-  const sort = info.sort || '';
+  let duration = info.duration || '';
+  let sort = info.sort || '';
   const FIELD162 = info.FIELD162 || '';
   const FIELD36 = info.FIELD36 || '';
   const start = info.start || 0;
@@ -322,13 +333,23 @@ const getEsOptions = function getEsOptions(info) {
     const temp = { match: { 'details.FIELD323': FIELD323.join(' ') } };
     musts.push(temp);
   }
-  if (duration && duration.constructor.name.toLowerCase() === 'object') {
-    const temp = { range: { 'details.duration': duration } };
-    musts.push(temp);
+  if (duration) {
+    try {
+      duration = JSON.parse(utils.decipher(duration, config.KEY));
+      const temp = { range: { 'details.duration': duration } };
+      musts.push(temp);
+    } catch (e) {
+      // return {err: i18n.t('invalidSearchParams')};
+    }
   }
-  if (sort && sort.constructor.name.toLowerCase() === 'object') {
-    options.sort = [];
-    options.sort.push(sort);
+  if (sort && sort !== 'should') {
+    try {
+      sort = JSON.parse(utils.decipher(sort, config.KEY));
+      options.sort = [];
+      options.sort.push(sort);
+    } catch (e) {
+      // return {err: i18n.t('invalidSearchParams')};
+    }
   } else if (sort === 'should' && keyword) {
     query.bool.should = [
       { match: { name: keyword } },

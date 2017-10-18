@@ -160,10 +160,12 @@ service.passOrReject = function passOrReject(isPass, ids, verifier, message = ''
       return cb && cb(i18n.t('databaseError'));
     }
 
+    if (isPass) {
+
+    }
+
     return cb && cb(null, r);
   });
-
-  return false;
 };
 
 service.remove = function remove(ids, cb) {
@@ -215,13 +217,13 @@ service.getAuditInfo = function (id, cb) {
 
 // 审核授权
 
-const createWhitelistInfo = function (whitelistString) {
-  if (whitelistString === '') {
+const createWhitelistInfo = function (whiteList) {
+  if (whiteList === '') {
     return { err: null, doc: [] };
   }
 
   try {
-    const infos = JSON.parse(whitelistString);
+    const infos = whiteList;
 
     if (infos.constructor !== Array) {
       return { err: i18n.t('auditRuleWhitelistIsInvalid'), doc: null };
@@ -265,6 +267,7 @@ const createAuditDepartment = function (permissionType, auditDepartment) {
 
     return { err: null, doc };
   }
+  return { err: null, doc: null };
 };
 
 service.createAuditRule = function createRule(info, creator, cb) {
@@ -295,7 +298,7 @@ service.createAuditRule = function createRule(info, creator, cb) {
   const t = new Date();
 
   doc.creator = creator;
-  doc.auditDepartment = auditDepartmentRs.doc;
+  doc.auditDepartment = auditDepartmentRs.doc ? auditDepartmentRs.doc : { _id: '', name: '' };
   doc.whitelist = rs.doc;
   doc._id = uuid.v1();
   doc.createdTime = t;
