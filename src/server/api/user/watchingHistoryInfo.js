@@ -27,7 +27,7 @@ const uuid = require('uuid');
  */
 class WatchingHistoryInfo extends DB {
   constructor() {
-    super(config.dbInstance.umpDB, 'WatchingHistoryInfo', [
+    super(config.dbInstance[`${config.dbName}DB`], 'WatchingHistoryInfo', [
       { key: { userId: 1, videoId: 1 }, unique: true },
     ]);
 

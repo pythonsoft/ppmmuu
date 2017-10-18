@@ -29,7 +29,8 @@
         "guard-for-in": "off",
         "no-useless-escape": "off",
         "class-methods-use-this": "off",
-        "max-len": "off"
+        "max-len": "off",
+        "import/no-extraneous-dependencies": ["error", { "devDependencies": ["**/*.test.js", "**/test.js", "**/*.spec.js"]}]
     },
     "parserOptions": {
         "sourceType": "script"

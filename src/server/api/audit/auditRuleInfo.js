@@ -40,7 +40,7 @@ const uuid = require('uuid');
  */
 class auditRuleInfo extends DB {
   constructor() {
-    super(config.dbInstance.umpDB, 'audit_ruleInfo');
+    super(config.dbInstance[`${config.dbName}DB`], 'audit_ruleInfo');
 
     this.struct = {
       _id: { type: 'string', default() { return uuid.v1(); }, validation: 'require' },

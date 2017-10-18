@@ -7,8 +7,10 @@
 /* eslint-disable no-undef */
 config.host = 'localhost:8080';
 config.domain = `http://${config.host}`;
+
+config.dbName = process.env.NODE_ENV === 'test' ? 'ump_test' : 'ump';
 config.mongodb = {
-  umpURL: 'mongodb://10.0.15.62:27017/ump_v1',
+  [`${config.dbName}URL`]: `mongodb://10.0.15.62:27017/${config.dbName === 'ump' ? 'ump_v1' : 'ump_test'}`,
 };
 
 config.redis_host = '10.0.15.69';

@@ -34,7 +34,7 @@ const utils = require('../../common/utils');
  */
 class BucketInfo extends DB {
   constructor() {
-    super(config.dbInstance.umpDB, 'BucketInfo');
+    super(config.dbInstance[`${config.dbName}DB`], 'BucketInfo');
 
     this.struct = {
       _id: { type: 'string', default() { return uuid.v1(); }, validation: 'require' },

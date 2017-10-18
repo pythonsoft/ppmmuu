@@ -9,7 +9,7 @@ const config = require('../../config');
 
 class TemplateInfo extends DB {
   constructor() {
-    super(config.dbInstance.umpDB, 'TemplateInfo');
+    super(config.dbInstance[`${config.dbName}DB`], 'TemplateInfo');
 
     this.struct = {
       _id: { type: 'string', validation: 'require' },

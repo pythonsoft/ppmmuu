@@ -46,7 +46,7 @@ const utils = require('../../common/utils');
  */
 class GroupInfo extends DB {
   constructor() {
-    super(config.dbInstance.umpDB, 'GroupInfo', [
+    super(config.dbInstance[`${config.dbName}DB`], 'GroupInfo', [
       { key: { name: 1, type: 1, parentId: 1 }, unique: true },
     ]);
 

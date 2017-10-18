@@ -20,7 +20,7 @@ const uuid = require('uuid');
  */
 class SubscribeLog extends DB {
   constructor() {
-    super(config.dbInstance.umpDB, 'SubscribeLog');
+    super(config.dbInstance[`${config.dbName}DB`], 'SubscribeLog');
 
     this.struct = {
       _id: { type: 'string', default() { return uuid.v1(); }, allowUpdate: false, validation: 'require' },  // companyId
