@@ -13,6 +13,7 @@ const path = require('path');
 
 const storageService = require('../storage/service');
 const jobService = require('../job/extService');
+const roleService = require('../role/service');
 
 const TemplateInfo = require('./templateInfo');
 
@@ -56,7 +57,7 @@ service.addGroup = function addGroup(info, cb) {
 
 service.getGroup = function getGroup(id, cb) {
   if (!id) {
-    return cb && cb(i18n.t('engineGroupIdIsNull'));
+    return cb && cb(i18n.t('templateGroupIdIsNull'));
   }
 
   templateGroupInfo.collection.findOne({ _id: id }, (err, doc) => {
@@ -66,7 +67,7 @@ service.getGroup = function getGroup(id, cb) {
     }
 
     if (!doc) {
-      return cb && cb(i18n.t('engineGroupInfoIsNull'));
+      return cb && cb(i18n.t('templateGroupCannotFind'));
     }
 
     return cb && cb(null, doc);
@@ -626,5 +627,36 @@ service.getTranscodeTemplate = function getTranscodeTemplate(id, filePath, cb) {
     filterTranscodeTemplates(doc, fileInfo, cb);
   });
 };
+
+service.searchUserOrGroup = function searchUserOrGroup(info, cb){
+  roleService.searchUserOrGroup(info, cb);
+}
+
+service.updateTemplateGroupUsers = function updateTemplateGroupUsers(info, cb){
+  const _id = info._id || '';
+  const users = info.users;
+
+  const struct = {
+    _id: { type: 'string', validation: 'require' },
+    users: { type: 'array', validation: 'require' },
+  };
+  const err = utils.validation(info, struct);
+  if (err) {
+    return cb && cb(err);
+  }
+
+  const updateInfo = {
+    users: users,
+    modifyTime: new Date()
+  }
+  templateGroupInfo.collection.updateOne({_id: _id}, {$set: updateInfo}, function(err){
+    if(err){
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, 'ok');
+  })
+}
 
 module.exports = service;

@@ -484,4 +484,93 @@ router.post('/getDetail', (req, res) => {
   service.getDetail(req.body.id, (err, doc) => res.json(result.json(err, doc)));
 });
 
+/**
+ * @permissionGroup: downloadTemplate
+ * @permissionName: 下载模板中搜索用户或组织
+ * @permissionPath: /template/search/userOrGroup
+ * @apiName: getTemplateSearchUserOrGroup
+ * @apiFuncType: get
+ * @apiFuncUrl: /template/search/userOrGroup
+ * @swagger
+ * /template/search/userOrGroup:
+ *   get:
+ *     description: search user or group
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - template
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: type
+ *         description: '"0" stands for user, "1" stands for group'
+ *         required: true
+ *         type: string
+ *       - in: query
+ *         name: keyword
+ *         description: group name or user name
+ *         required: false
+ *         type: string
+ *     responses:
+ *       200:
+ *         description: template
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.get('/search/userOrGroup', (req, res) => {
+  service.searchUserOrGroup(req.query, (err, docs) =>
+      res.json(result.json(err, docs)));
+});
+
+
+/**
+ * @permissionGroup: downloadTemplate
+ * @permissionName: 更新下载模板分组使用人信息
+ * @permissionPath: /template/updateGroupUser
+ * @apiName: updateGroupUser
+ * @apiFuncType: post
+ * @apiFuncUrl: /template/updateGroupUser
+ * @swagger
+ * /template/updateGroupUser:
+ *   post:
+ *     description: update templateGroup users
+ *     tags:
+ *       - template
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         schema:
+ *          type: object
+ *          required:
+ *            - id
+ *            - users
+ *          parameters:
+ *            id:
+ *              type: string
+ *              example: ''
+ *            users:
+ *              type: array
+ *              items:
+ *                type: object
+ *              example: [{_id:"a",  type: 'a', name: 'a'}]
+ *     responses:
+ *       200:
+ *         description: ''
+ * */
+router.post('/updateGroupUser', (req, res) => {
+  service.updateTemplateGroupUsers(req.body, (err, r) => res.json(result.json(err, r)));
+});
 module.exports = router;

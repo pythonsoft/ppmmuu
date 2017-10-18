@@ -370,7 +370,7 @@ const subscribeConfig = [
   },
   {
     key: 'sort',
-    label: '',
+    label: '排序依据',
     items: [
       { value: 'should', label: '相关程度' },
       { value: { 'details.FIELD162': { order: 'asc' } }, label: '新闻时间由远到近' },
@@ -400,6 +400,7 @@ const subscribeConfig = [
     example: { gte: '2017-10-16T08:52:17.200Z', lt: '2017-10-17T08:52:17.200Z' },
   },
 ];
+
 const subscribeConfigKey = '订阅搜索配置';
 configGroup.collection.findOne({ name: subscribeConfigKey }, (err, doc) => {
   if (err) {

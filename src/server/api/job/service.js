@@ -6,16 +6,20 @@
 
 const config = require('../../config');
 const utils = require('../../common/utils');
+const logger = require('../../common/log')('error');
 const i18n = require('i18next');
 const result = require('../../common/result');
 const UserInfo = require('../user/userInfo');
+const AuditRuleInfo = require('../audit/auditRuleInfo');
 
 const userInfo = new UserInfo();
+const auditRuleInfo = new AuditRuleInfo();
 
 const TemplateInfo = require('../template/templateInfo');
 
 const templateService = require('../template/service');
 const extService = require('./extService');
+const auditService = require('../audit/service');
 
 const TRANSCODE_API_SERVER_URL = `http://${config.TRANSCODE_API_SERVER.hostname}:${config.TRANSCODE_API_SERVER.port}`;
 const HttpRequest = require('../../common/httpRequest');
@@ -189,9 +193,103 @@ const transcodeAndTransfer = function transcodeAndTransfer(bucketId, receiverId,
 
 service.listTemplate = extService.listTemplate;
 
-service.download = function download(userInfo, downloadParams, receiverId, receiverType, transferMode = 'direct', res) {
+
+service.jugeTemplateAuditAndCreateAudit = function jugeTemplateAuditAndCreateAudit(info, cb){
+  const ownerName = info.ownerName || '';
+  const userInfo = info.userInfo;
+  const id = info.templateId || '';
+  if(!ownerName){
+    return cb && cb(null, true);
+  }
+  templateService.getDetail(id, (err, doc) => {
+    if (err) {
+      return cb && cb(err);
+    }
+    
+    if (!doc) {
+      return cb && cb(i18n.t('templateIsNotExist'));
+    }
+    
+    if (!doc.details.bucketId) {
+      return cb && cb(i18n.t('templateBucketIdIsNotExist'));
+    }
+    
+    if(!doc.downloadAudit){
+      return cb && cb(null, true);
+    }
+  
+    auditRuleInfo.collection.findOne({ ownerName: ownerName}, function(err, doc){
+      if(err){
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+      
+      if(!doc){
+        return cb && cb(null, true);
+      }
+      
+      if(doc.permissionType === AuditRuleInfo.PERMISSTION_TYPE.PUBLIC){
+        return cb && cb(null, true);
+      }
+      
+      const whiteList = doc.whiteList || [];
+      for(let i = 0, len = whiteList.length; i < len; i++){
+        const _id = whiteList[i]._id;
+        if(_id === userInfo._id || _id === userInfo.company._id ||  _id === userInfo.department._id){
+          return cb && cb(null, true);
+        }
+      }
+      
+      const insertInfo = {
+        name: info.filename,
+        description: '',
+        detail: info,
+        applicant: {
+          _id: userInfo._id,
+          name: userInfo.name,
+          companyId: userInfo.company._id,
+          companyName: userInfo.company.name,
+          departmentName: userInfo.department.name,
+          departmentId: userInfo.department._id
+        }
+      }
+      auditService.create(insertInfo, function(err){
+        if(err){
+          return cb && cb(err);
+        }
+        
+        return cb && cb(null, false);
+      })
+    })
+  })
+}
+
+service.jugeDownload = function jugeDownload(info, cb){
+  service.jugeTemplateAuditAndCreateAudit(info, function(err, needDownload){
+    if(err){
+      return cb && cb(err);
+    }
+    if(!needDownload){
+      return cb && cb(null, 'ok');
+    }
+    service.download(info, cb);
+  })
+}
+
+service.download = function download(info, cb) {
+  const userInfo = info.userInfo;
+  const objectid = info.objectid;
+  const inpoint = info.inpoint || 0;
+  const outpoint = info.outpoint;
+  const filename = info.filename;
+  const filetypeid = info.filetypeid;
+  const templateId = info.templateId; // 下载模板Id
+  const receiverId = info.receiverId;
+  const receiverType = info.receiverType;
+  const transferMode = info.transferMode || 'direct';
+  const downloadParams = { objectid, inpoint: inpoint * 1, outpoint: outpoint * 1, filename, filetypeid, templateId };
   if (!downloadParams) {
-    return res.end(errorCall('joDownloadParamsIsNull'));
+    return cb && cb(i18n.t('joDownloadParamsIsNull'));
   }
 
   const params = utils.merge({
@@ -205,27 +303,27 @@ service.download = function download(userInfo, downloadParams, receiverId, recei
   }, downloadParams);
 
   if (!params.objectid) {
-    return res.end(errorCall('joDownloadParamsObjectIdIsNull'));
+    return cb && cb(i18n.t('joDownloadParamsObjectIdIsNull'));
   }
 
   if (typeof params.inpoint !== 'number' || typeof params.outpoint !== 'number') {
-    return res.end(errorCall('joDownloadParamsInpointOrOutpointTypeError'));
+    return cb && cb(i18n.t('joDownloadParamsInpointOrOutpointTypeError'));
   }
 
   if (params.inpoint > params.outpoint) {
-    return res.end(errorCall('joDownloadParamsInpointLessThanOutpointTypeError'));
+    return cb && cb(i18n.t('joDownloadParamsInpointLessThanOutpointTypeError'));
   }
 
   if (!params.filename) {
-    return res.end(errorCall('joDownloadParamsFileNameIsNull'));
+    return cb && cb(i18n.t('joDownloadParamsFileNameIsNull'));
   }
 
   if (!params.filetypeid) {
-    return res.end(errorCall('joDownloadParamsFileTypeIdIsNull'));
+    return cb && cb(i18n.t('joDownloadParamsFileTypeIdIsNull'));
   }
 
   if (!userInfo) {
-    return res.end(errorCall('userNotFind'));
+    return cb && cb(i18n.t('userNotFind'));
   }
 
   const downloadTemplateId = downloadParams.templateId;
@@ -233,7 +331,7 @@ service.download = function download(userInfo, downloadParams, receiverId, recei
   // 拿到下载路径
   templateService.getDownloadPath(userInfo, downloadTemplateId, (err, rs) => {
     if (err) {
-      return res.json(result.fail(err));
+      return cb && cb(err);
     }
 
     params.destination = rs.downloadPath;
@@ -244,58 +342,52 @@ service.download = function download(userInfo, downloadParams, receiverId, recei
       // 获取符合条件的转码模板ID
       templateService.getTranscodeTemplate(downloadTemplateId, params.filename, (err, transcodeTemplateId) => {
         if (err) {
-          return res.json(result.fail(err));
+          return cb && cb(err);
         }
 
         // 需要使用快传进行传输
         if (rs.templateInfo.type === TemplateInfo.TYPE.DOWNLOAD_MEDIAEXPRESS && receiverId && receiverType) {
           transcodeAndTransfer(rs.templateInfo.details.bucketId, receiverId, receiverType, transcodeTemplateId, userInfo, transferMode, params, (err, r) => {
             if (err) {
-              return res.json(result.fail(err));
+              return cb && cb(err);
             }
-
-            return res.json(r);
+  
+            return cb && cb(null, 'ok');
           });
-
-          return false;
+        }else {
+  
+          // 调用下载接口
+          downloadRequest(rs.templateInfo.details.bucketId, transcodeTemplateId, '', params, userInfo._id, userInfo.name, (err, r) => {
+            if (err) {
+              return cb && cb(err);
+            }
+    
+            return cb && cb(null, 'ok');
+          });
         }
-
-        // 调用下载接口
-        downloadRequest(rs.templateInfo.details.bucketId, transcodeTemplateId, '', params, userInfo._id, userInfo.name, (err, r) => {
-          if (err) {
-            return res.json(result.fail(err));
-          }
-
-          return res.json(r);
-        });
       });
-
-      return false;
     }
 
     // 需要使用快传进行传转
     if (rs.templateInfo.type === TemplateInfo.TYPE.DOWNLOAD_MEDIAEXPRESS && receiverId && receiverType) {
       transcodeAndTransfer(rs.templateInfo.details.bucketId, receiverId, receiverType, '', userInfo, transferMode, params, (err, r) => {
         if (err) {
-          return res.json(result.fail(err));
+          return cb && cb(err);
         }
-
-        return res.json(r);
+  
+        return cb && cb(null, 'ok');
       });
-
-      return false;
+    }else {
+  
+      // 调用下载接口
+      downloadRequest(rs.templateInfo.details.bucketId, '', '', params, userInfo._id, userInfo.name, (err, r) => {
+        if (err) {
+          return cb && cb(err);
+        }
+  
+        return cb && cb(null, 'ok');
+      });
     }
-
-    // 调用下载接口
-    downloadRequest(rs.templateInfo.details.bucketId, '', '', params, userInfo._id, userInfo.name, (err, r) => {
-      if (err) {
-        return res.json(result.fail(err));
-      }
-
-      return res.json(r);
-    });
-
-    return false;
   });
 };
 
