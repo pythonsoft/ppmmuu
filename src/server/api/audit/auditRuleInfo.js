@@ -48,7 +48,7 @@ class auditRuleInfo extends DB {
       permissionType: { type: 'string', default: auditRuleInfo.PERMISSTION_TYPE.PUBLIC, validation: v => utils.isValueInObject(v, auditRuleInfo.PERMISSTION_TYPE) },
       creator: { type: 'object', default: { _id: '', name: '' }, allowUpdate: false },
       auditDepartment: { type: 'object', default: { _id: '', name: '' }, allowUpdate: false }, // 审核部门
-      whitelist: { type: 'array' }, // 授权白名单，无须审核就可能进行下载相关文件
+      whitelist: { type: 'array' }, // 授权白名单，无须审核就可能进行下载相关文件 [{ _id: '', name: '', type: '部门，小组，可以使用帐户系统中的分类型', exts: '允许下载的文件类型，以后缀做区分，全部：all，除此外使用逗号分割，如: .mxf,.mp4', }]
       createdTime: { type: 'date', allowUpdate: false },
       modifyTime: { type: 'date' },
       description: { type: 'string' },
