@@ -82,7 +82,7 @@ service.list = function list(req, cb) {
   const st = status === '-1' ? '' : status;
   const q = {};
 
-  q['ownerDepartment._id'] = userInfo.department._id;
+  //q['ownerDepartment._id'] = userInfo.department._id;
 
   if (keyword) {
     q.$or = [
