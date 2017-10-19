@@ -555,7 +555,7 @@ service.getShelfInfo = function getShelfInfo(req, cb) {
     return cb && cb(i18n.t('shelfShortId'));
   }
 
-  let fields = '_id,name,programNO,objectId,details,files,editorInfo';
+  let fields = '_id,name,programNO,objectId,details,editorInfo';
   fields = utils.formatSortOrFieldsParams(fields);
   shelfInfo.collection.findOne({ _id, status: ShelfInfo.STATUS.ONLINE }, { fields }, (err, doc) => {
     if (err) {
@@ -565,24 +565,13 @@ service.getShelfInfo = function getShelfInfo(req, cb) {
     if (!doc) {
       return cb && cb(i18n.t('shelfNotFind'));
     }
-    if (doc.details && doc.files) {
+    if (doc.details) {
       const program = doc.details;
-      const files = doc.files;
-
       for (const key in program) {
         if (program[key] === '' || program[key] === null) {
           delete program[key];
         } else {
           program[key] = { value: program[key], cn: fieldConfig[key] ? fieldConfig[key].cn : '' };
-        }
-      }
-
-      for (let i = 0, len = files.length; i < len; i++) {
-        const file = files[i];
-        for (const k in file) {
-          if (file[k] === null || file[k] === '') {
-            delete file[k];
-          }
         }
       }
       return cb && cb(null, doc);
