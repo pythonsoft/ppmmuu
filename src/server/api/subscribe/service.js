@@ -9,6 +9,7 @@ const utils = require('../../common/utils');
 const i18n = require('i18next');
 const nodecc = require('node-opencc');
 const config = require('../../config');
+const fieldConfig = require('../media/fieldConfig');
 
 const SubscribeInfo = require('../subscribeManagement/subscribeInfo');
 const SubscribeType = require('../subscribeManagement/subscribeType');
@@ -140,16 +141,16 @@ service.getSubscribeTypesSummary = function getSubscribeTypesSummary(req, cb) {
     }
 
     if (!doc) {
-      return cb && cb(null, i18n.t('companyHasNoSubscribeInfo'));
+      return cb && cb(i18n.t('companyHasNoSubscribeInfo'));
     }
 
     doc = SubscribeInfo.getStatus(doc);
     if (doc.status === SubscribeInfo.STATUS.UNUSED) {
-      return cb && cb(null, i18n.t('companySubscribeInfoUnused'));
+      return cb && cb(i18n.t('companySubscribeInfoUnused'));
     }
 
     if (doc.status === SubscribeInfo.STATUS.EXPIRED) {
-      return cb && cb(null, i18n.t('companySubscribeInfoExpired'));
+      return cb && cb(i18n.t('companySubscribeInfoExpired'));
     }
 
     getSubscribeTypes(doc.subscribeType, (err, docs) => {
@@ -193,7 +194,7 @@ service.getSubscribeSearchConfig = function getSubscribeSearchConfig(req, cb) {
       return cb && cb(i18n.t('databaseError'));
     }
     if (!doc) {
-      return cb && cb(null, i18n.t('noSubscribeSearchConfig'));
+      return cb && cb(i18n.t('noSubscribeSearchConfig'));
     }
     try {
       const configs = JSON.parse(doc.value);
@@ -208,16 +209,16 @@ service.getSubscribeSearchConfig = function getSubscribeSearchConfig(req, cb) {
         }
 
         if (!doc) {
-          return cb && cb(null, i18n.t('companyHasNoSubscribeInfo'));
+          return cb && cb(i18n.t('companyHasNoSubscribeInfo'));
         }
 
         doc = SubscribeInfo.getStatus(doc);
         if (doc.status === SubscribeInfo.STATUS.UNUSED) {
-          return cb && cb(null, i18n.t('companySubscribeInfoUnused'));
+          return cb && cb(i18n.t('companySubscribeInfoUnused'));
         }
 
         if (doc.status === SubscribeInfo.STATUS.EXPIRED) {
-          return cb && cb(null, i18n.t('companySubscribeInfoExpired'));
+          return cb && cb(i18n.t('companySubscribeInfoExpired'));
         }
 
         getSubscribeTypes(doc.subscribeType, (err, docs) => {
@@ -226,7 +227,7 @@ service.getSubscribeSearchConfig = function getSubscribeSearchConfig(req, cb) {
           }
 
           if (!docs || docs.length === 0) {
-            return cb && cb(null, i18n.t('companySubscribeInfoNoSubscribeType'));
+            return cb && cb(i18n.t('companySubscribeInfoNoSubscribeType'));
           }
 
           configs.forEach((item) => {
@@ -254,7 +255,7 @@ service.getSubscribeSearchConfig = function getSubscribeSearchConfig(req, cb) {
         });
       });
     } catch (e) {
-      return cb && cb(null, i18n.t('subscribeSearchConfigInvalidJson'));
+      return cb && cb(i18n.t('subscribeSearchConfigInvalidJson'));
     }
   });
 };
@@ -428,23 +429,23 @@ service.esSearch = function esSearch(req, cb) {
     }
 
     if (!doc) {
-      return cb && cb(null, i18n.t('companyHasNoSubscribeInfo'));
+      return cb && cb(i18n.t('companyHasNoSubscribeInfo'));
     }
 
     doc = SubscribeInfo.getStatus(doc);
     if (doc.status === SubscribeInfo.STATUS.UNUSED) {
-      return cb && cb(null, i18n.t('companySubscribeInfoUnused'));
+      return cb && cb(i18n.t('companySubscribeInfoUnused'));
     }
 
     if (doc.status === SubscribeInfo.STATUS.EXPIRED) {
-      return cb && cb(null, i18n.t('companySubscribeInfoExpired'));
+      return cb && cb(i18n.t('companySubscribeInfoExpired'));
     }
 
     if (subscribeType) {
       subscribeType = subscribeType.split(' ');
       for (let i = 0, len = subscribeType.length; i < len; i++) {
         if (doc.subscribeType.indexOf(subscribeType[i]) === -1) {
-          return cb && cb(null, i18n.t('invalidSubscribeType'));
+          return cb && cb(i18n.t('invalidSubscribeType'));
         }
       }
     }
@@ -510,28 +511,28 @@ service.getEsMediaList = function getEsMediaList(req, cb) {
     }
 
     if (!doc) {
-      return cb && cb(null, i18n.t('companyHasNoSubscribeInfo'));
+      return cb && cb(i18n.t('companyHasNoSubscribeInfo'));
     }
 
     doc = SubscribeInfo.getStatus(doc);
     if (doc.status === SubscribeInfo.STATUS.UNUSED) {
-      return cb && cb(null, i18n.t('companySubscribeInfoUnused'));
+      return cb && cb(i18n.t('companySubscribeInfoUnused'));
     }
 
     if (doc.status === SubscribeInfo.STATUS.EXPIRED) {
-      return cb && cb(null, i18n.t('companySubscribeInfoExpired'));
+      return cb && cb(i18n.t('companySubscribeInfoExpired'));
     }
 
     const subscribeTypes = doc.subscribeType || [];
     if (subscribeTypes.length === 0) {
-      return cb && cb(null, i18n.t('companySubscribeInfoNoSubscribeType'));
+      return cb && cb(i18n.t('companySubscribeInfoNoSubscribeType'));
     }
     getSubscribeTypes(doc.subscribeType, (err, docs) => {
       if (err) {
         return cb && cb(err);
       }
       if (!docs || docs.length === 0) {
-        return cb && cb(null, i18n.t('companySubscribeInfoNoSubscribeType'));
+        return cb && cb(i18n.t('companySubscribeInfoNoSubscribeType'));
       }
       const subscribeTypes = [];
       const subscribeNames = [];
@@ -545,6 +546,47 @@ service.getEsMediaList = function getEsMediaList(req, cb) {
       rs.category = [];
       loopGetShelfTaskInfo(subscribeTypes, subscribeNames, 0, cb);
     });
+  });
+};
+
+service.getShelfInfo = function getShelfInfo(req, cb) {
+  const _id = req.query._id || '';
+  if (!_id) {
+    return cb && cb(i18n.t('shelfShortId'));
+  }
+
+  let fields = '_id,name,programNO,objectId,details,files,editorInfo';
+  fields = utils.formatSortOrFieldsParams(fields);
+  shelfInfo.collection.findOne({ _id, status: ShelfInfo.STATUS.ONLINE }, { fields }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+    if (!doc) {
+      return cb && cb(i18n.t('shelfNotFind'));
+    }
+    if (doc.details && doc.files) {
+      const program = doc.details;
+      const files = doc.files;
+
+      for (const key in program) {
+        if (program[key] === '' || program[key] === null) {
+          delete program[key];
+        } else {
+          program[key] = { value: program[key], cn: fieldConfig[key] ? fieldConfig[key].cn : '' };
+        }
+      }
+
+      for (let i = 0, len = files.length; i < len; i++) {
+        const file = files[i];
+        for (const k in file) {
+          if (file[k] === null || file[k] === '') {
+            delete file[k];
+          }
+        }
+      }
+      return cb && cb(null, doc);
+    }
   });
 };
 module.exports = service;
