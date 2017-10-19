@@ -8,6 +8,8 @@
 config.host = 'localhost:8080';
 config.domain = `http://${config.host}`;
 
+config.dbName = 'ump';
+
 config.mongodb = {
   umpURL: 'mongodb://172.19.223.130:27017/ump_v1',
 };
