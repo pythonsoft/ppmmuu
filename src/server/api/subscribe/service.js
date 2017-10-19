@@ -161,12 +161,8 @@ service.getSubscribeTypesSummary = function getSubscribeTypesSummary(req, cb) {
         subscribeTypes.push(item._id);
       });
       rs.total = docs.length;
-      const t = new Date();
-      t.setHours(0);
-      t.setMinutes(0);
-      t.setSeconds(0);
       shelfInfo.collection.aggregate([
-        { $match: { 'editorInfo.subscribeType': { $in: subscribeTypes }, lastModifyTime: { $gte: t }, status: ShelfInfo.STATUS.ONLINE } },
+        { $match: { 'editorInfo.subscribeType': { $in: subscribeTypes }, status: ShelfInfo.STATUS.ONLINE } },
         { $group: { _id: '$editorInfo.subscribeType', count: { $sum: 1 } } },
       ], (err, r) => {
         if (err) {
@@ -339,7 +335,6 @@ const getEsOptions = function getEsOptions(info) {
     musts.push(temp);
   }
   if (subscribeType) {
-    subscribeType = nodecc.simplifiedToTraditional(subscribeType);
     const temp = { match: { 'editorInfo.subscribeType': subscribeType } };
     musts.push(temp);
   }
