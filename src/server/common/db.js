@@ -249,7 +249,7 @@ class DB {
    * @param sortFields 排序，传入格式如：'-createdTime,name', "-"代表倒序，没有写代表正序，多个使用","号分割
    * @param fieldsNeed 希望返回的字段，传入格式如：'-createdTime,name', "-"代表不希望返回，多个使用","号分割
    */
-  pagination(query, page, pageSize, callback, sortFields, fieldsNeed, distinct) {
+  pagination(query, page, pageSize, callback, sortFields, fieldsNeed) {
     const collection = this.collection;
     collection.count(query, (err, count) => {
       if (err) {
@@ -260,10 +260,6 @@ class DB {
       pageSize = pageSize ? pageSize * 1 : 30;
 
       let cursor = collection.find(query);
-
-      if(distinct){
-        cursor.distinct(distinct);
-      }
 
       if (sortFields) {
         cursor.sort(utils.formatSortOrFieldsParams(sortFields, true));
