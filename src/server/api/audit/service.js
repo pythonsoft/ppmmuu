@@ -82,7 +82,7 @@ service.list = function list(req, cb) {
   const st = status === '-1' ? '' : status;
   const q = {};
 
-  //q['ownerDepartment._id'] = userInfo.department._id;
+  // q['ownerDepartment._id'] = userInfo.department._id;
 
   if (keyword) {
     q.$or = [
@@ -126,8 +126,22 @@ service.list = function list(req, cb) {
  * @param cb
  * @returns {*}
  */
-service.passOrReject = function passOrReject(status, ids, verifier, message = '', cb) {
+service.passOrReject = function passOrReject(req, cb) {
+  const ids = req.body.ids;
+  const userInfo = req.ex.userInfo;
+  const message = req.body.message || '';
+  const status = req.body.status || '';
+
+  const verifier = {
+    _id: userInfo._id,
+    name: userInfo.name,
+    companyId: userInfo.company._id,
+    companyName: userInfo.company.name,
+    departmentId: userInfo.department._id,
+    departmentName: userInfo.department.name,
+  };
   const isPass = status === AuditInfo.STATUS.PASS;
+
   if (!ids) {
     return cb && cb(i18n.t('auditFieldIsNotExist', { field: 'ids' }));
   }
