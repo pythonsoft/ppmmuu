@@ -301,7 +301,7 @@ const executeEsSerach = function executeEsSearch(body, userId, keyword, cb) {
 };
 
 const getEsOptions = function getEsOptions(info) {
-  let subscribeType = info.subscribeType || '';
+  const subscribeType = info.subscribeType || '';
   let FIELD323 = info.FIELD323 || '';
   let keyword = info.keyword || '';
   let duration = info.duration || '';
@@ -333,6 +333,9 @@ const getEsOptions = function getEsOptions(info) {
     keyword = nodecc.simplifiedToTraditional(keyword);
     const temp = { match: { full_text: keyword } };
     musts.push(temp);
+    query.bool.should = [
+      { match: { name: keyword } },
+    ];
   }
   if (subscribeType) {
     const temp = { match: { 'editorInfo.subscribeType': subscribeType } };
@@ -408,6 +411,7 @@ const getEsOptions = function getEsOptions(info) {
     require_field_match: false,
     fields: getHighLightFields(hl),
   };
+  console.log(JSON.stringify(options));
   return options;
 };
 
