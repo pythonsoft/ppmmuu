@@ -45,21 +45,7 @@ router.use(isLogin.hasAccessMiddleware);
  *         description: AuditInfo
  */
 router.post('/pass', (req, res) => {
-  const ids = req.body.ids;
-  const userInfo = req.ex.userInfo;
-  const message = req.body.message || '';
-  const status = req.body.status || '';
-
-  const verifier = {
-    _id: userInfo._id,
-    name: userInfo.name,
-    companyId: userInfo.company._id,
-    companyName: userInfo.company.name,
-    departmentId: userInfo.department._id,
-    departmentName: userInfo.department.name,
-  };
-
-  service.passOrReject(status, ids, verifier, message, err => res.json(result.json(err, 'ok')));
+  service.passOrReject(req, err => res.json(result.json(err, 'ok')));
 });
 
 /**

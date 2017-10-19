@@ -597,7 +597,7 @@ service.deleteTemplate = function del(deleteParams, res) {
   requestTemplate.get('/TemplateService/delete', params, res);
 };
 
-service.listAuditInfo = function listAuditInfo(req, cb) {
+service.listAuditInfo = function listAuditInfo(req, isAll = false, cb) {
   const page = req.query.page || 0;
   const pageSize = req.query.pageSize || 20;
   const keyword = req.query.keyword || '';
@@ -605,7 +605,11 @@ service.listAuditInfo = function listAuditInfo(req, cb) {
   const userInfo = req.ex.userInfo;
   const q = {};
 
-  q['applicant._id'] = userInfo._id;
+  if (isAll) {
+    q['ownerDepartment._id'] = userInfo.department._id;
+  } else {
+    q['applicant._id'] = userInfo._id;
+  }
 
   if (keyword) {
     q.$or = [
@@ -630,7 +634,7 @@ service.listAuditInfo = function listAuditInfo(req, cb) {
     }
 
     return cb && cb(null, docs);
-  }, '-createTime', 'name,status,createTime,lastModify');
+  }, '-createTime', 'name,status,createTime,lastModify,applicant,verifier');
 };
 
 module.exports = service;
