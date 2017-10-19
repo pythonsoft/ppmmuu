@@ -65,6 +65,5 @@ config.whitelist = ['http://localhost:8000', 'http://localhost:8080', 'http://10
 config.normalMenuPermission = ['mediaCenter', 'taskCenter', 'personalCenter', 'library'];
 config.adminMenuPermission = config.normalMenuPermission.concat(['management']);
 
-
 // 快传api地址
 config.mediaExpressUrl = 'http://localhost:3001/';
