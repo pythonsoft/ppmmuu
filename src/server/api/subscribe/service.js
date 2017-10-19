@@ -411,7 +411,6 @@ const getEsOptions = function getEsOptions(info) {
     require_field_match: false,
     fields: getHighLightFields(hl),
   };
-  console.log(JSON.stringify(options));
   return options;
 };
 
