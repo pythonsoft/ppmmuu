@@ -333,6 +333,7 @@ const subscribeConfig = [
     multiple: true,
     type: 'string',
     example: ['体育1', '娱乐1'],
+    defaultValue: '',
   },
   {
     key: 'FIELD323',
@@ -355,6 +356,7 @@ const subscribeConfig = [
     multiple: true,
     type: 'string',
     example: ['播出版', '參展版'],
+    defaultValue: '',
   },
   {
     key: 'duration',
@@ -366,11 +368,12 @@ const subscribeConfig = [
     selected: '',
     multiple: false,
     type: 'string',
-    example: { gte: 0, lt: 6000 },
+    example: '',
+    defaultValue: '',
   },
   {
     key: 'sort',
-    label: '',
+    label: '排序依据',
     items: [
       { value: 'should', label: '相关程度' },
       { value: { 'details.FIELD162': { order: 'asc' } }, label: '新闻时间由远到近' },
@@ -381,7 +384,8 @@ const subscribeConfig = [
     selected: '',
     multiple: false,
     type: 'string',
-    example: { 'details.FIELD36': { order: 'asc' } },
+    example: '',
+    defaultValue: 'should',
   },
   {
     key: 'FIELD162',
@@ -390,6 +394,7 @@ const subscribeConfig = [
     multiple: false,
     type: 'daterange',
     example: { gte: '2017-10-16T08:52:17.200Z', lt: '2017-10-17T08:52:17.200Z' },
+    defaultValue: '',
   },
   {
     key: 'FIELD36',
@@ -398,8 +403,11 @@ const subscribeConfig = [
     multiple: false,
     type: 'daterange',
     example: { gte: '2017-10-16T08:52:17.200Z', lt: '2017-10-17T08:52:17.200Z' },
+    defaultValue: '',
   },
 ];
+
+
 const subscribeConfigKey = '订阅搜索配置';
 configGroup.collection.findOne({ name: subscribeConfigKey }, (err, doc) => {
   if (err) {

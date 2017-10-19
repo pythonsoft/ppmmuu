@@ -629,6 +629,14 @@ module.exports = {
     code: '-70007',
     message: '模板类型不存在，请传入正确的类型，当前传入类型为, {{type}}',
   },
+  templateGroupIdIsNull: {
+    code: '-70008',
+    message: '下载模板组groupId不存在',
+  },
+  templateGroupCannotFind: {
+    code: '-70009',
+    message: '下载模板组找不到',
+  },
   idIsNull: {
     code: '-80000',
     message: 'id为空',
@@ -773,6 +781,10 @@ module.exports = {
     code: '-12004',
     message: '找不到此订阅类型',
   },
+  invalidSearchParams: {
+    code: '-12005',
+    message: '非法的搜索参数',
+  },
   auditFieldIsNotExist: {
     code: '-130001',
     message: '审核任务进行时，参数 {{field}} 为空',
@@ -788,6 +800,10 @@ module.exports = {
   auditRuleWhitelistIsInvalid: {
     code: '-130004',
     message: '审核授权白名单参数格式不正确',
+  },
+  auditInfoCannotFind: {
+    code: '-130005',
+    message: '找不到审核信息',
   },
   companyHasNoSubscribeInfo: {
     code: '-140001',

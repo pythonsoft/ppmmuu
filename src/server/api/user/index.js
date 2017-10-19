@@ -12,6 +12,7 @@ const service = require('./service');
 const mediaService = require('../media/service');
 const jobService = require('../job/service');
 const roleService = require('../role/service');
+const auditService = require('../audit/service');
 
 /**
  * @apiName: postUserLogin
@@ -662,7 +663,7 @@ router.post('/adAccountSync', (req, res) => {
  *       - in: query
  *         name: currentStep
  *         type: int
- *         default: ''
+ *         default: 0
  *         collectionFormat: csv
  *       - in: query
  *         name: page
@@ -687,6 +688,131 @@ router.get('/listJob', (req, res) => {
 
   res.set('Content-Type', 'application/json');
   jobService.list({ page: page * 1, pageSize: pageSize * 1, status, currentStep, userId }, res);
+});
+
+
+/* downloadTask */
+/**
+ * @permissionGroup: account
+ * @permissionName: user_listMyAuditJob
+ * @permissionPath: /user/listMyAuditJob
+ * @apiName: listMyAuditJob
+ * @apiFuncType: get
+ * @apiFuncUrl: /user/listMyAuditJob
+ * @swagger
+ * /user/listMyAuditJob:
+ *   get:
+ *     description: list my audit job
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - UserInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: status
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: keyword
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: page
+ *         type: number
+ *         default: 1
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: pageSize
+ *         type: number
+ *         default: 99
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: taskList
+ */
+router.get('/listMyAuditJob', (req, res) => {
+  jobService.listAuditInfo(req, false, (err, r) => res.json(result.json(err, r)));
+});
+
+/* downloadTask */
+/**
+ * @permissionGroup: account
+ * @permissionName: user_listAuditJob
+ * @permissionPath: /user/listAuditJob
+ * @apiName: listAuditJob
+ * @apiFuncType: get
+ * @apiFuncUrl: /user/listAuditJob
+ * @swagger
+ * /user/listAuditJob:
+ *   get:
+ *     description: list audit job
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - UserInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: status
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: keyword
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: page
+ *         type: number
+ *         default: 1
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: pageSize
+ *         type: number
+ *         default: 99
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: taskList
+ */
+router.get('/listAuditJob', (req, res) => {
+  jobService.listAuditInfo(req, true, (err, r) => res.json(result.json(err, r)));
+});
+
+/**
+ * @apiName: passOrRejectAudit
+ * @apiFuncType: post
+ * @apiFuncUrl: /user/passOrRejectAudit
+ * @swagger
+ * /user/passOrRejectAudit/:
+ *   post:
+ *     description: pass or reject audit
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - AuditInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: ids
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: AuditInfo
+ */
+router.post('/passOrRejectAudit', (req, res) => {
+  auditService.passOrReject(req, (err, data) => res.json(result.json(err, data)));
 });
 
 /**

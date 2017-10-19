@@ -74,6 +74,21 @@ const getSubscribeTypes = function getSubscribeTypes(_ids, callback) {
   });
 };
 
+// 是否签订合同
+service.hasSubscribeInfo = function hasSubscribeInfo(companyId, cb) {
+  subscribeInfo.collection.findOne({ _id: companyId }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if (!doc) {
+      return cb && cb(null, false);
+    }
+    return cb && cb(null, true);
+  });
+};
+
 service.getSubscribeInfo = function getSubscribeInfo(req, cb) {
   const userInfo = req.ex.userInfo;
   const companyId = userInfo.company._id;
@@ -146,12 +161,8 @@ service.getSubscribeTypesSummary = function getSubscribeTypesSummary(req, cb) {
         subscribeTypes.push(item._id);
       });
       rs.total = docs.length;
-      const t = new Date();
-      t.setHours(0);
-      t.setMinutes(0);
-      t.setSeconds(0);
       shelfInfo.collection.aggregate([
-        { $match: { 'editorInfo.subscribeType': { $in: subscribeTypes }, lastModifyTime: { $gte: t }, status: ShelfInfo.STATUS.ONLINE } },
+        { $match: { 'editorInfo.subscribeType': { $in: subscribeTypes }, status: ShelfInfo.STATUS.ONLINE } },
         { $group: { _id: '$editorInfo.subscribeType', count: { $sum: 1 } } },
       ], (err, r) => {
         if (err) {
@@ -228,6 +239,17 @@ service.getSubscribeSearchConfig = function getSubscribeSearchConfig(req, cb) {
             }
           });
 
+          for (let i = 0, len = configs.length; i < len; i++) {
+            const items = configs[i].items;
+            if (items && items.length) {
+              for (let j = 0, len1 = items.length; j < len1; j++) {
+                if (typeof items[j].value === 'object') {
+                  items[j].value = utils.cipher(JSON.stringify(items[j].value), config.KEY);
+                }
+              }
+            }
+          }
+
           return cb && cb(null, configs);
         });
       });
@@ -279,13 +301,13 @@ const executeEsSerach = function executeEsSearch(body, userId, keyword, cb) {
 };
 
 const getEsOptions = function getEsOptions(info) {
-  let subscribeType = info.subscribeType || '';
+  const subscribeType = info.subscribeType || '';
   let FIELD323 = info.FIELD323 || '';
   let keyword = info.keyword || '';
-  const duration = info.duration || '';
-  const sort = info.sort || '';
-  const FIELD162 = info.FIELD162 || '';
-  const FIELD36 = info.FIELD36 || '';
+  let duration = info.duration || '';
+  let sort = info.sort || '';
+  let FIELD162 = info.FIELD162 || '';
+  let FIELD36 = info.FIELD36 || '';
   const start = info.start || 0;
   const pageSize = info.pageSize || 28;
   const options = {
@@ -311,35 +333,66 @@ const getEsOptions = function getEsOptions(info) {
     keyword = nodecc.simplifiedToTraditional(keyword);
     const temp = { match: { full_text: keyword } };
     musts.push(temp);
+    query.bool.should = [
+      { match: { name: keyword } },
+    ];
   }
-  if (subscribeType && subscribeType.constructor.name.toLowerCase() === 'array') {
-    subscribeType = JSON.parse(nodecc.simplifiedToTraditional(JSON.stringify(subscribeType)));
-    const temp = { match: { 'editorInfo.subscribeType': subscribeType.join(' ') } };
+  if (subscribeType) {
+    const temp = { match: { 'editorInfo.subscribeType': subscribeType } };
     musts.push(temp);
   }
-  if (FIELD323 && FIELD323.constructor.name.toLowerCase() === 'array') {
-    FIELD323 = JSON.parse(nodecc.simplifiedToTraditional(JSON.stringify(FIELD323)));
-    const temp = { match: { 'details.FIELD323': FIELD323.join(' ') } };
+  if (FIELD323) {
+    FIELD323 = nodecc.simplifiedToTraditional(FIELD323);
+    const temp = { match: { 'details.FIELD323': FIELD323 } };
     musts.push(temp);
   }
-  if (duration && duration.constructor.name.toLowerCase() === 'object') {
-    const temp = { range: { 'details.duration': duration } };
-    musts.push(temp);
+  if (duration) {
+    try {
+      duration = JSON.parse(utils.decipher(duration, config.KEY));
+      const temp = { range: { 'details.duration': duration } };
+      musts.push(temp);
+    } catch (e) {
+      // return {err: i18n.t('invalidSearchParams')};
+    }
   }
-  if (sort && sort.constructor.name.toLowerCase() === 'object') {
-    options.sort = [];
-    options.sort.push(sort);
+  if (sort && sort !== 'should') {
+    try {
+      sort = JSON.parse(utils.decipher(sort, config.KEY));
+      options.sort = [];
+      options.sort.push(sort);
+    } catch (e) {
+      // return {err: i18n.t('invalidSearchParams')};
+    }
   } else if (sort === 'should' && keyword) {
     query.bool.should = [
       { match: { name: keyword } },
     ];
   }
 
-  if (FIELD162 && FIELD162.constructor.name.toLowerCase() === 'object') {
+  const getDateRange = function getDateRange(str) {
+    const strArr = str.split(',');
+    const len = strArr.length;
+    const rs = {};
+    if (len === 1) {
+      rs.gte = strArr[0];
+    } else {
+      if (strArr[0]) {
+        rs.gte = strArr[0];
+      }
+      if (strArr[1]) {
+        rs.lt = strArr[1];
+      }
+    }
+    return rs;
+  };
+
+  if (FIELD162 && FIELD162.constructor.name.toLowerCase() === 'string') {
+    FIELD162 = getDateRange(FIELD162);
     const temp = { range: { 'details.FIELD162': FIELD162 } };
     musts.push(temp);
   }
-  if (FIELD36 && FIELD36.constructor.name.toLowerCase() === 'object') {
+  if (FIELD36 && FIELD36.constructor.name.toLowerCase() === 'string') {
+    FIELD36 = getDateRange(FIELD36);
     const temp = { range: { 'details.FIELD36': FIELD36 } };
     musts.push(temp);
   }
@@ -365,7 +418,7 @@ service.esSearch = function esSearch(req, cb) {
   const info = req.body;
   const userInfo = req.ex.userInfo;
   const companyId = userInfo.company._id;
-  const subscribeType = info.subscribeType || [];
+  let subscribeType = info.subscribeType || '';
 
   // 检查subscribeType是否合法
   subscribeInfo.collection.findOne({ _id: companyId }, (err, doc) => {
@@ -387,7 +440,8 @@ service.esSearch = function esSearch(req, cb) {
       return cb && cb(null, i18n.t('companySubscribeInfoExpired'));
     }
 
-    if (subscribeType && subscribeType.length) {
+    if (subscribeType) {
+      subscribeType = subscribeType.split(' ');
       for (let i = 0, len = subscribeType.length; i < len; i++) {
         if (doc.subscribeType.indexOf(subscribeType[i]) === -1) {
           return cb && cb(null, i18n.t('invalidSubscribeType'));

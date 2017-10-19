@@ -18,6 +18,7 @@ class TemplateInfo extends DB {
       createdTime: { type: 'date', validation: 'require', allowUpdate: false },
       type: { type: 'string', validation: 'require', default: () => TemplateInfo.TYPE.DOWNLOAD },
       subtitleType: { type: 'array' },
+      downloadAudit: { type: 'boolean', default: false },    // 是否需要审核
       modifyTime: { type: 'date', validation: 'require' },
       description: { type: 'string' },
       details: { type: 'object' },

@@ -81,7 +81,7 @@ router.use(isLogin.middleware);
  */
 router.post('/esSearch', (req, res) => {
   service.esSearch(req.body, (err, doc) => {
-    if(err) {
+    if (err) {
       return res.json(result.fail(err));
     }
     return res.json(result.success(doc));

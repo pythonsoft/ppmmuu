@@ -27,7 +27,7 @@ const build = function build(code, data, message = null) {
     message = 'ok';
   }
 
-  return { status: code, data: data, statusInfo: { message: message } };
+  return { status: code, data, statusInfo: { message } };
 };
 
 result.success = function success(data, message = 'ok') {

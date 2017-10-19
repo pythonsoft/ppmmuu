@@ -79,43 +79,34 @@ router.get('/getSubscribeTypeSummary', (req, res) => {
  *             keyword:
  *               type: string
  *               description: 关键字搜索
+ *               example: ''
  *             subscribeType:
- *               type: array
+ *               type: string
  *               items:
  *                 type: string
  *               description: 节目类型_id数组
- *               example: ['政治','娱乐','体育']
+ *               example: "政治 娱乐 体育"
  *             FIELD323:
  *               type: array
  *               items:
  *                 type: string
  *               description: 版本
- *               example: ['播出版','素材版','配音字幕版']
+ *               example: "播出版 素材版 配音字幕版"
  *             duration:
- *               type: object
- *               properties:
- *                 gte:
- *                   type: number
- *                   description: 大于
- *                   example: 0
- *                 lt:
- *                   type: number
- *                   description: 小于
- *                   example: 6000
- *               description: 时长
- *               example: {gte: 0, lt: 6000}
+ *               type: string
+ *               example: 'e461e2f607a9c631a37f5a2403649eb0827c7298b13489e8ee997b2b588a9cdf'
  *             sort:
- *               type: object
+ *               type: string
  *               description: '排序'
- *               example: {'details.FIELD36': {"order": "asc"}}
+ *               example: '764a59be44d0077e719ca8f750fd3ef798e3997dcd3182ea492e1e555c1cfcf57825b4ad83665c8397477b38f985c6be'
  *             FIELD162:
- *               type: object
+ *               type: string
  *               description: '新闻日期'
- *               example: {"gte": "2011-10-16T08:52:17.200Z", "lt": "2017-10-17T08:52:17.200Z"}
+ *               example: "2004-10-16T08:52:17.200Z,2017-10-17T08:52:17.200Z"
  *             FIELD36:
- *               type: object
+ *               type: string
  *               description: '首播日期'
- *               example: {"gte": "2011-10-16T08:52:17.200Z", "lt": "2017-10-17T08:52:17.200Z"}
+ *               example: "2004-10-16T08:52:17.200Z,2017-10-17T08:52:17.200Z"
  *             start:
  *               type: number
  *               description: '从第几个开始搜索'

@@ -20,6 +20,8 @@ const auditRuleInfo = new AuditRuleInfo();
 
 const GroupInfo = require('../group/groupInfo');
 
+const jobService = require('../job/service');
+
 const service = {};
 
 /**
@@ -67,8 +69,20 @@ service.create = function create(info, applicant, type = AuditInfo.TYPE.DOWNLOAD
   });
 };
 
-service.list = function list(keyword, applicantId, verifierId, type, status, page, pageSize, sortFields, fieldsNeed, cb) {
+service.list = function list(req, cb) {
+  const keyword = req.query.keyword;
+  const type = req.query.type || '';
+  const status = req.query.status || '';
+  const page = req.query.page || 1;
+  const pageSize = req.query.pageSize || 30;
+  const sortFields = req.query.sortFields || '-createTime';
+  const fieldsNeed = req.query.fieldsNeed || '';
+  const userInfo = req.ex.userInfo;
+
+  const st = status === '-1' ? '' : status;
   const q = {};
+
+  // q['ownerDepartment._id'] = userInfo.department._id;
 
   if (keyword) {
     q.$or = [
@@ -78,17 +92,10 @@ service.list = function list(keyword, applicantId, verifierId, type, status, pag
     ];
   }
 
-  if (applicantId) {
-    q.applicant_id = applicantId;
-  }
-
-  if (verifierId) {
-    q['verifier._id'] = verifierId;
-  }
-
   if (type) {
     q.type = type;
   }
+
 
   if (status) {
     if (status.indexOf(',')) {
@@ -119,7 +126,22 @@ service.list = function list(keyword, applicantId, verifierId, type, status, pag
  * @param cb
  * @returns {*}
  */
-service.passOrReject = function passOrReject(isPass, ids, verifier, message = '', cb) {
+service.passOrReject = function passOrReject(req, cb) {
+  const ids = req.body.ids;
+  const userInfo = req.ex.userInfo;
+  const message = req.body.message || '';
+  const status = req.body.status || '';
+
+  const verifier = {
+    _id: userInfo._id,
+    name: userInfo.name,
+    companyId: userInfo.company._id,
+    companyName: userInfo.company.name,
+    departmentId: userInfo.department._id,
+    departmentName: userInfo.department.name,
+  };
+  const isPass = status === AuditInfo.STATUS.PASS;
+
   if (!ids) {
     return cb && cb(i18n.t('auditFieldIsNotExist', { field: 'ids' }));
   }
@@ -154,16 +176,53 @@ service.passOrReject = function passOrReject(isPass, ids, verifier, message = ''
     status: isPass ? AuditInfo.STATUS.PASS : AuditInfo.STATUS.REJECT,
   };
 
-  auditInfo.collection[actionName](q, updateInfo, (err, r) => {
-    if (err) {
-      logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
-    }
 
-    return cb && cb(null, r);
-  });
+  if (isPass) {
+    auditInfo.collection.find({ _id: q._id, status: AuditInfo.STATUS.WAITING }).toArray((err, docs) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+      if (!docs || docs.length === 0) {
+        return cb && cb(i18n.t('auditInfoCannotFind'));
+      }
+      const successIds = [];
+      const updateAuditInfo = function updateAuditInfo(successIds, cb) {
+        auditInfo.collection.updateMany({ _id: { $in: successIds } }, { $set: updateInfo }, (err) => {
+          if (err) {
+            logger.error(err.message);
+            return cb && cb(i18n.t('databaseError'));
+          }
+          return cb && cb(null, 'ok');
+        });
+      };
+      const loopCreateDownload = function loopCreateDownload(docs, index) {
+        if (index >= docs.length) {
+          updateAuditInfo(successIds, cb);
+        } else {
+          jobService.download(docs[index].detail, (err) => {
+            if (err) {
+              updateAuditInfo(successIds, () => cb && cb(err));
+            } else {
+              successIds.push(docs[index]._id);
+              loopCreateDownload(docs, index + 1);
+            }
+          });
+        }
+      };
 
-  return false;
+      loopCreateDownload(docs, 0);
+    });
+  } else {
+    auditInfo.collection.updateMany(q, { $set: updateInfo }, (err, r) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      return cb && cb(null, 'ok');
+    });
+  }
 };
 
 service.remove = function remove(ids, cb) {
@@ -215,13 +274,13 @@ service.getAuditInfo = function (id, cb) {
 
 // 审核授权
 
-const createWhitelistInfo = function (whitelistString) {
-  if (whitelistString === '') {
+const createWhitelistInfo = function (whiteList) {
+  if (whiteList === '') {
     return { err: null, doc: [] };
   }
 
   try {
-    const infos = JSON.parse(whitelistString);
+    const infos = whiteList;
 
     if (infos.constructor !== Array) {
       return { err: i18n.t('auditRuleWhitelistIsInvalid'), doc: null };
@@ -265,6 +324,7 @@ const createAuditDepartment = function (permissionType, auditDepartment) {
 
     return { err: null, doc };
   }
+  return { err: null, doc: null };
 };
 
 service.createAuditRule = function createRule(info, creator, cb) {
@@ -295,7 +355,7 @@ service.createAuditRule = function createRule(info, creator, cb) {
   const t = new Date();
 
   doc.creator = creator;
-  doc.auditDepartment = auditDepartmentRs.doc;
+  doc.auditDepartment = auditDepartmentRs.doc ? auditDepartmentRs.doc : { _id: '', name: '' };
   doc.whitelist = rs.doc;
   doc._id = uuid.v1();
   doc.createdTime = t;

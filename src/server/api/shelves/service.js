@@ -9,6 +9,7 @@ const utils = require('../../common/utils');
 const uuid = require('uuid');
 const i18n = require('i18next');
 const roleService = require('../role/service');
+const shelfService = require('../shelves/service');
 const subscribeManagementService = require('../subscribeManagement/service');
 
 const ShelfTaskInfo = require('./shelfTaskInfo');
@@ -485,7 +486,7 @@ service.listLineShelfTask = function listLineShelfTask(req, cb) {
     ];
   }
 
-  query['department._id'] = userInfo.department._id;
+  // query['department._id'] = userInfo.department._id;
 
   listShelfTask(query, page, pageSize, cb);
 };

@@ -7,6 +7,7 @@
 const express = require('express');
 
 const router = express.Router();
+const result = require('../../common/result');
 const service = require('./service');
 const isLogin = require('../../middleware/login');
 
@@ -98,18 +99,9 @@ router.use(isLogin.hasAccessMiddleware);
  *         description:
  */
 router.post('/download', (req, res) => {
-  const objectid = req.body.objectid;
-  const inpoint = req.body.inpoint || 0;
-  const outpoint = req.body.outpoint;
-  const filename = req.body.filename;
-  const filetypeid = req.body.filetypeid;
-  const templateId = req.body.templateId; // 下载模板Id
-  const receiverId = req.body.receiverId;
-  const receiverType = req.body.receiverType;
-  const transferMode = req.body.transferMode;
-
   res.set('Content-Type', 'application/json');
-  service.download(req.ex.userInfo, { objectid, inpoint: inpoint * 1, outpoint: outpoint * 1, filename, filetypeid, templateId }, receiverId, receiverType, transferMode, res);
+  req.body.userInfo = req.ex.userInfo;
+  service.jugeDownload(req.body, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
