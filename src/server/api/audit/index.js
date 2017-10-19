@@ -46,17 +46,20 @@ router.use(isLogin.hasAccessMiddleware);
  */
 router.post('/pass', (req, res) => {
   const ids = req.body.ids;
+  const userInfo = req.ex.userInfo;
+  const message = req.body.message || '';
+  const status = req.body.status || '';
 
   const verifier = {
-    _id: req.ex.userInfo._id,
-    name: req.ex.userInfo.name,
-    companyId: req.ex.company._id,
-    companyName: req.ex.company.name,
-    departmentId: req.ex.department._id,
-    departmentName: req.ex.department.name,
+    _id: userInfo._id,
+    name: userInfo.name,
+    companyId: userInfo.company._id,
+    companyName: userInfo.company.name,
+    departmentId: userInfo.department._id,
+    departmentName: userInfo.department.name,
   };
 
-  service.passOrReject(true, ids, verifier, message, err => res.json(result.json(err, 'ok')));
+  service.passOrReject(status, ids, verifier, message, err => res.json(result.json(err, 'ok')));
 });
 
 /**
@@ -131,17 +134,7 @@ router.post('/pass', (req, res) => {
  *         description: AuditInfo
  */
 router.get('/list', (req, res) => {
-  const keyword = req.query.keyword;
-  const type = req.query.type || '';
-  const status = req.query.status || '';
-  const page = req.query.page || 1;
-  const pageSize = req.query.pageSize || 30;
-  const sortFields = req.query.sortFields || '-createTime';
-  const fieldsNeed = req.query.fieldsNeed || '';
-
-  const st = status === '-1' ? '' : status;
-
-  service.list(keyword, '', '', type, st, page, pageSize, sortFields, fieldsNeed, (err, docs) => res.json(result.json(err, docs)));
+  service.list(req, (err, docs) => res.json(result.json(err, docs)));
 });
 
 // 审核授权

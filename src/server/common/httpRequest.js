@@ -43,7 +43,7 @@ class httpRequest {
         const rs = me.error(error.message);
 
         if (typeof outStream === 'function') {
-          outStream(rs);
+          outStream({ code: '10000', message: error.message });
         } else {
           outStream.end(rs);
         }
