@@ -35,4 +35,3 @@ setTimeout(function () {
 
   run();
 }, 10000);
-
