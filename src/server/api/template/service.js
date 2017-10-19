@@ -481,7 +481,7 @@ service.update = function update(id, info, cb) {
   }
 
   if (!info.type || info.type === TemplateInfo.TYPE.DOWNLOAD || info.type === TemplateInfo.TYPE.DOWNLOAD_MEDIAEXPRESS) {
-    info.type = TemplateInfo.TYPE.DOWNLOAD;
+    info.type = info.type ? info.type : TemplateInfo.TYPE.DOWNLOAD;
 
     info.details = templateInfo.createDownloadInfo(info.script, info.bucketId);
 

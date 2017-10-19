@@ -211,4 +211,78 @@ router.get('/getSubscribeSearchConfig', (req, res) => {
   service.getSubscribeSearchConfig(req, (err, doc) => res.json(result.json(err, doc)));
 });
 
+/**
+ * @apiName: getSubscribeSearchConfig
+ * @apiFuncType: get
+ * @apiFuncUrl: /subscribe/getSubscribeSearchConfig
+ * @swagger
+ * /subscribe/getSubscribeSearchConfig:
+ *   get:
+ *     description: 订阅搜索配置项
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - Search
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *
+ */
+router.get('/getSubscribeSearchConfig', (req, res) => {
+  service.getSubscribeSearchConfig(req, (err, doc) => res.json(result.json(err, doc)));
+});
+
+/**
+ * @apiName: getVideoInfo
+ * @apiFuncType: get
+ * @apiFuncUrl: /subscribe/getVideoInfo
+ * @swagger
+ * /subscribe/getVideoInfo:
+ *   get:
+ *     description: 获取订阅视频详情
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - Search
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: _id
+ *         required: true
+ *         type: string
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *
+ */
+router.get('/getVideoInfo', isLogin.hasSubscribeMiddleware, (req, res) => {
+  service.getShelfInfo(req, (err, doc) => res.json(result.json(err, doc)));
+});
+
 module.exports = router;
