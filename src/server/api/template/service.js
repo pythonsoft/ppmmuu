@@ -323,11 +323,39 @@ service.list = function list(type, groupId, sortFields = '-createdTime', fieldsN
     }
   }
 
-  if (groupId) {
+  if (groupId && groupId.constructor.name.toLowerCase() === 'string') {
     query.groupId = groupId;
+  } else if (groupId && groupId.constructor.name.toLowerCase() === 'array') {
+    query.groupId = { $in: groupId };
   }
 
   templateInfo.pagination(query, page, pageSize, cb, sortFields, fieldsNeed);
+};
+
+service.listUsableTemplate = function listUsableTemplate(userInfo, pageSize, cb) {
+  const q = {};
+  q.$or = [
+    { users: { $elemMatch: { _id: userInfo._id } } },
+    { users: { $elemMatch: { _id: userInfo.department._id } } },
+    { users: { $elemMatch: { _id: userInfo.company._id } } },
+  ];
+  templateGroupInfo.collection.find(q, { fields: { _id: 1 } }).toArray((err, docs) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if (!docs || docs.length === 0) {
+      return cb && cb(i18n.t('noDownloadPath'));
+    }
+
+    const groupIds = [];
+    for (let i = 0, len = docs.length; i < len; i++) {
+      groupIds.push(docs[i]._id);
+    }
+
+    service.list('', groupIds, null, null, 1, pageSize, (err, docs) => cb && cb(err, docs));
+  });
 };
 
 service.createTemplate = function createTemplate(params, cb) {
