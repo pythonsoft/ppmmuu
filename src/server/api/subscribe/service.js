@@ -282,6 +282,7 @@ const executeEsSerach = function executeEsSearch(body, userId, keyword, cb) {
     for (let i = 0, len = hits.length; i < len; i++) {
       const _source = hits[i]._source || {};
       const highlight = hits[i].highlight || {};
+      _source._id = hits[i]._id;
       for (const key in _source) {
         if (highlight[key]) {
           _source[key] = highlight[key].join('');
@@ -312,7 +313,7 @@ const getEsOptions = function getEsOptions(info) {
   const start = info.start || 0;
   const pageSize = info.pageSize || 28;
   const options = {
-    _source: 'name,details,editorInfo,lastModifyTime,files,objectId'.split(','),
+    _source: '_id,name,details,editorInfo,lastModifyTime,files,objectId'.split(','),
     from: start * 1,
     size: pageSize * 1,
     sort: [{
