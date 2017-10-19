@@ -7,12 +7,11 @@
 /* eslint-disable no-undef */
 config.host = 'localhost:8080';
 config.domain = `http://${config.host}`;
+
 config.mongodb = {
-  // umpURL: 'mongodb://10.0.15.62:27017/ump_v1',
   umpURL: 'mongodb://172.19.223.130:27017/ump_v1',
 };
 
-// config.redis_host = '10.0.15.69';
 config.redis_host = '172.19.223.163';
 config.redis_port = 6379;
 config.redis_opts = { auth_pass: 'phoenixtv2017' };
@@ -44,7 +43,6 @@ config.esBaseUrl = 'http://10.0.15.204:9200/';
 // 香港检索基础api地址
 config.hongkongUrl = 'http://w2.phoenixtv.com/mamapi/';
 // ump fe api地址
-// config.umpFeAPI = process.env.NODE_ENV === 'development' ? 'http://localhost:8080' : 'http://api.szdev.cn';
 config.umpFeAPI = 'http://ump-api.phoenixtv.com';
 
 config.HKAPI = {
