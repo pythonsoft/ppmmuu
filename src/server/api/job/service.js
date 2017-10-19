@@ -210,7 +210,7 @@ service.jugeTemplateAuditAndCreateAudit = function jugeTemplateAuditAndCreateAud
       return cb && cb(i18n.t('templateIsNotExist'));
     }
 
-    if (!doc.details.bucketId) {
+    if (!doc.details || !doc.details.bucketId) {
       return cb && cb(i18n.t('templateBucketIdIsNotExist'));
     }
 
@@ -277,7 +277,7 @@ service.jugeDownload = function jugeDownload(info, cb) {
       return cb && cb(err);
     }
     if (!needDownload) {
-      return cb && cb(null, 'ok');
+      return cb && cb(null, 'audit');
     }
     service.download(info, cb);
   });

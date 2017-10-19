@@ -833,4 +833,8 @@ module.exports = {
     code: '-140007',
     message: '订阅搜索配置项json不正确',
   },
+  noDownloadPath: {
+    code: '-150001',
+    message: '没有配置下载路径,请联系管理员配置',
+  },
 };
