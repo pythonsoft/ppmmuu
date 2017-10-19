@@ -9,15 +9,14 @@ config.host = 'localhost:8080';
 config.domain = `http://${config.host}`;
 
 config.dbName = process.env.NODE_ENV === 'test' ? 'ump_test' : 'ump';
+
 config.mongodb = {
   [`${config.dbName}URL`]: `mongodb://10.0.15.62:27017/${config.dbName === 'ump' ? 'ump_v1' : 'ump_test'}`,
 };
 
 config.redis_host = '10.0.15.69';
 config.redis_port = 6379;
-config.redis_opts = {
-  auth_pass: 'phoenixtv2017',
-};
+config.redis_opts = { auth_pass: 'phoenixtv2017' };
 config.KEY = 'secret';
 config.cookieExpires = 1000 * 60 * 60 * 24 * 7; // cookie有效期七天
 config.redisExpires = 1 * 60 * 60 * 12; // redis有效期12小时
