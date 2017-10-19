@@ -97,6 +97,13 @@ class auditInfo extends DB {
             departmentId: '',
           };
         } }, // 审核人信息
+      ownerDepartment: {
+        type: 'object',
+        default: {
+          _id: '',
+          name: '',
+        },
+      },  // 应该审核的部门
       message: { type: 'string' },
       description: { type: 'string' },
       detail: { type: 'object' },

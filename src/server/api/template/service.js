@@ -480,7 +480,7 @@ service.update = function update(id, info, cb) {
     delete info.id;
   }
 
-  if (!info.type || info.type === TemplateInfo.TYPE.DOWNLOAD) {
+  if (!info.type || info.type === TemplateInfo.TYPE.DOWNLOAD || info.type === TemplateInfo.TYPE.DOWNLOAD_MEDIAEXPRESS) {
     info.type = TemplateInfo.TYPE.DOWNLOAD;
 
     info.details = templateInfo.createDownloadInfo(info.script, info.bucketId);
