@@ -486,7 +486,7 @@ service.listLineShelfTask = function listLineShelfTask(req, cb) {
     ];
   }
 
-  query['department._id'] = userInfo.department._id;
+  //query['department._id'] = userInfo.department._id;
 
   listShelfTask(query, page, pageSize, cb);
 };
