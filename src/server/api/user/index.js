@@ -662,7 +662,7 @@ router.post('/adAccountSync', (req, res) => {
  *       - in: query
  *         name: currentStep
  *         type: int
- *         default: ''
+ *         default: 0
  *         collectionFormat: csv
  *       - in: query
  *         name: page
@@ -688,6 +688,55 @@ router.get('/listJob', (req, res) => {
   res.set('Content-Type', 'application/json');
   jobService.list({ page: page * 1, pageSize: pageSize * 1, status, currentStep, userId }, res);
 });
+
+
+/* downloadTask */
+/**
+ * @permissionGroup: account
+ * @permissionName: user_listAuditJob
+ * @permissionPath: /user/listAuditJob
+ * @apiName: listAuditJob
+ * @apiFuncType: get
+ * @apiFuncUrl: /user/listAuditJob
+ * @swagger
+ * /user/listAuditJob:
+ *   get:
+ *     description: list audit job
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - UserInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: status
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: keyword
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: page
+ *         type: number
+ *         default: 1
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: pageSize
+ *         type: number
+ *         default: 99
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: taskList
+ */
+router.get('/listAuditJob', (req, res) => {
+  jobService.listAuditInfo(req, (err, r) => res.json(result.json(err, r)));
+});
+
 
 /**
  * @permissionGroup: account

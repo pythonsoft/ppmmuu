@@ -11,15 +11,16 @@ const i18n = require('i18next');
 const result = require('../../common/result');
 const UserInfo = require('../user/userInfo');
 const AuditRuleInfo = require('../audit/auditRuleInfo');
+const AuditInfo = require('../audit/auditInfo');
 
 const userInfo = new UserInfo();
 const auditRuleInfo = new AuditRuleInfo();
+const auditInfo = new AuditInfo();
 
 const TemplateInfo = require('../template/templateInfo');
 
 const templateService = require('../template/service');
 const extService = require('./extService');
-const auditService = require('../audit/service');
 
 const TRANSCODE_API_SERVER_URL = `http://${config.TRANSCODE_API_SERVER.hostname}:${config.TRANSCODE_API_SERVER.port}`;
 const HttpRequest = require('../../common/httpRequest');
@@ -176,19 +177,18 @@ const transcodeAndTransfer = function transcodeAndTransfer(bucketId, receiverId,
     TransferMode: transferMode,
   }, (err, transferParams) => {
     if (err) {
-      return cb && cb(result.fail(err));
+      return cb && cb(err);
     }
 
     // 调用下载接口
     downloadRequest(bucketId, transcodeTemplateId, transferParams, downloadParams, userInfo._id, userInfo.name, (err, r) => {
       if (err) {
-        return cb && cb(result.fail(err));
+        return cb && cb(err);
       }
 
       return cb && cb(null, r);
     });
   });
-  return false;
 };
 
 service.listTemplate = extService.listTemplate;
@@ -252,10 +252,17 @@ service.jugeTemplateAuditAndCreateAudit = function jugeTemplateAuditAndCreateAud
           departmentName: userInfo.department.name,
           departmentId: userInfo.department._id,
         },
+        ownerDepartment: doc.auditDepartment,
       };
-      auditService.create(insertInfo, (err) => {
+      insertInfo.createTime = new Date();
+      insertInfo.lastModify = new Date();
+      insertInfo.status = AuditInfo.STATUS.WAITING;
+      insertInfo.type = AuditInfo.TYPE.DOWNLOAD;
+
+      auditInfo.insertOne(insertInfo, (err) => {
         if (err) {
-          return cb && cb(err);
+          logger.error(err.message);
+          return cb && cb(i18n.t('databaseError'));
         }
 
         return cb && cb(null, false);
@@ -588,6 +595,42 @@ service.deleteTemplate = function del(deleteParams, res) {
     return res.end(errorCall('jobDeleteParamsIdIsNull'));
   }
   requestTemplate.get('/TemplateService/delete', params, res);
+};
+
+service.listAuditInfo = function listAuditInfo(req, cb) {
+  const page = req.query.page || 0;
+  const pageSize = req.query.pageSize || 20;
+  const keyword = req.query.keyword || '';
+  const status = req.query.status || '';
+  const userInfo = req.ex.userInfo;
+  const q = {};
+
+  q['applicant._id'] = userInfo._id;
+
+  if (keyword) {
+    q.$or = [
+      { name: { $regex: keyword, $options: 'i' } },
+      { 'applicant.name': { $regex: keyword, $options: 'i' } },
+      { 'verifier.name': { $regex: keyword, $options: 'i' } },
+    ];
+  }
+
+  if (status) {
+    if (status.indexOf(',')) {
+      q.status = { $in: utils.formatValueNeedSplitWidthFlag(status, ',', true) };
+    } else {
+      q.status = status;
+    }
+  }
+
+  auditInfo.pagination(q, page, pageSize, (err, docs) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, docs);
+  }, '-createTime', 'name,status,createTime,lastModify');
 };
 
 module.exports = service;

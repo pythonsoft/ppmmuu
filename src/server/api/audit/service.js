@@ -69,8 +69,20 @@ service.create = function create(info, applicant, type = AuditInfo.TYPE.DOWNLOAD
   });
 };
 
-service.list = function list(keyword, applicantId, verifierId, type, status, page, pageSize, sortFields, fieldsNeed, cb) {
+service.list = function list(req, cb) {
+  const keyword = req.query.keyword;
+  const type = req.query.type || '';
+  const status = req.query.status || '';
+  const page = req.query.page || 1;
+  const pageSize = req.query.pageSize || 30;
+  const sortFields = req.query.sortFields || '-createTime';
+  const fieldsNeed = req.query.fieldsNeed || '';
+  const userInfo = req.ex.userInfo;
+
+  const st = status === '-1' ? '' : status;
   const q = {};
+
+  q['ownerDepartment._id'] = userInfo.department._id;
 
   if (keyword) {
     q.$or = [
@@ -80,17 +92,10 @@ service.list = function list(keyword, applicantId, verifierId, type, status, pag
     ];
   }
 
-  if (applicantId) {
-    q.applicant_id = applicantId;
-  }
-
-  if (verifierId) {
-    q['verifier._id'] = verifierId;
-  }
-
   if (type) {
     q.type = type;
   }
+
 
   if (status) {
     if (status.indexOf(',')) {
@@ -121,7 +126,8 @@ service.list = function list(keyword, applicantId, verifierId, type, status, pag
  * @param cb
  * @returns {*}
  */
-service.passOrReject = function passOrReject(isPass, ids, verifier, message = '', cb) {
+service.passOrReject = function passOrReject(status, ids, verifier, message = '', cb) {
+  const isPass = status === AuditInfo.STATUS.PASS;
   if (!ids) {
     return cb && cb(i18n.t('auditFieldIsNotExist', { field: 'ids' }));
   }
@@ -194,7 +200,7 @@ service.passOrReject = function passOrReject(isPass, ids, verifier, message = ''
       loopCreateDownload(docs, 0);
     });
   } else {
-    auditInfo.collection[actionName](q, updateInfo, (err, r) => {
+    auditInfo.collection.updateMany(q, { $set: updateInfo }, (err, r) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));

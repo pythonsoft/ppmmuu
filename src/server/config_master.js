@@ -68,4 +68,4 @@ config.adminMenuPermission = config.normalMenuPermission.concat(['management']);
 
 
 // 快传api地址
-config.mediaExpressUrl = 'https://leo.cloudifeng.com/';
+config.mediaExpressUrl = 'http://localhost:3001/';
