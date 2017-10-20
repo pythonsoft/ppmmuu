@@ -18,11 +18,12 @@ const init = function init() {
 
     const id = doc._id;
 
-    service.createDirectory(userId, '目录1', id, {}, (err, r, dirId) => {
+    service.createDirectory(userId, '目录1', id, {}, (err, r) => {
       if (err) {
         console.log('createDirectory -->', err);
         return false;
       }
+      const dirId = r.insertedId;
 
       service.createDirectory(userId, '目录1-1', dirId, {}, (err) => {
         if (err) {
