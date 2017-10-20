@@ -77,9 +77,13 @@ class httpRequest {
     });
 
     req.on('error', (e) => {
-      outStream.end(JSON.stringify({
-        status: 1, data: {}, statusInfo: { code: '10000', message: e.message },
-      }));
+      if (typeof outStream === 'function') {
+        outStream({ code: '10000', message: e.message });
+      }else{
+        outStream.end(JSON.stringify({
+          status: 1, data: {}, statusInfo: {code: '10000', message: e.message},
+        }));
+      }
 
       logger.error(e.message);
     });
