@@ -5,13 +5,13 @@
 'use strict';
 
 /* eslint-disable no-undef */
-config.host = 'localhost:8080';
+config.host = 'ump-api.phoenixtv.com';
 config.domain = `http://${config.host}`;
 
 config.dbName = 'ump';
 
 config.mongodb = {
-  umpURL: 'mongodb://172.19.223.130:27017/ump_v1',
+  umpURL: 'mongodb://172.19.223.147:27017/ump_v1',
 };
 
 config.redis_host = '172.19.223.163';
@@ -59,7 +59,7 @@ config.logPath = path.join(__dirname, '../logs/');
 config.uploadPath = path.join(__dirname, '../../uploads/');
 
 // 允许跨域访问的地址列表
-config.whitelist = ['http://localhost:8000', 'http://localhost:8080', 'http://10.0.15.68:8000', 'http://10.0.15.105:8000', 'http://10.0.15.105:8080'];
+config.whitelist = ['http://ump.phoenixtv.com'];
 
 config.normalMenuPermission = ['mediaCenter', 'taskCenter', 'personalCenter', 'library'];
 config.adminMenuPermission = config.normalMenuPermission.concat(['management']);
