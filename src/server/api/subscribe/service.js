@@ -9,7 +9,7 @@ const utils = require('../../common/utils');
 const i18n = require('i18next');
 const nodecc = require('node-opencc');
 const config = require('../../config');
-const fieldConfig = require('../media/fieldConfig');
+const fieldConfig = require('./fieldConfig');
 
 const SubscribeInfo = require('../subscribeManagement/subscribeInfo');
 const SubscribeType = require('../subscribeManagement/subscribeType');
@@ -22,6 +22,7 @@ const shelfInfo = new ShelfInfo();
 const configurationInfo = new ConfigurationInfo();
 
 const mediaService = require('../media/service');
+const shelfService = require('../shelves/service');
 
 const service = {};
 const DOWNLOAD_TYPE = {
@@ -335,9 +336,6 @@ const getEsOptions = function getEsOptions(info) {
     keyword = nodecc.simplifiedToTraditional(keyword);
     const temp = { match: { full_text: keyword } };
     musts.push(temp);
-    query.bool.should = [
-      { match: { name: keyword } },
-    ];
   }
   if (subscribeType) {
     const temp = { match: { 'editorInfo.subscribeType': subscribeType } };
@@ -365,7 +363,7 @@ const getEsOptions = function getEsOptions(info) {
     } catch (e) {
       // return {err: i18n.t('invalidSearchParams')};
     }
-  } else if (sort === 'should' && keyword) {
+  } else if (keyword) {
     query.bool.should = [
       { match: { name: keyword } },
     ];
@@ -552,29 +550,30 @@ service.getEsMediaList = function getEsMediaList(req, cb) {
 
 service.getShelfInfo = function getShelfInfo(req, cb) {
   const _id = req.query._id || '';
-  if (!_id) {
-    return cb && cb(i18n.t('shelfShortId'));
-  }
+  const fields = '_id,name,programNO,objectId,details,editorInfo,lastModifyTime';
 
-  let fields = '_id,name,programNO,objectId,details,editorInfo';
-  fields = utils.formatSortOrFieldsParams(fields);
-  shelfInfo.collection.findOne({ _id, status: ShelfInfo.STATUS.ONLINE }, { fields }, (err, doc) => {
+  const info = {
+    _id,
+    fields,
+    status: ShelfInfo.STATUS.ONLINE,
+  };
+  shelfService.getShelfDetail(info, (err, doc) => {
     if (err) {
-      logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
+      return cb && cb(err);
     }
-    if (!doc) {
-      return cb && cb(i18n.t('shelfNotFind'));
-    }
+    const rs = JSON.parse(JSON.stringify(fieldConfig));
     if (doc.details) {
       const program = doc.details;
-      for (const key in program) {
-        if (program[key] === '' || program[key] === null) {
-          delete program[key];
-        } else {
-          program[key] = { value: program[key], cn: fieldConfig[key] ? fieldConfig[key].cn : '' };
-        }
+      for (const key in rs) {
+        rs[key].value = program[key] || '';
       }
+      rs.name.value = doc.editorInfo.name;
+      rs.subscribeType.value = doc.editorInfo.subscribeType;
+      rs.source.value = doc.editorInfo.source;
+      rs.limit.value = doc.editorInfo.limit;
+      rs.lastModifyTime.value = doc.lastModifyTime;
+      rs.programNO.value = doc.programNO;
+      doc.details = rs;
       return cb && cb(null, doc);
     }
   });

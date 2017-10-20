@@ -96,11 +96,19 @@ router.post('/createShelfTask', (req, res) => {
  *         type: string
  *         default: 'asdasdasd'
  *         collectionFormat: csv
+ *       - in: query
+ *         name: fields
+ *         description: 需要哪些字段
+ *         required: false
+ *         type: string
+ *         default: '_id,name,programNO,-files'
+ *         collectionFormat: csv
  *     responses:
  *       200:
  *         description:
  * */
 router.get('/getShelfDetail', (req, res) => {
+  req.query.fields = req.query.fields || 'name,objectId,programNO,details,editorInfo';
   service.getShelfDetail(req.query, (err, docs) => res.json(result.json(err, docs)));
 });
 

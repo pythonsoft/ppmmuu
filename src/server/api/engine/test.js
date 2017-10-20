@@ -91,8 +91,8 @@ setTimeout(() => {
     describe('GET /listEngine', () => {
       it('should list engines', (done) => {
         agent
-        .get('')
-      })
+        .get('');
+      });
     });
   });
 
