@@ -65,7 +65,7 @@ config.whitelist = [
   'http://localhost:8080',
   'http://10.0.15.68:8000',
   'http://10.0.15.105:8000',
-  'http://10.0.15.105:8080'
+  'http://10.0.15.105:8080',
 ];
 
 config.normalMenuPermission = ['mediaCenter', 'taskCenter', 'personalCenter', 'library'];

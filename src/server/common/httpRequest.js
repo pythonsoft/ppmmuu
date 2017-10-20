@@ -79,9 +79,9 @@ class httpRequest {
     req.on('error', (e) => {
       if (typeof outStream === 'function') {
         outStream({ code: '10000', message: e.message });
-      }else{
+      } else {
         outStream.end(JSON.stringify({
-          status: 1, data: {}, statusInfo: {code: '10000', message: e.message},
+          status: 1, data: {}, statusInfo: { code: '10000', message: e.message },
         }));
       }
 
