@@ -10,6 +10,9 @@ const apiPathFile = path.join(__dirname, './server/apiPath.js');
 const buildPath = path.join(__dirname, '../build');
 const initPermissionPath = path.join(__dirname, './server/mongodbScript/initPermissionInfo.js');
 const feApiPath = path.join(buildPath, 'api');
+const pm2JSONPath = path.join(__dirname, '../pm2.json');
+const onlineConfig = path.join(__dirname, './server/config_master_online.js');
+const packageJsonPath = path.join(__dirname, '../package.json');
 
 let permissionNames = [];
 let permissionPaths = [];
@@ -101,6 +104,20 @@ const writeGetIconApiFuncFile = function writeApiFuncFile(filePath, funcName, fu
   fs.appendFileSync(filePath, tpl);
 };
 
+const writeFile = function writeFile(origin, targetName) {
+  const readStream = fs.createReadStream(origin);
+  const writeStream = fs.createWriteStream(path.join(buildPath, targetName));
+  readStream.pipe(writeStream);
+};
+
+const deployOnline = function deployOnline() {
+  if(process.env.NODE_ENV === 'online') {
+    writeFile(pm2JSONPath, 'pm2.json');
+    writeFile(onlineConfig, 'config_master.json');
+    writeFile(packageJsonPath, 'package.json');
+  }
+};
+
 // 读取后端接口生成前端调用的函数文件
 const generateFeApiFuncFile = function generateFeApiFuncFile() {
   const apiRootPath = path.join(__dirname, './server/api');
@@ -180,6 +197,8 @@ writeToApiPath();
 
 initPermissionInfo();
 
+deployOnline();
+
 webpack(webpackConfig, (err, stats) => {
   if (err) {
     // Handle errors here
@@ -191,5 +210,8 @@ webpack(webpackConfig, (err, stats) => {
   const done = function done() {
     process.exit(0);
   };
-  require('./runGulp')(done);
+
+  if(process.env.NODE_ENV !== 'online') {
+    require('./runGulp')(done);
+  }
 });
