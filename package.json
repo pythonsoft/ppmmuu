@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build_deploy": "cross-env NODE_ENV=online node src/build.js",
-    "build": "node src/build.js",
+    "build": "cross-env NODE_ENV=online node src/build.js",
     "buildD": "node src/build.js && cp -rfv build/api/* ../UMP-FE/src/fe/api/",
     "dev": "cross-env NODE_ENV=development node src/build.js && cross-env NODE_ENV=development node src/server/reloadServer.js",
     "deploy": "pm2 startOrReload pm2.json --env production --update-env",

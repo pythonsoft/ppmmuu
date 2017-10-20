@@ -15,12 +15,11 @@ const app = express();
 
 const corsOptions = {
   origin(origin, callback) {
-    callback(null, true);
- /*   if (typeof origin === 'undefined' || config.whitelist.indexOf(origin) !== -1) {
+    if (typeof origin === 'undefined' || config.whitelist.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
-    } */
+    }
   },
   credentials: true,   // 允许跨域携带cookie
 };
@@ -101,7 +100,6 @@ if (process.env.NODE_ENV === 'development') {
   const showExplorer = true;
   const swaggerUiOptions = {};
   const swaggerUiCss = '';
-
 
   // import rests
   app.get('/api-docs.json', (req, res) => {
