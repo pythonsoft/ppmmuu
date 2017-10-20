@@ -9,7 +9,6 @@ const utils = require('../../common/utils');
 const uuid = require('uuid');
 const i18n = require('i18next');
 const roleService = require('../role/service');
-const shelfService = require('../shelves/service');
 const subscribeManagementService = require('../subscribeManagement/service');
 
 const ShelfTaskInfo = require('./shelfTaskInfo');
@@ -457,7 +456,6 @@ service.sendBackShelf = function sendBackShelf(req, cb) {
 
 // 上架列表
 service.listLineShelfTask = function listLineShelfTask(req, cb) {
-  const userInfo = req.ex.userInfo;
   const info = req.query;
   const keyword = info.keyword || '';
   const status = info.status || '';

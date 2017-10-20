@@ -6,9 +6,13 @@
 
 const UserInfo = require('../api/user/userInfo');
 const BucketInfo = require('../api/storage/bucketInfo');
+const TemplateGroupInfo = require('../api/template/templateGroupInfo');
+const TemplateInfo = require('../api/template/templateInfo');
 
 const userInfo = new UserInfo();
 const bucketInfo = new BucketInfo();
+const templateGroupInfo = new TemplateGroupInfo();
+const templateInfo = new TemplateInfo();
 
 const service = require('../api/template/service');
 const storageService = require('../api/storage/service');
@@ -19,6 +23,30 @@ const bucket = {
   type: '0',
   permission: '2',
 };
+
+const groupName = '分组1';
+templateGroupInfo.collection.findOne({ name: groupName }, (err, doc) => {
+  if (err) {
+    console.log(err.message);
+  } else if (doc) {
+    templateInfo.collection.updateMany({ groupId: '' }, { $set: { groupId: doc._id } }, (err) => {});
+  } else {
+    service.addGroup({ name: groupName }, (err) => {
+      if (err) {
+        console.log(err.message);
+      } else {
+        templateGroupInfo.collection.findOne({ name: groupName }, (err, doc) => {
+          if (err) {
+            console.log(err.message);
+          }
+          if (doc) {
+            templateInfo.collection.updateMany({ groupId: { $exists: false } }, { $set: { groupId: doc._id } }, (err) => {});
+          }
+        });
+      }
+    });
+  }
+});
 
 bucketInfo.collection.findOne({ _id: bucket._id }, (err, doc) => {
   if (err) {

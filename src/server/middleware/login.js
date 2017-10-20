@@ -13,9 +13,11 @@ const config = require('../config');
 const UserInfo = require('../api/user/userInfo');
 const PermissionInfo = require('../api/role/permissionInfo');
 const PermissionAssignmentInfo = require('../api/role/permissionAssignmentInfo');
+const SubscribeInfo = require('../api/subscribeManagement/subscribeInfo');
 const groupService = require('../api/group/service');
 
 const userInfo = new UserInfo();
+const subscribeInfo = new SubscribeInfo();
 const redisClient = config.redisClient;
 
 const Login = {};
@@ -148,6 +150,33 @@ Login.hasAccessMiddleware = function hasAccessMiddleware(req, res, next) {
   } else {
     return res.json(result.fail(req.t('permissionIsUnActive')));
   }
+};
+
+Login.hasSubscribeMiddleware = function hasSubscribeMiddleware(req, res, next) {
+  const userInfo = req.ex.userInfo;
+  const companyId = userInfo.company._id;
+
+  subscribeInfo.collection.findOne({ _id: companyId }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return res.json(i18n.t('databaseError'));
+    }
+
+    if (!doc) {
+      return res.json(i18n.t('companyHasNoSubscribeInfo'));
+    }
+
+    doc = SubscribeInfo.getStatus(doc);
+    if (doc.status === SubscribeInfo.STATUS.UNUSED) {
+      return res.json(i18n.t('companySubscribeInfoUnused'));
+    }
+
+    if (doc.status === SubscribeInfo.STATUS.EXPIRED) {
+      return res.json(i18n.t('companySubscribeInfoExpired'));
+    }
+
+    next();
+  });
 };
 
 module.exports = Login;

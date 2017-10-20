@@ -13,6 +13,7 @@ const mediaService = require('../media/service');
 const jobService = require('../job/service');
 const roleService = require('../role/service');
 const auditService = require('../audit/service');
+const templateService = require('../template/service');
 
 /**
  * @apiName: postUserLogin
@@ -1045,6 +1046,33 @@ router.get('/listUserByDepartment', (req, res) => {
     keyword,
     departmentId: req.ex.userInfo.department._id,
   }, (err, docs) => res.json(result.json(err, docs)));
+});
+
+/**
+ * @permissionGroup: account
+ * @permissionName: 可用的下载模板列表
+ * @permissionPath: /user/listUsableTemplate
+ * @apiName: listUsableTemplate
+ * @apiFuncType: get
+ * @apiFuncUrl: /user/listUsableTemplate
+ * @swagger
+ * /user/listUsableTemplate:
+ *   get:
+ *     description: listUsableTemplate
+ *     tags:
+ *       - v1
+ *       - user
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description:
+ * */
+router.get('/listUsableTemplate', (req, res) => {
+  const userInfo = req.ex.userInfo;
+  const pageSize = req.query.pageSize || 99;
+
+  templateService.listUsableTemplate(userInfo, pageSize, (err, docs) => res.json(result.json(err, docs)));
 });
 
 module.exports = router;

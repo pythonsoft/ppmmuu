@@ -72,18 +72,15 @@ service.create = function create(info, applicant, type = AuditInfo.TYPE.DOWNLOAD
 service.list = function list(req, cb) {
   const keyword = req.query.keyword;
   const type = req.query.type || '';
-  const status = req.query.status || '';
+  let status = req.query.status || '';
   const page = req.query.page || 1;
   const pageSize = req.query.pageSize || 30;
   const sortFields = req.query.sortFields || '-createTime';
   const fieldsNeed = req.query.fieldsNeed || '';
-  const userInfo = req.ex.userInfo;
-
-  const st = status === '-1' ? '' : status;
   const q = {};
 
+  status = status === '-1' ? '' : status;
   // q['ownerDepartment._id'] = userInfo.department._id;
-
   if (keyword) {
     q.$or = [
       { name: { $regex: keyword, $options: 'i' } },
@@ -160,14 +157,10 @@ service.passOrReject = function passOrReject(req, cb) {
     status: AuditInfo.STATUS.WAITING,
   };
 
-  let actionName = '';
-
   if (ids.replace().indexOf(',')) {
     q._id = { $in: utils.formatValueNeedSplitWidthFlag(ids, ',', true) };
-    actionName = 'updateMany';
   } else {
     q._id = ids;
-    actionName = 'updateOne';
   }
 
   const updateInfo = {
@@ -214,7 +207,7 @@ service.passOrReject = function passOrReject(req, cb) {
       loopCreateDownload(docs, 0);
     });
   } else {
-    auditInfo.collection.updateMany(q, { $set: updateInfo }, (err, r) => {
+    auditInfo.collection.updateMany(q, { $set: updateInfo }, (err) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
@@ -253,7 +246,7 @@ service.remove = function remove(ids, cb) {
   return false;
 };
 
-service.getAuditInfo = function (id, cb) {
+service.getAuditInfo = function getAuditInfo(id, cb) {
   if (!id) {
     return cb && cb(i18n.t('auditFieldIsNotExist', { field: 'id' }));
   }
@@ -274,7 +267,7 @@ service.getAuditInfo = function (id, cb) {
 
 // 审核授权
 
-const createWhitelistInfo = function (whiteList) {
+const createWhitelistInfo = function createWhitelistInfo(whiteList) {
   if (whiteList === '') {
     return { err: null, doc: [] };
   }
@@ -307,7 +300,7 @@ const createWhitelistInfo = function (whiteList) {
   }
 };
 
-const createAuditDepartment = function (permissionType, auditDepartment) {
+const createAuditDepartment = function createAuditDepartment(permissionType, auditDepartment) {
   if (permissionType === AuditRuleInfo.PERMISSTION_TYPE.AUDIT) {
     if (!auditDepartment) {
       return { err: i18n.t('auditRuleFieldIsNotExist', { field: 'auditDepartment' }), doc: null };
