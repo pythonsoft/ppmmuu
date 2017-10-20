@@ -639,9 +639,6 @@ router.post('/adAccountSync', (req, res) => {
 
 /* downloadTask */
 /**
- * @permissionGroup: account
- * @permissionName: user_listJob
- * @permissionPath: /user/listJob
  * @apiName: listJob
  * @apiFuncType: get
  * @apiFuncUrl: /user/listJob
@@ -694,9 +691,6 @@ router.get('/listJob', (req, res) => {
 
 /* downloadTask */
 /**
- * @permissionGroup: account
- * @permissionName: user_listMyAuditJob
- * @permissionPath: /user/listMyAuditJob
  * @apiName: listMyAuditJob
  * @apiFuncType: get
  * @apiFuncUrl: /user/listMyAuditJob
@@ -741,8 +735,8 @@ router.get('/listMyAuditJob', (req, res) => {
 
 /* downloadTask */
 /**
- * @permissionGroup: account
- * @permissionName: user_listAuditJob
+ * @permissionGroup: auditTask
+ * @permissionName: 任务-审核任务列表
  * @permissionPath: /user/listAuditJob
  * @apiName: listAuditJob
  * @apiFuncType: get
@@ -782,11 +776,14 @@ router.get('/listMyAuditJob', (req, res) => {
  *       200:
  *         description: taskList
  */
-router.get('/listAuditJob', (req, res) => {
+router.get('/listAuditJob', isLogin.hasAccessMiddleware, (req, res) => {
   jobService.listAuditInfo(req, true, (err, r) => res.json(result.json(err, r)));
 });
 
 /**
+ * @permissionGroup: auditTask
+ * @permissionName: 任务-审核任务通过或拒绝
+ * @permissionPath: /user/passOrRejectAudit
  * @apiName: passOrRejectAudit
  * @apiFuncType: post
  * @apiFuncUrl: /user/passOrRejectAudit
@@ -812,14 +809,11 @@ router.get('/listAuditJob', (req, res) => {
  *       200:
  *         description: AuditInfo
  */
-router.post('/passOrRejectAudit', (req, res) => {
+router.post('/passOrRejectAudit', isLogin.hasAccessMiddleware, (req, res) => {
   auditService.passOrReject(req, (err, data) => res.json(result.json(err, data)));
 });
 
 /**
- * @permissionGroup: account
- * @permissionName: user_queryJob
- * @permissionPath: /user/queryJob
  * @apiName: queryJob
  * @apiFuncType: get
  * @apiFuncUrl: /user/queryJob
@@ -849,7 +843,7 @@ router.get('/queryJob', (req, res) => {
 });
 
 /**
- * @permissionGroup: account
+ * @permissionGroup: downloadTask
  * @permissionName: user_restartJob
  * @permissionPath: /user/restartJob
  * @apiName: restartJob
@@ -881,9 +875,6 @@ router.get('/restartJob', (req, res) => {
 });
 
 /**
- * @permissionGroup: account
- * @permissionName: user_stopJob
- * @permissionPath: /user/stopJob
  * @apiName: stopJob
  * @apiFuncType: get
  * @apiFuncUrl: /user/stopJob
@@ -913,9 +904,6 @@ router.get('/stopJob', (req, res) => {
 });
 
 /**
- * @permissionGroup: account
- * @permissionName: user_deleteJob
- * @permissionPath: /user/deleteJob
  * @apiName: deleteJob
  * @apiFuncType: get
  * @apiFuncUrl: /user/deleteJob
@@ -945,9 +933,6 @@ router.get('/deleteJob', (req, res) => {
 });
 
 /**
- * @permissionGroup: account
- * @permissionName: 获取直传模式授权列表
- * @permissionPath: /user/directAuthorize/acceptorList
  * @apiName: directAuthorizeAcceptorList
  * @apiFuncType: get
  * @apiFuncUrl: /user/directAuthorize/acceptorList
@@ -1049,9 +1034,6 @@ router.get('/listUserByDepartment', (req, res) => {
 });
 
 /**
- * @permissionGroup: account
- * @permissionName: 可用的下载模板列表
- * @permissionPath: /user/listUsableTemplate
  * @apiName: listUsableTemplate
  * @apiFuncType: get
  * @apiFuncUrl: /user/listUsableTemplate

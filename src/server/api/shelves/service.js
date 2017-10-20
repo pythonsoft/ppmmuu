@@ -25,7 +25,7 @@ const listShelfTask = function listShelfTask(query, page, pageSize, cb) {
     }
 
     return cb && cb(null, docs);
-  }, '-createdTime');
+  }, '-createdTime', '-files,-details,-full_text');
 };
 
 const listDepartmentShelfTask = function listDepartmentShelfTask(req, cb) {
@@ -291,8 +291,16 @@ service.listMyselfShelfTask = function listMyselfShelfTask(req, cb) {
 // 获取详情
 service.getShelfDetail = function getShelfDetail(info, cb) {
   const _id = info._id;
+  let fields = info.fields || '';
+  const status = info.status || '';
+  const query = {};
   if (!_id) {
     return cb & cb(i18n.t('shelfShortId'));
+  }
+
+  query._id = _id;
+  if (status && utils.isValueInObject(status, ShelfTaskInfo.STATUS)) {
+    query.status = status;
   }
 
   const getSubscribeTypeById = function getSubscribeTypeById(id, callback) {
@@ -300,7 +308,7 @@ service.getShelfDetail = function getShelfDetail(info, cb) {
       return callback && callback(null, '');
     }
 
-    subscribeManagementService.getSubscribeType({ _id: id }, (err, doc) => {
+    subscribeManagementService.getSubscribeType(query, (err, doc) => {
       if (err) {
         return callback && callback(null, '');
       }
@@ -309,7 +317,13 @@ service.getShelfDetail = function getShelfDetail(info, cb) {
     });
   };
 
-  shelfTaskInfo.collection.findOne({ _id }, (err, doc) => {
+  if (fields) {
+    fields = utils.formatSortOrFieldsParams(fields);
+  } else {
+    fields = null;
+  }
+
+  shelfTaskInfo.collection.findOne({ _id }, { fields }, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
