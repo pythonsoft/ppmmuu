@@ -51,6 +51,6 @@ module.exports = {
   },
   FIELD321: {
     cn: '故事大纲',
-  }
+  },
 };
 
