@@ -15,6 +15,7 @@ const app = express();
 
 const corsOptions = {
   origin(origin, callback) {
+
     if (typeof origin === 'undefined' || config.whitelist.indexOf(origin) !== -1) {
       callback(null, true);
     } else {

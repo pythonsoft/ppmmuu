@@ -66,6 +66,9 @@ config.whitelist = [
   'http://10.0.15.68:8000',
   'http://10.0.15.105:8000',
   'http://10.0.15.105:8080',
+  'http://10.0.16.125:8000',
+  'http://ump.szdev.cn',
+  'http://api.szdev.cn',
 ];
 
 config.normalMenuPermission = ['mediaCenter', 'taskCenter', 'personalCenter', 'library'];
