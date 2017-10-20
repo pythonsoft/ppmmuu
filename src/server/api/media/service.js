@@ -31,6 +31,8 @@ const service = {};
 
 const redisClient = config.redisClient;
 
+const ES_FILTER_FIELDS = 'id,duration,name,ccid,program_type,program_name_cn,hd_flag,program_name_en,last_modify,f_str_03,f_str_01,FIELD01,from_where,publish_time';
+
 service.getSearchConfig = function getSearchConfig(cb) {
   configurationInfo.collection.find({ key: { $in: ['meidaCenterSearchSelects', 'mediaCenterSearchRadios'] } }, { fields: { key: 1, value: 1 } }).toArray((err, docs) => {
     if (err) {
@@ -121,7 +123,7 @@ service.getEsMediaList = function getEsMediaList(info, cb) {
         key: 'program_type',
         value: category,
       }],
-      source: 'id,duration,name,ccid,program_type,program_name_cn,hd_flag,program_name_en,last_modify,f_str_03,f_str_01,FIELD01,from_where',
+      source: ES_FILTER_FIELDS,
       sort: [{
         key: 'last_modify',
         value: 'desc',
