@@ -4,6 +4,15 @@ module.exports = {
   name: {
     cn: '節目名稱',
   },
+  subscribeType: {
+    cn: '節目類型',
+  },
+  source: {
+    cn: '來源',
+  },
+  limit: {
+    cn: '限制',
+  },
   FIELD195: {
     cn: '節目名稱(中文)',
   },
@@ -19,23 +28,14 @@ module.exports = {
   FIELD198: {
     cn: '節目副題(英文)',
   },
-  subscribeType: {
-    cn: '節目類型',
-  },
-  source: {
-    cn: '來源',
-  },
-  limit: {
-    cn: '限制',
-  },
-  lastModifyTime: {
-    cn: '上架时间',
-  },
   FIELD330: {
     cn: 'Slug',
   },
   programNO: {
     cn: '節目編號',
+  },
+  lastModifyTime: {
+    cn: '上架时间',
   },
   FIELD162: {
     cn: '新聞日期',
