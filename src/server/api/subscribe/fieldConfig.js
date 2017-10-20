@@ -49,5 +49,8 @@ module.exports = {
   FIELD03: {
     cn: '內容介紹',
   },
+  FIELD321: {
+    cn: '故事大纲',
+  }
 };
 
