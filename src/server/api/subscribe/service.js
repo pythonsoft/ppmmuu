@@ -332,19 +332,31 @@ const getEsOptions = function getEsOptions(info) {
   const status = { match: { status: ShelfInfo.STATUS.ONLINE } };
   musts.push(status);
 
+  const getMustShould = function getMustShould(str, field){
+    const mustShould = {
+      bool:{
+        should: []
+      }
+    };
+    str = str.split(' ');
+    for(let i = 0; i < str.length; i++){
+      const temp = {match: {}};
+      temp.match[field] = str[i];
+      mustShould.bool.should.push(temp);
+    }
+    return mustShould;
+  }
+
   if (keyword) {
     keyword = nodecc.simplifiedToTraditional(keyword);
     const temp = { match: { full_text: keyword } };
     musts.push(temp);
   }
   if (subscribeType) {
-    const temp = { match: { 'editorInfo.subscribeType': subscribeType } };
-    musts.push(temp);
+    musts.push(getMustShould(subscribeType, 'editorInfo.subscribeType'));
   }
   if (FIELD323) {
-    FIELD323 = nodecc.simplifiedToTraditional(FIELD323);
-    const temp = { match: { 'details.FIELD323': FIELD323 } };
-    musts.push(temp);
+    musts.push(getMustShould(FIELD323, 'details.FIELD323'));
   }
   if (duration) {
     try {
