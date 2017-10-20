@@ -18,7 +18,7 @@ const renewHistoryList = function renewHistoryList() {
         return false;
       }
       const options = {
-        source: 'id,duration,name,ccid,program_type,program_name_cn,hd_flag,program_name_en,last_modify,f_str_03',
+        source: mediaService.ES_FILTER_FIELDS,
         should: [{ key: '_id', value: r.value.videoId }],
         start: 0,
         pageSize: 1,

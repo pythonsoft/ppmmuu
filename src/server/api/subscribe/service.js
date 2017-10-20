@@ -305,7 +305,7 @@ const executeEsSerach = function executeEsSearch(body, userId, keyword, cb) {
 
 const getEsOptions = function getEsOptions(info) {
   const subscribeType = info.subscribeType || '';
-  let FIELD323 = info.FIELD323 || '';
+  const FIELD323 = info.FIELD323 || '';
   let keyword = info.keyword || '';
   let duration = info.duration || '';
   let sort = info.sort || '';
@@ -332,20 +332,20 @@ const getEsOptions = function getEsOptions(info) {
   const status = { match: { status: ShelfInfo.STATUS.ONLINE } };
   musts.push(status);
 
-  const getMustShould = function getMustShould(str, field){
+  const getMustShould = function getMustShould(str, field) {
     const mustShould = {
-      bool:{
-        should: []
-      }
+      bool: {
+        should: [],
+      },
     };
     str = str.split(' ');
-    for(let i = 0; i < str.length; i++){
-      const temp = {match: {}};
+    for (let i = 0; i < str.length; i++) {
+      const temp = { match: {} };
       temp.match[field] = str[i];
       mustShould.bool.should.push(temp);
     }
     return mustShould;
-  }
+  };
 
   if (keyword) {
     keyword = nodecc.simplifiedToTraditional(keyword);
