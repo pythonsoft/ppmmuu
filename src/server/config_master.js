@@ -76,3 +76,4 @@ config.mediaExpressUrl = 'http://localhost:3001/';
 
 // 升级包存在地址
 config.upgradePackage = path.join(__dirname, '../../uploads/');
+

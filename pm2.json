@@ -1,14 +1,15 @@
 {
   "apps": [{
     "name": "ump",
-    "script": "./build/server.js",
-    "instances": -1,
+    "script": "./server.js",
+    "instances": 1,
     "exec_mode": "cluster",
     "env": {
+      "watch": false,
       "NODE_ENV": "development"
     },
     "env_production": {
-      "watch": false,
+      "watch": true,
       "NODE_ENV": "production"
     }
   }]
