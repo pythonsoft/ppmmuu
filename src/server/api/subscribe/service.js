@@ -336,9 +336,6 @@ const getEsOptions = function getEsOptions(info) {
     keyword = nodecc.simplifiedToTraditional(keyword);
     const temp = { match: { full_text: keyword } };
     musts.push(temp);
-    query.bool.should = [
-      { match: { name: keyword } },
-    ];
   }
   if (subscribeType) {
     const temp = { match: { 'editorInfo.subscribeType': subscribeType } };
@@ -366,7 +363,7 @@ const getEsOptions = function getEsOptions(info) {
     } catch (e) {
       // return {err: i18n.t('invalidSearchParams')};
     }
-  } else if (sort === 'should' && keyword) {
+  } else if (keyword) {
     query.bool.should = [
       { match: { name: keyword } },
     ];

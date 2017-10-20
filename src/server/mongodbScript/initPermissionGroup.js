@@ -297,6 +297,12 @@ const infos = [
     index: 'personal_catalog_task_all',
     parentIndex: 'personalTask',
   },
+  {
+    _id: 'auditTask',
+    name: '审核任务',
+    index: 'auditTask',
+    parentIndex: 'taskCenter',
+  },
 ];
 
 
