@@ -5,19 +5,19 @@ module.exports = {
     cn: '節目名稱',
   },
   FIELD195: {
-    cn: '節目名稱（中文）',
+    cn: '節目名稱(中文)',
   },
   FIELD196: {
-    cn: '節目名稱（英文）',
+    cn: '節目名稱(英文)',
   },
   FIELD323: {
     cn: '版本',
   },
   FIELD197: {
-    cn: '播出線/節目副題（中文）',
+    cn: '節目副題(中文)',
   },
   FIELD198: {
-    cn: '播出線/節目副題（英文）',
+    cn: '節目副題(英文)',
   },
   subscribeType: {
     cn: '節目類型',
@@ -32,7 +32,7 @@ module.exports = {
     cn: '上架时间',
   },
   FIELD330: {
-    cn: 'SLUG/SUMMARY',
+    cn: 'Slug',
   },
   programNO: {
     cn: '節目編號',
