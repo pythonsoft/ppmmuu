@@ -113,7 +113,7 @@ const writeFile = function writeFile(origin, targetName) {
 const deployOnline = function deployOnline() {
   if (process.env.NODE_ENV === 'online') {
     writeFile(pm2JSONPath, 'pm2.json');
-    writeFile(onlineConfig, 'config_master.json');
+    writeFile(onlineConfig, 'config_master.js');
     writeFile(packageJsonPath, 'package.json');
   }
 };

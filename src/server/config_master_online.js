@@ -59,7 +59,11 @@ config.logPath = path.join(__dirname, '../logs/');
 config.uploadPath = path.join(__dirname, '../../uploads/');
 
 // 允许跨域访问的地址列表
-config.whitelist = ['http://ump.phoenixtv.com'];
+config.whitelist = [
+  'http://ump.phoenixtv.com',
+  'http://ump-api.phoenixtv.com',
+  'http://ump-live.phoenixtv.com',
+];
 
 config.normalMenuPermission = ['mediaCenter', 'taskCenter', 'personalCenter', 'library'];
 config.adminMenuPermission = config.normalMenuPermission.concat(['management']);

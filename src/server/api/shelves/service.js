@@ -10,6 +10,7 @@ const uuid = require('uuid');
 const i18n = require('i18next');
 const roleService = require('../role/service');
 const subscribeManagementService = require('../subscribeManagement/service');
+const mediaService = require('../media/service');
 
 const ShelfTaskInfo = require('./shelfTaskInfo');
 
@@ -205,6 +206,7 @@ service.createShelfTask = function createShelfTask(req, cb) {
   const userInfo = req.ex.userInfo;
   let info = req.body;
   const force = info.force || false;
+  const objectId = info.objectId || '';
 
   info.creator = { _id: userInfo._id, name: userInfo.name };
   info.department = userInfo.department;
@@ -221,24 +223,25 @@ service.createShelfTask = function createShelfTask(req, cb) {
   }
   info = result.doc;
   info.editorInfo.name = info.name;
-  if (force) {
-    shelfTaskInfo.insertOne(info, (err) => {
-      if (err) {
-        logger.error(err.message);
-        return cb && cb(err);
-      }
+  mediaService.getObject({objectid: objectId}, function(err,rs) {
 
-      return cb && cb(null, info._id);
-    });
-  } else {
-    shelfTaskInfo.collection.findOne({ objectId: info.objectId }, (err, doc) => {
-      if (err) {
-        logger.error(err.message);
-        return cb && cb(err);
-      }
-      if (doc) {
-        return cb && cb(i18n.t('shelfHasExists'));
-      }
+    if(err){
+      return cb && cb(err);
+    }
+    const program = rs.result.detail.program;
+    const basic = rs.result.basic;
+    info.files = rs.result.files;
+    for(let key in basic){
+      info.details[key] = basic[key];
+    }
+    if(info.details['OUTPOINT']){
+      info.details['duration'] = info.details['OUTPOINT'] - info.details['INPOINT'];
+    }
+    for(let key in program){
+      info.details[key] = program[key].value;
+    }
+
+    if (force) {
       shelfTaskInfo.insertOne(info, (err) => {
         if (err) {
           logger.error(err.message);
@@ -247,8 +250,26 @@ service.createShelfTask = function createShelfTask(req, cb) {
 
         return cb && cb(null, info._id);
       });
-    });
-  }
+    } else {
+      shelfTaskInfo.collection.findOne({objectId: info.objectId}, (err, doc) => {
+        if (err) {
+          logger.error(err.message);
+          return cb && cb(err);
+        }
+        if (doc) {
+          return cb && cb(i18n.t('shelfHasExists'));
+        }
+        shelfTaskInfo.insertOne(info, (err) => {
+          if (err) {
+            logger.error(err.message);
+            return cb && cb(err);
+          }
+
+          return cb && cb(null, info._id);
+        });
+      });
+    }
+  });
 };
 
 // 我的任务列表
