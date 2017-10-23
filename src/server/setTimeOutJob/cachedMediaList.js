@@ -14,7 +14,6 @@ const mediaService = require('../api/media/service');
         if (err) {
           logger.error(err);
         }
-        console.log('afasfasf');
         setTimeout(cacheMediaList, 1000 * 60 * 3);
       });
     } else {
