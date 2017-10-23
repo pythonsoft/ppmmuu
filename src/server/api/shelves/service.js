@@ -223,21 +223,20 @@ service.createShelfTask = function createShelfTask(req, cb) {
   }
   info = result.doc;
   info.editorInfo.name = info.name;
-  mediaService.getObject({objectid: objectId}, function(err,rs) {
-
-    if(err){
+  mediaService.getObject({ objectid: objectId }, (err, rs) => {
+    if (err) {
       return cb && cb(err);
     }
     const program = rs.result.detail.program;
     const basic = rs.result.basic;
     info.files = rs.result.files;
-    for(let key in basic){
+    for (const key in basic) {
       info.details[key] = basic[key];
     }
-    if(info.details['OUTPOINT']){
-      info.details['duration'] = info.details['OUTPOINT'] - info.details['INPOINT'];
+    if (info.details.OUTPOINT) {
+      info.details.duration = info.details.OUTPOINT - info.details.INPOINT;
     }
-    for(let key in program){
+    for (const key in program) {
       info.details[key] = program[key].value;
     }
 
@@ -251,7 +250,7 @@ service.createShelfTask = function createShelfTask(req, cb) {
         return cb && cb(null, info._id);
       });
     } else {
-      shelfTaskInfo.collection.findOne({objectId: info.objectId}, (err, doc) => {
+      shelfTaskInfo.collection.findOne({ objectId: info.objectId }, (err, doc) => {
         if (err) {
           logger.error(err.message);
           return cb && cb(err);

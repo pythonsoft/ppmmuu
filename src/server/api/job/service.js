@@ -363,18 +363,17 @@ service.download = function download(info, cb) {
           });
 
           return false;
-        } else {
-          // 调用下载接口
-          downloadRequest(rs.templateInfo.details.bucketId, transcodeTemplateId, '', params, userInfo._id, userInfo.name, (err) => {
-            if (err) {
-              return cb && cb(err);
-            }
-
-            return cb && cb(null, 'ok');
-          });
-
-          return false;
         }
+          // 调用下载接口
+        downloadRequest(rs.templateInfo.details.bucketId, transcodeTemplateId, '', params, userInfo._id, userInfo.name, (err) => {
+          if (err) {
+            return cb && cb(err);
+          }
+
+          return cb && cb(null, 'ok');
+        });
+
+        return false;
       });
       return false;
     }
@@ -390,18 +389,17 @@ service.download = function download(info, cb) {
       });
 
       return false;
-    } else {
-      // 调用下载接口
-      downloadRequest(rs.templateInfo.details.bucketId, '', '', params, userInfo._id, userInfo.name, (err) => {
-        if (err) {
-          return cb && cb(err);
-        }
-
-        return cb && cb(null, 'ok');
-      });
-
-      return false;
     }
+      // 调用下载接口
+    downloadRequest(rs.templateInfo.details.bucketId, '', '', params, userInfo._id, userInfo.name, (err) => {
+      if (err) {
+        return cb && cb(err);
+      }
+
+      return cb && cb(null, 'ok');
+    });
+
+    return false;
   });
 
   return false;
