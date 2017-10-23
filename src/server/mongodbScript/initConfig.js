@@ -443,9 +443,9 @@ configGroup.collection.findOne({ name: subscribeConfigKey }, (err, doc) => {
   }
 });
 
-configGroup.collection.removeOne({name: '新版媒体库搜索配置'}, function(err){
-  configInfo.collection.removeMany({key: {$in: ['meidaCenterSearchSelects', 'mediaCenterSearchRadios']}}, function(err){
-    configGroup.collection.findOne({name: '新版媒体库搜索配置'}, {fields: {name: 1}}, (err, doc) => {
+configGroup.collection.removeOne({ name: '新版媒体库搜索配置' }, (err) => {
+  configInfo.collection.removeMany({ key: { $in: ['meidaCenterSearchSelects', 'mediaCenterSearchRadios'] } }, (err) => {
+    configGroup.collection.findOne({ name: '新版媒体库搜索配置' }, { fields: { name: 1 } }, (err, doc) => {
       if (err) {
         console.log(err);
         return false;
@@ -456,12 +456,12 @@ configGroup.collection.removeOne({name: '新版媒体库搜索配置'}, function
         return false;
       }
 
-      configGroup.insertOne({name: '新版媒体库搜索配置'}, (err) => {
+      configGroup.insertOne({ name: '新版媒体库搜索配置' }, (err) => {
         if (err) {
           console.log(err);
         }
 
-        configGroup.collection.findOne({name: '新版媒体库搜索配置'}, (err, doc) => {
+        configGroup.collection.findOne({ name: '新版媒体库搜索配置' }, (err, doc) => {
           if (err) {
             console.log(err);
           }
@@ -494,5 +494,5 @@ configGroup.collection.removeOne({name: '新版媒体库搜索配置'}, function
         });
       });
     });
-  })
-})
+  });
+});
