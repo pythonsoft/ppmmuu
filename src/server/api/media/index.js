@@ -128,7 +128,7 @@ router.post('/esSearch', (req, res) => {
  *
  */
 router.get('/getEsMediaList', (req, res) => {
-  service.getEsMediaList(req.query, (err, doc) => res.json(result.json(err, doc)));
+  service.getCacheEsMediaList(req.query, (err, doc) => res.json(result.json(err, doc)));
 });
 
 /**
