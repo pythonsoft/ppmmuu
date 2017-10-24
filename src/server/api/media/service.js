@@ -127,7 +127,7 @@ service.getEsMediaList = function getEsMediaList(info, cb) {
       }],
       source: ES_FILTER_FIELDS,
       sort: [{
-        key: 'last_modify',
+        key: 'publish_time',
         value: 'desc',
       }],
       start: 0,
