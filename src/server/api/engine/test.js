@@ -12,6 +12,7 @@ const agent = chai.request.agent(app);
 setTimeout(() => {
   describe('/engine', () => {
     let groupId = '';
+    let engineId = '';
 
     before((done) => {
       agent
@@ -82,6 +83,19 @@ setTimeout(() => {
         .send({ groupId })
         .end((err, res) => {
           expect(res).to.have.status(200);
+          expect(res.body.status).to.equal('-12004');
+          done();
+        });
+      });
+    });
+
+    describe('POST /addEngine', () => {
+      it('should add a engine', (done) => {
+        agent
+        .post('/engine/addEngine')
+        .send({ name: 'testEngine' })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
           expect(res.body.status).to.equal('0');
           done();
         });
@@ -91,10 +105,68 @@ setTimeout(() => {
     describe('GET /listEngine', () => {
       it('should list engines', (done) => {
         agent
-        .get('');
+        .get('/engine/listEngine')
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.status).to.equal('0');
+          engineId = res.body.data.docs[0]._id;
+          done();
+        });
+      });
+    });
+
+    describe('GET /getEngine', () => {
+      it('should get a engine by id', (done) => {
+        agent
+        .get('/engine/getEngine')
+        .query({ id: engineId })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.status).to.equal('0');
+          done();
+        });
+      });
+    });
+
+    describe('POST /updateEngine', () => {
+      it('should update a engine by id', (done) => {
+        agent
+        .post('/engine/updateEngine')
+        .send({ _id: engineId, name: 'updatedTestEngine' })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.status).to.equal('0');
+          done();
+        });
+      });
+    });
+
+//     describe('POST /updateEngineConfiguration', () => {
+//       it('should update a engine configuration by id', (done) => {
+//         agent
+//         .post('/engine/updateEngineConfiguration')
+//         .send({ _id: engineId, configuration: '[{"key":"process","value":"{\\"java\\": {\\"ps\\": {\\"command\\": \\"java -jar transcoding-cluster-0.0.1-SNAPSHOT-jar-with-dependencies.jar\\", \\"description\\": null}}}","description":""}]', ip: '10.0.15.80' })
+//         .end((err, res) => {
+//           expect(res).to.have.status(200);
+//           expect(res.body.status).to.equal('0');
+//           done();
+//         });
+//       });
+//     });
+
+    describe('POST /removeEngine', () => {
+      it('should remove a engine by id', (done) => {
+        agent
+        .post('/engine/removeEngine')
+        .send({ id: engineId })
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.status).to.equal('0');
+          done();
+        });
       });
     });
   });
 
   run();
-}, 2000);
+}, 4000);

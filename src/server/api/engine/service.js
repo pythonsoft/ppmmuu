@@ -346,7 +346,6 @@ service.getEngine = function getEngine(id, fieldsNeed, cb) {
 };
 
 const engineUpdate = function engineUpdate(id, updateDoc, cb, ip) {
-  console.log('updateDoc -->', updateDoc);
   const query = {};
   if (ip) {
     query.intranetIp = ip;
@@ -453,7 +452,6 @@ service.updateEngineConfiguration = function updateEngineConfiguration(id, confi
           const d = JSON.parse(configurations[i].value);
           j[configurations[i].key] = d;
         } catch (e) {
-          console.log('error while parsing', e);
           j[configurations[i].key] = configurations[i].value;
         }
       }
