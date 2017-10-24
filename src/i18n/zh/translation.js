@@ -513,6 +513,10 @@ module.exports = {
     code: '-50005',
     message: '下载参数inpoint值小于outpoint值',
   },
+  joDownloadError: {
+    code: '-50006',
+    message: '下载出错:{{error}}',
+  },
   jobListParamsIsNull: {
     code: '-50010',
     message: '任务列表参数为空',
