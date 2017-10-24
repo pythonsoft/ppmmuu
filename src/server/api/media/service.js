@@ -24,6 +24,8 @@ const rq = new HttpRequest({
   port: config.HKAPI.port,
 });
 
+const REDIS_CACHE_MEIDA_LIST = 'cachedMediaList';
+
 const configurationInfo = new ConfigurationInfo();
 const searchHistoryInfo = new SearchHistoryInfo();
 const watchingHistoryInfo = new WatchingHistoryInfo();
@@ -77,35 +79,40 @@ function saveSearch(k, id, cb) {
 service.saveSearch = saveSearch;
 
 service.defaultMediaList = function defaultMediaList(cb, userId) {
-  const key = 'cachedMediaList';
-  redisClient.get(key, (err, obj) => {
+  redisClient.get(REDIS_CACHE_MEIDA_LIST, (err, obj) => {
     service.getWatchHistoryForMediaPage(userId, (error, r) => {
       if (error) {
         logger.error(error.message);
         return cb && cb(i18n.t('databaseError'));
       }
+
       if (err) {
         logger.error(err.message);
       }
-      if (!obj || err) {
+
+      if (err || obj === '[]') {
         service.getEsMediaList({ pageSize: 12 }, (err, rs) => {
           if (err) {
             logger.error(err.message);
           }
-          rs = rs || [];
-          redisClient.set(key, JSON.stringify(rs));
-          redisClient.EXPIRE(key, 60 * 3);
+
+          redisClient.set(REDIS_CACHE_MEIDA_LIST, JSON.stringify(rs));
+          redisClient.EXPIRE(REDIS_CACHE_MEIDA_LIST, 60 * 3);
+
           rs.push({ category: '瀏覽歷史', docs: r });
+
           return cb && cb(null, rs);
         });
       } else {
         try {
+
           obj = JSON.parse(obj);
+          obj.push({ category: '瀏覽歷史', docs: r });
+          return cb && cb(null, obj || []);
+
         } catch (e) {
           return cb && cb(e);
         }
-        obj.push({ category: '瀏覽歷史', docs: r });
-        return cb && cb(null, obj || []);
       }
     });
   });
@@ -162,8 +169,7 @@ service.getEsMediaList = function getEsMediaList(info, cb) {
 };
 
 service.getCacheEsMediaList = function getCacheEsMediaList(info, cb) {
-  const key = 'cachedMediaList';
-  redisClient.get(key, (err, obj) => {
+  redisClient.get(REDIS_CACHE_MEIDA_LIST, (err, obj) => {
     if (obj) {
       return cb & cb(null, JSON.parse(obj));
     }
