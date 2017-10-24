@@ -105,11 +105,9 @@ service.defaultMediaList = function defaultMediaList(cb, userId) {
         });
       } else {
         try {
-
           obj = JSON.parse(obj);
           obj.push({ category: '瀏覽歷史', docs: r });
           return cb && cb(null, obj || []);
-
         } catch (e) {
           return cb && cb(e);
         }

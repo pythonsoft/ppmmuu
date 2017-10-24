@@ -80,10 +80,10 @@ const downloadRequest = function downloadRequest(bucketId, transferTemplateId = 
       return cb && cb(err); // res.json(result.fail(err));
     }
 
-    if(rs.status === '0'){
-      return cb && cb(null, "ok");
+    if (rs.status === '0') {
+      return cb && cb(null, 'ok');
     }
-    return cb && cb(i18n.t('joDownloadError', {error: rs.statusInfo.message}));
+    return cb && cb(i18n.t('joDownloadError', { error: rs.statusInfo.message }));
   });
 };
 
