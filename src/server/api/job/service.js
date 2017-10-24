@@ -80,7 +80,10 @@ const downloadRequest = function downloadRequest(bucketId, transferTemplateId = 
       return cb && cb(err); // res.json(result.fail(err));
     }
 
-    return cb && cb(null, rs); // res.json(rs);
+    if(rs.status === '0'){
+      return cb && cb(null, "ok");
+    }
+    return cb && cb(i18n.t('joDownloadError', {error: rs.statusInfo.message}));
   });
 };
 
@@ -359,23 +362,19 @@ service.download = function download(info, cb) {
               return cb && cb(err);
             }
 
+
             return cb && cb(null, 'ok');
           });
-
-          return false;
-        }
+        } else {
           // 调用下载接口
-        downloadRequest(rs.templateInfo.details.bucketId, transcodeTemplateId, '', params, userInfo._id, userInfo.name, (err) => {
-          if (err) {
-            return cb && cb(err);
-          }
-
-          return cb && cb(null, 'ok');
-        });
-
-        return false;
+          downloadRequest(rs.templateInfo.details.bucketId, transcodeTemplateId, '', params, userInfo._id, userInfo.name, (err) => {
+            if (err) {
+              return cb && cb(err);
+            }
+            return cb && cb(null, 'ok');
+          });
+        }
       });
-      return false;
     }
 
     // 需要使用快传进行传转
@@ -387,22 +386,18 @@ service.download = function download(info, cb) {
 
         return cb && cb(null, 'ok');
       });
-
-      return false;
-    }
+    } else {
       // 调用下载接口
-    downloadRequest(rs.templateInfo.details.bucketId, '', '', params, userInfo._id, userInfo.name, (err) => {
-      if (err) {
-        return cb && cb(err);
-      }
+      downloadRequest(rs.templateInfo.details.bucketId, '', '', params, userInfo._id, userInfo.name, (err) => {
+        if (err) {
+          return cb && cb(err);
+        }
 
-      return cb && cb(null, 'ok');
-    });
 
-    return false;
+        return cb && cb(null, 'ok');
+      });
+    }
   });
-
-  return false;
 };
 
 service.createJson = function createJson(createJsonParams, res) {
