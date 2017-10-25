@@ -99,7 +99,6 @@ router.use(isLogin.hasAccessMiddleware);
  *         description:
  */
 router.post('/download', (req, res) => {
-  res.set('Content-Type', 'application/json');
   req.body.userInfo = req.ex.userInfo;
   service.jugeDownload(req.body, (err, docs) => res.json(result.json(err, docs)));
 });

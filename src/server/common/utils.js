@@ -319,11 +319,9 @@ utils.baseRequestCallApi = function baseRequestCallApi(url, method, info, token,
     if (!error && response.statusCode === 200) {
       return cb && cb(null, response);
     } else if (error) {
-      console.log(url);
       logger.error(error);
       return cb && cb(i18n.t('requestCallApiError', { error }));
     }
-    console.log(url);
     logger.error(response.body);
     return cb && cb(i18n.t('requestCallApiFailed'));
   });
@@ -341,7 +339,6 @@ utils.requestCallApi = function requestCallApi(url, method, info, token, cb) {
     if (err) {
       return cb && cb(err);
     }
-
     const rs = JSON.parse(response.body);
     return cb && cb(null, rs);
   });
