@@ -312,6 +312,7 @@ service.download = function download(info, cb) {
     outpoint: 0, // 结束帧
     filename: '',
     filetypeid: '',
+    templateId,
     destination: '', // 相对路径，windows路径 格式 \\2017\\09\\15
     targetname: '', // 文件名,不需要文件名后缀，非必须
   }, downloadParams);
@@ -377,6 +378,7 @@ service.download = function download(info, cb) {
 
             return cb && cb(null, 'ok');
           });
+          return false;
         } else {
           // 调用下载接口
           downloadRequest(rs.templateInfo.details.bucketId, transcodeTemplateId, '', params, userInfo._id, userInfo.name, subtitleParams, (err) => {
@@ -385,8 +387,10 @@ service.download = function download(info, cb) {
             }
             return cb && cb(null, 'ok');
           });
+          return false;
         }
       });
+      return false;
     }
 
     // 需要使用快传进行传转
@@ -398,6 +402,7 @@ service.download = function download(info, cb) {
 
         return cb && cb(null, 'ok');
       });
+      return false;
     } else {
       // 调用下载接口
       downloadRequest(rs.templateInfo.details.bucketId, '', '', params, userInfo._id, userInfo.name, subtitleParams, (err) => {
@@ -408,6 +413,7 @@ service.download = function download(info, cb) {
 
         return cb && cb(null, 'ok');
       });
+      return false;
     }
   });
 };

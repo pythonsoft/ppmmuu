@@ -300,30 +300,32 @@ utils.baseRequestCallApi = function baseRequestCallApi(url, method, info, token,
   };
   if (method === 'POST') {
     options.form = JSON.parse(JSON.stringify(info));
-    options.headers = {
-      'content-type': 'application/x-www-form-urlencoded',
-      cache: 'no-cache',
-      token,
-      'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
-    };
+    if(token) {
+      options.headers = {
+        'content-type': 'application/x-www-form-urlencoded',
+        cache: 'no-cache',
+        token,
+        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+      };
+    }
   } else {
     options.qs = info;
-    options.headers = {
-      'cache-control': 'no-cache',
-      token,
-      'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
-    };
+    if(token) {
+      options.headers = {
+        'cache-control': 'no-cache',
+        token,
+        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+      };
+    }
   }
 
   request(options, (error, response) => {
     if (!error && response.statusCode === 200) {
       return cb && cb(null, response);
     } else if (error) {
-      console.log(url);
       logger.error(error);
       return cb && cb(i18n.t('requestCallApiError', { error }));
     }
-    console.log(url);
     logger.error(response.body);
     return cb && cb(i18n.t('requestCallApiFailed'));
   });
@@ -341,7 +343,6 @@ utils.requestCallApi = function requestCallApi(url, method, info, token, cb) {
     if (err) {
       return cb && cb(err);
     }
-
     const rs = JSON.parse(response.body);
     return cb && cb(null, rs);
   });
