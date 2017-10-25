@@ -300,23 +300,19 @@ utils.baseRequestCallApi = function baseRequestCallApi(url, method, info, token,
   };
   if (method === 'POST') {
     options.form = JSON.parse(JSON.stringify(info));
-    if(token) {
-      options.headers = {
-        'content-type': 'application/x-www-form-urlencoded',
-        cache: 'no-cache',
-        token,
-        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
-      };
-    }
+    options.headers = {
+      'content-type': 'application/x-www-form-urlencoded',
+      cache: 'no-cache',
+      token,
+      'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+    };
   } else {
     options.qs = info;
-    if(token) {
-      options.headers = {
-        'cache-control': 'no-cache',
-        token,
-        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
-      };
-    }
+    options.headers = {
+      'cache-control': 'no-cache',
+      token,
+      'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
+    };
   }
 
   request(options, (error, response) => {
