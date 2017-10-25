@@ -411,8 +411,7 @@ service.xml2srt = (info, cb) => {
         logger.error(err);
         return cb(i18n.t('getSubtitleFailed'));
       }
-      rs.result = r;
-      return cb(null, rs);
+      return cb(null, r);
     });
   });
 };
