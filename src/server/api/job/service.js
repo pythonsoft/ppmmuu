@@ -46,7 +46,7 @@ const errorCall = function errorCall(str) {
   return JSON.stringify({ status: 1, data: {}, statusInfo: i18n.t(str) });
 };
 
-const downloadRequest = function downloadRequest(bucketId, transferTemplateId = '', transferParams, downloadParams, userId, userName, cb) {
+const downloadRequest = function downloadRequest(bucketId, transferTemplateId = '', transferParams, downloadParams, userId, userName, subtitleParams, cb) {
   const p = {};
 
   if (bucketId) {
@@ -71,6 +71,10 @@ const downloadRequest = function downloadRequest(bucketId, transferTemplateId = 
 
   if (userName) {
     p.userName = userName;
+  }
+
+  if(subtitleParams){
+    p.subtitleParams = JSON.stringify(subtitleParams);
   }
 
   const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/JobService/download`;
@@ -171,7 +175,7 @@ const getTransferParams = function getTransferParams(bodyParams, cb) {
   });
 };
 
-const transcodeAndTransfer = function transcodeAndTransfer(bucketId, receiverId, receiverType, transcodeTemplateId, userInfo, transferMode, downloadParams, cb) {
+const transcodeAndTransfer = function transcodeAndTransfer(bucketId, receiverId, receiverType, transcodeTemplateId, userInfo, transferMode, downloadParams, subtitleParams, cb) {
   // 获取传输参数
   getTransferParams({
     userId: userInfo._id,
@@ -184,7 +188,7 @@ const transcodeAndTransfer = function transcodeAndTransfer(bucketId, receiverId,
     }
 
     // 调用下载接口
-    downloadRequest(bucketId, transcodeTemplateId, transferParams, downloadParams, userInfo._id, userInfo.name, (err, r) => {
+    downloadRequest(bucketId, transcodeTemplateId, transferParams, downloadParams, userInfo._id, userInfo.name, subtitleParams, (err, r) => {
       if (err) {
         return cb && cb(err);
       }
@@ -345,10 +349,18 @@ service.download = function download(info, cb) {
     }
 
     params.destination = rs.downloadPath;
+    const subtitleType = rs.templateInfo.subtitleType;
+    const subtitleParams = {};
 
     // 需要进行使用转码模板
     if (rs.templateInfo && rs.templateInfo.transcodeTemplateDetail && rs.templateInfo.transcodeTemplateDetail.transcodeTemplates &&
       rs.templateInfo.transcodeTemplateDetail.transcodeTemplates.length > 0 && rs.templateInfo.transcodeTemplateDetail.transcodeTemplateSelector) {
+
+      //只有需要转码的才需要传字幕合成方式参数
+      if(subtitleType && subtitleType.length > 0){
+        subtitleParams.subtitleTypes = subtitleType;
+      }
+
       // 获取符合条件的转码模板ID
       templateService.getTranscodeTemplate(downloadTemplateId, params.filename, (err, transcodeTemplateId) => {
         if (err) {
@@ -357,7 +369,7 @@ service.download = function download(info, cb) {
 
         // 需要使用快传进行传输
         if (rs.templateInfo.type === TemplateInfo.TYPE.DOWNLOAD_MEDIAEXPRESS && receiverId && receiverType) {
-          transcodeAndTransfer(rs.templateInfo.details.bucketId, receiverId, receiverType, transcodeTemplateId, userInfo, transferMode, params, (err) => {
+          transcodeAndTransfer(rs.templateInfo.details.bucketId, receiverId, receiverType, transcodeTemplateId, userInfo, transferMode, params, subtitleParams, (err) => {
             if (err) {
               return cb && cb(err);
             }
@@ -367,7 +379,7 @@ service.download = function download(info, cb) {
           });
         } else {
           // 调用下载接口
-          downloadRequest(rs.templateInfo.details.bucketId, transcodeTemplateId, '', params, userInfo._id, userInfo.name, (err) => {
+          downloadRequest(rs.templateInfo.details.bucketId, transcodeTemplateId, '', params, userInfo._id, userInfo.name, subtitleParams, (err) => {
             if (err) {
               return cb && cb(err);
             }
@@ -379,7 +391,7 @@ service.download = function download(info, cb) {
 
     // 需要使用快传进行传转
     if (rs.templateInfo.type === TemplateInfo.TYPE.DOWNLOAD_MEDIAEXPRESS && receiverId && receiverType) {
-      transcodeAndTransfer(rs.templateInfo.details.bucketId, receiverId, receiverType, '', userInfo, transferMode, params, (err) => {
+      transcodeAndTransfer(rs.templateInfo.details.bucketId, receiverId, receiverType, '', userInfo, transferMode, params, subtitleParams, (err) => {
         if (err) {
           return cb && cb(err);
         }
@@ -388,7 +400,7 @@ service.download = function download(info, cb) {
       });
     } else {
       // 调用下载接口
-      downloadRequest(rs.templateInfo.details.bucketId, '', '', params, userInfo._id, userInfo.name, (err) => {
+      downloadRequest(rs.templateInfo.details.bucketId, '', '', params, userInfo._id, userInfo.name, subtitleParams, (err) => {
         if (err) {
           return cb && cb(err);
         }
