@@ -163,7 +163,7 @@ class DB {
     this.collection.insertOne(doc, (err, r) => {
       if (err) {
         logger.error(JSON.stringify(err));
-        return cb && cb(i18n.t('databaseError'));
+        return cb && cb(i18n.t('databaseErrorDetail', { error: err.message}));
       }
 
       return cb && cb(null, r, doc);
@@ -182,7 +182,7 @@ class DB {
     this.collection.insertMany(docs, (err, r) => {
       if (err) {
         logger.error(err.message);
-        return cb && cb(i18n.t('databaseError'));
+        return cb && cb(i18n.t('databaseErrorDetail', { error: err.message}));
       }
 
       return cb && cb(null, r);
