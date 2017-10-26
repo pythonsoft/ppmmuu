@@ -13,6 +13,8 @@ const isLogin = require('../../middleware/login');
 const upload = require('./storage').upload;
 const config = require('../../config');
 
+const service = require('./service');
+
 router.use(isLogin.middleware);
 router.use(isLogin.hasAccessMiddleware);
 
@@ -44,9 +46,12 @@ router.use(isLogin.hasAccessMiddleware);
  *         description: upgrade package
  */
 router.post('/installPackage', upload.single('file'), (req, res) => {
-  const filePath = req.file.path.split('/');
-  const fileName = `${config.domain}/uploads/${filePath[filePath.length - 1]}`;
-  res.status(200).json(result.json('', fileName));
+  const file = req.file;
+  service.upload({
+    name: file.filename,
+    packagePath: file.destination,
+    description: 'upload package completely.',
+  }, req.ex.userInfo._id, req.ex.userInfo.name, err => res.json(result.json(err, 'ok')));
 });
 
 module.exports = router;
