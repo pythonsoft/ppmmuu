@@ -89,7 +89,7 @@ const getGroups = function getGroupUsers(query, cb) {
   groupInfo.collection.find(query).toArray((err, docs) => {
     if (err) {
       logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
+      return cb && cb(i18n.t('databaseErrorDetail', { error: err.message}));
     }
 
     if (!docs || docs.length === 0) {
@@ -124,10 +124,22 @@ const fillUserInfo = function fillUserInfo(_ids, info, cb) {
           _id: group._id,
           name: group.name,
         };
+        info.department = {
+          _id: '',
+          name: '',
+        };
+        info.team = {
+          _id: '',
+          name: '',
+        };
       } else if (group.type === GroupInfo.TYPE.DEPARTMENT) {
         info.department = {
           _id: group._id,
           name: group.name,
+        };
+        info.team = {
+          _id: '',
+          name: '',
         };
       } else if (group.type === GroupInfo.TYPE.TEAM) {
         info.team = {
@@ -291,7 +303,7 @@ service.getGroupUserList = function getGroupUserList(info, cb) {
   }
 
   if (keyword) {
-    query.name = { $regex: keyword, $options: 'i' };
+    query.$or = [{name: { $regex: keyword, $options: 'i' }}, {email: { $regex: keyword, $options: 'i' }}];
   }
 
   if (info.status) {
@@ -301,7 +313,7 @@ service.getGroupUserList = function getGroupUserList(info, cb) {
   userInfo.pagination(query, page, pageSize, (err, docs) => {
     if (err) {
       logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
+      return cb && cb(i18n.t('databaseErrorDetail', { error: err.message}));
     }
 
     return cb && cb(null, docs);
@@ -385,7 +397,7 @@ service.updateOwnerPermission = function updateOwnerPermission(info, cb) {
     permissionAssignmentInfo.collection.updateOne({ _id: info._id, type: info.type }, { $set: updateInfo }, { upsert: true }, (err) => {
       if (err) {
         logger.error(err.message);
-        return cb && cb(i18n.t('databaseError'));
+        return cb && cb(i18n.t('databaseErrorDetail', { error: err.message}));
       }
 
       roleService.clearRedisCache(info._id, () => cb & cb(null));
@@ -410,7 +422,7 @@ service.getOwnerPermission = function getOwnerPermission(info, cb) {
     roleInfo.collection.find({ _id: { $in: roles } }, { fields: { name: 1 } }).toArray((err, docs) => {
       if (err) {
         logger.error(err.message);
-        return cb && cb(i18n.t('databaseError'));
+        return cb && cb(i18n.t('databaseErrorDetail', { error: err.message}));
       }
 
       return callback && callback(null, docs);
@@ -424,7 +436,7 @@ service.getOwnerPermission = function getOwnerPermission(info, cb) {
     permissionInfo.collection.find({ path: { $in: permissions } }).toArray((err, docs) => {
       if (err) {
         logger.error(err.message);
-        return cb && cb(i18n.t('databaseError'));
+        return cb && cb(i18n.t('databaseErrorDetail', { error: err.message}));
       }
 
       return callback && callback(null, docs);
@@ -434,7 +446,7 @@ service.getOwnerPermission = function getOwnerPermission(info, cb) {
   permissionAssignmentInfo.collection.findOne({ _id: info._id }, (err, doc) => {
     if (err) {
       logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
+      return cb && cb(i18n.t('databaseErrorDetail', { error: err.message}));
     }
 
     if (!doc) {
@@ -495,7 +507,7 @@ service.listAllParentGroup = function listAllParentGroup(parentId, fields, cb) {
     groupInfo.collection.findOne({ _id: parentId }, fields, (err, doc) => {
       if (err) {
         logger.error(err.message);
-        return cb && cb(i18n.t('databaseError'));
+        return cb && cb(i18n.t('databaseErrorDetail', { error: err.message}));
       }
 
       if (!doc) {
@@ -516,7 +528,7 @@ const getRolesPermissions = function getRolesPermissions(roles, cb) {
     roleInfo.collection.find({ _id: { $in: roles } }).toArray((err, docs) => {
       if (err) {
         logger.error(err.message);
-        return cb && cb(i18n.t('databaseError'));
+        return cb && cb(i18n.t('databaseErrorDetail', { error: err.message}));
       }
       for (let i = 0, len = docs.length; i < len; i++) {
         permissions.allowedPermissions = permissions.allowedPermissions.concat(docs[i].allowedPermissions);
@@ -535,7 +547,7 @@ const getAssignPermissionByIds = function getAssignPermissionByIds(ids, cb) {
   permissionAssignmentInfo.collection.find({ _id: { $in: ids } }).toArray((err, docs) => {
     if (err) {
       logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
+      return cb && cb(i18n.t('databaseErrorDetail', { error: err.message}));
     }
 
     if (docs && docs.length) {
@@ -558,7 +570,7 @@ const getPermissionAssignIds = function getPermissionAssignIds(type, _id, callba
     userInfo.collection.findOne({ _id }, (err, doc) => {
       if (err) {
         logger.error(err.message);
-        return callback && callback(i18n.t('databaseError'));
+        return callback && callback(i18n.t('databaseErrorDetail', { error: err.message}));
       }
       if (!doc) {
         return callback && callback(i18n.t('userNotFind'));
@@ -692,7 +704,7 @@ service.getOwnerEffectivePermission = function getOwnerEffectivePermission(info,
         permissionInfo.collection.find({ path: { $in: tempArr } }).toArray((err, docs) => {
           if (err) {
             logger.error(err.message);
-            return cb && cb(i18n.t('databaseError'));
+            return cb && cb(i18n.t('databaseErrorDetail', { error: err.message}));
           }
           for (let i = 0, len = docs.length; i < len; i++) {
             if (allowedPermissions.indexOf(docs[i].path) !== -1) {
@@ -729,7 +741,7 @@ service.searchUser = function searchUser(info, cb) {
   userInfo.collection.find(query, { fields: { name: 1, photo: 1, email: 1, phone: 1 } }).limit(limit).toArray((err, docs) => {
     if (err) {
       logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
+      return cb && cb(i18n.t('databaseErrorDetail', { error: err.message}));
     }
 
     return cb && cb(null, docs);
@@ -754,7 +766,7 @@ service.enableGroupUser = function enableGroupUser(info, cb) {
     (err) => {
       if (err) {
         logger.error(err.message);
-        return cb && cb(i18n.t('databaseError'));
+        return cb && cb(i18n.t('databaseErrorDetail', { error: err.message}));
       }
 
       roleService.clearRedisCache(_ids, () => cb && cb(null, 'ok'));
@@ -775,7 +787,7 @@ service.deleteGroupUser = function deleteGroupUser(info, cb) {
     if (err) {
       logger.error(err.message);
       console.log(err);
-      return cb && cb(i18n.t('databaseError'));
+      return cb && cb(i18n.t('databaseErrorDetail', { error: err.message}));
     }
 
     return cb && cb(null, 'ok');

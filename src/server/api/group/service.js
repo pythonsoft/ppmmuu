@@ -41,7 +41,7 @@ service.listGroup = function listGroup(parentId, type, page, pageSize, cb) {
   groupInfo.pagination(q, page, pageSize, (err, docs) => {
     if (err) {
       logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
+      return cb && cb(i18n.t('databaseErrorDetail', { error: err.message}));
     }
     const listArr = docs.docs;
     const rs = [];
@@ -55,7 +55,7 @@ service.listGroup = function listGroup(parentId, type, page, pageSize, cb) {
       groupInfo.collection.find({ parentId: temp._id }, { fields: { _id: 1 } }).toArray((err, r) => {
         if (err) {
           logger.error(err.message);
-          return cb && cb(i18n.t('databaseError'));
+          return cb && cb(i18n.t('databaseErrorDetail', { error: err.message}));
         }
         temp.children = [];
         for (let j = 0, len = r.length; j < len; j++) {
@@ -81,7 +81,7 @@ service.listAllChildGroup = function listAllChildGroup(id, fields, cb) {
     groupInfo.collection.find({ parentId: { $in: ids } }).project(fields).toArray((err, docs) => {
       if (err) {
         logger.error(err.message);
-        return cb && cb(i18n.t('databaseError'));
+        return cb && cb(i18n.t('databaseErrorDetail', { error: err.message}));
       }
 
       if (!docs || docs.length === 0) {
@@ -110,7 +110,7 @@ service.getGroup = function getGroup(id, cb) {
   groupInfo.collection.findOne({ _id: id }, (err, doc) => {
     if (err) {
       logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
+      return cb && cb(i18n.t('databaseErrorDetail', { error: err.message}));
     }
 
     if (!doc) {
@@ -138,7 +138,7 @@ service.addGroup = function addGroup(info, cb) {
     groupInfo.collection.findOne({ name, parentId }, (err, doc) => {
       if (err) {
         logger.error(err.message);
-        return cb && cb(i18n.t('databaseError'));
+        return cb && cb(i18n.t('databaseErrorDetail', { error: err.message}));
       }
 
       if (doc) {
@@ -152,7 +152,7 @@ service.addGroup = function addGroup(info, cb) {
       groupInfo.collection.findOne({ _id: parentId }, { fields: { _id: 1 } }, (err, doc) => {
         if (err) {
           logger.error(err.message);
-          return cb && cb(i18n.t('databaseError'));
+          return cb && cb(i18n.t('databaseErrorDetail', { error: err.message}));
         }
 
         if (!doc) {
@@ -172,7 +172,7 @@ service.addGroup = function addGroup(info, cb) {
     groupInfo.insertOne(info, (err, r) => {
       if (err) {
         logger.error(err.message);
-        return cb && cb(i18n.t('databaseError'));
+        return cb && cb(i18n.t('databaseErrorDetail', { error: err.message}));
       }
 
       return cb && cb(null, r.ops[0]);
@@ -184,7 +184,7 @@ const updateGroupDetail = function updateGroupDetail(id, updateDoc, cb) {
   groupInfo.updateOne({ _id: id }, updateDoc, (err) => {
     if (err) {
       logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
+      return cb && cb(i18n.t('databaseErrorDetail', { error: err.message}));
     }
 
     return cb && cb(null, 'ok');
@@ -199,14 +199,14 @@ service.updateGroup = function updateGroup(id, updateDoc, cb) {
   groupInfo.collection.findOne({ _id: id }, { fields: { _id: 1, parentId: 1 } }, (err, doc) => {
     if (err) {
       logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
+      return cb && cb(i18n.t('databaseErrorDetail', { error: err.message}));
     }
 
     if (updateDoc.parentId && updateDoc.parentId !== doc.parentId) {
       groupInfo.collection.findOne({ _id: updateDoc.parentId }, { fields: { _id: 1 } }, (err, doc) => {
         if (err) {
           logger.error(err.message);
-          return cb && cb(i18n.t('databaseError'));
+          return cb && cb(i18n.t('databaseErrorDetail', { error: err.message}));
         }
 
         if (!doc) {
@@ -249,13 +249,13 @@ service.deleteGroup = function deleteGroup(id, cb) {
     userInfo.collection.updateMany(q, { $set: updateDoc }, (err) => {
       if (err) {
         logger.error(err.message);
-        return cb && cb(i18n.t('databaseError'));
+        return cb && cb(i18n.t('databaseErrorDetail', { error: err.message}));
       }
 
       groupInfo.collection.removeMany({ _id: { $in: groupIds } }, (err) => {
         if (err) {
           logger.error(err.message);
-          return cb && cb(i18n.t('databaseError'));
+          return cb && cb(i18n.t('databaseErrorDetail', { error: err.message}));
         }
 
         // clear redis cache
@@ -267,7 +267,7 @@ service.deleteGroup = function deleteGroup(id, cb) {
     service.listAllChildGroup(id, '_id,deleteDeny,name', (err, groups) => {
       if (err) {
         logger.error(err.message);
-        return cb && cb(i18n.t('databaseError'));
+        return cb && cb(i18n.t('databaseErrorDetail', { error: err.message}));
       }
 
       const deleteDenyName = [];
@@ -294,7 +294,7 @@ service.deleteGroup = function deleteGroup(id, cb) {
       { _id: id }, { fields: { _id: 1, type: 1, deleteDeny: 1 } }, (err, doc) => {
         if (err) {
           logger.error(err.message);
-          return cb && cb(i18n.t('databaseError'));
+          return cb && cb(i18n.t('databaseErrorDetail', { error: err.message}));
         }
 
         if (!doc) {
@@ -330,7 +330,7 @@ service.updateGroupInfo = function updateGroupInfo(info, cb) {
   groupInfo.collection.updateOne({ _id: info._id }, { $set: info }, (err) => {
     if (err) {
       logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
+      return cb && cb(i18n.t('databaseErrorDetail', { error: err.message}));
     }
 
     return cb && cb(null, 'ok');
