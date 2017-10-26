@@ -252,10 +252,10 @@ service.justifyUserGroup = function justifyUserGroup(info, cb) {
     groupIds.push(info.teamId);
   }
 
-  const updeteInfo = {};
+  const updateInfo = {};
   const _ids = info._ids.split(',');
 
-  fillUserInfo(groupIds, updeteInfo, (err, info) => {
+  fillUserInfo(groupIds, updateInfo, (err, info) => {
     if (err) {
       return cb && cb(err);
     }
