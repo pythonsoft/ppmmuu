@@ -91,7 +91,7 @@ service.defaultMediaList = function defaultMediaList(cb, userId) {
       }
 
       if (err || obj === '[]') {
-        service.getEsMediaList({ pageSize: 12 }, (err, rs) => {
+        service.getEsMediaList({ pageSize: 10 }, (err, rs) => {
           if (err) {
             logger.error(err.message);
           }

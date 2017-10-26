@@ -8,7 +8,7 @@ const redisClient = config.redisClient;
 const mediaService = require('../api/media/service');
 
 (function cacheMediaList() {
-  mediaService.getEsMediaList({ pageSize: 12 }, (err, r) => {
+  mediaService.getEsMediaList({ pageSize: 10 }, (err, r) => {
     if (r) {
       redisClient.set('cachedMediaList', JSON.stringify(r), (err) => {
         if (err) {
