@@ -10,7 +10,7 @@ const router = express.Router();
 const result = require('../../common/result');
 const isLogin = require('../../middleware/login');
 
-const upload = require('../../common/multer').upload;
+const upload = require('./storage').upload;
 const config = require('../../config');
 
 router.use(isLogin.middleware);
@@ -43,7 +43,7 @@ router.use(isLogin.hasAccessMiddleware);
  *       200:
  *         description: upgrade package
  */
-router.post('/installPackage', (req, res) => {
+router.post('/installPackage', upload.single('file'), (req, res) => {
   const filePath = req.file.path.split('/');
   const fileName = `${config.domain}/uploads/${filePath[filePath.length - 1]}`;
   res.status(200).json(result.json('', fileName));
