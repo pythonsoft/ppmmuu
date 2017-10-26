@@ -48,6 +48,14 @@ router.use(isLogin.hasAccessMiddleware);
  *               type: string
  *               description: ''
  *               example: ""
+ *             departmentId:
+ *               type: string
+ *               description: ''
+ *               example: ""
+ *             departmentName:
+ *               type: string
+ *               description: ''
+ *               example: ""
  *             status:
  *               type: string
  *               description: '待编目 0, 编目中 1, 已提交 2, 已删除 3'
@@ -79,8 +87,8 @@ router.use(isLogin.hasAccessMiddleware);
 router.post('/createCatalogTask', (req, res) => {
   const creatorId = req.ex.userInfo._id;
   const creatorName = req.ex.userInfo.name;
-  const departmentId = req.body.departmentId;
-  const departmentName = req.body.departmentName;
+  const departmentId = req.body.departmentId || '';
+  const departmentName = req.body.departmentName || '';
 
   service.createCatalogTask(req.body, creatorId, creatorName, departmentId, departmentName, (err, docs) => res.json(result.json(err, docs)));
 });
@@ -116,7 +124,7 @@ router.post('/createCatalogTask', (req, res) => {
  *               example: "aa"
  *             workflowStatus:
  *               type: string
- *               description: '等待 0, DOING 1, SUCCESS 2, ERROR 3'
+ *               description: '等待 0, 处理中 1, 成功 2, 失败 1000'
  *               example: ""
  *             jobs:
  *               type: object
