@@ -1,13 +1,11 @@
 'use strict';
 
 const multer = require('multer');
-const config = require('../../config');
-const path = require('path');
-const storagePath = path.join(config.uploadPath, 'updatePackage');
+const config = require('./config');
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, storagePath);
+    cb(null, config.uploadPackagePath);
   },
   filename: function (req, file, cb) {
     cb(null, file.fieldname)
