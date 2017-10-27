@@ -8,14 +8,18 @@ const storage = multer.diskStorage({
     cb(null, config.uploadPackagePath);
   },
   filename: function (req, file, cb) {
-    cb(null, file.fieldname)
-  }
+    cb(null, new Date().getTime() + '_' +file.originalname);
+  },
 });
 
 const upload = multer({
   storage: storage,
   fileFilter: function (req, file, cb) {
-    
+    if(file.mimetype !== 'application/zip') {
+      cb(null, false);
+    }else {
+      cb (null, true);
+    }
   }
 });
 
