@@ -694,4 +694,23 @@ service.updateTemplateGroupUsers = function updateTemplateGroupUsers(info, cb) {
   });
 };
 
+service.getWatermark = function getWatermark(info, res){
+  const id = info.objectid || '';
+  const struct = {
+    objectid: { type: 'string', validation: 'require' },
+  };
+
+  const err = utils.validation(info, struct);
+
+  if (err) {
+    res.end(err.message);
+  }
+
+  const url = 'http://' + config.JOB_API_SERVER.host + ':' + config.JOB_API_SERVER.port + '/TemplateService/getWatermark?id=' + id;
+  request.get(url).on('error', (error) => {
+    logger.error(error);
+    res.end(error.message);
+  }).pipe(res);
+}
+
 module.exports = service;
