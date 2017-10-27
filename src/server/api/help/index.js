@@ -5,6 +5,7 @@
 'use strict';
 
 const express = require('express');
+
 const router = express.Router();
 const result = require('../../common/result');
 const isLogin = require('../../middleware/login');

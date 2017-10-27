@@ -573,4 +573,45 @@ router.get('/search/userOrGroup', (req, res) => {
 router.post('/updateGroupUser', (req, res) => {
   service.updateTemplateGroupUsers(req.body, (err, r) => res.json(result.json(err, r)));
 });
+
+/**
+ * @permissionGroup: transcodeTemplate
+ * @permissionName: 转码模板获取水印图
+ * @permissionPath: /template/getWatermark
+ * @apiName: getWatermark
+ * @apiFuncType: get
+ * @apiFuncUrl: /template/getWatermark
+ * @swagger
+ * /template/getWatermark:
+ *   get:
+ *     description: 转码模板获取水印图
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - template
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: objectid
+ *         required: true
+ *         type: string
+ *         default: "FE1748B4-69F9-4CAB-8CC0-5EB8A35CB717"
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.get('/getWatermark', (req, res) => service.getWatermark(req.query, res));
 module.exports = router;

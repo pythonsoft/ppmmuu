@@ -158,9 +158,9 @@ const axios = require('../config');
 `;
         fs.appendFileSync(filePath, tpl);
         for (let i = 0; i < funcNameArr.length; i++) {
-          if (funcUrlArr[i] === '/upload') {
+          if (funcUrlArr[i] === '/upload' || funcUrlArr[i] === '/upload/uploadWatermark') {
             writeUploadApiFuncFile(filePath, funcNameArr[i], funcTypeArr[i], funcUrlArr[i]);
-          } else if (funcUrlArr[i] === '/media/getIcon') {
+          } else if (funcUrlArr[i] === '/media/getIcon' || funcUrlArr[i] === '/template/getWatermark') {
             writeGetIconApiFuncFile(filePath, funcNameArr[i], funcTypeArr[i], funcUrlArr[i]);
           } else {
             writeApiFuncFile(filePath, funcNameArr[i], funcTypeArr[i], funcUrlArr[i]);

@@ -217,7 +217,6 @@ service.update = function (id, status, description, extractPath, cb) {
 
 service.list = function (id, pathName, cb) {
   if(!id) {
-    //todo
     return cb && cb(i18n.t('databaseErrorDetail', { error: 'id is null.' }));
   }
 
@@ -228,13 +227,11 @@ service.list = function (id, pathName, cb) {
     }
 
     if(!doc) {
-      //todo
       return cb && cb(i18n.t('databaseErrorDetail', { error: 'doc is null.' }));
     }
 
     fs.readdir(path.join(doc.extractPath, pathName), (err, files) => {
       if(err) {
-        //todo
         return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
       }
 
