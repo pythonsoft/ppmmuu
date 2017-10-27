@@ -17,8 +17,8 @@ class CatalogTaskInfo extends DB {
       name: { type: 'string', validation: 'require' },
       objectId: { type: 'string', validation: 'require' },
       assignee: { type: 'object', default: { _id: '', name: '' } },
-      owner: { type: 'object', default: { _id: '', name: '' } }, //拥有人
-      creator: { type: 'object', default: { _id: '', name: '' } }, //创建人
+      owner: { type: 'object', default: { _id: '', name: '' } }, // 拥有人
+      creator: { type: 'object', default: { _id: '', name: '' } }, // 创建人
       department: { type: 'object', default: { _id: '', name: '' } },
       lastSendBacker: { type: 'object', default: { _id: '', name: '' } }, // 退回者
       lastSubmitter: { type: 'object', default: { _id: '', name: '' } }, // 最后提交人
