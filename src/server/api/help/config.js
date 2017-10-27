@@ -14,8 +14,9 @@ fs.access(config.uploadPackagePath, err => {
     console.log('system upgrade path ready.');
     return false;
   }
-
-  fs.mkdirSync(config.uploadPackagePath);
+  if(!fs.existsSync(config.uploadPackagePath)) {
+    fs.mkdirSync(config.uploadPackagePath);
+  }
 });
 
 fs.access(config.uploadPackageTempPath, err => {
@@ -23,8 +24,9 @@ fs.access(config.uploadPackageTempPath, err => {
     console.log('system upgrade temp path ready.');
     return false;
   }
-
-  fs.mkdirSync(config.uploadPackagePath);
+  if(!fs.existsSync(config.uploadPackageTempPath)) {
+    fs.mkdirSync(config.uploadPackageTempPath);
+  }
 });
 
 module.exports = config;

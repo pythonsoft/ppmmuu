@@ -351,13 +351,14 @@ service.download = function download(info, cb) {
 
     params.destination = rs.downloadPath;
     const subtitleType = rs.templateInfo.subtitleType;
-    const subtitleParams = {};
+    let subtitleParams = '';
 
     // 需要进行使用转码模板
     if (rs.templateInfo && rs.templateInfo.transcodeTemplateDetail && rs.templateInfo.transcodeTemplateDetail.transcodeTemplates &&
       rs.templateInfo.transcodeTemplateDetail.transcodeTemplates.length > 0 && rs.templateInfo.transcodeTemplateDetail.transcodeTemplateSelector) {
       // 只有需要转码的才需要传字幕合成方式参数
       if (subtitleType && subtitleType.length > 0) {
+        subtitleParams = {};
         subtitleParams.subtitleTypes = subtitleType;
       }
 
