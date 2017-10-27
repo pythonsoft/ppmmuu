@@ -51,6 +51,7 @@ class VersionInfo extends DB {
       updateList: { type: 'array' }, //更新列表，記錄更新了什麼東西
       status: { type: 'string', default: VersionInfo.STATUS.UPLOAD, validation: v => utils.isValueInObject(v, VersionInfo.STATUS) },
       packagePath: { type: 'string', validation: 'require' },
+      extractPath: { type: 'string' },
       createdTime: { type: 'date', allowUpdate: false },
       modifyTime: { type: 'date' },
       description: { type: 'string' },
