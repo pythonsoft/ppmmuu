@@ -593,7 +593,7 @@ service.getDownloadPath = function getDownloadPath(userInfo, id, cb) {
 function runTemplateSelector(info, code) {
   try {
     let sandbox = {
-      result: ''
+      result: '',
     };
     sandbox = Object.assign(sandbox, info);
     const script = new vm.Script(code.replace(/(\r\n|\n|\r)/gm, ''));

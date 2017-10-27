@@ -73,7 +73,7 @@ const downloadRequest = function downloadRequest(bucketId, transferTemplateId = 
     p.userName = userName;
   }
 
-  if(subtitleParams){
+  if (subtitleParams) {
     p.subtitleParams = JSON.stringify(subtitleParams);
   }
 
@@ -356,9 +356,8 @@ service.download = function download(info, cb) {
     // 需要进行使用转码模板
     if (rs.templateInfo && rs.templateInfo.transcodeTemplateDetail && rs.templateInfo.transcodeTemplateDetail.transcodeTemplates &&
       rs.templateInfo.transcodeTemplateDetail.transcodeTemplates.length > 0 && rs.templateInfo.transcodeTemplateDetail.transcodeTemplateSelector) {
-
-      //只有需要转码的才需要传字幕合成方式参数
-      if(subtitleType && subtitleType.length > 0){
+      // 只有需要转码的才需要传字幕合成方式参数
+      if (subtitleType && subtitleType.length > 0) {
         subtitleParams.subtitleTypes = subtitleType;
       }
 
@@ -379,16 +378,15 @@ service.download = function download(info, cb) {
             return cb && cb(null, 'ok');
           });
           return false;
-        } else {
-          // 调用下载接口
-          downloadRequest(rs.templateInfo.details.bucketId, transcodeTemplateId, '', params, userInfo._id, userInfo.name, subtitleParams, (err) => {
-            if (err) {
-              return cb && cb(err);
-            }
-            return cb && cb(null, 'ok');
-          });
-          return false;
         }
+          // 调用下载接口
+        downloadRequest(rs.templateInfo.details.bucketId, transcodeTemplateId, '', params, userInfo._id, userInfo.name, subtitleParams, (err) => {
+          if (err) {
+            return cb && cb(err);
+          }
+          return cb && cb(null, 'ok');
+        });
+        return false;
       });
       return false;
     }
@@ -403,18 +401,17 @@ service.download = function download(info, cb) {
         return cb && cb(null, 'ok');
       });
       return false;
-    } else {
-      // 调用下载接口
-      downloadRequest(rs.templateInfo.details.bucketId, '', '', params, userInfo._id, userInfo.name, subtitleParams, (err) => {
-        if (err) {
-          return cb && cb(err);
-        }
-
-
-        return cb && cb(null, 'ok');
-      });
-      return false;
     }
+      // 调用下载接口
+    downloadRequest(rs.templateInfo.details.bucketId, '', '', params, userInfo._id, userInfo.name, subtitleParams, (err) => {
+      if (err) {
+        return cb && cb(err);
+      }
+
+
+      return cb && cb(null, 'ok');
+    });
+    return false;
   });
 };
 
