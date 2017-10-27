@@ -38,9 +38,6 @@ config.JOB_API_SERVER = {
   port: 8080,
 };
 
-// 上传水印地址
-config.uploadWatermarkUrl = `http://${config.JOB_API_SERVER.host}:${config.JOB_API_SERVER.port}/upload`;
-
 // solr搜索地址
 config.solrBaseUrl = 'http://solr.szdev.cn/solr/';
 // es搜索地址
