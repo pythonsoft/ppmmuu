@@ -8,37 +8,6 @@ const DB = require('../../common/db');
 const config = require('../../config');
 const utils = require('../../common/utils');
 
-/**
- * @swagger
- * definitions:
- *   VersionInfo:
- *     required:
- *       - _id
- *       - name
- *       - packagePath
- *     properties:
- *       _id:
- *         type: string
- *       name:
- *         type: string
- *       version:
- *         type: string
- *       creator:
- *         type: object
- *         properties:
- *           _id: string
- *           name: string
- *       updateList:
- *         type: array
- *       createdTime:
- *         type: string
- *       modifyTime:
- *         type: string
- *       description:
- *         type: string
- *       detail:
- *         type: object
- */
 class VersionInfo extends DB {
   constructor() {
     super(config.dbInstance[`${config.dbName}DB`], 'help_VersionInfo');
