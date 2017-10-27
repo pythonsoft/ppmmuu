@@ -196,7 +196,7 @@ service.deleteGroup = function deleteGroup(id, cb) {
           return cb && cb(i18n.t('databaseError'));
         }
 
-        templateInfo.collection.update({ groupId: doc._id }, { $set: { groupId: '' } }, (err, r) => {
+        templateInfo.collection.removeMany({ groupId: doc._id }, (err, r) => {
           if (err) {
             logger.error(err.message);
             return cb && cb(i18n.t('databaseError'));
