@@ -70,7 +70,7 @@ router.post('/uploadPackage', upload.single('file'), (req, res) => {
  *       - in: body
  *         id:
  *           type: string
- *           description: ''
+ *           description: ""
  *           example: ""
  *     responses:
  *       200:
