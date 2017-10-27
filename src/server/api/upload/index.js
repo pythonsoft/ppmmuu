@@ -70,8 +70,9 @@ router.post('/uploadWatermark', upload.single('file'), (req, res) => {
   const formData = {
     file: fs.createReadStream(filePath),
   };
-  const url = `http://${config.JOB_API_SERVER.host}:${config.JOB_API_SERVER.port}/TemplateService/uploadFile`;
+  const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/TemplateService/uploadFile`;
   // const url = 'http://localhost:8080/upload';
+  console.log(url);
   request.post({ url, formData }, (err, httpResponse, body) => {
     if (err) {
       return res.json(result.fail(err));
