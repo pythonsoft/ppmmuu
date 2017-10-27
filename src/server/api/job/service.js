@@ -356,16 +356,17 @@ service.download = function download(info, cb) {
     // 需要进行使用转码模板
     if (rs.templateInfo && rs.templateInfo.transcodeTemplateDetail && rs.templateInfo.transcodeTemplateDetail.transcodeTemplates &&
       rs.templateInfo.transcodeTemplateDetail.transcodeTemplates.length > 0 && rs.templateInfo.transcodeTemplateDetail.transcodeTemplateSelector) {
-      // 只有需要转码的才需要传字幕合成方式参数
-      if (subtitleType && subtitleType.length > 0) {
-        subtitleParams = {};
-        subtitleParams.subtitleTypes = subtitleType;
-      }
 
       // 获取符合条件的转码模板ID
       templateService.getTranscodeTemplate(downloadTemplateId, params.filename, (err, transcodeTemplateId) => {
         if (err) {
           return cb && cb(err);
+        }
+
+        // 只有需要转码的才需要传字幕合成方式参数
+        if (subtitleType && subtitleType.length > 0 && transcodeTemplateId) {
+          subtitleParams = {};
+          subtitleParams.subtitleTypes = subtitleType;
         }
 
         // 需要使用快传进行传输
