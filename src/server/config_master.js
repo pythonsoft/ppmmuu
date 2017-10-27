@@ -38,8 +38,8 @@ config.JOB_API_SERVER = {
   port: 8080,
 };
 
-//上传水印地址
-config.uploadWatermarkUrl = 'http://' + config.JOB_API_SERVER.host + ':' + config.JOB_API_SERVER.port + '/upload';
+// 上传水印地址
+config.uploadWatermarkUrl = `http://${config.JOB_API_SERVER.host}:${config.JOB_API_SERVER.port}/upload`;
 
 // solr搜索地址
 config.solrBaseUrl = 'http://solr.szdev.cn/solr/';
@@ -86,5 +86,5 @@ config.upgradePackage = path.join(__dirname, '../../uploads/');
 
 config.upgradeSystem = {
   ump: '',
-  fe: ''
+  fe: '',
 };

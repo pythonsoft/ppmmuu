@@ -17,7 +17,7 @@ class VersionInfo extends DB {
       name: { type: 'string', validation: 'require' },
       version: { type: 'string' },
       creator: { type: 'object', default: { _id: '', name: '' }, allowUpdate: false },
-      updateList: { type: 'array' }, //更新列表，記錄更新了什麼東西
+      updateList: { type: 'array' }, // 更新列表，記錄更新了什麼東西
       status: { type: 'string', default: VersionInfo.STATUS.UPLOAD, validation: v => utils.isValueInObject(v, VersionInfo.STATUS) },
       packagePath: { type: 'string', validation: 'require' },
       extractPath: { type: 'string' },
@@ -27,7 +27,7 @@ class VersionInfo extends DB {
       detail: { type: 'object' },
     };
   }
-};
+}
 
 VersionInfo.STATUS = {
   UPLOAD: '0',
@@ -35,7 +35,7 @@ VersionInfo.STATUS = {
   TRANSFER: '2',
   RESTART: '3',
   SUCCESS: '4',
-  ERROR: '1000'
+  ERROR: '1000',
 };
 
 module.exports = VersionInfo;

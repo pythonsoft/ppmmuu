@@ -9,7 +9,6 @@ const upload = require('../../common/multer').upload;
 const config = require('../../config');
 const fs = require('fs');
 const request = require('request');
-const path = require('path');
 
 /**
  * @apiName: upload
@@ -67,13 +66,13 @@ router.post('/', upload.single('file'), (req, res) => {
  *         description: UploadResult
  */
 router.post('/uploadWatermark', upload.single('file'), (req, res) => {
-  let filePath = req.file.path;
+  const filePath = req.file.path;
   const formData = {
-      file: fs.createReadStream(filePath),
+    file: fs.createReadStream(filePath),
   };
-  const url = 'http://' + config.JOB_API_SERVER.host + ':' + config.JOB_API_SERVER.port + '/TemplateService/uploadFile';
-  //const url = 'http://localhost:8080/upload';
-  request.post({url: url, formData: formData}, function optionalCallback(err, httpResponse, body) {
+  const url = `http://${config.JOB_API_SERVER.host}:${config.JOB_API_SERVER.port}/TemplateService/uploadFile`;
+  // const url = 'http://localhost:8080/upload';
+  request.post({ url, formData }, (err, httpResponse, body) => {
     if (err) {
       return res.json(result.fail(err));
     }

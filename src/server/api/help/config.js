@@ -9,11 +9,11 @@ const config = {};
 config.uploadPackagePath = path.join(globalConfig.uploadPath, '_uploadPackage_');
 config.uploadPackageTempPath = path.join(globalConfig.uploadPath, '_uploadPackageTemp_');
 
-if(!fs.existsSync(config.uploadPackagePath)) {
+if (!fs.existsSync(config.uploadPackagePath)) {
   fs.mkdirSync(config.uploadPackagePath);
 }
 
-if(!fs.existsSync(config.uploadPackageTempPath)) {
+if (!fs.existsSync(config.uploadPackageTempPath)) {
   fs.mkdirSync(config.uploadPackageTempPath);
 }
 

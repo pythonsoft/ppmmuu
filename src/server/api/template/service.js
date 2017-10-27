@@ -10,6 +10,8 @@ const logger = require('../../common/log')('error');
 const utils = require('../../common/utils');
 const i18n = require('i18next');
 const path = require('path');
+const config = require('../../config');
+const request = require('request');
 
 const storageService = require('../storage/service');
 const jobService = require('../job/extService');
@@ -694,7 +696,7 @@ service.updateTemplateGroupUsers = function updateTemplateGroupUsers(info, cb) {
   });
 };
 
-service.getWatermark = function getWatermark(info, res){
+service.getWatermark = function getWatermark(info, res) {
   const id = info.objectid || '';
   const struct = {
     objectid: { type: 'string', validation: 'require' },
@@ -706,11 +708,11 @@ service.getWatermark = function getWatermark(info, res){
     res.end(err.message);
   }
 
-  const url = 'http://' + config.JOB_API_SERVER.host + ':' + config.JOB_API_SERVER.port + '/TemplateService/getWatermark?id=' + id;
+  const url = `http://${config.JOB_API_SERVER.host}:${config.JOB_API_SERVER.port}/TemplateService/getWatermark?id=${id}`;
   request.get(url).on('error', (error) => {
     logger.error(error);
     res.end(error.message);
   }).pipe(res);
-}
+};
 
 module.exports = service;
