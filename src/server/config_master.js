@@ -83,5 +83,5 @@ config.upgradePackage = path.join(__dirname, '../../uploads/');
 
 config.upgradeSystem = {
   ump: '',
-  fe: ''
+  fe: '',
 };
