@@ -22,29 +22,27 @@ const versionInfo = new VersionInfo();
 const service = {};
 
 const unzipPackage = function unzipPackage(id, zipPath, targetDirPath, cb) {
-  fs.access(targetDirPath, (err) => {
-    if(err) {
-      fs.mkdirSync(targetDirPath);
-    }
+  if(!fs.existsSync(targetDirPath)) {
+    fs.mkdirSync(targetDirPath);
+  }
 
-    const readStream = fs.createReadStream(zipPath);
-    const unzipExtractor = unzip.Extract({ path: targetDirPath });
+  const readStream = fs.createReadStream(zipPath);
+  const unzipExtractor = unzip.Extract({ path: targetDirPath });
 
-    unzipExtractor.on('error', function(err) {
-      logger.error(err.message);
+  unzipExtractor.on('error', function(err) {
+    logger.error(err.message);
 
-      service.update(id, VersionInfo.STATUS.ERROR, err.message, false, () => {
-        return cb && cb(err.message);
-      });
+    service.update(id, VersionInfo.STATUS.ERROR, err.message, false, () => {
+      return cb && cb(err.message);
     });
-
-    unzipExtractor.on('close', () => {
-      service.update(id, VersionInfo.STATUS.UNZIP, 'unzip package success', targetDirPath, cb);
-      return false;
-    });
-
-    readStream.pipe(unzipExtractor);
   });
+
+  unzipExtractor.on('close', () => {
+    service.update(id, VersionInfo.STATUS.UNZIP, 'unzip package success', targetDirPath, cb);
+    return false;
+  });
+
+  readStream.pipe(unzipExtractor);
 };
 
 const copyFile = function copyFile(originPath, targetPath, cb) {
@@ -58,34 +56,32 @@ const copyFile = function copyFile(originPath, targetPath, cb) {
 };
 
 const readConfigJSON = function readConfigJSON(id, configPath, cb) {
-  fs.access(configPath, err => {
-    if(!err) {
-      fs.readFile(configPath, { encoding: 'utf8' }, (err, data) => {
+  if(fs.existsSync(configPath)) {
+    fs.readFile(configPath, { encoding: 'utf8' }, (err, data) => {
+      if(err) {
+        logger.error(err.message);
+        return cb && cb(err.message);
+      }
+
+      const obj = JSON.parse(data);
+
+      versionInfo.collection.updateOne({ _id: id }, {
+        $set: {
+          version: obj.version,
+          updateList: obj.updateList
+        }
+      }, (err, r) => {
         if(err) {
           logger.error(err.message);
           return cb && cb(err.message);
         }
 
-        const obj = JSON.parse(data);
-
-        versionInfo.collection.updateOne({ _id: id }, {
-          $set: {
-            version: obj.version,
-            updateList: obj.updateList
-          }
-        }, (err, r) => {
-          if(err) {
-            logger.error(err.message);
-            return cb && cb(err.message);
-          }
-
-          return cb && cb(null, r);
-        });
+        return cb && cb(null, r);
       });
-    }
-
+    });
+  } else {
     return cb && cb(null, 'ok');
-  });
+  }
 };
 
 const restartServer = function restartServer(id, cb) {
