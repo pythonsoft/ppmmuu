@@ -593,7 +593,7 @@ service.getDownloadPath = function getDownloadPath(userInfo, id, cb) {
 function runTemplateSelector(info, code) {
   try {
     let sandbox = {
-      result: ''
+      result: '',
     };
     sandbox = Object.assign(sandbox, info);
     const script = new vm.Script(code.replace(/(\r\n|\n|\r)/gm, ''));
@@ -624,7 +624,7 @@ function filterTranscodeTemplates(doc = {}, fileInfo = {}, cb) {
     for (let i = 0, len = transcodeTemplates.length; i < len; i++) {
       for (let j = 0, l = rs.data.docs.length; j < l; j++) {
         if (rs.data.docs[j].id === transcodeTemplates[i]._id) {
-          info[transcodeTemplates[i]._id] = rs.data.docs[j];
+          info[rs.data.docs[j].templateCode] = rs.data.docs[j];
         }
       }
     }

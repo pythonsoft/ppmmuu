@@ -193,6 +193,14 @@ module.exports = {
     code: '-5010',
     message: '创建公司失败',
   },
+  emailHasBeenRegistered: {
+    code: '-5011',
+    message: '此邮箱已经被注册',
+  },
+  nameHasBeenRegistered: {
+    code: '-5012',
+    message: '此姓名已经被注册',
+  },
   getUserOrDepartmentRoleAndPermissionsNoId: {
     code: '-6001',
     message: '获取用户或部门角色和权限详情没有参数_id',
