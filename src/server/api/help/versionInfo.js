@@ -24,6 +24,7 @@ class VersionInfo extends DB {
       createdTime: { type: 'date', allowUpdate: false },
       modifyTime: { type: 'date' },
       description: { type: 'string' },
+      logs: { type: 'array' },
       detail: { type: 'object' },
     };
   }

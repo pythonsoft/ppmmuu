@@ -96,6 +96,10 @@ service.defaultMediaList = function defaultMediaList(cb, userId) {
             logger.error(err.message);
           }
 
+          if(!rs) {
+            rs = [];
+          }
+
           redisClient.set(REDIS_CACHE_MEIDA_LIST, JSON.stringify(rs));
           redisClient.EXPIRE(REDIS_CACHE_MEIDA_LIST, 60 * 3);
 
