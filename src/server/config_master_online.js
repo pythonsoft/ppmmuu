@@ -69,4 +69,14 @@ config.normalMenuPermission = ['mediaCenter', 'taskCenter', 'personalCenter', 'l
 config.adminMenuPermission = config.normalMenuPermission.concat(['management']);
 
 // 快传api地址
-config.mediaExpressUrl = 'https://console.cloudifeng.com/';
+config.mediaExpressUrl = 'https://leo.cloudifeng.com/';
+
+// 升级包存在地址
+config.upgradePackage = path.join(__dirname, '../../uploads/');
+
+config.upgradeSystem = {
+  // ump: '/Users/chaoningxie/Desktop/temp/install/ump',
+  // fe: '/Users/chaoningxie/Desktop/temp/install/fe',
+  ump: '',
+  fe: ''
+};
