@@ -48,7 +48,7 @@ router.post('/uploadPackage', upload.single('file'), (req, res) => {
     name: file.filename,
     packagePath: file.path,
     description: 'upload package completely.',
-  }, req.ex.userInfo._id, req.ex.userInfo.name, err => res.json(result.json(err, 'ok')));
+  }, req.ex.userInfo._id, req.ex.userInfo.name, (err, r) => res.json(result.json(err, r)));
 });
 
 /**
@@ -79,6 +79,132 @@ router.post('/uploadPackage', upload.single('file'), (req, res) => {
  */
 router.post('/installPackage', (req, res) => {
   service.install(req.body.id, err => res.json(result.json(err, 'ok')));
+});
+
+/**
+ * @permissionGroup: help
+ * @permissionName: 列举安装包内的目录及文件
+ * @permissionPath: /help/listPackage
+ * @apiName: listPackage
+ * @apiFuncType: get
+ * @apiFuncUrl: /help/listPackage
+ * @swagger
+ * /help/listPackage:
+ *   get:
+ *     description: list package directory or file
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - VersionInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: id
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: path
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: VersionInfo
+ */
+router.get('/listPackage', (req, res) => {
+  const id = req.query.id;
+  const pathName = req.query.path || '';
+
+  service.list(id, pathName, (err, files) => res.json(result.json(err, files)));
+});
+
+/**
+ * @permissionGroup: help
+ * @permissionName: 读取文件内容
+ * @permissionPath: /help/readFile
+ * @apiName: readFile
+ * @apiFuncType: get
+ * @apiFuncUrl: /help/readFile
+ * @swagger
+ * /help/readFile:
+ *   get:
+ *     description: list package directory or file
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - VersionInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: id
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: filePath
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: VersionInfo
+ */
+router.get('/readFile', (req, res) => {
+  const id = req.query.id;
+  const filePath = req.query.filePath || '';
+
+  service.readFile(id, filePath, (err, data) => res.json(result.json(err, data)));
+});
+
+/**
+ * @permissionGroup: help
+ * @permissionName: 安装版本详细信息
+ * @permissionPath: /help/detail
+ * @apiName: detail
+ * @apiFuncType: get
+ * @apiFuncUrl: /help/detail
+ * @swagger
+ * /help/detail:
+ *   get:
+ *     description: get version detail
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - VersionInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: id
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: filePath
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: VersionInfo
+ */
+router.get('/detail', (req, res) => {
+  service.getDetail(req.query.id, (err, doc) => res.json(result.json(err, doc)));
 });
 
 module.exports = router;

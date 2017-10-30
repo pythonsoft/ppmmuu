@@ -9,10 +9,8 @@ const globalConfig = require('../../config');
 const utils = require('../../common/utils');
 const logger = require('../../common/log')('error');
 const i18n = require('i18next');
-const result = require('../../common/result');
 const uuid = require('uuid');
 const path = require('path');
-const unzip = require('unzip');
 const fs = require('fs');
 const exec = require('child_process').exec;
 
@@ -27,21 +25,14 @@ const unzipPackage = function unzipPackage(id, zipPath, targetDirPath, cb) {
     fs.mkdirSync(targetDirPath);
   }
 
-  const readStream = fs.createReadStream(zipPath);
-  const unzipExtractor = unzip.Extract({ path: targetDirPath });
-
-  unzipExtractor.on('error', (err) => {
-    logger.error(err.message);
-
-    service.update(id, VersionInfo.STATUS.ERROR, err.message, false, () => cb && cb(err.message));
-  });
-
-  unzipExtractor.on('close', () => {
+  exec(`unzip ${zipPath} -d ${targetDirPath}`, (error, stdout, stderr) => {
+    if (error) {
+      service.update(id, VersionInfo.STATUS.ERROR, err.message, false, () => cb && cb(error.message));
+      return false;
+    }
     service.update(id, VersionInfo.STATUS.UNZIP, 'unzip package success', targetDirPath, cb);
-    return false;
   });
 
-  readStream.pipe(unzipExtractor);
 };
 
 const copyFile = function copyFile(originPath, targetPath, cb) {
@@ -56,6 +47,7 @@ const copyFile = function copyFile(originPath, targetPath, cb) {
 
 const readConfigJSON = function readConfigJSON(id, configPath, cb) {
   if (fs.existsSync(configPath)) {
+
     fs.readFile(configPath, { encoding: 'utf8' }, (err, data) => {
       if (err) {
         logger.error(err.message);
@@ -106,8 +98,6 @@ service.upload = function (info, creatorId, creatorName, cb) {
   info.modifyTime = t;
   info.creator = { _id: creatorId, name: creatorName };
 
-  console.log('help -->', info);
-
   versionInfo.insertOne(info, (err, rs) => {
     if (err) {
       logger.error(err.message);
@@ -117,7 +107,13 @@ service.upload = function (info, creatorId, creatorName, cb) {
     const zipPath = info.packagePath;
     const targetDirPath = path.join(config.uploadPackageTempPath, info._id);
 
-    unzipPackage(info._id, zipPath, targetDirPath, (err, r) => cb && cb(err, r));
+    unzipPackage(info._id, zipPath, targetDirPath, (err, r) => {
+      if(err) {
+        return cb && cb(err);
+      }
+
+      return cb && cb(null, info);
+    });
 
     return false;
   });
@@ -125,7 +121,6 @@ service.upload = function (info, creatorId, creatorName, cb) {
 
 service.install = function install(id, cb) {
   if (!id) {
-    // todo
     return cb && cb(i18n.t('databaseErrorDetail', { error: 'id is null.' }));
   }
 
@@ -141,12 +136,11 @@ service.install = function install(id, cb) {
 
     fs.readdir(doc.extractPath, (err, files) => {
       if (err) {
-        // todo
         return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
       }
 
       const loop = function (index) {
-        if (files[index]) {
+        if (!files[index]) {
           service.update(id, VersionInfo.STATUS.TRANSFER, 'transfer completely', false, (err) => {
             if (err) {
               return cb && cb(err);
@@ -174,6 +168,8 @@ service.install = function install(id, cb) {
             }
             loop(index + 1);
           });
+        }else {
+          loop(index + 1);
         }
       };
 
@@ -182,14 +178,11 @@ service.install = function install(id, cb) {
   });
 };
 
-service.update = function (id, status, description, extractPath, cb) {
+service.update = function (id, status, log, extractPath, cb) {
   const updateInfo = {};
+
   if (status) {
     updateInfo.status = status;
-  }
-
-  if (description) {
-    updateInfo.description = description;
   }
 
   if (extractPath) {
@@ -200,7 +193,15 @@ service.update = function (id, status, description, extractPath, cb) {
     return cb && cb(null, 'ok');
   }
 
-  versionInfo.updateOne({ _id: id }, updateInfo, (err, rs) => {
+  const update = {
+    $set: updateInfo
+  };
+
+  if (log) {
+    update['$addToSet'] = { logs: log };
+  }
+
+  versionInfo.collection.updateOne({ _id: id }, update, (err, rs) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
@@ -208,11 +209,16 @@ service.update = function (id, status, description, extractPath, cb) {
 
     return cb && cb(null, rs);
   });
+
 };
 
 service.list = function (id, pathName, cb) {
   if (!id) {
     return cb && cb(i18n.t('databaseErrorDetail', { error: 'id is null.' }));
+  }
+
+  if (pathName.constructor !== String) {
+    return cb && cb(i18n.t('databaseErrorDetail', { error: 'path name is not string.' }));
   }
 
   versionInfo.collection.findOne({ _id: id }, { fields: { extractPath: 1 } }, (err, doc) => {
@@ -225,7 +231,9 @@ service.list = function (id, pathName, cb) {
       return cb && cb(i18n.t('databaseErrorDetail', { error: 'doc is null.' }));
     }
 
-    fs.readdir(path.join(doc.extractPath, pathName), (err, files) => {
+    const t = path.join(doc.extractPath, pathName);
+
+    fs.readdir(t, (err, files) => {
       if (err) {
         return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
       }
@@ -235,23 +243,56 @@ service.list = function (id, pathName, cb) {
   });
 };
 
-service.readFile = function readFile(id, filePath, res) {
+service.readFile = function readFile(id, filePath, cb) {
   if (!id) {
-    return res.end('id is null.');
+    return cb && cb(i18n.t('databaseErrorDetail', { error: 'id is null' }));
+  }
+
+  if (!filePath || filePath.constructor !== String) {
+    return cb && cb(i18n.t('databaseErrorDetail', { error: 'file path is null or not string' }));
   }
 
   versionInfo.collection.findOne({ _id: id }, { fields: { extractPath: 1 } }, (err, doc) => {
     if (err) {
       logger.error(err.message);
-      return res.end('err.message');
+      return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
     }
 
     if (!doc) {
-      return res.end('version info is null.');
+      return cb && cb(i18n.t('databaseErrorDetail', { error: 'version info is null' }));
     }
 
-    fs.createReadStream(path.join(doc.extractPath, filePath)).pipe(res);
+    const t = path.join(doc.extractPath, filePath);
+
+    fs.readFile(t, { encoding: 'utf8' }, (err, data) => {
+      if(err) {
+        return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
+      }
+
+      return cb && cb(null, data);
+    });
   });
+};
+
+service.getDetail = function getDetail(id, cb) {
+  const query = {};
+  const options = {};
+
+  if (!id) {
+    query.status = VersionInfo.STATUS.SUCCESS;
+    options.sort = [[ 'modifyTime', -1 ]];
+  }else {
+    query._id = id;
+  }
+
+  versionInfo.collection.findOne(query, options, (err, doc) => {
+    if(err) {
+      return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
+    }
+
+    return cb && cb(null, doc);
+  });
+
 };
 
 module.exports = service;
