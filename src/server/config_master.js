@@ -80,7 +80,7 @@ config.adminMenuPermission = config.normalMenuPermission.concat(['management']);
 config.mediaExpressUrl = 'http://localhost:3001/';
 
 // 升级包存在地址
-config.upgradePackage = path.join(__dirname, '../../uploads/');
+config.upgradePackage = config.uploadPath;
 
 config.upgradeSystem = {
   // ump: '/Users/chaoningxie/Desktop/temp/install/ump',

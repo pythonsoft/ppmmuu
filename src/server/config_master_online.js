@@ -72,7 +72,7 @@ config.adminMenuPermission = config.normalMenuPermission.concat(['management']);
 config.mediaExpressUrl = 'https://leo.cloudifeng.com/';
 
 // 升级包存在地址
-config.upgradePackage = path.join(__dirname, '../../uploads/');
+config.upgradePackage = config.uploadPath;
 
 config.upgradeSystem = {
   // ump: '/Users/chaoningxie/Desktop/temp/install/ump',
