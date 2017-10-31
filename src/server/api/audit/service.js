@@ -301,7 +301,9 @@ const createWhitelistInfo = function createWhitelistInfo(whiteList) {
 };
 
 const createAuditDepartment = function createAuditDepartment(permissionType, auditDepartment) {
+
   if (permissionType === AuditRuleInfo.PERMISSTION_TYPE.AUDIT) {
+
     if (!auditDepartment) {
       return { err: i18n.t('auditRuleFieldIsNotExist', { field: 'auditDepartment' }), doc: null };
     }
@@ -309,6 +311,8 @@ const createAuditDepartment = function createAuditDepartment(permissionType, aud
     if (!auditDepartment._id || !auditDepartment.name) {
       return { err: i18n.t('auditRuleFieldIsNotExist', { field: 'auditDepartment部分' }), doc: null };
     }
+
+    console.log('createAuditDepartment --->', auditDepartment);
 
     const doc = utils.merge({
       _id: '',
@@ -415,6 +419,8 @@ service.updateAuditRule = function updateRule(info, cb) {
   doc.auditDepartment = auditDepartmentRs.doc;
   doc.whitelist = rs.doc;
   doc.modifyTime = new Date();
+
+  console.log('update audit rule --->', doc);
 
   auditRuleInfo.updateOne({ _id: id }, doc, (err, r) => {
     if (err) {
