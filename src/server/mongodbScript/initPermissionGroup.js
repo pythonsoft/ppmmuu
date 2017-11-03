@@ -303,6 +303,12 @@ const infos = [
     index: 'auditTask',
     parentIndex: 'taskCenter',
   },
+  {
+    _id: 'trends',
+    name: '首页',
+    index: 'trends',
+    parentIndex: '',
+  },
 ];
 
 
