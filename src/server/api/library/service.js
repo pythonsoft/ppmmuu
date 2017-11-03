@@ -710,6 +710,10 @@ service.updateFile = function updateFile(id, info = {}, cb) {
 
   info.lastModifyTime = new Date();
 
+  i(info._id) {
+    delete info._id;
+  }
+
   fileInfo.updateOne({ _id: id }, info, (err, r) => {
     if (err) {
       logger.error(err.message);

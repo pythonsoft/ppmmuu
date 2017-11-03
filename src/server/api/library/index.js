@@ -981,7 +981,7 @@ router.post('/createCatalog', (req, res) => {
  *         schema:
  *           type: object
  *           required:
- *             - id
+ *             - _id
  *             - englishName
  *             - chineseName
  *             - content
@@ -995,7 +995,7 @@ router.post('/createCatalog', (req, res) => {
  *             - available
  *             - materialDate
  *           properties:
- *             id:
+ *             _id:
  *               type: string
  *               description: ''
  *               example: ""
@@ -1076,7 +1076,7 @@ router.post('/createCatalog', (req, res) => {
  *                  type: string
  */
 router.post('/updateCatalog', (req, res) => {
-  service.updateCatalog(req.body.id, req.body, (err, docs) => res.json(result.json(err, docs)));
+  service.updateCatalog(req.body._id, req.body, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
