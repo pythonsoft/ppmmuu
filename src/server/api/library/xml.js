@@ -66,7 +66,7 @@ xml.create = function create(objectId, cb) {
 
         for(let j = 0, l = catalogs.length; j < l; j++) {
           catalog = catalogs[j];
-          fileList.push([
+          catalogInfo.push([
             '<catalogInfo>',
               '<id>'+ catalog._id +'</id>',
               '<fileId>'+ catalog.fileInfo._id +'</fileId>',
@@ -85,7 +85,7 @@ xml.create = function create(objectId, cb) {
               '<inpoint>'+ catalog.inpoint +'</inpoint>',
               '<outpoint>'+ catalog.outpoint +'</outpoint>',
               '<available>'+ getKeyByValue(CatalogInfo.AVAILABLE, catalog.available) +'</available>',
-              '<materialDate>'+ catalog.materialDate +'</materialDate>',
+              '<materialDate>'+ catalog.materialDate.toString() +'</materialDate>',
             '</catalogInfo>',
           ].join(SPLIT_FLAG));
         };
