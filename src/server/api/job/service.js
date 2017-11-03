@@ -486,6 +486,10 @@ service.list = function list(listParams, res) {
     params.userId = listParams.userId;
   }
 
+  if (listParams.processType) {
+    params.processType = listParams.processType;
+  }
+
   request.get('/JobService/list', params, res);
 };
 
