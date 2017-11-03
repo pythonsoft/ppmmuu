@@ -19,6 +19,8 @@ const getKeyByValue = function getKeyByValue(t, value) {
 
 const xml = {};
 
+const SPLIT_FLAG = '\n';
+
 xml.create = function create(objectId, cb) {
   if(!objectId) {
     return cb && cb(i18n.t('libraryObjectIdIsNull'));
@@ -59,7 +61,7 @@ xml.create = function create(objectId, cb) {
               '<archivePath>'+ file.archivePath +'</archivePath>',
               '<description>'+ file.description +'</description>',
             '</file>',
-          ].join('/n'));
+          ].join(SPLIT_FLAG));
         };
 
         for(let j = 0, l = catalogs.length; j < l; j++) {
@@ -85,7 +87,7 @@ xml.create = function create(objectId, cb) {
               '<available>'+ getKeyByValue(CatalogInfo.AVAILABLE, catalog.available) +'</available>',
               '<materialDate>'+ catalog.materialDate +'</materialDate>',
             '</catalogInfo>',
-          ].join('/n'));
+          ].join(SPLIT_FLAG));
         };
 
         const template = [
@@ -98,7 +100,7 @@ xml.create = function create(objectId, cb) {
           '</archive_main>',
         ];
 
-        return cb && cb(null, template.join('/n'));
+        return cb && cb(null, template.join(SPLIT_FLAG));
       });
     });
 
