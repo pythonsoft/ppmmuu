@@ -200,6 +200,11 @@ router.post('/updateTemplate', (req, res) => {
  *         default: ''
  *         collectionFormat: csv
  *       - in: query
+ *         name: processType
+ *         type: string
+ *         default: '下载流程 download, 归档入库流程 archive, 全部为空default'
+ *         collectionFormat: csv
+ *       - in: query
  *         name: page
  *         type: int
  *         default: 1
@@ -218,10 +223,11 @@ router.get('/list', (req, res) => {
   const pageSize = req.query.pageSize;
   const status = req.query.status || '';
   const currentStep = req.query.currentStep || '-1';
+  const processType = req.query.processType || '';
   const userId = req.query.userId;
 
   res.set('Content-Type', 'application/json');
-  service.list({ page: page * 1, pageSize: pageSize * 1, status, currentStep, userId }, res);
+  service.list({ page: page * 1, pageSize: pageSize * 1, status, currentStep, userId, processType }, res);
 });
 
 /**

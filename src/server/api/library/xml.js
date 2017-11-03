@@ -59,7 +59,7 @@ xml.create = function create(objectId, cb) {
               '<archivePath>'+ file.archivePath +'</archivePath>',
               '<description>'+ file.description +'</description>',
             '</file>',
-          ].join(''));
+          ].join('/n'));
         };
 
         for(let j = 0, l = catalogs.length; j < l; j++) {
@@ -85,7 +85,7 @@ xml.create = function create(objectId, cb) {
               '<available>'+ getKeyByValue(CatalogInfo.AVAILABLE, catalog.available) +'</available>',
               '<materialDate>'+ catalog.materialDate +'</materialDate>',
             '</catalogInfo>',
-          ].join(''));
+          ].join('/n'));
         };
 
         const template = [
@@ -98,7 +98,7 @@ xml.create = function create(objectId, cb) {
           '</archive_main>',
         ];
 
-        return cb && cb(null, template.join(''));
+        return cb && cb(null, template.join('/n'));
       });
     });
 
