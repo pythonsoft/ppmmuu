@@ -8,7 +8,6 @@ const logger = require('../../common/log')('error');
 const utils = require('../../common/utils');
 const uuid = require('uuid');
 const i18n = require('i18next');
-const xml = require('./xml');
 
 const CatalogTaskInfo = require('./catalogTaskInfo');
 
@@ -492,7 +491,7 @@ service.getCatalogTask = function getCatalogTask(taskId, cb) {
   });
 };
 
-service.getCatalogByObjectId = function getCatalogByObjectId(objectId, fields, cb) {
+service.getCatalogByObjectId = function(objectId, fields, cb) {
   if (!objectId) {
     return cb && cb(i18n.t('libraryCatalogObjectIdIsNull'));
   }
@@ -741,19 +740,5 @@ service.getFile = function getFile(id, cb) {
 };
 
 /* file */
-
-/* xml file */
-service.generateXML = function (objectId, cb) {
-  if(!objectId) {
-    return cb && cb(i18n.t('libraryObjectIdIsNull'));
-  }
-
-  xml.create(objectId, (err, str) => {
-    if(err) {
-      return cb && cb(err);
-    }
-    return cb && cb(null, str);
-  });
-};
 
 module.exports = service;
