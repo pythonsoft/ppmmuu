@@ -10,6 +10,7 @@ const router = express.Router();
 const result = require('../../common/result');
 const service = require('./service');
 const isLogin = require('../../middleware/login');
+const xml = require('./xml');
 
 router.use(isLogin.middleware);
 router.use(isLogin.hasAccessMiddleware);
@@ -1360,7 +1361,13 @@ router.get('/getFile', (req, res) => {
  *         description:
  * */
 router.get('/generateXML', (req, res) => {
-  service.generateXML(req.query.objectId, (err, xml) => res.json(res.json(err, xml)));
+  xml.create(req.query.objectId, (err, xml) => {
+    if(err) {
+     return res.json(result.fail(err));
+    }
+
+    return res.json(result.success(xml));
+  });
 });
 
 module.exports = router;

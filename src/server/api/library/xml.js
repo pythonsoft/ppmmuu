@@ -1,3 +1,5 @@
+const i18n = require('i18next');
+
 const service = require('./service');
 const FileInfo = require('./fileInfo');
 const CatalogInfo = require('./catalogInfo');
@@ -17,7 +19,11 @@ const getKeyByValue = function getKeyByValue(t, value) {
 
 const xml = {};
 
-xml.create = function create(objectId) {
+xml.create = function create(objectId, cb) {
+  if(!objectId) {
+    return cb && cb(i18n.t('libraryObjectIdIsNull'));
+  }
+
   service.getCatalogByObjectId(objectId, { name: 1, description: 1 }, (err, task) => {
     if(err) {
       return cb && cb(err);
@@ -57,7 +63,7 @@ xml.create = function create(objectId) {
         };
 
         for(let j = 0, l = catalogs.length; j < l; j++) {
-          catalog = catalogs[i];
+          catalog = catalogs[j];
           fileList.push([
             '<catalogInfo>',
               '<id>'+ catalog._id +'</id>',
@@ -93,7 +99,6 @@ xml.create = function create(objectId) {
         ];
 
         return cb && cb(null, template.join(''));
-
       });
     });
 
