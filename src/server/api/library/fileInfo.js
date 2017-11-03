@@ -29,8 +29,10 @@ class FileInfo extends DB {
       lastModifyTime: { type: 'date', validation: 'require' },
       details: { type: 'object' },
     };
+
   }
-}
+};
+
 
 FileInfo.TYPE = {
   ORIGINAL: '0', // 源文件
