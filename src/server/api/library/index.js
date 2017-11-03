@@ -1331,4 +1331,36 @@ router.get('/getFile', (req, res) => {
   service.getFile(id, (err, docs) => res.json(result.json(err, docs)));
 });
 
+/**
+ * @permissionGroup: library
+ * @permissionName: 生成入库XML文件
+ * @permissionPath: /library/generateXML
+ * @apiName: generateXML
+ * @apiFuncType: get
+ * @apiFuncUrl: /library/generateXML
+ * @swagger
+ * /library/generateXML:
+ *   get:
+ *     description: generate xml
+ *     tags:
+ *       - v1
+ *       - library
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: objectId
+ *         description: ''
+ *         required: true
+ *         type: string
+ *         default: '0'
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description:
+ * */
+router.get('/generateXML', (req, res) => {
+  service.generateXML(req.query.objectId, (err, xml) => res.json(res.json(err, xml)));
+});
+
 module.exports = router;

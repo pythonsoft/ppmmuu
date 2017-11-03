@@ -8,6 +8,7 @@ const logger = require('../../common/log')('error');
 const utils = require('../../common/utils');
 const uuid = require('uuid');
 const i18n = require('i18next');
+const xml = require('./xml');
 
 const CatalogTaskInfo = require('./catalogTaskInfo');
 
@@ -710,7 +711,7 @@ service.updateFile = function updateFile(id, info = {}, cb) {
 
   info.lastModifyTime = new Date();
 
-  i(info._id) {
+  if(info._id) {
     delete info._id;
   }
 
@@ -743,7 +744,16 @@ service.getFile = function getFile(id, cb) {
 
 /* xml file */
 service.generateXML = function (objectId, cb) {
+  if(!objectId) {
+    return cb && cb(i18n.t('libraryObjectIdIsNull'));
+  }
 
+  xml.create(objectId, (err, str) => {
+    if(err) {
+      return cb && cb(err);
+    }
+    return cb && cb(null, str);
+  });
 };
 
 module.exports = service;

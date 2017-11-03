@@ -1,47 +1,23 @@
-/*
-  <archive_main>
-    <objectId>${objectId}</objectId>
-    <name></name>
-    <description></description>
-    <fileList>
-        <file>
-            <serialNO></serialNO>
-            <name></name>
-            <size></size>
-            <realPath></realPath>
-            <path></path>
-            <type></type>
-            <available></available>
-            <status></status>
-            <archivePath></archivePath>
-            <description></description>
-        </file>
-    </fileList>
-    <catalogInfoList>
-        <catalogInfo>
-            <serialNO></serialNO>
-            <englishName></englishName>
-            <chineseName></chineseName>
-            <parentId></parentId>
-            <keyword></keyword>
-            <content></content>
-            <source></source>
-            <version></version>
-            <duration></duration>
-            <keyman></keyman>
-            <language></language>
-            <root></root>
-            <type></type>
-            <inpoint></inpoint>
-            <available></available>
-            <materialDate></materialDate>
-        </catalogInfo>
-    </catalogInfoList>
-  </archive_main>
-*/
 const service = require('./service');
+const FileInfo = require('./fileInfo');
+const CatalogInfo = require('./catalogInfo');
 
-const create = function(objectId) {
+const getKeyByValue = function getKeyByValue(t, value) {
+  let rs = '';
+
+  for(let k in t) {
+    if(k[t] === value) {
+      rs = k;
+      break;
+    }
+  }
+
+  return rs;
+};
+
+const xml = {};
+
+xml.create = function create(objectId) {
   service.getCatalogByObjectId(objectId, { name: 1, description: 1 }, (err, task) => {
     if(err) {
       return cb && cb(err);
@@ -57,6 +33,67 @@ const create = function(objectId) {
           return cb && cb(err);
         }
 
+        const fileList = [];
+        const catalogInfo = [];
+        let file = null;
+        let catalog = null;
+
+        for(let i = 0, len = files.length; i < len; i++) {
+          file = files[i];
+          fileList.push([
+            '<file>',
+              '<id>'+ file._id +'</id>',
+              '<name>'+ file.name +'</name>',
+              '<size>'+ file.size +'</size>',
+              '<realPath>'+ file.realPath +'</realPath>',
+              '<path>'+ file.path +'</path>',
+              '<type>'+ getKeyByValue(FileInfo.TYPE, file.type) +'</type>',
+              '<available>'+ getKeyByValue(FileInfo.AVAILABLE, file.available) +'</available>',
+              '<status>'+ getKeyByValue(FileInfo.STATUS, file.status) +'</status>',
+              '<archivePath>'+ file.archivePath +'</archivePath>',
+              '<description>'+ file.description +'</description>',
+            '</file>',
+          ].join(''));
+        };
+
+        for(let j = 0, l = catalogs.length; j < l; j++) {
+          catalog = catalogs[i];
+          fileList.push([
+            '<catalogInfo>',
+              '<id>'+ catalog._id +'</id>',
+              '<fileId>'+ catalog.fileInfo._id +'</fileId>',
+              '<englishName>'+ catalog.englishName +'</englishName>',
+              '<chineseName>'+ catalog.chineseName +'</chineseName>',
+              '<parentId>'+ catalog.parentId +'</parentId>',
+              '<keyword>'+ catalog.keyword +'</keyword>',
+              '<content>'+ catalog.content +'</content>',
+              '<source>'+ catalog.source +'</source>',
+              '<version>'+ catalog.version +'</version>',
+              '<duration>'+ catalog.duration +'</duration>',
+              '<keyman>'+ catalog.keyman +'</keyman>',
+              '<language>'+ catalog.language +'</language>',
+              '<root>'+ catalog.root +'</root>',
+              '<type>'+ catalog.englishName +'</type>',
+              '<inpoint>'+ catalog.inpoint +'</inpoint>',
+              '<outpoint>'+ catalog.outpoint +'</outpoint>',
+              '<available>'+ getKeyByValue(CatalogInfo.AVAILABLE, catalog.available) +'</available>',
+              '<materialDate>'+ catalog.materialDate +'</materialDate>',
+            '</catalogInfo>',
+          ].join(''));
+        };
+
+        const template = [
+          '<archive_main>',
+            '<objectId>'+ objectId +'</objectId>',
+            '<name>'+ task.name +'</name>',
+            '<description>'+ task.description +'</description>',
+            '<fileList>'+ fileList.join('') +'</fileList>',
+            '<catalogInfoList>'+ catalogInfo.join('') +'</catalogInfoList>',
+          '</archive_main>',
+        ];
+
+        return cb && cb(null, template.join(''));
+
       });
     });
 
@@ -64,4 +101,4 @@ const create = function(objectId) {
 
 };
 
-module.exports = create();
+module.exports = xml;
