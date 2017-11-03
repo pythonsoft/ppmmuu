@@ -1194,6 +1194,7 @@ router.post('/createFile', (req, res) => {
  *         schema:
  *           type: object
  *           required:
+ *             - _id
  *             - name
  *             - size
  *             - realPath
@@ -1202,6 +1203,10 @@ router.post('/createFile', (req, res) => {
  *             - available
  *             - status
  *           properties:
+ *             _id:
+ *               type: string
+ *               description: ''
+ *               example: ""
  *             name:
  *               type: string
  *               description: ''
@@ -1255,7 +1260,7 @@ router.post('/createFile', (req, res) => {
  *                  type: string
  */
 router.post('/updateFile', (req, res) => {
-  service.updateFile(req.body.id, req.body, (err, docs) => res.json(result.json(err, docs)));
+  service.updateFile(req.body._id, req.body, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
