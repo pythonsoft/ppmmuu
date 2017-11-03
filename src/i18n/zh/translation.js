@@ -714,12 +714,16 @@ module.exports = {
     message: 'object id 为空',
   },
   libraryCatalogTaskSendBackNull: {
-    code: '-100007',
+    code: '-100011',
     message: '没有可以退回的编目任务',
   },
   libraryCatalogTaskResumeNull: {
-    code: '-100007',
+    code: '-100012',
     message: '没有可以恢复的编目任务',
+  },
+  libraryCatalogObjectIdIsNull: {
+    code: '-100013',
+    message: '输入的编目任务ObjectId为空',
   },
   shelfStatusNotCorrect: {
     code: '-110001',

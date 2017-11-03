@@ -491,6 +491,27 @@ service.getCatalogTask = function getCatalogTask(taskId, cb) {
   });
 };
 
+service.getCatalogByObjectId = function getCatalogByObjectId(objectId, fields, cb) {
+  if (!objectId) {
+    return cb && cb(i18n.t('libraryCatalogObjectIdIsNull'));
+  }
+
+  const options = {};
+
+  if(fields) {
+    options.fields = fields;
+  }
+
+  catalogTaskInfo.collection.findOne({ objectId: objectId }, options, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, doc);
+  });
+};
+
 /* catalog task */
 
 /* catalog info */
@@ -715,5 +736,10 @@ service.getFile = function getFile(id, cb) {
 };
 
 /* file */
+
+/* xml file */
+service.generateXML = function (objectId, cb) {
+
+};
 
 module.exports = service;
