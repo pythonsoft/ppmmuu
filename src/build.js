@@ -5,6 +5,8 @@ const webpack = require('webpack');
 const del = require('del');
 const webpackConfig = require('../webpack.config');
 const fs = require('fs');
+const generateVersionJson = require('./generateVersionJSON');
+const exec = require('child_process').exec;
 
 const apiPathFile = path.join(__dirname, './server/apiPath.js');
 const buildPath = path.join(__dirname, '../build');
@@ -110,11 +112,75 @@ const writeFile = function writeFile(origin, targetName) {
   readStream.pipe(writeStream);
 };
 
-const deployOnline = function deployOnline() {
+const chaoningCoolie = function(version, cb) {
+  const chaoningDeployPath = '/Users/chaoningx/Desktop/ump';
+  const chaoningFEProjectDistPath = '/Users/chaoningx/WebstormProjects/ump-fe/dist';
+
+  console.log('chaoning coolie running now.');
+
+  del.sync(chaoningDeployPath);
+  fs.mkdirSync(chaoningDeployPath);
+
+  exec(`cp -rf ${chaoningFEProjectDistPath} ${path.join(chaoningDeployPath, 'fe')}`, (error, stdout, stderr) => {
+    if (error) {
+      console.error(error);
+      return cb && cb(error);
+    }
+
+    console.log('transfer fe project success.');
+
+    exec(`cp -rf ${buildPath} ${path.join(chaoningDeployPath, 'ump')}`, (error, stdout, stderr) => {
+      if (error) {
+        console.error(error);
+        return cb && cb(error);
+      }
+
+      console.log('transfer ump project success.');
+
+      return cb && cb(null, 'ok');
+    });
+
+  });
+};
+
+const deployOnline = function deployOnline(cb) {
+
   if (process.env.NODE_ENV === 'online') {
     writeFile(pm2JSONPath, 'pm2.json');
     writeFile(onlineConfig, 'config_master.js');
     writeFile(packageJsonPath, 'package.json');
+
+    let version = '';
+    process.stdout.write('please input version (ps:1.5.7.0):');
+
+    process.stdin.on('readable', () => {
+      let chunk = process.stdin.read();
+      if (chunk !== null) {
+        chunk = chunk.toString().trim();
+
+        if(chunk === 'start') {
+          process.stdout.write(`start generate version.json file...\n`);
+          generateVersionJson.create(version, buildPath, (err, tpl) => {
+            if(err) {
+              console.error(err);
+              process.stdout.write(`please input 'start' to retry ? \n`);
+              return false;
+            }
+            process.stdout.write('generate version.json success');
+
+            chaoningCoolie(version, (err, r) => {
+              return cb && cb(err, r);
+            });
+          });
+        }else {
+          version = `version ${chunk}`;
+          process.stdout.write(`version is : ${version} ${chunk}\n`);
+          process.stdout.write(`make sure this version is you want, input 'start' word to continue ? `);
+        }
+      }
+    });
+  }else {
+    return cb && cb(null, 'ok');
   }
 };
 
@@ -178,17 +244,11 @@ const initPermissionInfo = function initPermissionInfo() {
   permissionPaths.push('all');
 
   console.log('write permission files');
-  fs.readFile(initPermissionPath, 'utf8', (err, data) => {
-    if (err) {
-      return console.log(err);
-    }
-    let result = data.replace(/const permissionNames = .*/g, `const permissionNames = ${JSON.stringify(permissionNames)}`);
-    result = result.replace(/const permissionPaths = .*/g, `const permissionPaths = ${JSON.stringify(permissionPaths)}`);
-    result = result.replace(/const permissionGroups = .*/g, `const permissionGroups = ${JSON.stringify(permissionGroups)}`);
-    fs.writeFile(initPermissionPath, result, 'utf8', (err) => {
-      if (err) return console.log(err);
-    });
-  });
+  const data = fs.readFileSync(initPermissionPath, 'utf8');
+  let result = data.replace(/const permissionNames = .*/g, `const permissionNames = ${JSON.stringify(permissionNames)}`);
+  result = result.replace(/const permissionPaths = .*/g, `const permissionPaths = ${JSON.stringify(permissionPaths)}`);
+  result = result.replace(/const permissionGroups = .*/g, `const permissionGroups = ${JSON.stringify(permissionGroups)}`);
+  fs.writeFileSync(initPermissionPath, result, 'utf8');
 };
 
 generateFeApiFuncFile();
@@ -196,8 +256,6 @@ generateFeApiFuncFile();
 writeToApiPath();
 
 initPermissionInfo();
-
-deployOnline();
 
 webpack(webpackConfig, (err, stats) => {
   if (err) {
@@ -207,11 +265,16 @@ webpack(webpackConfig, (err, stats) => {
     throw new Error(stats.compilation.errors);
   }
   console.log('server webpack completely...');
-  const done = function done() {
-    process.exit(0);
-  };
 
   if (process.env.NODE_ENV !== 'online') {
-    require('./runGulp')(done);
+    require('./runGulp')(() => {
+      process.exit(0);
+    });
+  }else {
+    deployOnline((err) => {
+      if(!err) {
+        process.exit(0);
+      }
+    });
   }
 });

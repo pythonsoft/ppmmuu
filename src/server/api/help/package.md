@@ -10,11 +10,11 @@
 │   |    ├── xx.xx
 │   |    ├── xx.xx
 │   |    ├── xx.xx
-.   └── config.json                             // 升级配置文件
+.   └── version.json                             // 升级配置文件
 
 ```
 
-config.json格式
+version.json格式
 
 ```$json
 {
