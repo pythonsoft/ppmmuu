@@ -171,6 +171,7 @@ const chaoningCoolie = function(version, cb) {
   });
 };
 
+//gitlab上的版本名称不允许有空格，如果有空格，那么获得版本变更信息将会失败
 const deployOnline = function deployOnline(cb) {
 
   if (process.env.NODE_ENV === 'online') {
@@ -201,7 +202,7 @@ const deployOnline = function deployOnline(cb) {
             });
           });
         }else {
-          version = `version ${chunk}`;
+          version = `version${chunk}`;
           process.stdout.write(`version is : ${version} ${chunk}\n`);
           process.stdout.write(`make sure this version is you want, input 'start' word to continue ? `);
         }
