@@ -112,13 +112,13 @@ const writeFile = function writeFile(origin, targetName) {
   readStream.pipe(writeStream);
 };
 
+const feName = 'fe';
+const umpName = 'ump';
+const versionName = 'version.json';
+
 const chaoningCoolie = function(version, cb) {
   const chaoningDeployPath = '/Users/chaoningx/Desktop/ump';
   const chaoningFEProjectDistPath = '/Users/chaoningx/WebstormProjects/ump-fe/dist';
-
-  const feName = 'fe';
-  const umpName = 'ump';
-  const versionName = 'version.json';
 
   const targetFe = path.join(chaoningDeployPath, feName);
   const targetUMP = path.join(chaoningDeployPath, umpName);
@@ -134,7 +134,7 @@ const chaoningCoolie = function(version, cb) {
       return cb && cb(error);
     }
 
-    console.log('transfer fe project success.');
+    console.log(`transfer ${feName} project success.`);
 
     exec(`cp -rf ${buildPath} ${targetUMP}`, (error, stdout, stderr) => {
       if (error) {
@@ -142,7 +142,7 @@ const chaoningCoolie = function(version, cb) {
         return cb && cb(error);
       }
 
-      console.log('transfer ump project success.');
+      console.log(`transfer ${umpName} project success.`);
 
       exec(`cp ${path.join(buildPath, versionName)} ${chaoningDeployPath}`, (error, stdout, stderr) => {
         if (error) {
@@ -187,14 +187,14 @@ const deployOnline = function deployOnline(cb) {
         chunk = chunk.toString().trim();
 
         if(chunk === 'start') {
-          process.stdout.write(`start generate version.json file...\n`);
+          process.stdout.write(`start generate ${versionName} file...\n`);
           generateVersionJson.create(version, buildPath, (err, tpl) => {
             if(err) {
               console.error(err);
               process.stdout.write(`please input 'start' to retry ? \n`);
               return false;
             }
-            process.stdout.write('generate version.json success');
+            process.stdout.write(`generate ${versionName} success`);
 
             chaoningCoolie(version, (err, r) => {
               return cb && cb(err, r);
