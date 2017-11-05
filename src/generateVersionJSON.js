@@ -48,6 +48,8 @@ api.create = function (version, generatePath, cb) {
 
     const tpl = composeTemplate(version, rs);
 
+    console.log('version.json:', tpl);
+
     fs.writeFileSync(path.join(generatePath, 'version.json'), tpl);
 
     return cb && cb(null, tpl);

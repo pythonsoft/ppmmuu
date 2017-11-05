@@ -116,12 +116,19 @@ const chaoningCoolie = function(version, cb) {
   const chaoningDeployPath = '/Users/chaoningx/Desktop/ump';
   const chaoningFEProjectDistPath = '/Users/chaoningx/WebstormProjects/ump-fe/dist';
 
+  const feName = 'fe';
+  const umpName = 'ump';
+  const versionName = 'version.json';
+
+  const targetFe = path.join(chaoningDeployPath, feName);
+  const targetUMP = path.join(chaoningDeployPath, umpName);
+
   console.log('chaoning coolie running now.');
 
-  del.sync(chaoningDeployPath);
+  del.sync(chaoningDeployPath, { force: true });
   fs.mkdirSync(chaoningDeployPath);
 
-  exec(`cp -rf ${chaoningFEProjectDistPath} ${path.join(chaoningDeployPath, 'fe')}`, (error, stdout, stderr) => {
+  exec(`cp -rf ${chaoningFEProjectDistPath} ${targetFe}`, (error, stdout, stderr) => {
     if (error) {
       console.error(error);
       return cb && cb(error);
@@ -129,7 +136,7 @@ const chaoningCoolie = function(version, cb) {
 
     console.log('transfer fe project success.');
 
-    exec(`cp -rf ${buildPath} ${path.join(chaoningDeployPath, 'ump')}`, (error, stdout, stderr) => {
+    exec(`cp -rf ${buildPath} ${targetUMP}`, (error, stdout, stderr) => {
       if (error) {
         console.error(error);
         return cb && cb(error);
@@ -137,7 +144,28 @@ const chaoningCoolie = function(version, cb) {
 
       console.log('transfer ump project success.');
 
-      return cb && cb(null, 'ok');
+      exec(`cp ${path.join(buildPath, versionName)} ${chaoningDeployPath}`, (error, stdout, stderr) => {
+        if (error) {
+          console.error(error);
+          return cb && cb(error);
+        }
+
+        console.log(`transfer ${versionName} file success.`);
+
+        const formatVersion = version.replace(/\s/g, '');
+
+        exec(`cd ${chaoningDeployPath} && zip -r ${formatVersion}.zip ${feName} ${umpName} ${versionName}`, (error, stdout, stderr) => {
+          if (error) {
+            console.error(error);
+            return cb && cb(error);
+          }
+
+          console.log(`zip project success, fileName is ${formatVersion}.zip`);
+
+          return cb && cb(null, 'ok');
+        });
+
+      });
     });
 
   });
