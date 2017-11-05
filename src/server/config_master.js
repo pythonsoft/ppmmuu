@@ -83,8 +83,8 @@ config.mediaExpressUrl = 'http://localhost:3001/';
 config.upgradePackage = config.uploadPath;
 
 config.upgradeSystem = {
-  // ump: '/Users/chaoningxie/Desktop/temp/install/ump',
-  // fe: '/Users/chaoningxie/Desktop/temp/install/fe',
+  // ump: '/Users/chaoningx/Desktop/temp/ump',
+  // fe: '/Users/chaoningx/Desktop/temp/fe',
   ump: '',
   fe: ''
 };

@@ -161,7 +161,7 @@ service.install = function install(id, cb) {
 
             loop(index + 1);
           });
-        } else if (files[index] === 'config.json') {
+        } else if (files[index] === 'version.json') {
           readConfigJSON(id, path.join(doc.extractPath, files[index]), (err) => {
             if (err) {
               return cb && cb(err);
