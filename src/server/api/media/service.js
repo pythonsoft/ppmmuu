@@ -473,7 +473,7 @@ service.getObject = function getObject(info, cb) {
       }
     }
 
-    return cb(null, rs);
+    return cb(null, rs, 'mam');
   });
 };
 
