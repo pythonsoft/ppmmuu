@@ -21,6 +21,7 @@ const TemplateInfo = require('../template/templateInfo');
 
 const templateService = require('../template/service');
 const extService = require('./extService');
+const mediaService = require('../media/service');
 
 const TRANSCODE_API_SERVER_URL = `http://${config.TRANSCODE_API_SERVER.hostname}:${config.TRANSCODE_API_SERVER.port}`;
 const HttpRequest = require('../../common/httpRequest');
@@ -200,81 +201,106 @@ const transcodeAndTransfer = function transcodeAndTransfer(bucketId, receiverId,
 
 service.listTemplate = extService.listTemplate;
 
-
 service.jugeTemplateAuditAndCreateAudit = function jugeTemplateAuditAndCreateAudit(info, cb) {
-  const ownerName = info.ownerName || '';
-  const userInfo = info.userInfo;
-  const id = info.templateId || '';
-  if (!ownerName) {
-    return cb && cb(null, true);
+  if(utils.isEmptyObject(info)) {
+    return cb && cb(i18n.t('jobDownloadParamsIsNull'));
   }
-  templateService.getDetail(id, (err, doc) => {
-    if (err) {
+
+  mediaService.getObject({ objectid: info.objectid }, (err, rs, fromWhere='mam') => {
+    if(err) {
       return cb && cb(err);
     }
+    //fromWhere说明是哪里来的数据，如果是mam的那么所属部门的字段为detail里边的FIELD314
 
-    if (!doc) {
-      return cb && cb(i18n.t('templateIsNotExist'));
+    if(rs.status !== '0') {
+      return cb && cb(rs.result);
     }
 
-    if (!doc.details || !doc.details.bucketId) {
-      return cb && cb(i18n.t('templateBucketIdIsNotExist'));
+    let ownerName = '';
+
+    if(fromWhere === 'mam') {
+      if(rs.result && rs.result.detail && rs.result.detail.program && rs.result.detail.program.FIELD314 && rs.result.detail.program.FIELD314.value) {
+        ownerName = rs.result.detail.program.FIELD314.value;
+      }
     }
 
-    if (!doc.downloadAudit) {
+    if (!ownerName) {
       return cb && cb(null, true);
     }
 
-    auditRuleInfo.collection.findOne({ ownerName }, (err, doc) => {
+    const userInfo = info.userInfo;
+    const id = info.templateId || '';
+    info.ownerName = ownerName;
+
+    templateService.getDetail(id, (err, doc) => {
       if (err) {
-        logger.error(err.message);
-        return cb && cb(i18n.t('databaseError'));
+        return cb && cb(err);
       }
 
       if (!doc) {
+        return cb && cb(i18n.t('templateIsNotExist'));
+      }
+
+      if (!doc.details || !doc.details.bucketId) {
+        return cb && cb(i18n.t('templateBucketIdIsNotExist'));
+      }
+
+      if (!doc.downloadAudit) {
         return cb && cb(null, true);
       }
 
-      if (doc.permissionType === AuditRuleInfo.PERMISSTION_TYPE.PUBLIC) {
-        return cb && cb(null, true);
-      }
-
-      const whiteList = doc.whiteList || [];
-      for (let i = 0, len = whiteList.length; i < len; i++) {
-        const _id = whiteList[i]._id;
-        if (_id === userInfo._id || _id === userInfo.company._id || _id === userInfo.department._id) {
-          return cb && cb(null, true);
-        }
-      }
-
-      const insertInfo = {
-        name: info.filename,
-        description: '',
-        detail: info,
-        applicant: {
-          _id: userInfo._id,
-          name: userInfo.name,
-          companyId: userInfo.company._id,
-          companyName: userInfo.company.name,
-          departmentName: userInfo.department.name,
-          departmentId: userInfo.department._id,
-        },
-        ownerDepartment: doc.auditDepartment,
-      };
-      insertInfo.createTime = new Date();
-      insertInfo.lastModify = new Date();
-      insertInfo.status = AuditInfo.STATUS.WAITING;
-      insertInfo.type = AuditInfo.TYPE.DOWNLOAD;
-
-      auditInfo.insertOne(insertInfo, (err) => {
+      auditRuleInfo.collection.findOne({ ownerName }, (err, doc) => {
         if (err) {
           logger.error(err.message);
           return cb && cb(i18n.t('databaseError'));
         }
 
-        return cb && cb(null, false);
+        if (!doc) {
+          return cb && cb(null, true);
+        }
+
+        if (doc.permissionType === AuditRuleInfo.PERMISSTION_TYPE.PUBLIC) {
+          return cb && cb(null, true);
+        }
+
+        const whiteList = doc.whiteList || [];
+        for (let i = 0, len = whiteList.length; i < len; i++) {
+          const _id = whiteList[i]._id;
+          if (_id === userInfo._id || _id === userInfo.company._id || _id === userInfo.department._id) {
+            return cb && cb(null, true);
+          }
+        }
+
+        const insertInfo = {
+          name: info.filename,
+          description: '',
+          detail: info,
+          applicant: {
+            _id: userInfo._id,
+            name: userInfo.name,
+            companyId: userInfo.company._id,
+            companyName: userInfo.company.name,
+            departmentName: userInfo.department.name,
+            departmentId: userInfo.department._id,
+          },
+          ownerDepartment: doc.auditDepartment,
+        };
+        insertInfo.createTime = new Date();
+        insertInfo.lastModify = new Date();
+        insertInfo.status = AuditInfo.STATUS.WAITING;
+        insertInfo.type = AuditInfo.TYPE.DOWNLOAD;
+
+        auditInfo.insertOne(insertInfo, (err) => {
+          if (err) {
+            logger.error(err.message);
+            return cb && cb(i18n.t('databaseError'));
+          }
+
+          return cb && cb(null, false);
+        });
       });
     });
+
   });
 };
 
@@ -375,7 +401,6 @@ service.download = function download(info, cb) {
               return cb && cb(err);
             }
 
-
             return cb && cb(null, 'ok');
           });
           return false;
@@ -408,7 +433,6 @@ service.download = function download(info, cb) {
       if (err) {
         return cb && cb(err);
       }
-
 
       return cb && cb(null, 'ok');
     });

@@ -601,6 +601,10 @@ module.exports = {
     code: '-50028',
     message: '缺少templateId参数',
   },
+  jobDownloadParamsIsNull: {
+    code: '-50029',
+    message: '下载参数为空',
+  },
   notImplementedVerityType: {
     code: '-60000',
     message: '未实装的verifyType',
