@@ -617,6 +617,10 @@ module.exports = {
     code: '-50029',
     message: '下载参数为空',
   },
+  jobSourceNotSupport: {
+    code: '-50030',
+    message: '不支持此来源数据格式',
+  },
   notImplementedVerityType: {
     code: '-60000',
     message: '未实装的verifyType',
@@ -796,6 +800,10 @@ module.exports = {
   shelfObjectIdIsNull: {
     code: '-110014',
     message: '参数objectId为空',
+  },
+  shelfInfoIsNull: {
+    code: '-110015',
+    message: '上架信息不存在',
   },
   subscribeInfoHasExists: {
     code: '-120000',

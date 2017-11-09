@@ -686,13 +686,29 @@ service.listAuditInfo = function listAuditInfo(req, isAll = false, cb) {
   }, '-createTime', 'name,status,createTime,lastModify,applicant,verifier');
 };
 
-//用于通知JAVA服务，有新的文件产生
-service.distribute = function distribute(userInfo, templateId, catalogInfos, cb) {
+/**
+ * 用于通知JAVA服务，有新的文件产生
+ * @param userInfo {Object} 这个是下载模板中的脚本解析需要使用
+ * @param templateId {String} 下载模板ID
+ * @param objectId {String} 上架内容的objectId
+ * @param cb
+ * @returns {*}
+ */
+service.distribute = function distribute(userInfo, templateId, shelfTaskId, cb) {
 
-  if(!utils.isEmptyObject(catalogInfo)) {
-    return cb && cb(i18n.t('jobDistributeFieldIsNull', { field: 'catalogInfo' }));
+  if(!utils.isEmptyObject(userInfo)) {
+    return cb && cb(i18n.t('jobDistributeFieldIsNull', { field: 'userInfo' }));
   }
 
+  if(!templateId) {
+    return cb && cb(i18n.t('jobDistributeFieldIsNull', { field: 'templateId' }));
+  }
+
+  if(!shelfTaskId) {
+    return cb && cb(i18n.t('jobDistributeFieldIsNull', { field: 'objectId' }));
+  }
+
+  //拿到下载模版信息
   templateService.getDownloadPath(userInfo, templateId, (err, rs) => {
 
     if(err) {
@@ -702,41 +718,58 @@ service.distribute = function distribute(userInfo, templateId, catalogInfos, cb)
     const downloadPath = rs.downloadPath;
     const bucketId = rs.bucketInfo._id;
 
-    const downParam = {
-      "objectid": catalogInfo.objectId,
-      "inpoint": catalogInfo.inpoint, //起始帧
-      "outpoint": catalogInfo.outpoint, //结束帧
-      "filename": catalogInfo.fileInfo.name,
-      "filetypeid": "",
-      "destination": downloadPath, //相对路径，windows路径 格式 \\2017\\09\\15
-      "targetname": "" //文件名,不需要文件名后缀，非必须
-    };
-
-    for(let k in downParam) {
-      if(k !== 'inpoint' && k !== 'outpoint' && !downParam[k]) {
-        return cb && cb(i18n.t('jobDistributeFieldIsNull', { field: k }));
-      }
-    }
-
-    const p = {
-      downloadParams: downParam,
-      bucketId: bucketId,
-      distributionId: catalogInfo.objectId
-    };
-
-    const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/DistributionService/distribute`;
-
-    utils.requestCallApi(url, 'POST', p, '', (err, rs) => {
-      if (err) {
-        return cb && cb(err); // res.json(result.fail(err));
+    shelvesService.getShelf(shelfTaskId, '_id,objectId,files', (err, shelf) => {
+      if(err) {
+        return cb && cb(err);
       }
 
-      if (rs.status === '0') {
-        return cb && cb(null, 'ok');
+      if(!shelf) {
+        return cb && cb(i18n.t('shelfInfoIsNull'));
       }
 
-      return cb && cb(i18n.t('jobDistributeError', { error: rs.statusInfo.message }));
+      const downs = [];
+      let file = null;
+
+      //目前只有MAM数据源时这样处理是可以了，但是如果添加了新的数据源，此处需要变更
+      if(shelf.details.OBJECTID) {
+        for(let i = 0, len = shelf.files.length; i < len; i++) {
+          file = shelf.files[i];
+          downs.push({
+            "objectid": shelf.objectId,
+            "inpoint": file.INPOINT, //起始帧
+            "outpoint": file.OUTPOINT, //结束帧
+            "filename": file.FILENAME,
+            "filetypeid": file.FILETYPEID,
+            "destination": downloadPath, //相对路径，windows路径 格式 \\2017\\09\\15
+            "targetname": "" //文件名,不需要文件名后缀，非必须
+          });
+        }
+      }else {
+        return cb && cb(i18n.t('jobSourceNotSupport'));
+      }
+
+      const p = {
+        downloadParams: downs,
+        bucketId: bucketId,
+        distributionId: objectId,
+      };
+
+      const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/DistributionService/distribute`;
+
+      utils.requestCallApi(url, 'POST', p, '', (err, rs) => {
+        if (err) {
+          return cb && cb(err);
+        }
+
+        if (rs.status === '0') {
+          return cb && cb(null, 'ok');
+        }
+
+        return cb && cb(i18n.t('jobDistributeError', { error: rs.statusInfo.message }));
+      });
+
     });
+
 
   });
 };
@@ -760,7 +793,7 @@ service.mediaExpressDispatch = function mediaExpressDispatch(objectId, cb) {
         return cb && cb(err);
       }
 
-
+      //todo 这里要拿到订阅用户的传输配置
 
     });
 

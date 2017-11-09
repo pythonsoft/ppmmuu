@@ -313,6 +313,7 @@ service.getShelfDetail = function getShelfDetail(info, cb) {
   let fields = info.fields || '';
   const status = info.status || '';
   const query = {};
+
   if (!_id) {
     return cb & cb(i18n.t('shelfShortId'));
   }
@@ -681,6 +682,22 @@ service.getShelfTaskSubscribeType = function getShelfTaskSubscribeType(objectId,
 
     return cb && cb(null, doc);
   });
+};
+
+service.getShelf = function getShelf(id, fieldNeed, cb) {
+  if (!id) {
+    return cb & cb(i18n.t('shelfShortId'));
+  }
+
+  shelfTaskInfo.collection.findOne({ _id: id }, { fields: utils.formatSortOrFieldsParams(fieldNeed, false) }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, doc);
+  });
+
 };
 
 module.exports = service;
