@@ -43,6 +43,7 @@ service.listSubscribeInfo = function listSubscribeInfo(req, cb) {
     if (!utils.isValueInObject(status, SubscribeInfo.STATUS)) {
       return cb && cb(i18n.t('shelfStatusNotCorrect'));
     }
+
     if (status === SubscribeInfo.STATUS.USING) {
       query.expiredTime = { $gte: new Date() };
       query.startTime = { $lt: new Date() };
@@ -58,6 +59,31 @@ service.listSubscribeInfo = function listSubscribeInfo(req, cb) {
   }
 
   basePagination(query, page, pageSize, cb);
+};
+
+service.getAllSubscribeInfoByType = function getAllSubscribeInfoByType(type, fieldsNeed, sortFields, cb) {
+  if(!type) {
+    return cb && cb(i18n.t('subscribeTypeIsNull'));
+  }
+
+  let cursor = subscribeInfo.collection.find({ subscribeType: type });
+
+  if (sortFields) {
+    cursor.sort(utils.formatSortOrFieldsParams(sortFields, true));
+  }
+
+  if (fieldsNeed) {
+    cursor = cursor.project(utils.formatSortOrFieldsParams(fieldsNeed, false));
+  }
+
+  cursor.toArray((err, items) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, items);
+  });
 };
 
 // 增加

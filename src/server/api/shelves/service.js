@@ -65,7 +65,6 @@ const listDepartmentShelfTask = function listDepartmentShelfTask(req, cb) {
   listShelfTask(query, page, pageSize, cb);
 };
 
-
 // 列出部门上架任务(全部)
 service.listDepartmentAllShelfTask = function listDepartmentAllShelfTask(req, cb) {
   listDepartmentShelfTask(req, cb);
@@ -314,6 +313,7 @@ service.getShelfDetail = function getShelfDetail(info, cb) {
   let fields = info.fields || '';
   const status = info.status || '';
   const query = {};
+
   if (!_id) {
     return cb & cb(i18n.t('shelfShortId'));
   }
@@ -523,7 +523,6 @@ service.listLineShelfTask = function listLineShelfTask(req, cb) {
   listShelfTask(query, page, pageSize, cb);
 };
 
-
 // 上架
 service.onlineShelfTask = function onlineShelfTask(req, cb) {
   const userInfo = req.ex.userInfo;
@@ -534,6 +533,7 @@ service.onlineShelfTask = function onlineShelfTask(req, cb) {
   }
 
   _ids = _ids.split(',');
+
   shelfTaskInfo.collection.findOne({ _id: { $in: _ids }, status: { $ne: ShelfTaskInfo.STATUS.SUBMITTED } }, (err, doc) => {
     if (err) {
       logger.error(err.message);
@@ -650,7 +650,6 @@ service.searchUser = function searchUser(req, cb) {
   roleService.searchUserOrGroup(info, cb);
 };
 
-
 service.listSubscribeType = function listSubscribeType(cb) {
   const info = { pageSize: 999 };
   subscribeManagementService.listSubscribeType(info, (err, rs) => {
@@ -661,4 +660,44 @@ service.listSubscribeType = function listSubscribeType(cb) {
     return cb && cb(null, rs);
   });
 };
+
+service.noticeDispatchService = function noticeDispatchService() {
+
+};
+
+service.getShelfTaskSubscribeType = function getShelfTaskSubscribeType(objectId, cb) {
+  if (!objectId) {
+    return cb && cb(i18n.t('shelfObjectIdIsNull'));
+  }
+
+  shelfTaskInfo.collection.findOne({ objectId: objectId }, { fields: { editorInfo: 1 } }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if (!doc) {
+      return cb && cb(i18n.t('shelfNotFind'));
+    }
+
+    return cb && cb(null, doc);
+  });
+};
+
+service.getShelf = function getShelf(id, fieldNeed, cb) {
+  if (!id) {
+    return cb & cb(i18n.t('shelfShortId'));
+  }
+
+  shelfTaskInfo.collection.findOne({ _id: id }, { fields: utils.formatSortOrFieldsParams(fieldNeed, false) }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, doc);
+  });
+
+};
+
 module.exports = service;

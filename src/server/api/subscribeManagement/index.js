@@ -199,7 +199,6 @@ router.get('/getSubscribeInfo', (req, res) => {
   service.getSubscribeInfo(req.query, (err, docs) => res.json(result.json(err, docs)));
 });
 
-
 /**
  * @permissionGroup: subscribeInfo
  * @permissionName: 订阅管理列表
@@ -253,7 +252,6 @@ router.get('/list', (req, res) => {
   service.listSubscribeInfo(req, (err, docs) => res.json(result.json(err, docs)));
 });
 
-
 /**
  * @permissionGroup: subscribeInfo
  * @permissionName: 删除订阅公司
@@ -302,7 +300,6 @@ router.get('/list', (req, res) => {
 router.post('/delete', (req, res) => {
   service.deleteSubscribeInfo(req, (err, r) => res.json(result.json(err, r)));
 });
-
 
 /**
  * @permissionGroup: subscribeInfo
@@ -507,7 +504,6 @@ router.get('/getSubscribeType', (req, res) => {
   service.getSubscribeType(req.query, (err, docs) => res.json(result.json(err, docs)));
 });
 
-
 /**
  * @permissionGroup: subscribeType
  * @permissionName: 订阅类型列表
@@ -553,7 +549,6 @@ router.get('/getSubscribeType', (req, res) => {
 router.get('/listSubscribeType', (req, res) => {
   service.listSubscribeType(req.query, (err, docs) => res.json(result.json(err, docs)));
 });
-
 
 /**
  * @permissionGroup: subscribeType
