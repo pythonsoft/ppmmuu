@@ -525,6 +525,18 @@ module.exports = {
     code: '-50006',
     message: '下载出错:{{error}}',
   },
+  jobDistributeError: {
+    code: '-50007',
+    message: '纷发出错:{{error}}',
+  },
+  jobDistributeFieldIsNull: {
+    code: '-50008',
+    message: '纷发出错, {{field}}为空',
+  },
+  jobMediaExpressDispatchFieldIsNull: {
+    code: '-50009',
+    message: '快传出错, {{field}}为空',
+  },
   jobListParamsIsNull: {
     code: '-50010',
     message: '任务列表参数为空',
@@ -781,6 +793,10 @@ module.exports = {
     code: '-110013',
     message: '之前上架过',
   },
+  shelfObjectIdIsNull: {
+    code: '-110014',
+    message: '参数objectId为空',
+  },
   subscribeInfoHasExists: {
     code: '-120000',
     message: '该公司已有订阅信息，不能重复增加',
@@ -798,11 +814,15 @@ module.exports = {
     message: '缺少参数_ids',
   },
   subscribeTypeNotFind: {
-    code: '-12004',
+    code: '-120004',
     message: '找不到此订阅类型',
   },
+  subscribeTypeIsNull: {
+    code: '-120005',
+    message: '订阅参数type为空',
+  },
   invalidSearchParams: {
-    code: '-12005',
+    code: '-120005',
     message: '非法的搜索参数',
   },
   auditFieldIsNotExist: {

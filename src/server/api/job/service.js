@@ -22,6 +22,8 @@ const TemplateInfo = require('../template/templateInfo');
 const templateService = require('../template/service');
 const extService = require('./extService');
 const mediaService = require('../media/service');
+const shelvesService = require('../shelves/service');
+const subscribeManagementService = require('../subscribeManagement/service');
 
 const TRANSCODE_API_SERVER_URL = `http://${config.TRANSCODE_API_SERVER.hostname}:${config.TRANSCODE_API_SERVER.port}`;
 const HttpRequest = require('../../common/httpRequest');
@@ -79,7 +81,6 @@ const downloadRequest = function downloadRequest(bucketId, transferTemplateId = 
   }
 
   const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/JobService/download`;
-
   utils.requestCallApi(url, 'POST', p, '', (err, rs) => {
     if (err) {
       return cb && cb(err); // res.json(result.fail(err));
@@ -683,6 +684,87 @@ service.listAuditInfo = function listAuditInfo(req, isAll = false, cb) {
 
     return cb && cb(null, docs);
   }, '-createTime', 'name,status,createTime,lastModify,applicant,verifier');
+};
+
+//用于通知JAVA服务，有新的文件产生
+service.distribute = function distribute(userInfo, templateId, catalogInfos, cb) {
+
+  if(!utils.isEmptyObject(catalogInfo)) {
+    return cb && cb(i18n.t('jobDistributeFieldIsNull', { field: 'catalogInfo' }));
+  }
+
+  templateService.getDownloadPath(userInfo, templateId, (err, rs) => {
+
+    if(err) {
+      return cb && cb(err);
+    }
+
+    const downloadPath = rs.downloadPath;
+    const bucketId = rs.bucketInfo._id;
+
+    const downParam = {
+      "objectid": catalogInfo.objectId,
+      "inpoint": catalogInfo.inpoint, //起始帧
+      "outpoint": catalogInfo.outpoint, //结束帧
+      "filename": catalogInfo.fileInfo.name,
+      "filetypeid": "",
+      "destination": downloadPath, //相对路径，windows路径 格式 \\2017\\09\\15
+      "targetname": "" //文件名,不需要文件名后缀，非必须
+    };
+
+    for(let k in downParam) {
+      if(k !== 'inpoint' && k !== 'outpoint' && !downParam[k]) {
+        return cb && cb(i18n.t('jobDistributeFieldIsNull', { field: k }));
+      }
+    }
+
+    const p = {
+      downloadParams: downParam,
+      bucketId: bucketId,
+      distributionId: catalogInfo.objectId
+    };
+
+    const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/DistributionService/distribute`;
+
+    utils.requestCallApi(url, 'POST', p, '', (err, rs) => {
+      if (err) {
+        return cb && cb(err); // res.json(result.fail(err));
+      }
+
+      if (rs.status === '0') {
+        return cb && cb(null, 'ok');
+      }
+
+      return cb && cb(i18n.t('jobDistributeError', { error: rs.statusInfo.message }));
+    });
+
+  });
+};
+
+//获取得需要分发的用户列表以及快传的设置
+service.mediaExpressDispatch = function mediaExpressDispatch(objectId, cb) {
+  if(!objectId) {
+    return cb && cb(i18n.t('jobMediaExpressDispatchFieldIsNull', { field: 'objectId' }));
+  }
+
+  shelvesService.getShelfTaskSubscribeType(objectId, (err, doc) => {
+    if(err) {
+      return cb && cb(err);
+    }
+
+    const subscribeType = doc.subscribeType;
+
+    //拿到所有的订阅用户ID
+    subscribeManagementService.getAllSubscribeInfoByType(subscribeType, '_id', null, (err, subscribesInfo) => {
+      if(err) {
+        return cb && cb(err);
+      }
+
+
+
+    });
+
+  });
 };
 
 module.exports = service;
