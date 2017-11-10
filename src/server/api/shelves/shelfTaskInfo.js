@@ -79,4 +79,18 @@ ShelfTaskInfo.LINE_STATUS = [
   ShelfTaskInfo.STATUS.OFFLINE,
 ];
 
+ShelfTaskInfo.FILE_TYPE = {
+  SUBTITLE: 11,      // 字幕
+  HIGH_VIDEO: 5,     // 高清视频
+  LOW_CODE_VIDEO: 2, // 低码流视音频
+  VIDEO_SERVER: 3,   // 视频服务器
+  LITI_VOICE: 6,     // 立体声音频
+  DAN_VOICE: 1,      // 单声道音频
+  KEY_FRAME: 4,      // 关键帧
+  BIAO_QING: 0,      // 标清视频
+  FU_JIAN: 100,      // 附件
+  TU_WEN: 7,         // 图文
+  HEAD_PHOTO: 10,     // 肖像
+};
+
 module.exports = ShelfTaskInfo;

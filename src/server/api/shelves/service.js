@@ -759,7 +759,7 @@ service.distribute = function distribute(userInfo, templateId, shelfTaskId, cb) 
           downs.push({
             objectid: shelf.objectId,
             inpoint: file.INPOINT, // 起始帧
-            outpoint: file.OUTPOINT, // 结束帧
+            outpoint: 0, // 结束帧
             filename: file.FILENAME,
             filetypeid: file.FILETYPEID,
             destination: downloadPath, // 相对路径，windows路径 格式 \\2017\\09\\15
