@@ -893,4 +893,12 @@ module.exports = {
     code: '-150003',
     message: '凤凰卫视管理员账户没有绑定快传账户',
   },
+  jobMediaExpressDispatchIsNull: {
+    code: '-150004',
+    message: '没有可分发的参数',
+  },
+  jobMediaExpressDispatchFileCannotDownload: {
+    code: '-150005',
+    message: '分发的文件格式不支持下载',
+  },
 };

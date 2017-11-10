@@ -12,6 +12,7 @@ const result = require('../../common/result');
 const UserInfo = require('../user/userInfo');
 const AuditRuleInfo = require('../audit/auditRuleInfo');
 const AuditInfo = require('../audit/auditInfo');
+const ShelfTaskInfo = require('../shelves/shelfTaskInfo');
 
 const userInfo = new UserInfo();
 const auditRuleInfo = new AuditRuleInfo();
@@ -777,6 +778,9 @@ service.mediaExpressDispatch = function mediaExpressDispatch(shelfTaskId, filety
     let filename = '';
     for (let i = 0, len = files.length; i < len; i++) {
       if (filetypeId === files[i].FILETYPEID) {
+        if (files[i].FILETYPE !== ShelfTaskInfo.FILE_TYPE.LOW_CODE_VIDEO && files[i].FILETYPE !== ShelfTaskInfo.FILE_TYPE.HIGH_VIDEO) {
+          return cb && cb(i18n.t('jobMediaExpressDispatchFileCannotDownload'));
+        }
         filename = files[i].NAME;
         break;
       }
@@ -793,7 +797,7 @@ service.mediaExpressDispatch = function mediaExpressDispatch(shelfTaskId, filety
       const groupTemplateMap = {};
       const groupTemplateIdMap = {};
       if (!subscribesInfo || subscribesInfo.length === 0) {
-        return cb && cb(null, rs);
+        return cb && cb(i18n.t('jobMediaExpressDispatchIsNull'));
       }
       subscribesInfo.forEach((item) => {
         groupIds.push(item._id);
@@ -830,7 +834,7 @@ service.mediaExpressDispatch = function mediaExpressDispatch(shelfTaskId, filety
             }
 
             if (!docs || docs.length === 0) {
-              return cb && cb(null, rs);
+              return cb && cb(i18n.t('jobMediaExpressDispatchIsNull'));
             }
 
             const transferParams = {};
@@ -850,6 +854,15 @@ service.mediaExpressDispatch = function mediaExpressDispatch(shelfTaskId, filety
                 } else if (transferParams[key]) {
                   rs.transferParamMap.transfer.push(transferParams[key]);
                 }
+              }
+              if (rs.transferParamMap.transfer.length === 0 && rs.templateList.length === 0) {
+                return cb && cb(i18n.t('jobMediaExpressDispatchIsNull'));
+              }
+              if (rs.transferParamMap.transfer.length === 0) {
+                delete rs.transferParamMap.transfer;
+              }
+              if (rs.templateList.length === 0) {
+                delete rs.templateList;
               }
               return cb && cb(null, rs);
             });
