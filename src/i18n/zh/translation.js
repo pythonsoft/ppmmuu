@@ -885,4 +885,12 @@ module.exports = {
     code: '-150001',
     message: '没有配置下载路径,请联系管理员配置',
   },
+  phoenixAdminUserNotFind: {
+    code: '-150002',
+    message: '凤凰卫视管理员账户名字配置错误',
+  },
+  phoenixAdminUserNotConfigMediaExpress: {
+    code: '-150003',
+    message: '凤凰卫视管理员账户没有绑定快传账户',
+  },
 };

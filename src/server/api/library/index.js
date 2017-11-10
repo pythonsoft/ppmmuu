@@ -1362,8 +1362,8 @@ router.get('/getFile', (req, res) => {
  * */
 router.get('/generateXML', (req, res) => {
   xml.create(req.query.objectId, (err, xml) => {
-    if(err) {
-     return res.json(result.fail(err));
+    if (err) {
+      return res.json(result.fail(err));
     }
 
     return res.json(result.success(xml));

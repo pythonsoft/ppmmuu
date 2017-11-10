@@ -61,12 +61,8 @@ service.listSubscribeInfo = function listSubscribeInfo(req, cb) {
   basePagination(query, page, pageSize, cb);
 };
 
-service.getAllSubscribeInfoByType = function getAllSubscribeInfoByType(type, fieldsNeed, sortFields, cb) {
-  if(!type) {
-    return cb && cb(i18n.t('subscribeTypeIsNull'));
-  }
-
-  let cursor = subscribeInfo.collection.find({ subscribeType: type });
+service.getAllSubscribeInfoByQuery = function getAllSubscribeInfoByQuery(query, fieldsNeed, sortFields, cb) {
+  let cursor = subscribeInfo.collection.find(query);
 
   if (sortFields) {
     cursor.sort(utils.formatSortOrFieldsParams(sortFields, true));

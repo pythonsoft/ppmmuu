@@ -90,6 +90,7 @@ class UserInfo extends DB {
       photo: { type: 'string' },
       status: { type: 'string', default: UserInfo.STATUS.NORMAL, validation: v => utils.isValueInObject(v, UserInfo.STATUS) },
       detail: { type: 'object' },
+      mediaExpressUser: { type: 'object', default: { username: '', password: '' } },
       expiredTime: { type: 'date', default() { return new Date('9999 23:59:59'); } },
     };
   }

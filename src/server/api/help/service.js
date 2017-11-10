@@ -32,7 +32,6 @@ const unzipPackage = function unzipPackage(id, zipPath, targetDirPath, cb) {
     }
     service.update(id, VersionInfo.STATUS.UNZIP, 'unzip package success', targetDirPath, cb);
   });
-
 };
 
 const copyFile = function copyFile(originPath, targetPath, cb) {
@@ -47,7 +46,6 @@ const copyFile = function copyFile(originPath, targetPath, cb) {
 
 const readConfigJSON = function readConfigJSON(id, configPath, cb) {
   if (fs.existsSync(configPath)) {
-
     fs.readFile(configPath, { encoding: 'utf8' }, (err, data) => {
       if (err) {
         logger.error(err.message);
@@ -108,7 +106,7 @@ service.upload = function (info, creatorId, creatorName, cb) {
     const targetDirPath = path.join(config.uploadPackageTempPath, info._id);
 
     unzipPackage(info._id, zipPath, targetDirPath, (err, r) => {
-      if(err) {
+      if (err) {
         return cb && cb(err);
       }
 
@@ -168,7 +166,7 @@ service.install = function install(id, cb) {
             }
             loop(index + 1);
           });
-        }else {
+        } else {
           loop(index + 1);
         }
       };
@@ -194,11 +192,11 @@ service.update = function (id, status, log, extractPath, cb) {
   }
 
   const update = {
-    $set: updateInfo
+    $set: updateInfo,
   };
 
   if (log) {
-    update['$addToSet'] = { logs: log };
+    update.$addToSet = { logs: log };
   }
 
   versionInfo.collection.updateOne({ _id: id }, update, (err, rs) => {
@@ -209,7 +207,6 @@ service.update = function (id, status, log, extractPath, cb) {
 
     return cb && cb(null, rs);
   });
-
 };
 
 service.list = function (id, pathName, cb) {
@@ -265,7 +262,7 @@ service.readFile = function readFile(id, filePath, cb) {
     const t = path.join(doc.extractPath, filePath);
 
     fs.readFile(t, { encoding: 'utf8' }, (err, data) => {
-      if(err) {
+      if (err) {
         return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
       }
 
@@ -280,19 +277,18 @@ service.getDetail = function getDetail(id, cb) {
 
   if (!id) {
     query.status = VersionInfo.STATUS.SUCCESS;
-    options.sort = [[ 'modifyTime', -1 ]];
-  }else {
+    options.sort = [['modifyTime', -1]];
+  } else {
     query._id = id;
   }
 
   versionInfo.collection.findOne(query, options, (err, doc) => {
-    if(err) {
+    if (err) {
       return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
     }
 
     return cb && cb(null, doc);
   });
-
 };
 
 module.exports = service;

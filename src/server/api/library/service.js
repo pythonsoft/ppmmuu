@@ -491,18 +491,18 @@ service.getCatalogTask = function getCatalogTask(taskId, cb) {
   });
 };
 
-service.getCatalogByObjectId = function(objectId, fields, cb) {
+service.getCatalogByObjectId = function (objectId, fields, cb) {
   if (!objectId) {
     return cb && cb(i18n.t('libraryCatalogObjectIdIsNull'));
   }
 
   const options = {};
 
-  if(fields) {
+  if (fields) {
     options.fields = fields;
   }
 
-  catalogTaskInfo.collection.findOne({ objectId: objectId }, options, (err, doc) => {
+  catalogTaskInfo.collection.findOne({ objectId }, options, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -710,7 +710,7 @@ service.updateFile = function updateFile(id, info = {}, cb) {
 
   info.lastModifyTime = new Date();
 
-  if(info._id) {
+  if (info._id) {
     delete info._id;
   }
 

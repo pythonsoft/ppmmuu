@@ -301,9 +301,7 @@ const createWhitelistInfo = function createWhitelistInfo(whiteList) {
 };
 
 const createAuditDepartment = function createAuditDepartment(permissionType, auditDepartment) {
-
   if (permissionType === AuditRuleInfo.PERMISSTION_TYPE.AUDIT) {
-
     if (!auditDepartment) {
       return { err: i18n.t('auditRuleFieldIsNotExist', { field: 'auditDepartment' }), doc: null };
     }
