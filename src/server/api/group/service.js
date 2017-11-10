@@ -316,6 +316,44 @@ service.deleteGroup = function deleteGroup(id, cb) {
   });
 };
 
+const getMediaExpressUserInfo = function getMediaExpressUserInfo(mediaExpressUser, cb){
+  if(!mediaExpressUser || !mediaExpressUser.username){
+    return cb && cb(null, { username: '', password: '', userType: '', companyName: '', email: '' });
+  }
+
+  const loginForm = {
+    email: mediaExpressUser.username,
+    password: mediaExpressUser.password,
+  };
+
+  let url = `${config.mediaExpressUrl}login`;
+  utils.requestCallApiGetCookie(url, 'POST', loginForm, '', (err, cookie) => {
+    if (err) {
+      return cb && cb(err);
+    }
+    if (!cookie) {
+      return cb && cb(i18n.t('bindMediaExpressUserNeedRefresh'));
+    }
+
+    url = `${config.mediaExpressUrl}user/detail?t=${new Date().getTime()}`;
+    utils.requestCallApi(url, 'GET', '', cookie, (err, rs) => {
+      if (err) {
+        return cb && cb(err);
+      }
+      if (rs.status !== 0) {
+        return cb && cb(i18n.t('requestCallApiError', { error: rs.result }));
+      }
+
+      mediaExpressUser.userType = rs.result.roleType;
+      mediaExpressUser.companyName = rs.result.orgId ? rs.result.orgId.name : '';
+      mediaExpressUser.email = rs.result.email;
+      return cb && cb(null, mediaExpressUser);
+    });
+  });
+}
+
+service.getMediaExpressUserInfo = getMediaExpressUserInfo;
+
 service.updateGroupInfo = function updateGroupInfo(info, cb) {
   const struct = {
     _id: { type: 'string', validation: 'require' },
@@ -327,13 +365,21 @@ service.updateGroupInfo = function updateGroupInfo(info, cb) {
     return cb && cb(err);
   }
 
-  groupInfo.collection.updateOne({ _id: info._id }, { $set: info }, (err) => {
-    if (err) {
-      logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
-    }
+  const mediaExpressUser = info.mediaExpressUser || '';
 
-    return cb && cb(null, 'ok');
+  getMediaExpressUserInfo(mediaExpressUser, function(err, mediaExpressUser) {
+    if(err){
+      return cb && cb(err);
+    }
+    info.mediaExpressUser = mediaExpressUser;
+    groupInfo.collection.updateOne({_id: info._id}, {$set: info}, (err, r) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      return cb && cb(null, info);
+    });
   });
 };
 
@@ -373,6 +419,29 @@ service.bindMediaExpress = function bindMediaExpress(info, cb) {
 
       return cb && cb(null, 'ok');
     });
+  });
+};
+
+
+service.getGroupInfoByQuery = function getGroupInfoByQuery(query, fieldsNeed, sortFields, cb) {
+
+  let cursor = groupInfo.collection.find(query);
+
+  if (sortFields) {
+    cursor.sort(utils.formatSortOrFieldsParams(sortFields, true));
+  }
+
+  if (fieldsNeed) {
+    cursor = cursor.project(utils.formatSortOrFieldsParams(fieldsNeed, false));
+  }
+
+  cursor.toArray((err, items) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, items);
   });
 };
 

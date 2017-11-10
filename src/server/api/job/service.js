@@ -24,6 +24,7 @@ const extService = require('./extService');
 const mediaService = require('../media/service');
 const shelvesService = require('../shelves/service');
 const subscribeManagementService = require('../subscribeManagement/service');
+const groupService = require('../group/service');
 
 const TRANSCODE_API_SERVER_URL = `http://${config.TRANSCODE_API_SERVER.hostname}:${config.TRANSCODE_API_SERVER.port}`;
 const HttpRequest = require('../../common/httpRequest');
@@ -686,115 +687,177 @@ service.listAuditInfo = function listAuditInfo(req, isAll = false, cb) {
   }, '-createTime', 'name,status,createTime,lastModify,applicant,verifier');
 };
 
-/**
- * 用于通知JAVA服务，有新的文件产生
- * @param userInfo {Object} 这个是下载模板中的脚本解析需要使用
- * @param templateId {String} 下载模板ID
- * @param objectId {String} 上架内容的objectId
- * @param cb
- * @returns {*}
- */
-service.distribute = function distribute(userInfo, templateId, shelfTaskId, cb) {
 
-  if(!utils.isEmptyObject(userInfo)) {
-    return cb && cb(i18n.t('jobDistributeFieldIsNull', { field: 'userInfo' }));
-  }
+//构造快传传输参数
+const getMultiTransferParams = function getMultiTransferParams(username, password, mediaExpressUser, cb){
+  const transferParams = {
+    captcha: '',
+    alias: '',
+    encrypt: 0, // 加密类型，0无加密，1软加密
+    receiver: '', // 接收人邮箱 chaoningx@phoenixtv.com
+    TransferMode: 'direct',   // direct/direct 直传非直传
+    hasCaptcha: 'false',
+    userName: username, // 快传帐户
+    password: password,  // 快传密码
+  };
 
-  if(!templateId) {
-    return cb && cb(i18n.t('jobDistributeFieldIsNull', { field: 'templateId' }));
-  }
-
-  if(!shelfTaskId) {
-    return cb && cb(i18n.t('jobDistributeFieldIsNull', { field: 'objectId' }));
-  }
-
-  //拿到下载模版信息
-  templateService.getDownloadPath(userInfo, templateId, (err, rs) => {
-
-    if(err) {
+  groupService.getMediaExpressUserInfo(mediaExpressUser, (err, mediaExpressUser) => {
+    if (err) {
       return cb && cb(err);
     }
 
-    const downloadPath = rs.downloadPath;
-    const bucketId = rs.bucketInfo._id;
+    transferParams.receiver = mediaExpressUser.email;
 
-    shelvesService.getShelf(shelfTaskId, '_id,objectId,files', (err, shelf) => {
-      if(err) {
-        return cb && cb(err);
-      }
-
-      if(!shelf) {
-        return cb && cb(i18n.t('shelfInfoIsNull'));
-      }
-
-      const downs = [];
-      let file = null;
-
-      //目前只有MAM数据源时这样处理是可以了，但是如果添加了新的数据源，此处需要变更
-      if(shelf.details.OBJECTID) {
-        for(let i = 0, len = shelf.files.length; i < len; i++) {
-          file = shelf.files[i];
-          downs.push({
-            "objectid": shelf.objectId,
-            "inpoint": file.INPOINT, //起始帧
-            "outpoint": file.OUTPOINT, //结束帧
-            "filename": file.FILENAME,
-            "filetypeid": file.FILETYPEID,
-            "destination": downloadPath, //相对路径，windows路径 格式 \\2017\\09\\15
-            "targetname": "" //文件名,不需要文件名后缀，非必须
-          });
-        }
-      }else {
-        return cb && cb(i18n.t('jobSourceNotSupport'));
-      }
-
-      const p = {
-        downloadParams: downs,
-        bucketId: bucketId,
-        distributionId: objectId,
-      };
-
-      const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/DistributionService/distribute`;
-
-      utils.requestCallApi(url, 'POST', p, '', (err, rs) => {
-        if (err) {
-          return cb && cb(err);
-        }
-
-        if (rs.status === '0') {
-          return cb && cb(null, 'ok');
-        }
-
-        return cb && cb(i18n.t('jobDistributeError', { error: rs.statusInfo.message }));
-      });
-
-    });
-
-
+    return cb && cb(null, transferParams);
   });
-};
+}
+
+const loopGetTransferParams = function loopGetTransferParams(groups, username, password, index, rs, cb){
+  if(index >= groups.length){
+    return cb && cb(null);
+  }
+
+  if(!groups[index].mediaExpressUser || !groups[index].mediaExpressUser.username){
+    loopGetTransferParams(groups, username, password, index + 1, rs, cb);
+  }else {
+    getMultiTransferParams(username, password, groups[index].mediaExpressUser, function(err, transferParams){
+      if(err){
+        logger.error(err.message);
+        loopGetTransferParams(groups, username, password, index + 1, rs, cb);
+      }else{
+        rs[groups[index]._id] = transferParams;
+        loopGetTransferParams(groups, username, password, index + 1, rs, cb);
+      }
+    })
+  }
+}
+
+const loopGetTranscodeTemplateId = function loopGetTranscodeTemplateId(groupIds, groupTemplateMap, filename, index, rs, cb){
+  if(index >= groupIds.length){
+    return cb && cb(null);
+  }
+  const groupId = groupIds[index];
+  const transcodeTemplateDetail = groupTemplateMap[groupId];
+  templateService.getTranscodeTemplateByDetail({transcodeTemplateDetail:transcodeTemplateDetail}, filename, function(err, transcodeTemplateId){
+    if(err){
+      logger.error(err.messsage);
+      rs[groupId] = '';
+      loopGetTranscodeTemplateId(groupIds, groupTemplateMap, filename, index + 1, rs, cb);
+    }else{
+      rs[groupId] = transcodeTemplateId;
+      loopGetTranscodeTemplateId(groupIds, groupTemplateMap, filename, index + 1, rs, cb);
+    }
+  });
+}
 
 //获取得需要分发的用户列表以及快传的设置
-service.mediaExpressDispatch = function mediaExpressDispatch(objectId, cb) {
-  if(!objectId) {
-    return cb && cb(i18n.t('jobMediaExpressDispatchFieldIsNull', { field: 'objectId' }));
+service.mediaExpressDispatch = function mediaExpressDispatch(shelfTaskId, filetypeId, cb) {
+  if(!shelfTaskId) {
+    return cb && cb(i18n.t('jobMediaExpressDispatchFieldIsNull', { field: 'shelfTaskId' }));
   }
 
-  shelvesService.getShelfTaskSubscribeType(objectId, (err, doc) => {
+  if(!filetypeId) {
+    return cb && cb(i18n.t('jobMediaExpressDispatchFieldIsNull', { field: 'filetypeId' }));
+  }
+
+  const rs = {
+    templateList: [],
+    transferParamMap: {
+      transfer: []
+    }
+  }
+
+  shelvesService.getShelfTaskSubscribeType(shelfTaskId, (err, doc) => {
     if(err) {
       return cb && cb(err);
     }
 
-    const subscribeType = doc.subscribeType;
+    const subscribeType = doc.editorInfo.subscribeType;
+    const objectId = doc.objectId;
+    const query = { subscribeType: subscribeType, autoPush: true };
+    const files = doc.files
+    let filename = '';
+    for(let i = 0, len = files.length; i < len; i++){
+      if(filetypeId === files[i].FILETYPEID){
+        filename = files[i].NAME;
+        break;
+      }
+    }
 
     //拿到所有的订阅用户ID
-    subscribeManagementService.getAllSubscribeInfoByType(subscribeType, '_id', null, (err, subscribesInfo) => {
+    subscribeManagementService.getAllSubscribeInfoByQuery(query, '_id,transcodeTemplateDetail', null, (err, subscribesInfo) => {
       if(err) {
         return cb && cb(err);
       }
 
-      //todo 这里要拿到订阅用户的传输配置
+      //拿到订阅用户的传输配置
+      const groupIds = [];
+      const groupTemplateMap = {};
+      const groupTemplateIdMap = {};
+      if(!subscribesInfo || subscribesInfo.length === 0){
+        return cb && cb(null, rs);
+      }
+      subscribesInfo.forEach(function(item){
+        groupIds.push(item._id);
+        groupTemplateMap[item._id] = item.transcodeTemplateDetail;
+      })
 
+      loopGetTranscodeTemplateId(groupIds, groupTemplateMap, filename, 0, groupTemplateIdMap, function(err) {
+        if(err){
+          return cb && cb(err);
+        }
+        //找到凤凰卫视的管理员账号配置的快传用户名和密码
+        userInfo.collection.findOne({name: config.phoenixAdminUserName}, function (err, doc) {
+          if (err) {
+            logger.error(err.message);
+            return cb && cb(i18n.t('databaseError'));
+          }
+          if (!doc) {
+            return cb && cb(i18n.t('phoenixAdminUserNotFind'));
+          }
+
+          const mediaExpressUser = doc.mediaExpressUser || '';
+          if (!mediaExpressUser || !mediaExpressUser.username) {
+            return cb && cb(i18n.t('phoenixAdminUserNotConfigMediaExpress'));
+          }
+          const username = mediaExpressUser.username;
+          const password = mediaExpressUser.password;
+
+          groupService.getGroupInfoByQuery({
+            _id: {$in: groupIds},
+            'mediaExpressUser.username': {$ne: ''}
+          }, '_id,mediaExpressUser', '', function (err, docs) {
+            if (err) {
+              return cb && cb(err);
+            }
+
+            if (!docs || docs.length === 0) {
+              return cb && cb(null, rs);
+            }
+
+            const transferParams = {};
+            loopGetTransferParams(docs, username, password, 0, transferParams, function (err) {
+              if (err) {
+                return cb && cb(err);
+              }
+              for(let key in groupTemplateIdMap){
+                if(groupTemplateIdMap[key] && transferParams[key]){
+                  if(rs.transferParamMap.hasOwnProperty(groupTemplateIdMap[key])){
+                    rs.transferParamMap[groupTemplateIdMap[key]].push(transferParams[key]);
+                  }else{
+                    rs.templateList.push(groupTemplateIdMap[key]);
+                    rs.transferParamMap[groupTemplateIdMap[key]] = [];
+                    rs.transferParamMap[groupTemplateIdMap[key]].push(transferParams[key]);
+                  }
+                }else if(transferParams[key]){
+                  rs.transferParamMap.transfer.push(transferParams[key]);
+                }
+              }
+              return cb && cb(null, rs);
+            })
+          })
+        })
+      })
     });
 
   });

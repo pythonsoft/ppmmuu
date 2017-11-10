@@ -239,18 +239,19 @@ const exec = function exec(userInfo, bucketInfo, execScript, pathsInfo = []) {
   const year = t.getFullYear();
   const month = fixed(`${t.getMonth() + 1}`);
   const day = fixed(`${t.getDate()}`);
-
+  const paths = {};
   const sandbox = {
     userInfo,
     bucketInfo,
     year,
     month,
     day,
+    paths,
     result: '',
   };
 
   for (let i = 0, l = pathsInfo.length; i < l; i++) {
-    sandbox[pathsInfo[i]._id] = pathsInfo[i];
+    sandbox.paths[pathsInfo[i]._id] = pathsInfo[i];
   }
 
   const rs = { err: null, result: '' };
@@ -275,7 +276,7 @@ const exec = function exec(userInfo, bucketInfo, execScript, pathsInfo = []) {
 const runDownloadScript = function runDownloadScript(userInfo, bucketInfo, script, cb) {
   // const pathId =${ paths.pathId }
   let execScript = script.replace(/(\r\n|\n|\r)/gm, '');
-  const paths = execScript.match(/\$\{paths.([0-9a-zA-Z]+)\}/g) || [];
+  const paths = execScript.match(/paths.([0-9a-zA-Z]+)/g) || [];
   const len = paths.length;
   const pathIds = [];
   let temp = '';
@@ -286,8 +287,7 @@ const runDownloadScript = function runDownloadScript(userInfo, bucketInfo, scrip
   }
 
   if (pathIds.length === 0) {
-    const rs = exec(userInfo, bucketInfo, execScript);
-    return cb && cb(rs.err, rs.result);
+    return cb && cb(i18n.t('templatePathIsNotExist'));
   }
 
   storageService.getPaths(pathIds, (err, docs) => {
@@ -664,6 +664,14 @@ service.getTranscodeTemplate = function getTranscodeTemplate(id, filePath, cb) {
     filterTranscodeTemplates(doc, fileInfo, cb);
   });
 };
+
+service.getTranscodeTemplateByDetail = function getTranscodeTemplateByDetail(doc, filePath, cb){
+  const fileInfo = {};
+  fileInfo.ext = path.extname(filePath);
+  fileInfo.name = path.basename(filePath).replace(fileInfo.ext, '');
+
+  filterTranscodeTemplates(doc, fileInfo, cb);
+}
 
 service.searchUserOrGroup = function searchUserOrGroup(info, cb) {
   roleService.searchUserOrGroup(info, cb);

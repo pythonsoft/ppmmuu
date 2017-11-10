@@ -424,4 +424,41 @@ router.get('/deleteTemplate', (req, res) => {
   service.deleteTemplate({ id }, res);
 });
 
+
+/**
+ * @apiName: mediaExpressDispatch
+ * @apiFuncType: get
+ * @apiFuncUrl: /job/mediaExpressDispatch
+ * @swagger
+ * /job/mediaExpressDispatch:
+ *   get:
+ *     description: mediaExpressDispatch
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: distributionId
+ *         type: string
+ *         require: true
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: filetypeId
+ *         require: true
+ *         type: string
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: templateList
+ */
+router.get('/mediaExpressDispatch', (req, res) => {
+  const shelfTaskId = req.query.distributionId;
+  const filetypeId = req.query.filetypeId;
+  service.mediaExpressDispatch(shelfTaskId, filetypeId, (err, rs)=>{
+    return res.json(result.json(err, rs));
+  })
+});
+
 module.exports = router;
