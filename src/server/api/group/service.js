@@ -316,8 +316,8 @@ service.deleteGroup = function deleteGroup(id, cb) {
   });
 };
 
-const getMediaExpressUserInfo = function getMediaExpressUserInfo(mediaExpressUser, cb){
-  if(!mediaExpressUser || !mediaExpressUser.username){
+const getMediaExpressUserInfo = function getMediaExpressUserInfo(mediaExpressUser, cb) {
+  if (!mediaExpressUser || !mediaExpressUser.username) {
     return cb && cb(null, { username: '', password: '', userType: '', companyName: '', email: '' });
   }
 
@@ -350,7 +350,7 @@ const getMediaExpressUserInfo = function getMediaExpressUserInfo(mediaExpressUse
       return cb && cb(null, mediaExpressUser);
     });
   });
-}
+};
 
 service.getMediaExpressUserInfo = getMediaExpressUserInfo;
 
@@ -367,12 +367,12 @@ service.updateGroupInfo = function updateGroupInfo(info, cb) {
 
   const mediaExpressUser = info.mediaExpressUser || '';
 
-  getMediaExpressUserInfo(mediaExpressUser, function(err, mediaExpressUser) {
-    if(err){
+  getMediaExpressUserInfo(mediaExpressUser, (err, mediaExpressUser) => {
+    if (err) {
       return cb && cb(err);
     }
     info.mediaExpressUser = mediaExpressUser;
-    groupInfo.collection.updateOne({_id: info._id}, {$set: info}, (err, r) => {
+    groupInfo.collection.updateOne({ _id: info._id }, { $set: info }, (err, r) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
@@ -424,7 +424,6 @@ service.bindMediaExpress = function bindMediaExpress(info, cb) {
 
 
 service.getGroupInfoByQuery = function getGroupInfoByQuery(query, fieldsNeed, sortFields, cb) {
-
   let cursor = groupInfo.collection.find(query);
 
   if (sortFields) {

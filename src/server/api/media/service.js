@@ -96,7 +96,7 @@ service.defaultMediaList = function defaultMediaList(cb, userId) {
             logger.error(err.message);
           }
 
-          if(!rs) {
+          if (!rs) {
             rs = [];
           }
 

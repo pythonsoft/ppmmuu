@@ -665,13 +665,13 @@ service.getTranscodeTemplate = function getTranscodeTemplate(id, filePath, cb) {
   });
 };
 
-service.getTranscodeTemplateByDetail = function getTranscodeTemplateByDetail(doc, filePath, cb){
+service.getTranscodeTemplateByDetail = function getTranscodeTemplateByDetail(doc, filePath, cb) {
   const fileInfo = {};
   fileInfo.ext = path.extname(filePath);
   fileInfo.name = path.basename(filePath).replace(fileInfo.ext, '');
 
   filterTranscodeTemplates(doc, fileInfo, cb);
-}
+};
 
 service.searchUserOrGroup = function searchUserOrGroup(info, cb) {
   roleService.searchUserOrGroup(info, cb);

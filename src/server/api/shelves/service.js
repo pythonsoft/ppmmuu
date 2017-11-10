@@ -546,7 +546,7 @@ service.onlineShelfTask = function onlineShelfTask(req, cb) {
       return cb && cb(i18n.t('shelfExistNotSubmittedStatus'));
     }
     const updateInfo = {
-      //status: ShelfTaskInfo.STATUS.ONLINE,
+      status: ShelfTaskInfo.STATUS.ONLINE,
       lastOnliner: {
         _id: userInfo._id,
         name: userInfo.name,
@@ -559,19 +559,17 @@ service.onlineShelfTask = function onlineShelfTask(req, cb) {
         return cb && cb(i18n.t('databaseError'));
       }
 
-      const loopDistribute = function loopDistribute(index, callback){
-        if(index >= _ids.length){
+      const loopDistribute = function loopDistribute(index, callback) {
+        if (index >= _ids.length) {
           return callback && callback(null);
         }
 
-        service.distribute(userInfo, '', _ids[index], function(err){
-          loopDistribute(index+1, callback);
-        })
-      }
+        service.distribute(userInfo, '', _ids[index], () => {
+          loopDistribute(index + 1, callback);
+        });
+      };
 
-      loopDistribute(0, function(){
-        return cb && cb(null, 'ok');
-      });
+      loopDistribute(0, () => cb && cb(null, 'ok'));
     });
   });
 };
@@ -706,7 +704,6 @@ service.getShelf = function getShelf(id, fieldNeed, cb) {
 
     return cb && cb(null, doc);
   });
-
 };
 
 /**
@@ -718,26 +715,25 @@ service.getShelf = function getShelf(id, fieldNeed, cb) {
  * @returns {*}
  */
 service.distribute = function distribute(userInfo, templateId, shelfTaskId, cb) {
-  if(!templateId){
+  if (!templateId) {
     templateId = config.subscribeDownloadTemplateId;
   }
 
-  if(utils.isEmptyObject(userInfo)) {
+  if (utils.isEmptyObject(userInfo)) {
     return cb && cb(i18n.t('jobDistributeFieldIsNull', { field: 'userInfo' }));
   }
 
-  if(!templateId) {
+  if (!templateId) {
     return cb && cb(i18n.t('jobDistributeFieldIsNull', { field: 'templateId' }));
   }
 
-  if(!shelfTaskId) {
+  if (!shelfTaskId) {
     return cb && cb(i18n.t('jobDistributeFieldIsNull', { field: 'objectId' }));
   }
 
-  //拿到下载模版信息
+  // 拿到下载模版信息
   templateService.getDownloadPath(userInfo, templateId, (err, rs) => {
-
-    if(err) {
+    if (err) {
       return cb && cb(err);
     }
 
@@ -745,38 +741,38 @@ service.distribute = function distribute(userInfo, templateId, shelfTaskId, cb) 
     const bucketId = rs.bucketInfo._id;
 
     service.getShelf(shelfTaskId, '_id,objectId,files', (err, shelf) => {
-      if(err) {
+      if (err) {
         return cb && cb(err);
       }
 
-      if(!shelf) {
+      if (!shelf) {
         return cb && cb(i18n.t('shelfInfoIsNull'));
       }
 
       const downs = [];
       let file = null;
 
-      //目前只有MAM数据源时这样处理是可以了，但是如果添加了新的数据源，此处需要变更
-      if(shelf.objectId) {
-        for(let i = 0, len = shelf.files.length; i < len; i++) {
+      // 目前只有MAM数据源时这样处理是可以了，但是如果添加了新的数据源，此处需要变更
+      if (shelf.objectId) {
+        for (let i = 0, len = shelf.files.length; i < len; i++) {
           file = shelf.files[i];
           downs.push({
-            "objectid": shelf.objectId,
-            "inpoint": file.INPOINT, //起始帧
-            "outpoint": file.OUTPOINT, //结束帧
-            "filename": file.FILENAME,
-            "filetypeid": file.FILETYPEID,
-            "destination": downloadPath, //相对路径，windows路径 格式 \\2017\\09\\15
-            "targetname": "" //文件名,不需要文件名后缀，非必须
+            objectid: shelf.objectId,
+            inpoint: file.INPOINT, // 起始帧
+            outpoint: file.OUTPOINT, // 结束帧
+            filename: file.FILENAME,
+            filetypeid: file.FILETYPEID,
+            destination: downloadPath, // 相对路径，windows路径 格式 \\2017\\09\\15
+            targetname: '', // 文件名,不需要文件名后缀，非必须
           });
         }
-      }else {
+      } else {
         return cb && cb(i18n.t('jobSourceNotSupport'));
       }
 
       const p = {
         downloadParams: JSON.stringify(downs),
-        bucketId: bucketId,
+        bucketId,
         distributionId: shelf._id,
       };
 
@@ -793,10 +789,7 @@ service.distribute = function distribute(userInfo, templateId, shelfTaskId, cb) 
 
         return cb && cb(i18n.t('jobDistributeError', { error: rs.statusInfo.message }));
       });
-
     });
-
-
   });
 };
 

@@ -7,8 +7,8 @@ const CatalogInfo = require('./catalogInfo');
 const getKeyByValue = function getKeyByValue(t, value) {
   let rs = '';
 
-  for(let k in t) {
-    if(k[t] === value) {
+  for (const k in t) {
+    if (k[t] === value) {
       rs = k;
       break;
     }
@@ -22,22 +22,22 @@ const xml = {};
 const SPLIT_FLAG = '\n';
 
 xml.create = function create(objectId, cb) {
-  if(!objectId) {
+  if (!objectId) {
     return cb && cb(i18n.t('libraryObjectIdIsNull'));
   }
 
   service.getCatalogByObjectId(objectId, { name: 1, description: 1 }, (err, task) => {
-    if(err) {
+    if (err) {
       return cb && cb(err);
     }
 
     service.listCatalog(objectId, (err, catalogs) => {
-      if(err) {
+      if (err) {
         return cb && cb(err);
       }
 
       service.listFile(objectId, (err, files) => {
-        if(err) {
+        if (err) {
           return cb && cb(err);
         }
 
@@ -46,66 +46,64 @@ xml.create = function create(objectId, cb) {
         let file = null;
         let catalog = null;
 
-        for(let i = 0, len = files.length; i < len; i++) {
+        for (let i = 0, len = files.length; i < len; i++) {
           file = files[i];
           fileList.push([
             '<file>',
-              '<id>'+ file._id +'</id>',
-              '<name>'+ file.name +'</name>',
-              '<size>'+ file.size +'</size>',
-              '<realPath>'+ file.realPath +'</realPath>',
-              '<path>'+ file.path +'</path>',
-              '<type>'+ getKeyByValue(FileInfo.TYPE, file.type) +'</type>',
-              '<available>'+ getKeyByValue(FileInfo.AVAILABLE, file.available) +'</available>',
-              '<status>'+ getKeyByValue(FileInfo.STATUS, file.status) +'</status>',
-              '<archivePath>'+ file.archivePath +'</archivePath>',
-              '<description>'+ file.description +'</description>',
+            `<id>${file._id}</id>`,
+            `<name>${file.name}</name>`,
+            `<size>${file.size}</size>`,
+            `<realPath>${file.realPath}</realPath>`,
+            `<path>${file.path}</path>`,
+            `<type>${getKeyByValue(FileInfo.TYPE, file.type)}</type>`,
+            `<available>${getKeyByValue(FileInfo.AVAILABLE, file.available)}</available>`,
+            `<status>${getKeyByValue(FileInfo.STATUS, file.status)}</status>`,
+            `<archivePath>${file.archivePath}</archivePath>`,
+            `<description>${file.description}</description>`,
             '</file>',
           ].join(SPLIT_FLAG));
-        };
+        }
 
-        for(let j = 0, l = catalogs.length; j < l; j++) {
+        for (let j = 0, l = catalogs.length; j < l; j++) {
           catalog = catalogs[j];
           catalogInfo.push([
             '<catalogInfo>',
-              '<id>'+ catalog._id +'</id>',
-              '<fileId>'+ catalog.fileInfo._id +'</fileId>',
-              '<englishName>'+ catalog.englishName +'</englishName>',
-              '<chineseName>'+ catalog.chineseName +'</chineseName>',
-              '<parentId>'+ catalog.parentId +'</parentId>',
-              '<keyword>'+ catalog.keyword +'</keyword>',
-              '<content>'+ catalog.content +'</content>',
-              '<source>'+ catalog.source +'</source>',
-              '<version>'+ catalog.version +'</version>',
-              '<duration>'+ catalog.duration +'</duration>',
-              '<keyman>'+ catalog.keyman +'</keyman>',
-              '<language>'+ catalog.language +'</language>',
-              '<root>'+ catalog.root +'</root>',
-              '<type>'+ catalog.englishName +'</type>',
-              '<inpoint>'+ catalog.inpoint +'</inpoint>',
-              '<outpoint>'+ catalog.outpoint +'</outpoint>',
-              '<available>'+ getKeyByValue(CatalogInfo.AVAILABLE, catalog.available) +'</available>',
-              '<materialDate>'+ catalog.materialDate.toString() +'</materialDate>',
+            `<id>${catalog._id}</id>`,
+            `<fileId>${catalog.fileInfo._id}</fileId>`,
+            `<englishName>${catalog.englishName}</englishName>`,
+            `<chineseName>${catalog.chineseName}</chineseName>`,
+            `<parentId>${catalog.parentId}</parentId>`,
+            `<keyword>${catalog.keyword}</keyword>`,
+            `<content>${catalog.content}</content>`,
+            `<source>${catalog.source}</source>`,
+            `<version>${catalog.version}</version>`,
+            `<duration>${catalog.duration}</duration>`,
+            `<keyman>${catalog.keyman}</keyman>`,
+            `<language>${catalog.language}</language>`,
+            `<root>${catalog.root}</root>`,
+            `<type>${catalog.englishName}</type>`,
+            `<inpoint>${catalog.inpoint}</inpoint>`,
+            `<outpoint>${catalog.outpoint}</outpoint>`,
+            `<available>${getKeyByValue(CatalogInfo.AVAILABLE, catalog.available)}</available>`,
+            `<materialDate>${catalog.materialDate.toString()}</materialDate>`,
             '</catalogInfo>',
           ].join(SPLIT_FLAG));
-        };
+        }
 
         const template = [
           '<archive_main>',
-            '<objectId>'+ objectId +'</objectId>',
-            '<name>'+ task.name +'</name>',
-            '<description>'+ task.description +'</description>',
-            '<fileList>'+ fileList.join('') +'</fileList>',
-            '<catalogInfoList>'+ catalogInfo.join('') +'</catalogInfoList>',
+          `<objectId>${objectId}</objectId>`,
+          `<name>${task.name}</name>`,
+          `<description>${task.description}</description>`,
+          `<fileList>${fileList.join('')}</fileList>`,
+          `<catalogInfoList>${catalogInfo.join('')}</catalogInfoList>`,
           '</archive_main>',
         ];
 
         return cb && cb(null, template.join(SPLIT_FLAG));
       });
     });
-
   });
-
 };
 
 module.exports = xml;

@@ -204,24 +204,24 @@ const transcodeAndTransfer = function transcodeAndTransfer(bucketId, receiverId,
 service.listTemplate = extService.listTemplate;
 
 service.jugeTemplateAuditAndCreateAudit = function jugeTemplateAuditAndCreateAudit(info, cb) {
-  if(utils.isEmptyObject(info)) {
+  if (utils.isEmptyObject(info)) {
     return cb && cb(i18n.t('jobDownloadParamsIsNull'));
   }
 
-  mediaService.getObject({ objectid: info.objectid }, (err, rs, fromWhere='mam') => {
-    if(err) {
+  mediaService.getObject({ objectid: info.objectid }, (err, rs, fromWhere = 'mam') => {
+    if (err) {
       return cb && cb(err);
     }
-    //fromWhere说明是哪里来的数据，如果是mam的那么所属部门的字段为detail里边的FIELD314
+    // fromWhere说明是哪里来的数据，如果是mam的那么所属部门的字段为detail里边的FIELD314
 
-    if(rs.status !== '0') {
+    if (rs.status !== '0') {
       return cb && cb(rs.result);
     }
 
     let ownerName = '';
 
-    if(fromWhere === 'mam') {
-      if(rs.result && rs.result.detail && rs.result.detail.program && rs.result.detail.program.FIELD314 && rs.result.detail.program.FIELD314.value) {
+    if (fromWhere === 'mam') {
+      if (rs.result && rs.result.detail && rs.result.detail.program && rs.result.detail.program.FIELD314 && rs.result.detail.program.FIELD314.value) {
         ownerName = rs.result.detail.program.FIELD314.value;
       }
     }
@@ -302,7 +302,6 @@ service.jugeTemplateAuditAndCreateAudit = function jugeTemplateAuditAndCreateAud
         });
       });
     });
-
   });
 };
 
@@ -688,8 +687,8 @@ service.listAuditInfo = function listAuditInfo(req, isAll = false, cb) {
 };
 
 
-//构造快传传输参数
-const getMultiTransferParams = function getMultiTransferParams(username, password, mediaExpressUser, cb){
+// 构造快传传输参数
+const getMultiTransferParams = function getMultiTransferParams(username, password, mediaExpressUser, cb) {
   const transferParams = {
     captcha: '',
     alias: '',
@@ -698,7 +697,7 @@ const getMultiTransferParams = function getMultiTransferParams(username, passwor
     TransferMode: 'direct',   // direct/direct 直传非直传
     hasCaptcha: 'false',
     userName: username, // 快传帐户
-    password: password,  // 快传密码
+    password,  // 快传密码
   };
 
   groupService.getMediaExpressUserInfo(mediaExpressUser, (err, mediaExpressUser) => {
@@ -710,104 +709,103 @@ const getMultiTransferParams = function getMultiTransferParams(username, passwor
 
     return cb && cb(null, transferParams);
   });
-}
+};
 
-const loopGetTransferParams = function loopGetTransferParams(groups, username, password, index, rs, cb){
-  if(index >= groups.length){
+const loopGetTransferParams = function loopGetTransferParams(groups, username, password, index, rs, cb) {
+  if (index >= groups.length) {
     return cb && cb(null);
   }
 
-  if(!groups[index].mediaExpressUser || !groups[index].mediaExpressUser.username){
+  if (!groups[index].mediaExpressUser || !groups[index].mediaExpressUser.username) {
     loopGetTransferParams(groups, username, password, index + 1, rs, cb);
-  }else {
-    getMultiTransferParams(username, password, groups[index].mediaExpressUser, function(err, transferParams){
-      if(err){
+  } else {
+    getMultiTransferParams(username, password, groups[index].mediaExpressUser, (err, transferParams) => {
+      if (err) {
         logger.error(err.message);
         loopGetTransferParams(groups, username, password, index + 1, rs, cb);
-      }else{
+      } else {
         rs[groups[index]._id] = transferParams;
         loopGetTransferParams(groups, username, password, index + 1, rs, cb);
       }
-    })
+    });
   }
-}
+};
 
-const loopGetTranscodeTemplateId = function loopGetTranscodeTemplateId(groupIds, groupTemplateMap, filename, index, rs, cb){
-  if(index >= groupIds.length){
+const loopGetTranscodeTemplateId = function loopGetTranscodeTemplateId(groupIds, groupTemplateMap, filename, index, rs, cb) {
+  if (index >= groupIds.length) {
     return cb && cb(null);
   }
   const groupId = groupIds[index];
   const transcodeTemplateDetail = groupTemplateMap[groupId];
-  templateService.getTranscodeTemplateByDetail({transcodeTemplateDetail:transcodeTemplateDetail}, filename, function(err, transcodeTemplateId){
-    if(err){
+  templateService.getTranscodeTemplateByDetail({ transcodeTemplateDetail }, filename, (err, transcodeTemplateId) => {
+    if (err) {
       logger.error(err.messsage);
       rs[groupId] = '';
       loopGetTranscodeTemplateId(groupIds, groupTemplateMap, filename, index + 1, rs, cb);
-    }else{
+    } else {
       rs[groupId] = transcodeTemplateId;
       loopGetTranscodeTemplateId(groupIds, groupTemplateMap, filename, index + 1, rs, cb);
     }
   });
-}
+};
 
-//获取得需要分发的用户列表以及快传的设置
+// 获取得需要分发的用户列表以及快传的设置
 service.mediaExpressDispatch = function mediaExpressDispatch(shelfTaskId, filetypeId, cb) {
-  if(!shelfTaskId) {
+  if (!shelfTaskId) {
     return cb && cb(i18n.t('jobMediaExpressDispatchFieldIsNull', { field: 'shelfTaskId' }));
   }
 
-  if(!filetypeId) {
+  if (!filetypeId) {
     return cb && cb(i18n.t('jobMediaExpressDispatchFieldIsNull', { field: 'filetypeId' }));
   }
 
   const rs = {
     templateList: [],
     transferParamMap: {
-      transfer: []
-    }
-  }
+      transfer: [],
+    },
+  };
 
   shelvesService.getShelfTaskSubscribeType(shelfTaskId, (err, doc) => {
-    if(err) {
+    if (err) {
       return cb && cb(err);
     }
 
     const subscribeType = doc.editorInfo.subscribeType;
-    const objectId = doc.objectId;
-    const query = { subscribeType: subscribeType, autoPush: true };
-    const files = doc.files
+    const query = { subscribeType, autoPush: true };
+    const files = doc.files;
     let filename = '';
-    for(let i = 0, len = files.length; i < len; i++){
-      if(filetypeId === files[i].FILETYPEID){
+    for (let i = 0, len = files.length; i < len; i++) {
+      if (filetypeId === files[i].FILETYPEID) {
         filename = files[i].NAME;
         break;
       }
     }
 
-    //拿到所有的订阅用户ID
+    // 拿到所有的订阅用户ID
     subscribeManagementService.getAllSubscribeInfoByQuery(query, '_id,transcodeTemplateDetail', null, (err, subscribesInfo) => {
-      if(err) {
+      if (err) {
         return cb && cb(err);
       }
 
-      //拿到订阅用户的传输配置
+      // 拿到订阅用户的传输配置
       const groupIds = [];
       const groupTemplateMap = {};
       const groupTemplateIdMap = {};
-      if(!subscribesInfo || subscribesInfo.length === 0){
+      if (!subscribesInfo || subscribesInfo.length === 0) {
         return cb && cb(null, rs);
       }
-      subscribesInfo.forEach(function(item){
+      subscribesInfo.forEach((item) => {
         groupIds.push(item._id);
         groupTemplateMap[item._id] = item.transcodeTemplateDetail;
-      })
+      });
 
-      loopGetTranscodeTemplateId(groupIds, groupTemplateMap, filename, 0, groupTemplateIdMap, function(err) {
-        if(err){
+      loopGetTranscodeTemplateId(groupIds, groupTemplateMap, filename, 0, groupTemplateIdMap, (err) => {
+        if (err) {
           return cb && cb(err);
         }
-        //找到凤凰卫视的管理员账号配置的快传用户名和密码
-        userInfo.collection.findOne({name: config.phoenixAdminUserName}, function (err, doc) {
+        // 找到凤凰卫视的管理员账号配置的快传用户名和密码
+        userInfo.collection.findOne({ name: config.phoenixAdminUserName }, (err, doc) => {
           if (err) {
             logger.error(err.message);
             return cb && cb(i18n.t('databaseError'));
@@ -824,9 +822,9 @@ service.mediaExpressDispatch = function mediaExpressDispatch(shelfTaskId, filety
           const password = mediaExpressUser.password;
 
           groupService.getGroupInfoByQuery({
-            _id: {$in: groupIds},
-            'mediaExpressUser.username': {$ne: ''}
-          }, '_id,mediaExpressUser', '', function (err, docs) {
+            _id: { $in: groupIds },
+            'mediaExpressUser.username': { $ne: '' },
+          }, '_id,mediaExpressUser', '', (err, docs) => {
             if (err) {
               return cb && cb(err);
             }
@@ -836,30 +834,29 @@ service.mediaExpressDispatch = function mediaExpressDispatch(shelfTaskId, filety
             }
 
             const transferParams = {};
-            loopGetTransferParams(docs, username, password, 0, transferParams, function (err) {
+            loopGetTransferParams(docs, username, password, 0, transferParams, (err) => {
               if (err) {
                 return cb && cb(err);
               }
-              for(let key in groupTemplateIdMap){
-                if(groupTemplateIdMap[key] && transferParams[key]){
-                  if(rs.transferParamMap.hasOwnProperty(groupTemplateIdMap[key])){
+              for (const key in groupTemplateIdMap) {
+                if (groupTemplateIdMap[key] && transferParams[key]) {
+                  if (rs.transferParamMap.hasOwnProperty(groupTemplateIdMap[key])) {
                     rs.transferParamMap[groupTemplateIdMap[key]].push(transferParams[key]);
-                  }else{
+                  } else {
                     rs.templateList.push(groupTemplateIdMap[key]);
                     rs.transferParamMap[groupTemplateIdMap[key]] = [];
                     rs.transferParamMap[groupTemplateIdMap[key]].push(transferParams[key]);
                   }
-                }else if(transferParams[key]){
+                } else if (transferParams[key]) {
                   rs.transferParamMap.transfer.push(transferParams[key]);
                 }
               }
               return cb && cb(null, rs);
-            })
-          })
-        })
-      })
+            });
+          });
+        });
+      });
     });
-
   });
 };
 

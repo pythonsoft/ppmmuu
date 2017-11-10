@@ -116,7 +116,7 @@ const feName = 'fe';
 const umpName = 'ump';
 const versionName = 'version.json';
 
-const chaoningCoolie = function(version, cb) {
+const chaoningCoolie = function (version, cb) {
   const chaoningDeployPath = '/Users/chaoningx/Desktop/ump';
   const chaoningFEProjectDistPath = '/Users/chaoningx/WebstormProjects/ump-fe/dist';
 
@@ -164,16 +164,13 @@ const chaoningCoolie = function(version, cb) {
 
           return cb && cb(null, 'ok');
         });
-
       });
     });
-
   });
 };
 
-//gitlab上的版本名称不允许有空格，如果有空格，那么获得版本变更信息将会失败
+// gitlab上的版本名称不允许有空格，如果有空格，那么获得版本变更信息将会失败
 const deployOnline = function deployOnline(cb) {
-
   if (process.env.NODE_ENV === 'online') {
     writeFile(pm2JSONPath, 'pm2.json');
     writeFile(onlineConfig, 'config_master.js');
@@ -187,28 +184,26 @@ const deployOnline = function deployOnline(cb) {
       if (chunk !== null) {
         chunk = chunk.toString().trim();
 
-        if(chunk === 'start') {
+        if (chunk === 'start') {
           process.stdout.write(`start generate ${versionName} file...\n`);
           generateVersionJson.create(version, buildPath, (err, tpl) => {
-            if(err) {
+            if (err) {
               console.error(err);
-              process.stdout.write(`please input 'start' to retry ? \n`);
+              process.stdout.write('please input \'start\' to retry ? \n');
               return false;
             }
             process.stdout.write(`generate ${versionName} success`);
 
-            chaoningCoolie(version, (err, r) => {
-              return cb && cb(err, r);
-            });
+            chaoningCoolie(version, (err, r) => cb && cb(err, r));
           });
-        }else {
+        } else {
           version = `version${chunk}`;
           process.stdout.write(`version is : ${version} ${chunk}\n`);
-          process.stdout.write(`make sure this version is you want, input 'start' word to continue ? `);
+          process.stdout.write('make sure this version is you want, input \'start\' word to continue ? ');
         }
       }
     });
-  }else {
+  } else {
     return cb && cb(null, 'ok');
   }
 };
@@ -299,9 +294,9 @@ webpack(webpackConfig, (err, stats) => {
     require('./runGulp')(() => {
       process.exit(0);
     });
-  }else {
+  } else {
     deployOnline((err) => {
-      if(!err) {
+      if (!err) {
         process.exit(0);
       }
     });

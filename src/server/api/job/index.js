@@ -456,9 +456,7 @@ router.get('/deleteTemplate', (req, res) => {
 router.get('/mediaExpressDispatch', (req, res) => {
   const shelfTaskId = req.query.distributionId;
   const filetypeId = req.query.filetypeId;
-  service.mediaExpressDispatch(shelfTaskId, filetypeId, (err, rs)=>{
-    return res.json(result.json(err, rs));
-  })
+  service.mediaExpressDispatch(shelfTaskId, filetypeId, (err, rs) => res.json(result.json(err, rs)));
 });
 
 module.exports = router;
