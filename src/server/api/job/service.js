@@ -542,7 +542,7 @@ const checkOwner = function checkOwner(jobId, userId, cb) {
     }
 
     if (rs.status !== '0') {
-      return cb && cb(rs);
+      return cb && cb(JSON.stringify(rs));
     }
 
     if (rs.data.userId !== userId) {
