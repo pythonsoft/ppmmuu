@@ -575,4 +575,34 @@ service.getMenusByIndex = function getMenusByIndex(indexArr, cb) {
   }
 };
 
+service.getUsers = function getUsers(ids, fieldsNeed, cb) {
+  if (!_id) {
+    return cb && cb(i18n.t('userIdIsNull'));
+  }
+  const q = {};
+
+  if(ids.constructor === Array) {
+    q._id = { $in: ids }
+  }else if(ids.indexOf(',')) {
+    q._id = { $in: ids.split(',') }
+  }else {
+    q._id = ids;
+  }
+
+  let cursor = userInfo.collection.find(q);
+
+  if(fieldsNeed) {
+    cursor = cursor.project(utils.formatSortOrFieldsParams(fieldsNeed, false));
+  }
+
+  cursor.toArray((err, docs) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, docs);
+  });
+};
+
 module.exports = service;
