@@ -9,6 +9,7 @@ const generateVersionJson = require('./generateVersionJSON');
 const exec = require('child_process').exec;
 
 const apiPathFile = path.join(__dirname, './server/apiPath.js');
+const socketPathFile = path.join(__dirname, './server/socketPath.js');
 const buildPath = path.join(__dirname, '../build');
 const initPermissionPath = path.join(__dirname, './server/mongodbScript/initPermissionInfo.js');
 const feApiPath = path.join(buildPath, 'api');
@@ -22,7 +23,24 @@ let permissionGroups = [];
 
 del.sync(path.resolve('build'));
 del.sync(apiPathFile);
+del.sync(socketPathFile);
 del.sync(buildPath);
+
+const writeToSocketPATH = function () {
+  const socketRootPath = path.join(__dirname, './server/socket');
+  const files = fs.readdirSync(socketRootPath);
+
+  fs.appendFileSync(socketPathFile, "'use strict';\n\nmodule.exports = function socketAPI(io) {\n");
+
+  files.forEach((filename) => {
+    const fullname = path.join(socketRootPath, filename);
+    const stats = fs.statSync(fullname);
+    if (stats.isDirectory()) {
+      fs.appendFileSync(socketPathFile, `  const ${filename} = require('./socket/${filename}'); \n  new ${filename}(io)\n`);
+    }
+  });
+  fs.appendFileSync(socketPathFile, '};\n');
+};
 
 // 读取api接口路径,写入文件
 const writeToApiPath = function writeToApiPath() {
@@ -292,6 +310,8 @@ const initPermissionInfo = function initPermissionInfo() {
 generateFeApiFuncFile();
 
 writeToApiPath();
+
+writeToSocketPATH();
 
 initPermissionInfo();
 
