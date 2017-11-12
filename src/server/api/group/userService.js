@@ -340,7 +340,7 @@ service.getGroupUserList = function getGroupUserList(info, cb) {
     }
 
     return cb && cb(null, docs);
-  });
+  }, false, '-password');
 };
 
 service.updateOwnerPermission = function updateOwnerPermission(info, cb) {

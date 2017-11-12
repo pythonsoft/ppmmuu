@@ -901,4 +901,40 @@ module.exports = {
     code: '-150005',
     message: '分发的文件格式不支持下载',
   },
+  imSessionFieldsIsNull: {
+    code: '-160001',
+    message: '会话参数 {{field}} 为空',
+  },
+  imMemberMustBeArray: {
+    code: '-160002',
+    message: 'members参数类型必须为Array',
+  },
+  imMemberIsNotExist: {
+    code: '-160003',
+    message: '当前用户不存在',
+  },
+  imSessionIsNotExist: {
+    code: '-160004',
+    message: '当前会话不存在',
+  },
+  imMemberHasBeenSession: {
+    code: '-160005',
+    message: '此用户已在当前会话中',
+  },
+  imUserIsNotExist: {
+    code: '-160006',
+    message: '用户不存在',
+  },
+  imAccountFieldsIsNull: {
+    code: '-160007',
+    message: '对帐户操作时，参数 {{field}} 不正确',
+  },
+  imContactFieldsIsNull: {
+    code: '-160008',
+    message: '对通讯录操作时，参数 {{field}} 不正确',
+  },
+  imMessageFieldsIsNull: {
+    code: '-160008',
+    message: '对消息操作时，参数 {{field}} 不正确',
+  },
 };
