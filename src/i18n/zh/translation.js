@@ -937,4 +937,16 @@ module.exports = {
     code: '-160008',
     message: '对消息操作时，参数 {{field}} 不正确',
   },
+  imLoginDateExpire: {
+    code: '-160009',
+    message: '登录过期',
+  },
+  imAuthorizeInvalid: {
+    code: '-160010',
+    message: '验证失败',
+  },
+  imAuthorizeInHeadInvalid: {
+    code: '-160010',
+    message: '验证信息没有在request头部出现',
+  },
 };

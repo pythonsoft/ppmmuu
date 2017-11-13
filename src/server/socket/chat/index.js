@@ -15,21 +15,25 @@ class ChatIO {
     let chatIO = io.of('/chat');
     /// authorize
     chatIO.use(function(socket, next) {
-      utils.console('chat ready', socket.id);
-      let rs = authorize(socket, next());
-      if(rs) {
-        socket.info = rs.info;
-        if(!socketIds[rs.info.userId]) {
-          socketIds[rs.info.userId] = {};
+      const rs = authorize(socket, next());
+
+      if(rs.status === '0') {
+        const data = rs.data;
+
+        socket.info = data.info;
+
+        if(!socketIds[data.info.userId]) {
+          socketIds[data.info.userId] = {};
         }
 
-        if(!socketIds[rs.info.userId][socket.id]) {
-          socketIds[rs.info.userId][socket.id] = socket.id;
+        if(!socketIds[data.info.userId][socket.id]) {
+          socketIds[data.info.userId][socket.id] = socket.id;
         }
-
-        utils.console('new socket connect, show all sockets', socketIds);
 
         next();
+      }else {
+        socket.emit('error', rs);
+        socket.disconnect();
       }
     });
 
@@ -87,6 +91,21 @@ class ChatIO {
       socket.to(msg.to).emit('chat', msg.from + ':' + msg.content);
     }
   }
+
+  ensureUserInRoom(socket, userId) {
+    if(!socket.rooms[userId]) {
+      socket.join(userId, function (err) {
+        if(err) {
+          socket.emit('joinRoomResult', result.fail(err.message));
+          return;
+        }
+
+        socket.emit('joinRoomResult', result.success('ok'));
+      });
+    }
+  }
+
+
 };
 
 module.exports = ChatIO;

@@ -2,56 +2,42 @@
  * Created by chaoningxie on 2017/2/7.
  */
 const utils = require('../../common/utils');
+const result = require('../../common/result');
 const config = require('../../config');
+const i18n = require('i18next');
 const KEY = config.KEY;
 
-let getClientIp = function(req) {
-  let ipStr = req.headers['x-forwarded-for'] ||
-    req.connection.remoteAddress ||
-    req.socket.remoteAddress ||
-    req.connection.socket.remoteAddress;
-
-  return ipStr.replace(/[:f]+/g, '');
-};
-
-let getClientPort = function(req) {
-  return req.socket.remotePort;
-};
-
-let authorize = function(socket, next) {
+let authorize = function(socket) {
   let authorize = socket.request.headers['x-custom-header-for-authorize'] || utils.formatCookies(socket.request.headers.cookie)['ticket'];
-  let secret = socket.request.headers['x-custom-header-secret'] || 1;
-
-  let clientIp = getClientIp(socket.request);
-  let clientPort = getClientPort(socket.request);
-
-  utils.console('remote client', clientIp + ':' + clientPort);
-  utils.console('secret', secret === 1 ? '加密传输' : '普通传输');
+  let secret = socket.request.headers['x-custom-header-secret'] || '0';
 
   if(authorize) {
     try{
       let dec = utils.decipher(authorize, KEY);
-      let codes = dec.split('-');
+      let codes = dec.split(',');
       let userId = codes[0];
-      let secret = !!codes[1];
+      let expireDate = codes[1];
+
+      const now = new Date().getTime();
+
+      if(expireDate < now) { //过期
+        return result.fail(i18n.t('imLoginDateExpire'));
+      }
+
+      secret = secret === '1' ? '1' : '0';
+
+      utils.console('secret', secret === '1' ? '加密传输' : '普通传输');
 
       if(userId) {
-        utils.console('authorize', userId);
-        return { socketId: socket.id, info: { userId: userId, secret: secret } }
+        return result.success({ socketId: socket.id, info: { userId, secret } });
       }else {
-        utils.console('authorize', 'authorize invalid.');
-        socket.disconnect();
-        return false;
+        return result.fail(i18n.t('imAuthorizeInvalid'));
       }
     }catch (e) {
-      utils.console('authorize', 'authorize invalid.');
-      socket.disconnect();
-      return false;
+      return result.fail(i18n.t('imAuthorizeInvalid'));
     }
   }else {
-    utils.console('authorize', 'authorize is not exist in header');
-    socket.disconnect();
-    return false;
+    return result.fail(i18n.t('imAuthorizeInHeadInvalid'));
   };
 };
 
