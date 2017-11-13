@@ -80,7 +80,7 @@ config.normalMenuPermission = ['mediaCenter', 'taskCenter', 'personalCenter', 'l
 config.adminMenuPermission = config.normalMenuPermission.concat(['management']);
 
 // 快传api地址
-config.mediaExpressUrl = 'http://localhost:3001/';
+config.mediaExpressUrl = 'https://leo.cloudifeng.com/';
 
 // 升级包存在地址
 config.upgradePackage = config.uploadPath;
