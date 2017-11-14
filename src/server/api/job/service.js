@@ -744,6 +744,7 @@ const loopGetTranscodeTemplateId = function loopGetTranscodeTemplateId(groupIds,
       rs[groupId] = '';
       loopGetTranscodeTemplateId(groupIds, groupTemplateMap, filename, index + 1, rs, cb);
     } else {
+      console.log("transcodeTemplateId -->", transcodeTemplateId);
       rs[groupId] = transcodeTemplateId;
       loopGetTranscodeTemplateId(groupIds, groupTemplateMap, filename, index + 1, rs, cb);
     }

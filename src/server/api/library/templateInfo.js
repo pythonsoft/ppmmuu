@@ -40,7 +40,7 @@ class TemplateInfo extends DB {
       source: '',
       department: '',
       hdExt: [],
-      templateId: [],
+      templateId: [], // { file: '', template: '' }
     }, info);
   }
 
