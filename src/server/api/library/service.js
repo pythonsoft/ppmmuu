@@ -21,7 +21,7 @@ const FileInfo = require('./fileInfo');
 
 const fileInfo = new FileInfo();
 
-const TemplateInfo = require('./TemplateInfo');
+const TemplateInfo = require('./templateInfo');
 
 const templateInfo = new TemplateInfo();
 
