@@ -1554,7 +1554,7 @@ router.get('/listTemplate', (req, res) => {
   const page = req.query.page || 1;
   const pageSize = req.query.pageSize || 20;
 
-  service.listTemplate(fieldsNeed, page, pageSize, keyword, (err, docs) => res.json(result.json(err, docs)));
+  service.listTemplate(fieldsNeed, page, pageSize, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
@@ -1606,5 +1606,75 @@ router.get('/listTemplate', (req, res) => {
 router.post('/removeTemplate', (req, res) => {
   service.removeTemplate(req.body._id, (err, r) => res.json(result.json(err, r)));
 });
+
+/**
+ * @permissionGroup: library
+ * @permissionName: 更新入库模板
+ * @permissionPath: /library/updateTemplate
+ * @apiName: updateTemplate
+ * @apiFuncType: post
+ * @apiFuncUrl: /library/updateTemplate
+ * @swagger
+ * /library/updateTemplate:
+ *   post:
+ *     description: 更新入库模板
+ *     tags:
+ *       - v1
+ *       - library
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: 更新入库模板
+ *         schema:
+ *           type: object
+ *           required:
+ *             - _id
+ *           properties:
+ *             _id:
+ *               type: string
+ *               description: ''
+ *               example: ""
+ *             source:
+ *               type: string
+ *               description: ''
+ *               example: ""
+ *             hdExt:
+ *               type: string
+ *               description: ''
+ *               example: ""
+ *             transcodeTemplates:
+ *               type: string
+ *               description: ''
+ *               example: ""
+ *             transcodeScript:
+ *               type: string
+ *               description: ''
+ *               example: ""
+ *             departmentId:
+ *               type: string
+ *               description: ''
+ *               example: ""
+ *     responses:
+ *       200:
+ *         description: TemplateInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.post('/updateTemplate', (req, res) => {
+  service.updateTemplate(req.body._id, req.body, (err, r) => res.json(result.json(err, r)));
+});
+
 
 module.exports = router;
