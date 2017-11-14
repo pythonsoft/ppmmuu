@@ -897,6 +897,21 @@ service.listTemplate = function listCatalogTask(fieldsNeed, page = 1, pageSize =
   }, '-createdTime', fieldsNeed);
 };
 
+service.removeTemplate = function removeTemplate(_id, cb) {
+  if(!_id) {
+    return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: '_id' }));
+  }
+
+  templateInfo.collection.removeOne({ _id: _id }, (err, r) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, doc);
+  });
+};
+
 /* 入库模板 */
 
 module.exports = service;

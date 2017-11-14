@@ -1557,5 +1557,54 @@ router.get('/listTemplate', (req, res) => {
   service.listTemplate(fieldsNeed, page, pageSize, keyword, (err, docs) => res.json(result.json(err, docs)));
 });
 
+/**
+ * @permissionGroup: library
+ * @permissionName: 添加入库模板
+ * @permissionPath: /library/removeTemplate
+ * @apiName: removeTemplate
+ * @apiFuncType: post
+ * @apiFuncUrl: /library/removeTemplate
+ * @swagger
+ * /library/removeTemplate:
+ *   post:
+ *     description: 添加入库模板
+ *     tags:
+ *       - v1
+ *       - library
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: 添加入库模板
+ *         schema:
+ *           type: object
+ *           required:
+ *             - source
+ *             - departmentId
+ *           properties:
+ *             _id:
+ *               type: string
+ *               description: ''
+ *               example: ""
+ *     responses:
+ *       200:
+ *         description: FileInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.post('/removeTemplate', (req, res) => {
+  service.removeTemplate(req.body._id, (err, r) => res.json(result.json(err, r)));
+});
 
 module.exports = router;
