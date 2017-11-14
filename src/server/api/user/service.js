@@ -575,8 +575,8 @@ service.getMenusByIndex = function getMenusByIndex(indexArr, cb) {
   }
 };
 
-service.getUsers = function getUsers(ids, fieldsNeed, cb) {
-  if (!_id) {
+service.getUsers = function getUsers(ids, cb) {
+  if (!ids) {
     return cb && cb(i18n.t('userIdIsNull'));
   }
   const q = {};
@@ -590,10 +590,8 @@ service.getUsers = function getUsers(ids, fieldsNeed, cb) {
   }
 
   let cursor = userInfo.collection.find(q);
-
-  if(fieldsNeed) {
-    cursor = cursor.project(utils.formatSortOrFieldsParams(fieldsNeed, false));
-  }
+  const fieldsNeed = '_id,photo,name,displayName,email,pone,status';
+  cursor = cursor.project(utils.formatSortOrFieldsParams(fieldsNeed, false));
 
   cursor.toArray((err, docs) => {
     if (err) {

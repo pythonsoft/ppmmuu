@@ -287,7 +287,8 @@ const runDownloadScript = function runDownloadScript(userInfo, bucketInfo, scrip
   }
 
   if (pathIds.length === 0) {
-    return cb && cb(i18n.t('templatePathIsNotExist'));
+    const rs = exec(userInfo, bucketInfo, execScript);
+    return cb && cb(rs.err, rs.result);
   }
 
   storageService.getPaths(pathIds, (err, docs) => {

@@ -12,6 +12,8 @@ const i18nMiddleware = require('./middleware/i18n');
 const cors = require('cors');
 
 const app = express();
+const server = require('http').Server(app);
+const io = require('socket.io')(server);
 
 const corsOptions = {
   origin(origin, callback) {
@@ -62,8 +64,9 @@ const initMongodb = function initMongodb(names, completeFn) {
 
 const runServer = function runServer(dbName = config.dbName) {
   initMongodb([dbName], () => {
-    app.listen(config.port, () => {
+    server.listen(config.port, () => {
       require('./apiPath.js')(app); // eslint-disable-line
+      require('./socketPath.js')(io); // eslint-disable-line
       require('./mongodbScript/index');
       require('./setTimeOutJob/index');
 
