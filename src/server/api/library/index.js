@@ -1559,7 +1559,7 @@ router.get('/listTemplate', (req, res) => {
 
 /**
  * @permissionGroup: library
- * @permissionName: 添加入库模板
+ * @permissionName: 删除入库模板
  * @permissionPath: /library/removeTemplate
  * @apiName: removeTemplate
  * @apiFuncType: post
@@ -1567,7 +1567,7 @@ router.get('/listTemplate', (req, res) => {
  * @swagger
  * /library/removeTemplate:
  *   post:
- *     description: 添加入库模板
+ *     description: 删除入库模板
  *     tags:
  *       - v1
  *       - library
@@ -1576,7 +1576,7 @@ router.get('/listTemplate', (req, res) => {
  *     parameters:
  *       - in: body
  *         name: body
- *         description: 添加入库模板
+ *         description: 删除入库模板
  *         schema:
  *           type: object
  *           required:
