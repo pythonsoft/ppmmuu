@@ -11,3 +11,4 @@ require('./initPermissionInfo');
 require('./initPermissionGroup');
 // require('./initLibrary');
 require('./initDownloadTemplate');
+// require('./initLibraryTemplate');
