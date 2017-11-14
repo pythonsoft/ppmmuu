@@ -76,6 +76,18 @@ const infos = [
     parentIndex: 'storageManagement',
   },
   {
+    _id: 'libraryManager',
+    name: '入库管理',
+    index: 'libraryManager',
+    parentIndex: 'management',
+  },
+  {
+    _id: 'libraryTemplate',
+    name: '入库模板',
+    index: 'libraryTemplate',
+    parentIndex: 'libraryManager',
+  },
+  {
     _id: 'taskManagement',
     name: '任务管理',
     index: 'taskManagement',

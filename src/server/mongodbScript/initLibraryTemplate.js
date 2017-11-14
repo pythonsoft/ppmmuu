@@ -13,6 +13,6 @@ const service = require('../api/library/service');
 //   console.log('addTemplate done -->', err, r);
 // });
 
-service.getTemplateResult('a3c96130-c92b-11e7-b71f-0ff61b349f9d', 'xxx.mxf', (err, doc) => {
-  console.log('getTemplateResult -->', err, doc);
-});
+// service.getTemplateResult('a3c96130-c92b-11e7-b71f-0ff61b349f9d', 'xxx.mxf', (err, doc) => {
+//   console.log('getTemplateResult -->', err, doc);
+// });
