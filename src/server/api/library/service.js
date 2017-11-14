@@ -769,10 +769,6 @@ service.addTemplate = function addTemplate(info, creatorId, creatorName, cb) {
     return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: 'departmentId' }));
   }
 
-  if(!tInfo.departmentName) {
-    return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: 'departmentName' }));
-  }
-
   const t = new Date();
 
   tInfo._id = uuid.v1();
