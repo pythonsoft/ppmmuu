@@ -782,16 +782,11 @@ service.addTemplate = function addTemplate(info, creatorId, creatorName, cb) {
   };
 
   if(tInfo.transcodeTemplates) {
-    const constructorType = tInfo.transcodeTemplates.constructor;
-
-    if(constructorType === String) {
-      if(tInfo.transcodeTemplates.indexOf(',')) {
-        tInfo.transcodeTemplateDetail.templatesId = tInfo.transcodeTemplates.split(',');
-      }else {
-        tInfo.transcodeTemplateDetail.templatesId = [ tInfo.transcodeTemplates ];
-      }
-    } else if(constructorType !== Array) {
-      return cb && cb(i18n.t('libraryTemplateInfoFieldIsInvalid', { field: 'transcodeTemplates' }));
+    const rs = templateService.composeTranscodeTemplates(tInfo.transcodeTemplates);
+    if (rs.status !== '0') {
+      return cb && cb(rs.result);
+    } else if (rs.result) {
+      tInfo.transcodeTemplateDetail.templatesId = rs.result;
     }
   }
 
@@ -827,6 +822,7 @@ service.addTemplate = function addTemplate(info, creatorId, creatorName, cb) {
 
       return cb && cb(null, tInfo);
     });
+
   });
 
 };
@@ -855,6 +851,7 @@ service.getTemplateResult = function getTemplateResult(_id, filePath, cb) {
     return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: 'filePath' }));
   }
 
+  //拿到部门信息
   templateInfo.collection.findOne({ _id: _id }, (err, doc) => {
     if (err) {
       logger.error(err.message);
@@ -865,10 +862,10 @@ service.getTemplateResult = function getTemplateResult(_id, filePath, cb) {
       return cb && cb(i18n.t('libraryTemplateInfoIsNotExist'));
     }
 
-    templateService.getTranscodeTemplateByDetail({
-      transcodeTemplates: doc.transcodeTemplateDetail.script || '',
-      transcodeTemplateSelector: doc.transcodeTemplateDetail.templatesId || []
-    }, filePath, (err, rs) => {
+    templateService.getTranscodeTemplateByDetail({ transcodeTemplateDetail: {
+      transcodeTemplates: doc.transcodeTemplateDetail.templatesId || [],
+      transcodeTemplateSelector: doc.transcodeTemplateDetail.script || ''
+    }}, filePath, (err, rs) => {
       if(err) {
         return cb && cb(err);
       }
