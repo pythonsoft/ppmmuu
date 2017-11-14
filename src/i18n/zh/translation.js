@@ -745,6 +745,26 @@ module.exports = {
     code: '-100013',
     message: '输入的编目任务ObjectId为空',
   },
+  libraryTemplateInfoIsNull: {
+    code: '-100014',
+    message: '入库模板信息为空',
+  },
+  libraryTemplateInfoFieldIsNull: {
+    code: '-100015',
+    message: '操作入库模板信息时，参数 {{field}} 为空',
+  },
+  libraryTemplateInfoFieldIsInvalid: {
+    code: '-100016',
+    message: '创建入库模板信息时，参数 {{field}} 不符合要求',
+  },
+  libraryDepartmentInfoIsNotExist: {
+    code: '-100017',
+    message: '创建入库模板信息时, 所选部门信息不存在',
+  },
+  libraryTemplateInfoIsNotExist: {
+    code: '-100018',
+    message: '入库模板信息不存在',
+  },
   shelfStatusNotCorrect: {
     code: '-110001',
     message: '状态不正确',

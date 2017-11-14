@@ -21,7 +21,13 @@ const FileInfo = require('./fileInfo');
 
 const fileInfo = new FileInfo();
 
+const TemplateInfo = require('./TemplateInfo');
+
+const templateInfo = new TemplateInfo();
+
 const userService = require('../user/service');
+const groupService = require('../group/service');
+const templateService = require('../template/service');
 
 const service = {};
 
@@ -741,4 +747,188 @@ service.getFile = function getFile(id, cb) {
 
 /* file */
 
+/* 入库模板 */
+service.addTemplate = function addTemplate(info, creatorId, creatorName, cb) {
+  if(utils.isEmptyObject(info)) {
+    return cb && cb(i18n.t('libraryTemplateInfoIsNull'));
+  }
+
+  const tInfo = utils.merge({
+    source: '',
+    departmentId: '',
+    transcodeTemplates: [], //
+    transcodeScript: '',
+    hdExt: [],
+  }, info);
+
+  if(!tInfo.source) {
+    return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: 'source' }));
+  }
+
+  if(!tInfo.departmentId) {
+    return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: 'departmentId' }));
+  }
+
+  if(!tInfo.departmentName) {
+    return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: 'departmentName' }));
+  }
+
+  const t = new Date();
+
+  tInfo._id = uuid.v1();
+  tInfo.creator = { _id: creatorId, name: creatorName };
+  tInfo.createdTime = t;
+  tInfo.lastModifyTime = t;
+
+  tInfo.transcodeTemplateDetail = {
+    script: tInfo.transcodeScript || '',
+    templatesId: [],
+  };
+
+  if(tInfo.transcodeTemplates) {
+    const constructorType = tInfo.transcodeTemplates.constructor;
+
+    if(constructorType === String) {
+      if(tInfo.transcodeTemplates.indexOf(',')) {
+        tInfo.transcodeTemplateDetail.templatesId = tInfo.transcodeTemplates.split(',');
+      }else {
+        tInfo.transcodeTemplateDetail.templatesId = [ tInfo.transcodeTemplates ];
+      }
+    } else if(constructorType !== Array) {
+      return cb && cb(i18n.t('libraryTemplateInfoFieldIsInvalid', { field: 'transcodeTemplates' }));
+    }
+  }
+
+  if(tInfo.hdExt) {
+    const constructorType = tInfo.hdExt.constructor;
+
+    if(constructorType === String) {
+      if(tInfo.hdExt.indexOf(',')) {
+        tInfo.hdExt = tInfo.hdExt.split(',');
+      }else {
+        tInfo.hdExt = [ tInfo.hdExt ];
+      }
+    } else if(constructorType !== Array) {
+      return cb && cb(i18n.t('libraryTemplateInfoFieldIsInvalid', { field: 'hdExt' }));
+    }
+  }
+
+  groupService.getGroup(tInfo.departmentId, (err, doc) => {
+    if(err) {
+      return cb && cb(err);
+    }
+
+    if(!doc) {
+      return cb && cb(i18n.t('libraryDepartmentInfoIsNotExist'));
+    }
+
+    tInfo.department = { _id: doc._id, name: doc.name };
+
+    templateInfo.insertOne(tInfo, err => {
+      if(err) {
+        return cb && cb(err);
+      }
+
+      return cb && cb(null, tInfo);
+    });
+  });
+
+};
+
+service.getTemplateInfo = function getTemplateInfo(_id, cb) {
+  if(!_id) {
+    return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: '_id' }));
+  }
+
+  templateInfo.collection.findOne({ _id: _id }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, doc);
+  });
+};
+
+service.getTemplateResult = function getTemplateResult(_id, filePath, cb) {
+  if(!_id) {
+    return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: '_id' }));
+  }
+
+  if(!filePath) {
+    return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: 'filePath' }));
+  }
+
+  templateInfo.collection.findOne({ _id: _id }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if(!doc) {
+      return cb && cb(i18n.t('libraryTemplateInfoIsNotExist'));
+    }
+
+    templateService.getTranscodeTemplateByDetail({
+      transcodeTemplates: doc.transcodeTemplateDetail.script || '',
+      transcodeTemplateSelector: doc.transcodeTemplateDetail.templatesId || []
+    }, filePath, (err, rs) => {
+      if(err) {
+        return cb && cb(err);
+      }
+
+      doc.templateId = rs; //转码模板ID，这是工作流接口需要使用的参数
+
+      return cb && cb(null, templateInfo.getJobVo(doc));
+    });
+  });
+};
+
+service.listTemplate = function listCatalogTask(fieldsNeed, page = 1, pageSize = 20, cb) {
+  const query = { };
+
+  templateInfo.pagination(query, page, pageSize, (err, docs) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, docs);
+  }, '-createdTime', fieldsNeed);
+};
+
+/* 入库模板 */
+
 module.exports = service;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

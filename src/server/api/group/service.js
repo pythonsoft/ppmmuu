@@ -422,7 +422,6 @@ service.bindMediaExpress = function bindMediaExpress(info, cb) {
   });
 };
 
-
 service.getGroupInfoByQuery = function getGroupInfoByQuery(query, fieldsNeed, sortFields, cb) {
   let cursor = groupInfo.collection.find(query);
 
@@ -443,6 +442,5 @@ service.getGroupInfoByQuery = function getGroupInfoByQuery(query, fieldsNeed, so
     return cb && cb(null, items);
   });
 };
-
 
 module.exports = service;

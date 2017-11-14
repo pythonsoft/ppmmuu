@@ -6,31 +6,29 @@ const utils = require('../../common/utils');
 const authorize = require('./authorize');
 const result = require('../../common/result');
 
+const accountService = require('../../api/im/accountService');
+const sessionService = require('../../api/im/sessionService');
+
 // userId map socketIds
 let socketIds = {};
 
 class ChatIO {
   constructor(io) {
-    let me = this;
-    let chatIO = io.of('/chat');
+    const me = this;
+    const chatIO = io.of('/chat');
+
     /// authorize
     chatIO.use(function(socket, next) {
       const rs = authorize(socket, next());
 
       if(rs.status === '0') {
         const data = rs.data;
-
         socket.info = data.info;
 
-        if(!socketIds[data.info.userId]) {
-          socketIds[data.info.userId] = {};
-        }
+        me.login(socket, data.info.userId, () => {
+          next();
+        });
 
-        if(!socketIds[data.info.userId][socket.id]) {
-          socketIds[data.info.userId][socket.id] = socket.id;
-        }
-
-        next();
       }else {
         socket.emit('error', rs);
         socket.disconnect();
@@ -41,24 +39,9 @@ class ChatIO {
       utils.console('connection.socket.id', socket.id);
       utils.console('connection.info', socket.info);
 
-      socket.emit('chat', result.success('welcome'));
-
-      socket.on('chat', function(msg) {
-        utils.console('chat:' + new Date().getTime(), msg);
+      socket.on('message', function(msg) {
+        utils.console('message:' + new Date().getTime(), msg);
         me.dispatchMessage(msg, socket);
-      });
-
-      socket.on('joinRoom', function(roomId) {
-        if(!socket.rooms[roomId]) {
-          socket.join(roomId, function (err) {
-            if(err) {
-              socket.emit('joinRoomResult', result.fail(err.message));
-              return;
-            }
-
-            socket.emit('joinRoomResult', result.success('ok'));
-          });
-        }
       });
 
       socket.on('error', function(err) {
@@ -92,19 +75,45 @@ class ChatIO {
     }
   }
 
-  ensureUserInRoom(socket, userId) {
+  login(socket, userId, successFn) {
     if(!socket.rooms[userId]) {
-      socket.join(userId, function (err) {
+      accountService.login(userId, (err, doc) => {
         if(err) {
-          socket.emit('joinRoomResult', result.fail(err.message));
-          return;
+          socket.emit('login', result.fail(err));
+          socket.disconnect();
+          return false;
         }
 
-        socket.emit('joinRoomResult', result.success('ok'));
+        socket.join(doc._id, function (err) {
+          if(err) {
+            socket.emit('login', result.fail(err.message));
+            socket.disconnect();
+            return false;
+          }
+
+          socket.accountInfo = doc;
+          socket.emit('login', result.success(socket.accountInfo));
+
+          return successFn && successFn();
+        });
+
       });
+
+    }else {
+      socket.emit('login', result.success(socket.accountInfo));
+      return successFn && successFn();
     }
   }
 
+  getRecentContactList(socket, callback, page, pageSize, fieldNeeds, cb) {
+    sessionService.list(socket.accountInfo._id, page, pageSize, fieldNeeds, '-modifyTime', (err, docs) => {
+      if(err) {
+        return socket.emit('getRecentContactList', result.fail(err));
+      }
+
+      return socket.emit('getRecentContactList', result.success(docs));
+    });
+  }
 
 };
 
