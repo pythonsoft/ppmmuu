@@ -880,7 +880,7 @@ service.getTemplateResult = function getTemplateResult(_id, filePath, cb) {
       doc.templateId = rs; //转码模板ID，这是工作流接口需要使用的参数
 
       return cb && cb(null, templateInfo.getJobVo(doc));
-    });
+    }, true);
   });
 };
 
