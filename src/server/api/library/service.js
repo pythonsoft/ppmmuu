@@ -953,8 +953,6 @@ service.updateTemplate = function updateTemplate(_id, info, cb) {
     updateInfo.transcodeTemplateDetail.script = info.transcodeScript;
   }
 
-  console.log('update -->', updateInfo);
-
   if(info.departmentId) {
     groupService.getGroup(info.departmentId, (err, doc) => {
       if(err) {
