@@ -699,17 +699,17 @@ function filterTranscodeTemplates(doc = {}, filePath = '', cb, isResultReturnWit
         files.push(filePath);
       }
 
-      let rs = [];
+      let result = [];
 
       for(let i = 0, len = files.length; i < len; i++) {
-        rs.push(getTranscode(files[i], info, doc));
+        result.push(getTranscode(files[i], info, doc));
       }
 
       if(!isResultReturnWithMap) {
-        rs = rs[0].template;
+        result = result[0].template;
       }
 
-      return cb && cb(null, rs);
+      return cb && cb(null, result);
     
 
   });
