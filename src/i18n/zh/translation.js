@@ -745,6 +745,26 @@ module.exports = {
     code: '-100013',
     message: '输入的编目任务ObjectId为空',
   },
+  libraryTemplateInfoIsNull: {
+    code: '-100014',
+    message: '入库模板信息为空',
+  },
+  libraryTemplateInfoFieldIsNull: {
+    code: '-100015',
+    message: '操作入库模板信息时，参数 {{field}} 为空',
+  },
+  libraryTemplateInfoFieldIsInvalid: {
+    code: '-100016',
+    message: '创建入库模板信息时，参数 {{field}} 不符合要求',
+  },
+  libraryDepartmentInfoIsNotExist: {
+    code: '-100017',
+    message: '创建入库模板信息时, 所选部门信息不存在',
+  },
+  libraryTemplateInfoIsNotExist: {
+    code: '-100018',
+    message: '入库模板信息不存在',
+  },
   shelfStatusNotCorrect: {
     code: '-110001',
     message: '状态不正确',
@@ -900,5 +920,53 @@ module.exports = {
   jobMediaExpressDispatchFileCannotDownload: {
     code: '-150005',
     message: '分发的文件格式不支持下载',
+  },
+  imSessionFieldsIsNull: {
+    code: '-160001',
+    message: '会话参数 {{field}} 为空',
+  },
+  imMemberMustBeArray: {
+    code: '-160002',
+    message: 'members参数类型必须为Array',
+  },
+  imMemberIsNotExist: {
+    code: '-160003',
+    message: '当前用户不存在',
+  },
+  imSessionIsNotExist: {
+    code: '-160004',
+    message: '当前会话不存在',
+  },
+  imMemberHasBeenSession: {
+    code: '-160005',
+    message: '此用户已在当前会话中',
+  },
+  imUserIsNotExist: {
+    code: '-160006',
+    message: '用户不存在',
+  },
+  imAccountFieldsIsNull: {
+    code: '-160007',
+    message: '对帐户操作时，参数 {{field}} 不正确',
+  },
+  imContactFieldsIsNull: {
+    code: '-160008',
+    message: '对通讯录操作时，参数 {{field}} 不正确',
+  },
+  imMessageFieldsIsNull: {
+    code: '-160008',
+    message: '对消息操作时，参数 {{field}} 不正确',
+  },
+  imLoginDateExpire: {
+    code: '-160009',
+    message: '登录过期',
+  },
+  imAuthorizeInvalid: {
+    code: '-160010',
+    message: '验证失败',
+  },
+  imAuthorizeInHeadInvalid: {
+    code: '-160010',
+    message: '验证信息没有在request头部出现',
   },
 };

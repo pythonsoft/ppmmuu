@@ -201,11 +201,59 @@ const getEsOptions = function getEsOptions(info) {
     return obj;
   };
 
-  const formatMust = function formatMust(arr) {
+  const formatShould = function formatShould(arr, key) {
     const rs = [];
     for (let i = 0, len = arr.length; i < len; i++) {
       const temp = arr[i];
       if (temp.value) {
+        if(temp.key === key){
+          const full_text = temp.value.trim().split(' ');
+          for(let j = 0, len1 = full_text.length; j < len1; j++) {
+            if(full_text[j]) {
+              const item = {
+                match: {},
+              };
+              item.match[key] = full_text[j];
+              rs.push(item);
+            }
+          }
+        }else {
+          const item = {
+            match: {},
+          };
+          item.match[temp.key] = temp.value;
+          rs.push(item);
+        }
+      }
+    }
+    return rs;
+  };
+
+  const formatMustShould = function formatMustShould(arr, key) {
+    const rs = [];
+    for (let i = 0, len = arr.length; i < len; i++) {
+      const temp = arr[i];
+      if (temp.value && temp.key === key) {
+        const full_text = temp.value.trim().split(' ');
+        for(let j = 0, len1 = full_text.length; j < len1; j++) {
+          if(full_text[j]) {
+            const item = {
+              match: {},
+            };
+            item.match[key] = full_text[j];
+            rs.push(item);
+          }
+        }
+      }
+    }
+    return rs;
+  };
+
+  const formatMustMust = function formatMustMust(arr, key) {
+    const rs = [];
+    for (let i = 0, len = arr.length; i < len; i++) {
+      const temp = arr[i];
+      if (temp.value && temp.key !== key) {
         const item = {
           match: {},
         };
@@ -247,8 +295,9 @@ const getEsOptions = function getEsOptions(info) {
     }
   };
 
-  const must = formatMust(match);
-  const shoulds = formatMust(should);
+  const must = formatMustMust(match, 'full_text');
+  const mustShould = formatMustShould(match, 'full_text');
+  const shoulds = formatShould(should, 'name');
   const sorts = formatSort(sort);
   const highlight = getHighLightFields(hl);
   formatRange(range, must);
@@ -259,25 +308,51 @@ const getEsOptions = function getEsOptions(info) {
     size: pageSize * 1,
   };
 
-  if (must.length && shoulds.length) {
+  if (must.length && mustShould.length) {
     options.query = {
       bool: {
-        must,
-        should: shoulds,
+        must : {
+          bool: {
+            should: mustShould,
+            minimum_should_match: "75%",
+            must: must
+          }
+        },
       },
     };
-  } else if (must.length) {
+  }else if(must.length){
     options.query = {
       bool: {
-        must,
+        must : {
+          bool: {
+            must: must
+          }
+        },
       },
     };
-  } else if (shoulds.length) {
+  }else if(mustShould.length){
     options.query = {
       bool: {
-        should: shoulds,
+        must : {
+          bool: {
+            should: mustShould,
+            minimum_should_match: "75%",
+          }
+        },
       },
     };
+  }
+
+  if (shoulds.length) {
+    if(options.query) {
+      options.query.bool.should = shoulds;
+    }else{
+      options.query = {
+        bool: {
+          should: shoulds
+        }
+      }
+    }
   }
 
   if (sorts.length) {
@@ -290,6 +365,8 @@ const getEsOptions = function getEsOptions(info) {
       fields: highlight,
     };
   }
+
+  console.log(JSON.stringify(options));
 
   return options;
 };

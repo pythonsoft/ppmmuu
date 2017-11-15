@@ -1370,4 +1370,311 @@ router.get('/generateXML', (req, res) => {
   });
 });
 
+/**
+ * @permissionGroup: library
+ * @permissionName: 添加入库模板
+ * @permissionPath: /library/addTemplate
+ * @apiName: addTemplate
+ * @apiFuncType: post
+ * @apiFuncUrl: /library/addTemplate
+ * @swagger
+ * /library/addTemplate:
+ *   post:
+ *     description: 添加入库模板
+ *     tags:
+ *       - v1
+ *       - library
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: 添加入库模板
+ *         schema:
+ *           type: object
+ *           required:
+ *             - source
+ *             - departmentId
+ *           properties:
+ *             source:
+ *               type: string
+ *               description: ''
+ *               example: ""
+ *             departmentId:
+ *               type: string
+ *               description: ''
+ *               example: ""
+ *             transcodeTemplates:
+ *               type: string
+ *               description: ''
+ *               example: ""
+ *             transcodeScript:
+ *               type: string
+ *               description: ''
+ *               example: ""
+ *             hdExt:
+ *               type: string
+ *               description: ''
+ *               example: ""
+ *     responses:
+ *       200:
+ *         description: FileInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.post('/addTemplate', (req, res) => {
+  service.addTemplate(req.body, req.ex.userInfo._id, req.ex.userInfo.name, (err, r) => res.json(result.json(err, r)));
+});
+
+/**
+ * @permissionGroup: library
+ * @permissionName: 获取入库模板详细信息
+ * @permissionPath: /library/getTemplateInfo
+ * @apiName: getTemplateInfo
+ * @apiFuncType: get
+ * @apiFuncUrl: /library/getTemplateInfo
+ * @swagger
+ * /library/getTemplateInfo:
+ *   get:
+ *     description: 获取入库模板详细信息
+ *     tags:
+ *       - v1
+ *       - library
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: _id
+ *         description: ''
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description:
+ * */
+router.get('/getTemplateInfo', (req, res) => {
+  service.getTemplateInfo(req.query._id, (err, doc) => res.json(result.json(err, doc)));
+});
+
+/**
+ * @permissionGroup: library
+ * @permissionName: 获取入库模板信息以及根据文件选择出需要的转码模板Id
+ * @permissionPath: /library/getTemplateResult
+ * @apiName: getTemplateResult
+ * @apiFuncType: get
+ * @apiFuncUrl: /library/getTemplateResult
+ * @swagger
+ * /library/getTemplateResult:
+ *   get:
+ *     description: 获取入库模板信息以及根据文件选择出需要的转码模板Id
+ *     tags:
+ *       - v1
+ *       - library
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: _id
+ *         description: ''
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: filePath
+ *         description: ''
+ *         required: true
+ *         type: string
+ *         default: '0'
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description:
+ * */
+router.get('/getTemplateResult', (req, res) => {
+  service.getTemplateResult(req.query._id, req.query.filePath, (err, doc) => res.json(result.json(err, doc)));
+});
+
+/**
+ * @permissionGroup: library
+ * @permissionName: 列举入库模板信息
+ * @permissionPath: /library/listTemplate
+ * @apiName: listTemplate
+ * @apiFuncType: get
+ * @apiFuncUrl: /library/listTemplate
+ * @swagger
+ * /library/listTemplate:
+ *   get:
+ *     description: 列举入库模板信息
+ *     tags:
+ *       - v1
+ *       - library
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: fieldsNeed
+ *         description: request only you need fields
+ *         required: false
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: page
+ *         description:
+ *         required: false
+ *         type: string
+ *         default: '1'
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: pageSize
+ *         description: ''
+ *         required: false
+ *         type: string
+ *         default: '20'
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description:
+ * */
+router.get('/listTemplate', (req, res) => {
+  const fieldsNeed = req.query.fieldsNeed || '';
+  const page = req.query.page || 1;
+  const pageSize = req.query.pageSize || 20;
+
+  service.listTemplate(fieldsNeed, page, pageSize, (err, docs) => res.json(result.json(err, docs)));
+});
+
+/**
+ * @permissionGroup: library
+ * @permissionName: 删除入库模板
+ * @permissionPath: /library/removeTemplate
+ * @apiName: removeTemplate
+ * @apiFuncType: post
+ * @apiFuncUrl: /library/removeTemplate
+ * @swagger
+ * /library/removeTemplate:
+ *   post:
+ *     description: 删除入库模板
+ *     tags:
+ *       - v1
+ *       - library
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: 删除入库模板
+ *         schema:
+ *           type: object
+ *           required:
+ *             - source
+ *             - departmentId
+ *           properties:
+ *             _id:
+ *               type: string
+ *               description: ''
+ *               example: ""
+ *     responses:
+ *       200:
+ *         description: FileInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.post('/removeTemplate', (req, res) => {
+  service.removeTemplate(req.body._id, (err, r) => res.json(result.json(err, r)));
+});
+
+/**
+ * @permissionGroup: library
+ * @permissionName: 更新入库模板
+ * @permissionPath: /library/updateTemplate
+ * @apiName: updateTemplate
+ * @apiFuncType: post
+ * @apiFuncUrl: /library/updateTemplate
+ * @swagger
+ * /library/updateTemplate:
+ *   post:
+ *     description: 更新入库模板
+ *     tags:
+ *       - v1
+ *       - library
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: 更新入库模板
+ *         schema:
+ *           type: object
+ *           required:
+ *             - _id
+ *           properties:
+ *             _id:
+ *               type: string
+ *               description: ''
+ *               example: ""
+ *             source:
+ *               type: string
+ *               description: ''
+ *               example: ""
+ *             hdExt:
+ *               type: string
+ *               description: ''
+ *               example: ""
+ *             transcodeTemplates:
+ *               type: string
+ *               description: ''
+ *               example: ""
+ *             transcodeScript:
+ *               type: string
+ *               description: ''
+ *               example: ""
+ *             departmentId:
+ *               type: string
+ *               description: ''
+ *               example: ""
+ *     responses:
+ *       200:
+ *         description: TemplateInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.post('/updateTemplate', (req, res) => {
+  service.updateTemplate(req.body._id, req.body, (err, r) => res.json(result.json(err, r)));
+});
+
+
 module.exports = router;

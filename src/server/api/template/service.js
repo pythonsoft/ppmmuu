@@ -287,7 +287,8 @@ const runDownloadScript = function runDownloadScript(userInfo, bucketInfo, scrip
   }
 
   if (pathIds.length === 0) {
-    return cb && cb(i18n.t('templatePathIsNotExist'));
+    const rs = exec(userInfo, bucketInfo, execScript);
+    return cb && cb(rs.err, rs.result);
   }
 
   storageService.getPaths(pathIds, (err, docs) => {
@@ -332,6 +333,35 @@ service.list = function list(type, groupId, sortFields = '-createdTime', fieldsN
   }
 
   templateInfo.pagination(query, page, pageSize, cb, sortFields, fieldsNeed);
+};
+
+service.listByIds = function listByIds(ids, fieldsNeed, cb) {
+  if (!ids) {
+    return cb && cb(i18n.t('templateIdIsNotExist'));
+  }
+
+  let arr = [];
+
+  if(ids.indexOf(',') !== -1) {
+    arr = ids.split(',');
+  }else if(arr.constructor === Array) {
+    arr = ids;
+  }
+
+  let cursor = templateInfo.collection.find({ _id: { $in: arr } });
+
+  if(fieldsNeed) {
+    cursor = cursor.project(utils.formatSortOrFieldsParams(fieldsNeed, false));
+  }
+
+  cursor.toArray((err, docs) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, docs);
+  });
 };
 
 service.listUsableTemplate = function listUsableTemplate(userInfo, pageSize, cb) {
@@ -430,6 +460,8 @@ function composeTranscodeTemplates(transcodeTemplates) {
     return { status: '0', result: i18n.t('templateTranscodeTemplatesInvalidJSON') };
   }
 }
+
+service.composeTranscodeTemplates = composeTranscodeTemplates;
 
 service.createDownloadTemplate = function createDownloadTemplate(params, cb) {
   const info = utils.merge({
@@ -597,6 +629,7 @@ function runTemplateSelector(info, code) {
     let sandbox = {
       result: '',
     };
+
     sandbox = Object.assign(sandbox, info);
     const script = new vm.Script(code.replace(/(\r\n|\n|\r)/gm, ''));
     script.runInNewContext(sandbox);
@@ -607,9 +640,29 @@ function runTemplateSelector(info, code) {
   }
 }
 
-function filterTranscodeTemplates(doc = {}, fileInfo = {}, cb) {
+function getTranscode(fp, templatesInfo, downloadTemplateInfo) {
+  const fileInfo = {};
+  const name = fp ? fp : '*';
+
+  if(fp) {
+    fileInfo.ext = path.extname(fp);
+    fileInfo.name = path.basename(fp).replace(fileInfo.ext, '');
+  }
+
+  console.log('templatesInfo vvv --->', templatesInfo)
+
+  const transcodeTemplate = runTemplateSelector({
+    transcodeTemplates: templatesInfo,
+    downloadTemplate: downloadTemplateInfo,
+    fileInfo,
+  }, downloadTemplateInfo.transcodeTemplateDetail.transcodeTemplateSelector);
+
+  return { file: name, template: transcodeTemplate };
+};
+
+function filterTranscodeTemplates(doc = {}, filePath='', cb, isResultReturnWithMap) {
   if (!doc.transcodeTemplateDetail || !doc.transcodeTemplateDetail.transcodeTemplateSelector) {
-    return cb && cb(null, doc.transcodeTemplateDetail ? doc.transcodeTemplateDetail.transcodeTemplates : '');
+    return cb && cb(null, doc.transcodeTemplateDetail ? doc.transcodeTemplateDetail.transcodeTemplates : isResultReturnWithMap ? [] : '');
   }
 
   jobService.listTemplate({ page: 1, pageSize: 999 }, (err, rs) => {
@@ -623,6 +676,7 @@ function filterTranscodeTemplates(doc = {}, fileInfo = {}, cb) {
 
     const transcodeTemplates = doc.transcodeTemplateDetail.transcodeTemplates;
     const info = { };
+
     for (let i = 0, len = transcodeTemplates.length; i < len; i++) {
       for (let j = 0, l = rs.data.docs.length; j < l; j++) {
         if (rs.data.docs[j].id === transcodeTemplates[i]._id) {
@@ -631,13 +685,33 @@ function filterTranscodeTemplates(doc = {}, fileInfo = {}, cb) {
       }
     }
 
-    const transcodeTemplate = runTemplateSelector({
-      transcodeTemplates: info,
-      downloadTemplate: doc,
-      fileInfo,
-    }, doc.transcodeTemplateDetail.transcodeTemplateSelector);
+    console.log('adfasdfsdf -->', rs.data.docs, info, transcodeTemplates);
 
-    return cb && cb(null, transcodeTemplate);
+    if(!filePath) {
+      let r = getTranscode(filePath, info, doc);
+      return cb && cb(null, isResultReturnWithMap ? [r] : r.template);
+    }else {
+      let files = [];
+
+      if(filePath.indexOf(',') !== -1) {
+        files = filePath.split(',');
+      }else {
+        files.push(filePath);
+      }
+
+      let rs = [];
+
+      for(let i = 0, len = files.length; i < len; i++) {
+        rs.push(getTranscode(files[i], info, doc));
+      }
+
+      if(!isResultReturnWithMap) {
+        rs = rs[0].template;
+      }
+
+      return cb && cb(null, rs);
+    }
+
   });
 }
 
@@ -645,8 +719,6 @@ service.getTranscodeTemplate = function getTranscodeTemplate(id, filePath, cb) {
   if (!id) {
     return cb && cb(i18n.t('templateIdIsNotExist'));
   }
-
-  // service.query({ jobId }, res);
 
   service.getDetail(id, (err, doc) => {
     if (err) {
@@ -657,20 +729,16 @@ service.getTranscodeTemplate = function getTranscodeTemplate(id, filePath, cb) {
       return cb && cb(i18n.t('templateIsNotExist'));
     }
 
-    const fileInfo = {};
-    fileInfo.ext = path.extname(filePath);
-    fileInfo.name = path.basename(filePath).replace(fileInfo.ext, '');
-
-    filterTranscodeTemplates(doc, fileInfo, cb);
+    service.getTranscodeTemplateByDetail(doc, filePath, (err, r) => {
+      return cb && cb(err, r);
+    }, false);
   });
 };
 
-service.getTranscodeTemplateByDetail = function getTranscodeTemplateByDetail(doc, filePath, cb) {
-  const fileInfo = {};
-  fileInfo.ext = path.extname(filePath);
-  fileInfo.name = path.basename(filePath).replace(fileInfo.ext, '');
-
-  filterTranscodeTemplates(doc, fileInfo, cb);
+service.getTranscodeTemplateByDetail = function getTranscodeTemplateByDetail(doc, filePath, cb, isResultReturnWithMap) {
+  filterTranscodeTemplates(doc, filePath, (err, r) => {
+    return cb && cb(err, r);
+  }, isResultReturnWithMap);
 };
 
 service.searchUserOrGroup = function searchUserOrGroup(info, cb) {
