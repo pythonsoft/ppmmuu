@@ -11,7 +11,7 @@ const messageInfo = new MessageInfo();
 const service = {};
 
 service.add = function (info, cb) {
-  if(!utils.isEmptyObject(info)) {
+  if (!utils.isEmptyObject(info)) {
     return cb && cb(i18n.t('imMessageFieldsIsNull', { field: 'info' }));
   }
 
@@ -19,7 +19,7 @@ service.add = function (info, cb) {
   info.createTime = new Date();
 
   messageInfo.insertOne(info, (err, r) => {
-    if(err) {
+    if (err) {
       return cb && cb(err);
     }
 
@@ -28,33 +28,32 @@ service.add = function (info, cb) {
 };
 
 service.list = function (sessionId, page, pageSize, fieldNeeds, cb) {
-  if(!sessionId) {
+  if (!sessionId) {
     return cb && cb(i18n.t('imMessageFieldsIsNull', { field: 'sessionId' }));
   }
 
-  messageInfo.pagination({ sessionId: sessionId }, page, pageSize, (err, docs) => {
+  messageInfo.pagination({ sessionId }, page, pageSize, (err, docs) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
 
     return cb && cb(null, docs);
-
   }, '-createdTime', fieldNeeds);
 };
 
 service.getDetail = function (_id, fields, cb) {
-  if(!_id) {
+  if (!_id) {
     return cb && cb(i18n.t('imMessageFieldsIsNull', { field: '_id' }));
   }
 
   const options = {};
 
-  if(fields) {
+  if (fields) {
     options.fields = utils.formatSortOrFieldsParams(fields, false);
   }
 
-  messageInfo.collection.findOne({ _id: _id }, options, (err, doc) => {
+  messageInfo.collection.findOne({ _id }, options, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));

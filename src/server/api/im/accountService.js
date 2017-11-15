@@ -9,8 +9,8 @@ const accountInfo = new AccountInfo();
 
 const service = {};
 
-service.login = function(id, cb) {
-  if(!id) {
+service.login = function (id, cb) {
+  if (!id) {
     return cb && cb(i18n.t('imAccountFieldsIsNull', { fields: 'id' }));
   }
   accountInfo.collection.findOne({ _id: id }, (err, doc) => {
@@ -19,16 +19,16 @@ service.login = function(id, cb) {
       return cb && cb(i18n.t('databaseError'));
     }
 
-    if(doc) {
+    if (doc) {
       return cb && cb(null, doc);
     }
 
     userService.getUsers(id, (err, docs) => {
-      if(err) {
+      if (err) {
         return cb && cb(err);
       }
 
-      if(!docs || docs.length === 0) {
+      if (!docs || docs.length === 0) {
         return cb && cb(i18n.t('imUserIsNotExist'));
       }
 
@@ -49,32 +49,29 @@ service.login = function(id, cb) {
 
         return cb && cb(null, info);
       });
-
     });
-
   });
 };
 
 service.update = function (id, updateInfo, cb) {
- if(id) {
-   return cb && cb(i18n.t('imAccountFieldsIsNull', { fields: 'id' }));
- }
+  if (id) {
+    return cb && cb(i18n.t('imAccountFieldsIsNull', { fields: 'id' }));
+  }
 
- if(updateInfo._id) {
-   delete updateInfo._id;
- }
+  if (updateInfo._id) {
+    delete updateInfo._id;
+  }
 
- updateInfo.modifyTime = new Date();
+  updateInfo.modifyTime = new Date();
 
- accountInfo.updateOne({ _id: id }, updateInfo, (err, r) => {
-   if (err) {
-     logger.error(err.message);
-     return cb && cb(i18n.t('databaseError'));
-   }
+  accountInfo.updateOne({ _id: id }, updateInfo, (err, r) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
 
-   return cb && cb(null, r);
- });
-
+    return cb && cb(null, r);
+  });
 };
 
 service.getUsers = function getUsers(ids, cb) {
@@ -83,11 +80,11 @@ service.getUsers = function getUsers(ids, cb) {
   }
   const q = {};
 
-  if(ids.constructor === Array) {
-    q._id = { $in: ids }
-  }else if(ids.indexOf(',')) {
-    q._id = { $in: ids.split(',') }
-  }else {
+  if (ids.constructor === Array) {
+    q._id = { $in: ids };
+  } else if (ids.indexOf(',')) {
+    q._id = { $in: ids.split(',') };
+  } else {
     q._id = ids;
   }
 

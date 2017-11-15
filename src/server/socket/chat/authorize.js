@@ -5,22 +5,23 @@ const utils = require('../../common/utils');
 const result = require('../../common/result');
 const config = require('../../config');
 const i18n = require('i18next');
+
 const KEY = config.KEY;
 
-let authorize = function(socket) {
-  let authorize = socket.request.headers['x-custom-header-for-authorize'] || utils.formatCookies(socket.request.headers.cookie)['ticket'];
+const authorize = function (socket) {
+  const authorize = socket.request.headers['x-custom-header-for-authorize'] || utils.formatCookies(socket.request.headers.cookie).ticket;
   let secret = socket.request.headers['x-custom-header-secret'] || '0';
 
-  if(authorize) {
-    try{
-      let dec = utils.decipher(authorize, KEY);
-      let codes = dec.split(',');
-      let userId = codes[0];
-      let expireDate = codes[1];
+  if (authorize) {
+    try {
+      const dec = utils.decipher(authorize, KEY);
+      const codes = dec.split(',');
+      const userId = codes[0];
+      const expireDate = codes[1];
 
       const now = new Date().getTime();
 
-      if(expireDate < now) { //过期
+      if (expireDate < now) { // 过期
         return result.fail(i18n.t('imLoginDateExpire'));
       }
 
@@ -28,17 +29,16 @@ let authorize = function(socket) {
 
       utils.console('secret', secret === '1' ? '加密传输' : '普通传输');
 
-      if(userId) {
+      if (userId) {
         return result.success({ socketId: socket.id, info: { userId, secret } });
-      }else {
-        return result.fail(i18n.t('imAuthorizeInvalid'));
       }
-    }catch (e) {
+      return result.fail(i18n.t('imAuthorizeInvalid'));
+    } catch (e) {
       return result.fail(i18n.t('imAuthorizeInvalid'));
     }
-  }else {
+  } else {
     return result.fail(i18n.t('imAuthorizeInHeadInvalid'));
-  };
+  }
 };
 
 module.exports = authorize;

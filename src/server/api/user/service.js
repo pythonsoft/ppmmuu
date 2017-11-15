@@ -581,11 +581,11 @@ service.getUsers = function getUsers(ids, cb) {
   }
   const q = {};
 
-  if(ids.constructor === Array) {
-    q._id = { $in: ids }
-  }else if(ids.indexOf(',')) {
-    q._id = { $in: ids.split(',') }
-  }else {
+  if (ids.constructor === Array) {
+    q._id = { $in: ids };
+  } else if (ids.indexOf(',')) {
+    q._id = { $in: ids.split(',') };
+  } else {
     q._id = ids;
   }
 

@@ -401,21 +401,21 @@ utils.formatValueNeedSplitWidthFlag = function formatParamsNeedSplitWidthFlag(va
   return v.split(flag);
 };
 
-utils.console = function(title, content) {
-  console.log('******** '+ title +' ********');
-  if(!content) {
+utils.console = function (title, content) {
+  console.log(`******** ${title} ********`);
+  if (!content) {
     return false;
   }
   console.log(content);
-  console.log('******** '+ title +' ********');
+  console.log(`******** ${title} ********`);
 };
 
-utils.formatCookies = function(cookies) {
-  let cs = {};
-  if(!cookies) { return cs; }
-  let arr = cookies.split('; ');
+utils.formatCookies = function (cookies) {
+  const cs = {};
+  if (!cookies) { return cs; }
+  const arr = cookies.split('; ');
   let temp = '';
-  for(let i = 0, len = arr.length; i < len; i++) {
+  for (let i = 0, len = arr.length; i < len; i++) {
     temp = arr[i].split('=');
     cs[temp[0]] = temp[1];
   }

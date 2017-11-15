@@ -206,10 +206,10 @@ const getEsOptions = function getEsOptions(info) {
     for (let i = 0, len = arr.length; i < len; i++) {
       const temp = arr[i];
       if (temp.value) {
-        if(temp.key === key){
+        if (temp.key === key) {
           const full_text = temp.value.trim().split(' ');
-          for(let j = 0, len1 = full_text.length; j < len1; j++) {
-            if(full_text[j]) {
+          for (let j = 0, len1 = full_text.length; j < len1; j++) {
+            if (full_text[j]) {
               const item = {
                 match: {},
               };
@@ -217,7 +217,7 @@ const getEsOptions = function getEsOptions(info) {
               rs.push(item);
             }
           }
-        }else {
+        } else {
           const item = {
             match: {},
           };
@@ -235,8 +235,8 @@ const getEsOptions = function getEsOptions(info) {
       const temp = arr[i];
       if (temp.value && temp.key === key) {
         const full_text = temp.value.trim().split(' ');
-        for(let j = 0, len1 = full_text.length; j < len1; j++) {
-          if(full_text[j]) {
+        for (let j = 0, len1 = full_text.length; j < len1; j++) {
+          if (full_text[j]) {
             const item = {
               match: {},
             };
@@ -311,47 +311,47 @@ const getEsOptions = function getEsOptions(info) {
   if (must.length && mustShould.length) {
     options.query = {
       bool: {
-        must : {
+        must: {
           bool: {
             should: mustShould,
-            minimum_should_match: "75%",
-            must: must
-          }
+            minimum_should_match: '75%',
+            must,
+          },
         },
       },
     };
-  }else if(must.length){
+  } else if (must.length) {
     options.query = {
       bool: {
-        must : {
+        must: {
           bool: {
-            must: must
-          }
+            must,
+          },
         },
       },
     };
-  }else if(mustShould.length){
+  } else if (mustShould.length) {
     options.query = {
       bool: {
-        must : {
+        must: {
           bool: {
             should: mustShould,
-            minimum_should_match: "75%",
-          }
+            minimum_should_match: '75%',
+          },
         },
       },
     };
   }
 
   if (shoulds.length) {
-    if(options.query) {
+    if (options.query) {
       options.query.bool.should = shoulds;
-    }else{
+    } else {
       options.query = {
         bool: {
-          should: shoulds
-        }
-      }
+          should: shoulds,
+        },
+      };
     }
   }
 
@@ -365,8 +365,6 @@ const getEsOptions = function getEsOptions(info) {
       fields: highlight,
     };
   }
-
-  console.log(JSON.stringify(options));
 
   return options;
 };

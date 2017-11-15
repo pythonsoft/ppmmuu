@@ -31,7 +31,7 @@ class TemplateInfo extends DB {
             transcodeTemplateSelector: '',
             transcodeTemplates: [],
           };
-        }
+        },
       },
     };
   }
