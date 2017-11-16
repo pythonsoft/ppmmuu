@@ -16,13 +16,13 @@ const sessionInfo = new SessionInfo();
 
 const service = {};
 
-//列出含有userId的会话列表
-service.list = function (userId, page=1, pageSize=50, fieldNeeds, sort='-modifyTime', cb) {
-  if(!userId) {
+// 列出含有userId的会话列表
+service.list = function (userId, page = 1, pageSize = 50, fieldNeeds, sort = '-modifyTime', cb) {
+  if (!userId) {
     return cb && cb(i18n.t('imSessionFieldsIsNull', { field: 'userId' }));
   }
 
-  sessionInfo.pagination({ "members._id": userId }, page, pageSize, (err, docs) => {
+  sessionInfo.pagination({ 'members._id': userId }, page, pageSize, (err, docs) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -33,15 +33,15 @@ service.list = function (userId, page=1, pageSize=50, fieldNeeds, sort='-modifyT
 };
 
 service.add = function (creatorId, info, cb) {
-  if(!creatorId) {
+  if (!creatorId) {
     return cb && cb(i18n.t('imSessionFieldsIsNull', { field: 'creatorId' }));
   }
 
-  if(utils.isEmptyObject(info)) {
+  if (utils.isEmptyObject(info)) {
     return cb && cb(i18n.t('imSessionFieldsIsNull', { field: 'info' }));
   }
 
-  if(!info._id) {
+  if (!info._id) {
     info._id = uuid.v1();
   }
 
@@ -50,12 +50,12 @@ service.add = function (creatorId, info, cb) {
   info.modifyTime = t;
   info.creatorId = creatorId;
 
-  if(!info.members) {
+  if (!info.members) {
     return cb && cb(i18n.t('imSessionFieldsIsNull', { field: 'members' }));
   }
 
   accountService.getUsers(info.members, (err, users) => {
-    if(err) {
+    if (err) {
       return cb && cb(err);
     }
 
@@ -68,17 +68,15 @@ service.add = function (creatorId, info, cb) {
 
       return cb && cb(null, info);
     });
-
   });
-
 };
 
 service.addToSession = function (sessionId, userId, cb) {
-  if(!sessionId) {
+  if (!sessionId) {
     return cb && cb(i18n.t('imSessionFieldsIsNull', { field: 'sessionId' }));
   }
 
-  if(!userId) {
+  if (!userId) {
     return cb && cb(i18n.t('imSessionFieldsIsNull', { field: 'userId' }));
   }
 
@@ -88,22 +86,22 @@ service.addToSession = function (sessionId, userId, cb) {
       return cb && cb(i18n.t('databaseError'));
     }
 
-    if(!session) {
+    if (!session) {
       return cb && cb(i18n.t('imSessionIsNotExist'));
     }
 
-    for(let i = 0, len = session.members.length; i < len; i++) {
-      if(session.members[i]._id === userId) {
+    for (let i = 0, len = session.members.length; i < len; i++) {
+      if (session.members[i]._id === userId) {
         return cb && cb(i18n.t('imMemberHasBeenSession'));
       }
     }
 
     accountService.getUsers(userId, (err, docs) => {
-      if(err) {
+      if (err) {
         return cb && cb(err);
       }
 
-      if(docs && docs.length === 0) {
+      if (docs && docs.length === 0) {
         return cb && cb(i18n.t('imMemberIsNotExist'));
       }
 
@@ -115,9 +113,7 @@ service.addToSession = function (sessionId, userId, cb) {
 
         return cb && cb(null, r);
       });
-
     });
-
   });
 };
 

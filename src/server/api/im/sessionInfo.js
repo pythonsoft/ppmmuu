@@ -17,20 +17,23 @@ class SessionInfo extends DB {
       _id: { type: 'string', default: () => uuid.v1() },
       name: { type: 'string', validation: 'require' },
       creatorId: { type: 'string', validation: 'require', allowUpdate: false },
-      type: { type: 'string', allowUpdate: false, validation(v) {
-        let flag = false;
+      type: { type: 'string',
+        allowUpdate: false,
+        validation(v) {
+          let flag = false;
 
-        for (let k in SessionInfo.TYPE) {
-          if(v === SessionInfo.TYPE[k]) {
-            flag = true;
+          for (const k in SessionInfo.TYPE) {
+            if (v === SessionInfo.TYPE[k]) {
+              flag = true;
+            }
           }
-        }
 
-        return flag;
-      }, default: () => SessionInfo.TYPE.C2C },
+          return flag;
+        },
+        default: () => SessionInfo.TYPE.C2C },
       members: { type: 'array' }, // [{ _id: '', name: '', photo: '' }]
       createdTime: { type: 'date', validation: 'require', allowUpdate: false },
-      modifyTime: { type: 'date', validation: 'require',  },
+      modifyTime: { type: 'date', validation: 'require' },
       details: { type: 'object' },
     };
   }
@@ -38,7 +41,7 @@ class SessionInfo extends DB {
 
 SessionInfo.TYPE = {
   C2C: '0',
-  GROUP: '1'
+  GROUP: '1',
 };
 
 module.exports = SessionInfo;

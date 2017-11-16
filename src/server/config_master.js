@@ -86,11 +86,13 @@ config.mediaExpressUrl = 'https://leo.cloudifeng.com/';
 config.upgradePackage = config.uploadPath;
 
 config.upgradeSystem = {
+  // ump: '/Users/chaoningx/Desktop/temp/ump',
+  // fe: '/Users/chaoningx/Desktop/temp/fe',
   ump: '',
   fe: '',
 };
 
-// 系统里边绑定了快传帐号的帐号
-config.phoenixAdminUserName = 'xuyawen';
-// 下载模板Id
-config.subscribeDownloadTemplateId = 'subscribe_autopush';
+
+// 订阅自动推送配置
+config.phoenixAdminUserName = 'xuyawen';   // 快传发送方
+config.subscribeDownloadTemplateId = 'subscribe_autopush';   // 下载模板Id

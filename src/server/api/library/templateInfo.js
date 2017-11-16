@@ -18,7 +18,7 @@ class TemplateInfo extends DB {
       source: { type: 'string', validation: 'require' }, // 来源：MAM, MAS, 。。。
       creator: { type: 'object', default() { return { _id: '', name: '' }; } },
       department: { type: 'object', default() { return { _id: '', name: '' }; } },
-      hdExt: { type: 'array' }, //高码流文件后缀，用于当入库没有低码的时候，从此挑出高码流视频进行转码，支持多个
+      hdExt: { type: 'array' }, // 高码流文件后缀，用于当入库没有低码的时候，从此挑出高码流视频进行转码，支持多个
       createdTime: { type: 'date', validation: 'require', allowUpdate: false },
       lastModifyTime: { type: 'date', validation: 'require' },
       details: { type: 'object' },
@@ -29,7 +29,7 @@ class TemplateInfo extends DB {
             script: '',
             templatesId: [],
           };
-        }
+        },
       },
     };
   }

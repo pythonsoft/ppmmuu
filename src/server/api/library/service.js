@@ -750,13 +750,13 @@ service.getFile = function getFile(id, cb) {
 const checkHdExt = function (hdExt) {
   const constructorType = hdExt.constructor;
   let arr = [];
-  if(constructorType === String) {
-    if(hdExt.indexOf(',')) {
+  if (constructorType === String) {
+    if (hdExt.indexOf(',')) {
       arr = hdExt.split(',');
-    }else {
-      arr = [ hdExt ];
+    } else {
+      arr = [hdExt];
     }
-  } else if(constructorType !== Array) {
+  } else if (constructorType !== Array) {
     return { err: i18n.t('libraryTemplateInfoFieldIsInvalid', { field: 'hdExt' }), result: '' };
   }
 
@@ -765,7 +765,7 @@ const checkHdExt = function (hdExt) {
 
 /* 入库模板 */
 service.addTemplate = function addTemplate(info, creatorId, creatorName, cb) {
-  if(utils.isEmptyObject(info)) {
+  if (utils.isEmptyObject(info)) {
     return cb && cb(i18n.t('libraryTemplateInfoIsNull'));
   }
 
@@ -777,11 +777,11 @@ service.addTemplate = function addTemplate(info, creatorId, creatorName, cb) {
     hdExt: [],
   }, info);
 
-  if(!tInfo.source) {
+  if (!tInfo.source) {
     return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: 'source' }));
   }
 
-  if(!tInfo.departmentId) {
+  if (!tInfo.departmentId) {
     return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: 'departmentId' }));
   }
 
@@ -797,7 +797,7 @@ service.addTemplate = function addTemplate(info, creatorId, creatorName, cb) {
     templatesId: [],
   };
 
-  if(tInfo.transcodeTemplates) {
+  if (tInfo.transcodeTemplates) {
     const rs = templateService.composeTranscodeTemplates(tInfo.transcodeTemplates);
     if (rs.status !== '0') {
       return cb && cb(rs.result);
@@ -806,9 +806,9 @@ service.addTemplate = function addTemplate(info, creatorId, creatorName, cb) {
     }
   }
 
-  if(tInfo.hdExt) {
+  if (tInfo.hdExt) {
     const exRs = checkHdExt(tInfo.hdExt);
-    if(exRs.err) {
+    if (exRs.err) {
       return cb && cb(exRs.err);
     }
 
@@ -816,34 +816,32 @@ service.addTemplate = function addTemplate(info, creatorId, creatorName, cb) {
   }
 
   groupService.getGroup(tInfo.departmentId, (err, doc) => {
-    if(err) {
+    if (err) {
       return cb && cb(err);
     }
 
-    if(!doc) {
+    if (!doc) {
       return cb && cb(i18n.t('libraryDepartmentInfoIsNotExist'));
     }
 
     tInfo.department = { _id: doc._id, name: doc.name };
 
-    templateInfo.insertOne(tInfo, err => {
-      if(err) {
+    templateInfo.insertOne(tInfo, (err) => {
+      if (err) {
         return cb && cb(err);
       }
 
       return cb && cb(null, tInfo);
     });
-
   });
-
 };
 
 service.getTemplateInfo = function getTemplateInfo(_id, cb) {
-  if(!_id) {
+  if (!_id) {
     return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: '_id' }));
   }
 
-  templateInfo.collection.findOne({ _id: _id }, (err, doc) => {
+  templateInfo.collection.findOne({ _id }, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -854,34 +852,34 @@ service.getTemplateInfo = function getTemplateInfo(_id, cb) {
 };
 
 service.getTemplateResult = function getTemplateResult(_id, filePath, cb) {
-  if(!_id) {
+  if (!_id) {
     return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: '_id' }));
   }
 
-  if(!filePath) {
+  if (!filePath) {
     return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: 'filePath' }));
   }
 
-  //拿到部门信息
-  templateInfo.collection.findOne({ _id: _id }, (err, doc) => {
+  // 拿到部门信息
+  templateInfo.collection.findOne({ _id }, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
 
-    if(!doc) {
+    if (!doc) {
       return cb && cb(i18n.t('libraryTemplateInfoIsNotExist'));
     }
 
     templateService.getTranscodeTemplateByDetail({ transcodeTemplateDetail: {
       transcodeTemplates: doc.transcodeTemplateDetail.templatesId || [],
-      transcodeTemplateSelector: doc.transcodeTemplateDetail.script || ''
-    }}, filePath, (err, rs) => {
-      if(err) {
+      transcodeTemplateSelector: doc.transcodeTemplateDetail.script || '',
+    } }, filePath, (err, rs) => {
+      if (err) {
         return cb && cb(err);
       }
 
-      doc.templateId = rs; //转码模板ID，这是工作流接口需要使用的参数
+      doc.templateId = rs; // 转码模板ID，这是工作流接口需要使用的参数
 
       return cb && cb(null, templateInfo.getJobVo(doc));
     }, true);
@@ -902,11 +900,11 @@ service.listTemplate = function listCatalogTask(fieldsNeed, page = 1, pageSize =
 };
 
 service.removeTemplate = function removeTemplate(_id, cb) {
-  if(!_id) {
+  if (!_id) {
     return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: '_id' }));
   }
 
-  templateInfo.collection.removeOne({ _id: _id }, (err, r) => {
+  templateInfo.collection.removeOne({ _id }, (err, r) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -917,22 +915,22 @@ service.removeTemplate = function removeTemplate(_id, cb) {
 };
 
 service.updateTemplate = function updateTemplate(_id, info, cb) {
-  if(!_id) {
+  if (!_id) {
     return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: '_id' }));
   }
 
   const updateInfo = {};
 
-  if(info.hdExt) {
+  if (info.hdExt) {
     const exRs = checkHdExt(info.hdExt);
-    if(exRs.err) {
+    if (exRs.err) {
       return cb && cb(exRs.err);
     }
 
     updateInfo.hdExt = exRs.result;
   }
 
-  if(info.transcodeTemplates) {
+  if (info.transcodeTemplates) {
     const rs = templateService.composeTranscodeTemplates(info.transcodeTemplates);
     if (rs.status !== '0') {
       return cb && cb(rs.result);
@@ -942,82 +940,49 @@ service.updateTemplate = function updateTemplate(_id, info, cb) {
     }
   }
 
-  if(typeof info.source !== 'undefined') {
+  if (typeof info.source !== 'undefined') {
     updateInfo.source = info.source;
   }
 
-  if(typeof info.transcodeScript !== 'undefined') {
-    if(!updateInfo.transcodeTemplateDetail) {
+  if (typeof info.transcodeScript !== 'undefined') {
+    if (!updateInfo.transcodeTemplateDetail) {
       updateInfo.transcodeTemplateDetail = {};
     }
     updateInfo.transcodeTemplateDetail.script = info.transcodeScript;
   }
 
-  if(info.departmentId) {
+  if (info.departmentId) {
     groupService.getGroup(info.departmentId, (err, doc) => {
-      if(err) {
+      if (err) {
         return cb && cb(err);
       }
 
-      if(!doc) {
+      if (!doc) {
         return cb && cb(i18n.t('libraryDepartmentInfoIsNotExist'));
       }
 
       updateInfo.department = { _id: doc._id, name: doc.name };
 
-      templateInfo.updateOne({ _id: _id }, updateInfo, err => {
-        if(err) {
+      templateInfo.updateOne({ _id }, updateInfo, (err) => {
+        if (err) {
           return cb && cb(err);
         }
 
         return cb && cb(null, updateInfo);
       });
-
     });
-  }else {
-    templateInfo.updateOne({ _id: _id }, updateInfo, err => {
-      if(err) {
+  } else {
+    templateInfo.updateOne({ _id }, updateInfo, (err) => {
+      if (err) {
         return cb && cb(err);
       }
 
       return cb && cb(null, updateInfo);
     });
   }
-
 };
 
 /* 入库模板 */
 
 module.exports = service;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

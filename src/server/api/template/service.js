@@ -342,15 +342,15 @@ service.listByIds = function listByIds(ids, fieldsNeed, cb) {
 
   let arr = [];
 
-  if(ids.indexOf(',') !== -1) {
+  if (ids.indexOf(',') !== -1) {
     arr = ids.split(',');
-  }else if(arr.constructor === Array) {
+  } else if (arr.constructor === Array) {
     arr = ids;
   }
 
   let cursor = templateInfo.collection.find({ _id: { $in: arr } });
 
-  if(fieldsNeed) {
+  if (fieldsNeed) {
     cursor = cursor.project(utils.formatSortOrFieldsParams(fieldsNeed, false));
   }
 
@@ -642,14 +642,14 @@ function runTemplateSelector(info, code) {
 
 function getTranscode(fp, templatesInfo, downloadTemplateInfo) {
   const fileInfo = {};
-  const name = fp ? fp : '*';
+  const name = fp || '*';
 
-  if(fp) {
+  if (fp) {
     fileInfo.ext = path.extname(fp);
     fileInfo.name = path.basename(fp).replace(fileInfo.ext, '');
   }
 
-  console.log('templatesInfo vvv --->', templatesInfo)
+  console.log('templatesInfo vvv --->', templatesInfo);
 
   const transcodeTemplate = runTemplateSelector({
     transcodeTemplates: templatesInfo,
@@ -658,9 +658,9 @@ function getTranscode(fp, templatesInfo, downloadTemplateInfo) {
   }, downloadTemplateInfo.transcodeTemplateDetail.transcodeTemplateSelector);
 
   return { file: name, template: transcodeTemplate };
-};
+}
 
-function filterTranscodeTemplates(doc = {}, filePath='', cb, isResultReturnWithMap) {
+function filterTranscodeTemplates(doc = {}, filePath = '', cb, isResultReturnWithMap) {
   if (!doc.transcodeTemplateDetail || !doc.transcodeTemplateDetail.transcodeTemplateSelector) {
     return cb && cb(null, doc.transcodeTemplateDetail ? doc.transcodeTemplateDetail.transcodeTemplates : isResultReturnWithMap ? [] : '');
   }
@@ -690,7 +690,7 @@ function filterTranscodeTemplates(doc = {}, filePath='', cb, isResultReturnWithM
     if(!filePath) {
       let r = getTranscode(filePath, info, doc);
       return cb && cb(null, isResultReturnWithMap ? [r] : r.template);
-    }else {
+    }
       let files = [];
 
       if(filePath.indexOf(',') !== -1) {
@@ -699,18 +699,18 @@ function filterTranscodeTemplates(doc = {}, filePath='', cb, isResultReturnWithM
         files.push(filePath);
       }
 
-      let rs = [];
+      let result = [];
 
       for(let i = 0, len = files.length; i < len; i++) {
-        rs.push(getTranscode(files[i], info, doc));
+        result.push(getTranscode(files[i], info, doc));
       }
 
       if(!isResultReturnWithMap) {
-        rs = rs[0].template;
+        result = result[0].template;
       }
 
-      return cb && cb(null, rs);
-    }
+      return cb && cb(null, result);
+    
 
   });
 }
@@ -729,16 +729,12 @@ service.getTranscodeTemplate = function getTranscodeTemplate(id, filePath, cb) {
       return cb && cb(i18n.t('templateIsNotExist'));
     }
 
-    service.getTranscodeTemplateByDetail(doc, filePath, (err, r) => {
-      return cb && cb(err, r);
-    }, false);
+    service.getTranscodeTemplateByDetail(doc, filePath, (err, r) => cb && cb(err, r), false);
   });
 };
 
 service.getTranscodeTemplateByDetail = function getTranscodeTemplateByDetail(doc, filePath, cb, isResultReturnWithMap) {
-  filterTranscodeTemplates(doc, filePath, (err, r) => {
-    return cb && cb(err, r);
-  }, isResultReturnWithMap);
+  filterTranscodeTemplates(doc, filePath, (err, r) => cb && cb(err, r), isResultReturnWithMap);
 };
 
 service.searchUserOrGroup = function searchUserOrGroup(info, cb) {

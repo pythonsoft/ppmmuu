@@ -637,39 +637,6 @@ router.post('/adAccountSync', (req, res) => {
   service.batchAdAccountSync(req.body.infos, (err, r) => res.json(result.json(err, r)));
 });
 
-/**
- * @apiName: getUsers
- * @apiFuncType: post
- * @permissionGroup: account
- * @permissionName: 取得多个用户的信息
- * @permissionPath: /user/getUsers
- * @apiFuncUrl: /user/getUsers
- * @swagger
- * /user/getUsers:
- *   post:
- *     description: 取得多个用户的信息
- *     version: 1.0.0
- *     tags:
- *       - v1
- *     produces:
- *       - application/json
- *     parameters:
- *       - in: body
- *         name: body
- *         description: get users detail
- *         schema:
- *           type: object
- *           properties:
- *             ids:
- *               type: string
- *     responses:
- *       200:
- *         description: remove history
- */
-router.post('/getUsers', (req, res) => {
-  service.getUsers(req.body.ids, (err, r) => res.json(result.json(err, r)));
-});
-
 /* downloadTask */
 /**
  * @apiName: listJob

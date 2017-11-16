@@ -5,20 +5,21 @@ const uuid = require('uuid');
 const userService = require('../user/service');
 
 const ContactInfo = require('./contactInfo');
+
 const contactInfo = new ContactInfo();
 
 const service = {};
 
 service.add = function (info, ownerId, cb) {
-  if(utils.isEmptyObject(info)) {
+  if (utils.isEmptyObject(info)) {
     return cb && cb(i18n.t('imContactFieldsIsNull', { field: 'info' }));
   }
 
-  if(!info.type) {
+  if (!info.type) {
     return cb && cb(i18n.t('imContactFieldsIsNull', { field: 'type' }));
   }
 
-  if(!info.ownerId) {
+  if (!info.ownerId) {
     return cb && cb(i18n.t('imContactFieldsIsNull', { field: 'ownerId' }));
   }
 
@@ -28,10 +29,9 @@ service.add = function (info, ownerId, cb) {
   info.modifyTime = t;
   info.ownerId = ownerId;
 
-  const insertOne = function(o) {
-
+  const insertOne = function (o) {
     contactInfo.insertOne(o, (err, r) => {
-      if(err) {
+      if (err) {
         return cb && cb(err);
       }
 
@@ -39,37 +39,35 @@ service.add = function (info, ownerId, cb) {
     });
   };
 
-  if(info.type !== ContactInfo.TYPE.PERSON) {
+  if (info.type !== ContactInfo.TYPE.PERSON) {
     info._id = uuid.v1();
 
     insertOne(info);
-  }else {
-
+  } else {
     userService.getUsers(info._id, (err, docs) => {
-      if(err) {
+      if (err) {
         return cb && cb(err);
       }
 
-      if(!docs || docs.length === 0) {
+      if (!docs || docs.length === 0) {
         return cb && cb(i18n.t('imUserIsNotExist'));
       }
 
       insertOne(info);
     });
   }
-
 };
 
 service.update = function (_id, updateInfo, cb) {
-  if(!_id) {
+  if (!_id) {
     return cb && cb(i18n.t('imContactFieldsIsNull', { field: '_id' }));
   }
 
-  if(updateInfo._id) {
+  if (updateInfo._id) {
     delete updateInfo._id;
   }
 
-  contactInfo.updateOne({ _id: _id }, updateInfo, (err, r) => {
+  contactInfo.updateOne({ _id }, updateInfo, (err, r) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -80,20 +78,20 @@ service.update = function (_id, updateInfo, cb) {
 };
 
 service.list = function (ownerId, type, cb) {
-  if(!ownerId) {
+  if (!ownerId) {
     return cb && cb(i18n.t('imContactFieldsIsNull', { field: 'ownerId' }));
   }
 
   const q = {
-    ownerId: ownerId
+    ownerId,
   };
 
-  if(type) {
+  if (type) {
     q.type = type;
   }
 
   contactInfo.collection.find(q).toArray((err, docs) => {
-    if(err) {
+    if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }

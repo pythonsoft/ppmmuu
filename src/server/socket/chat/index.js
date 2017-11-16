@@ -10,50 +10,49 @@ const accountService = require('../../api/im/accountService');
 const sessionService = require('../../api/im/sessionService');
 
 // userId map socketIds
-let socketIds = {};
+const socketIds = {};
 
 class ChatIO {
   constructor(io) {
     const me = this;
     const chatIO = io.of('/chat');
 
-    /// authorize
-    chatIO.use(function(socket, next) {
+    // / authorize
+    chatIO.use((socket, next) => {
       const rs = authorize(socket, next());
 
-      if(rs.status === '0') {
+      if (rs.status === '0') {
         const data = rs.data;
         socket.info = data.info;
 
         me.login(socket, data.info.userId, () => {
           next();
         });
-
-      }else {
+      } else {
         socket.emit('error', rs);
         socket.disconnect();
       }
     });
 
-    chatIO.on('connection', function (socket) {
+    chatIO.on('connection', (socket) => {
       utils.console('connection.socket.id', socket.id);
       utils.console('connection.info', socket.info);
 
-      socket.on('message', function(msg) {
-        utils.console('message:' + new Date().getTime(), msg);
+      socket.on('message', (msg) => {
+        utils.console(`message:${new Date().getTime()}`, msg);
         me.dispatchMessage(msg, socket);
       });
 
-      socket.on('error', function(err) {
-        utils.console('socket error socket id: '+ socket.id, err);
+      socket.on('error', (err) => {
+        utils.console(`socket error socket id: ${socket.id}`, err);
         socket.disconnect();
       });
 
-      socket.on('disconnect', function() {
-        utils.console('disconnect with client :' + socket.id);
+      socket.on('disconnect', () => {
+        utils.console(`disconnect with client :${socket.id}`);
 
-        for(let i = 0; i < socket.rooms.length; i++) {
-          console.log(socket.info.userId + 'leave room ' + socket.rooms[i]);
+        for (let i = 0; i < socket.rooms.length; i++) {
+          console.log(`${socket.info.userId}leave room ${socket.rooms[i]}`);
           socket.leave(socket.rooms[i]);
         }
 
@@ -65,27 +64,27 @@ class ChatIO {
 
   dispatchMessage(msg, socket) {
     console.log(socket.rooms, msg);
-    if(!socket.rooms[msg.to]) {
-      socket.join(msg.to, function(err) {
+    if (!socket.rooms[msg.to]) {
+      socket.join(msg.to, (err) => {
         console.log(err, socket.rooms);
-        socket.to(msg.to).emit('chat', msg.from + ':' + msg.content);
+        socket.to(msg.to).emit('chat', `${msg.from}:${msg.content}`);
       });
-    }else {
-      socket.to(msg.to).emit('chat', msg.from + ':' + msg.content);
+    } else {
+      socket.to(msg.to).emit('chat', `${msg.from}:${msg.content}`);
     }
   }
 
   login(socket, userId, successFn) {
-    if(!socket.rooms[userId]) {
+    if (!socket.rooms[userId]) {
       accountService.login(userId, (err, doc) => {
-        if(err) {
+        if (err) {
           socket.emit('login', result.fail(err));
           socket.disconnect();
           return false;
         }
 
-        socket.join(doc._id, function (err) {
-          if(err) {
+        socket.join(doc._id, (err) => {
+          if (err) {
             socket.emit('login', result.fail(err.message));
             socket.disconnect();
             return false;
@@ -96,10 +95,8 @@ class ChatIO {
 
           return successFn && successFn();
         });
-
       });
-
-    }else {
+    } else {
       socket.emit('login', result.success(socket.accountInfo));
       return successFn && successFn();
     }
@@ -107,7 +104,7 @@ class ChatIO {
 
   getRecentContactList(socket, callback, page, pageSize, fieldNeeds, cb) {
     sessionService.list(socket.accountInfo._id, page, pageSize, fieldNeeds, '-modifyTime', (err, docs) => {
-      if(err) {
+      if (err) {
         return socket.emit('getRecentContactList', result.fail(err));
       }
 
@@ -115,7 +112,7 @@ class ChatIO {
     });
   }
 
-};
+}
 
 module.exports = ChatIO;
 

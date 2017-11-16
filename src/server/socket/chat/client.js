@@ -11,50 +11,50 @@ class ChatClient {
       port: 8090,
       key: 'BRYSJHHRHLYQQLMGSYCL',
       userId: 'chaoningx@163.com',
-      isCrypto: true
+      isCrypto: true,
     }, options);
 
     this.socket = null;
   }
 
   connect() {
-    let me = this;
-    const socket = clientConnect('http://' + me.settings.host + ':' + me.settings.port + '/chat', {
+    const me = this;
+    const socket = clientConnect(`http://${me.settings.host}:${me.settings.port}/chat`, {
       extraHeaders: {
-        'x-custom-header-for-authorize': utils.cipher(me.settings.userId + '-' + (me.settings.isCrypto ? 1 : 0), me.settings.key)
-      }
+        'x-custom-header-for-authorize': utils.cipher(`${me.settings.userId}-${me.settings.isCrypto ? 1 : 0}`, me.settings.key),
+      },
     });
 
     this.socket = socket;
 
-    socket.on('connect', function() {
+    socket.on('connect', () => {
       utils.console('socket connect', socket.id);
     });
 
-    socket.on('error', function(err) {
+    socket.on('error', (err) => {
       utils.console('error', err);
     });
 
-    socket.on('disconnect', function(msg) {
+    socket.on('disconnect', (msg) => {
       utils.console('disconnect with server', msg);
     });
 
-    socket.on('chat', function(msg) {
-      utils.console('chat receive', msg)
+    socket.on('chat', (msg) => {
+      utils.console('chat receive', msg);
     });
 
-    socket.on('joinRoomResult', function(rs) {
+    socket.on('joinRoomResult', (rs) => {
       utils.console('joinRoomResult', rs);
     });
   }
 
   sendMessage(to, message) {
-    let me = this;
+    const me = this;
     this.socket.emit('chat', {
       from: this.settings.userId,
-      to: to,
+      to,
       content: message,
-      _id: me.socket.id + '_' + new Date().getTime()
+      _id: `${me.socket.id}_${new Date().getTime()}`,
     });
   }
 
@@ -62,7 +62,7 @@ class ChatClient {
     this.socket.emit('joinRoom', roomId);
   }
 
-};
+}
 
 // let chatClient = new ChatClient({
 //   userId: 'chaoningx@163.com'
@@ -70,14 +70,14 @@ class ChatClient {
 // chatClient.connect();
 // chatClient.join('chaoningx');
 
-let g = new ChatClient({
-  userId: 'chaoningx@gmail.com'
+const g = new ChatClient({
+  userId: 'chaoningx@gmail.com',
 });
 g.connect();
 g.join('chaoningx');
 
-setTimeout(function() {
+setTimeout(() => {
   console.log('send message b');
-  g.sendMessage('chaoningx', 'hello, my name is ' + g.settings.userId);
+  g.sendMessage('chaoningx', `hello, my name is ${g.settings.userId}`);
 }, 5000);
 
