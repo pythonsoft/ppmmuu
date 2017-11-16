@@ -3,36 +3,16 @@
  */
 const utils = require('../../common/utils');
 
-const authorize = require('./authorize');
+const loginMiddleware = require('../../middleware/login');
 const result = require('../../common/result');
-
-const accountService = require('../../api/im/accountService');
+const helper = require('./helper');
 const sessionService = require('../../api/im/sessionService');
-
-// userId map socketIds
-const socketIds = {};
 
 class ChatIO {
   constructor(io) {
     const me = this;
     const chatIO = io.of('/chat');
-
-    // / authorize
-    chatIO.use((socket, next) => {
-      const rs = authorize(socket, next());
-
-      if (rs.status === '0') {
-        const data = rs.data;
-        socket.info = data.info;
-
-        me.login(socket, data.info.userId, () => {
-          next();
-        });
-      } else {
-        socket.emit('error', rs);
-        socket.disconnect();
-      }
-    });
+    chatIO.use(helper.ensureLogin);
 
     chatIO.on('connection', (socket) => {
       utils.console('connection.socket.id', socket.id);
@@ -56,8 +36,6 @@ class ChatIO {
           socket.leave(socket.rooms[i]);
         }
 
-        socketIds[socket.info.userId] = {};
-        delete socketIds[socket.info.userId][socket.id];
       });
     });
   }
@@ -74,35 +52,7 @@ class ChatIO {
     }
   }
 
-  login(socket, userId, successFn) {
-    if (!socket.rooms[userId]) {
-      accountService.login(userId, (err, doc) => {
-        if (err) {
-          socket.emit('login', result.fail(err));
-          socket.disconnect();
-          return false;
-        }
-
-        socket.join(doc._id, (err) => {
-          if (err) {
-            socket.emit('login', result.fail(err.message));
-            socket.disconnect();
-            return false;
-          }
-
-          socket.accountInfo = doc;
-          socket.emit('login', result.success(socket.accountInfo));
-
-          return successFn && successFn();
-        });
-      });
-    } else {
-      socket.emit('login', result.success(socket.accountInfo));
-      return successFn && successFn();
-    }
-  }
-
-  getRecentContactList(socket, callback, page, pageSize, fieldNeeds, cb) {
+  getRecentContactList(socket, page, pageSize, fieldNeeds) {
     sessionService.list(socket.accountInfo._id, page, pageSize, fieldNeeds, '-modifyTime', (err, docs) => {
       if (err) {
         return socket.emit('getRecentContactList', result.fail(err));

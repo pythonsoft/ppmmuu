@@ -685,8 +685,6 @@ function filterTranscodeTemplates(doc = {}, filePath = '', cb, isResultReturnWit
       }
     }
 
-    console.log('adfasdfsdf -->', rs.data.docs, info, transcodeTemplates);
-
     if(!filePath) {
       let r = getTranscode(filePath, info, doc);
       return cb && cb(null, isResultReturnWithMap ? [r] : r.template);
@@ -710,7 +708,7 @@ function filterTranscodeTemplates(doc = {}, filePath = '', cb, isResultReturnWit
       }
 
       return cb && cb(null, result);
-    
+
 
   });
 }
