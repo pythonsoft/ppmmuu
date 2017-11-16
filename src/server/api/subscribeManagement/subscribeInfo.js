@@ -35,6 +35,14 @@ class SubscribeInfo extends DB {
       creator: { type: 'object', default: { _id: '', name: '' } },  // 创建人
       createdTime: { type: 'date', validation: 'require', allowUpdate: false },
       lastModifyTime: { type: 'date', validation: 'require' },
+      autoPush: { type: 'boolean', default: true },    // 是否自动推送
+      transcodeTemplateDetail: { type: 'object',
+        default() {
+          return {
+            transcodeTemplateSelector: '',
+            transcodeTemplates: [],
+          };
+        } },
       description: { type: 'string' },
     };
   }

@@ -12,13 +12,16 @@ const i18nMiddleware = require('./middleware/i18n');
 const cors = require('cors');
 
 const app = express();
+const server = require('http').Server(app);
+const io = require('socket.io')(server);
 
 const corsOptions = {
   origin(origin, callback) {
     if (typeof origin === 'undefined' || config.whitelist.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(null, true);
+      // callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true,   // 允许跨域携带cookie
@@ -61,8 +64,9 @@ const initMongodb = function initMongodb(names, completeFn) {
 
 const runServer = function runServer(dbName = config.dbName) {
   initMongodb([dbName], () => {
-    app.listen(config.port, () => {
+    server.listen(config.port, () => {
       require('./apiPath.js')(app); // eslint-disable-line
+      require('./socketPath.js')(io); // eslint-disable-line
       require('./mongodbScript/index');
       require('./setTimeOutJob/index');
 

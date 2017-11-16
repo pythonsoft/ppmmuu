@@ -78,5 +78,5 @@ config.upgradeSystem = {
   // ump: '/Users/chaoningxie/Desktop/temp/install/ump',
   // fe: '/Users/chaoningxie/Desktop/temp/install/fe',
   ump: '',
-  fe: ''
+  fe: '',
 };

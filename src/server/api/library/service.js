@@ -21,7 +21,13 @@ const FileInfo = require('./fileInfo');
 
 const fileInfo = new FileInfo();
 
+const TemplateInfo = require('./templateInfo');
+
+const templateInfo = new TemplateInfo();
+
 const userService = require('../user/service');
+const groupService = require('../group/service');
+const templateService = require('../template/service');
 
 const service = {};
 
@@ -491,18 +497,18 @@ service.getCatalogTask = function getCatalogTask(taskId, cb) {
   });
 };
 
-service.getCatalogByObjectId = function(objectId, fields, cb) {
+service.getCatalogByObjectId = function (objectId, fields, cb) {
   if (!objectId) {
     return cb && cb(i18n.t('libraryCatalogObjectIdIsNull'));
   }
 
   const options = {};
 
-  if(fields) {
+  if (fields) {
     options.fields = fields;
   }
 
-  catalogTaskInfo.collection.findOne({ objectId: objectId }, options, (err, doc) => {
+  catalogTaskInfo.collection.findOne({ objectId }, options, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -710,7 +716,7 @@ service.updateFile = function updateFile(id, info = {}, cb) {
 
   info.lastModifyTime = new Date();
 
-  if(info._id) {
+  if (info._id) {
     delete info._id;
   }
 
@@ -741,4 +747,242 @@ service.getFile = function getFile(id, cb) {
 
 /* file */
 
+const checkHdExt = function (hdExt) {
+  const constructorType = hdExt.constructor;
+  let arr = [];
+  if (constructorType === String) {
+    if (hdExt.indexOf(',')) {
+      arr = hdExt.split(',');
+    } else {
+      arr = [hdExt];
+    }
+  } else if (constructorType !== Array) {
+    return { err: i18n.t('libraryTemplateInfoFieldIsInvalid', { field: 'hdExt' }), result: '' };
+  }
+
+  return { err: null, result: arr };
+};
+
+/* 入库模板 */
+service.addTemplate = function addTemplate(info, creatorId, creatorName, cb) {
+  if (utils.isEmptyObject(info)) {
+    return cb && cb(i18n.t('libraryTemplateInfoIsNull'));
+  }
+
+  const tInfo = utils.merge({
+    source: '',
+    departmentId: '',
+    transcodeTemplates: [], //
+    transcodeScript: '',
+    hdExt: [],
+  }, info);
+
+  if (!tInfo.source) {
+    return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: 'source' }));
+  }
+
+  if (!tInfo.departmentId) {
+    return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: 'departmentId' }));
+  }
+
+  const t = new Date();
+
+  tInfo._id = uuid.v1();
+  tInfo.creator = { _id: creatorId, name: creatorName };
+  tInfo.createdTime = t;
+  tInfo.lastModifyTime = t;
+
+  tInfo.transcodeTemplateDetail = {
+    script: tInfo.transcodeScript || '',
+    templatesId: [],
+  };
+
+  if (tInfo.transcodeTemplates) {
+    const rs = templateService.composeTranscodeTemplates(tInfo.transcodeTemplates);
+    if (rs.status !== '0') {
+      return cb && cb(rs.result);
+    } else if (rs.result) {
+      tInfo.transcodeTemplateDetail.templatesId = rs.result;
+    }
+  }
+
+  if (tInfo.hdExt) {
+    const exRs = checkHdExt(tInfo.hdExt);
+    if (exRs.err) {
+      return cb && cb(exRs.err);
+    }
+
+    tInfo.hdExt = exRs.result;
+  }
+
+  groupService.getGroup(tInfo.departmentId, (err, doc) => {
+    if (err) {
+      return cb && cb(err);
+    }
+
+    if (!doc) {
+      return cb && cb(i18n.t('libraryDepartmentInfoIsNotExist'));
+    }
+
+    tInfo.department = { _id: doc._id, name: doc.name };
+
+    templateInfo.insertOne(tInfo, (err) => {
+      if (err) {
+        return cb && cb(err);
+      }
+
+      return cb && cb(null, tInfo);
+    });
+  });
+};
+
+service.getTemplateInfo = function getTemplateInfo(_id, cb) {
+  if (!_id) {
+    return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: '_id' }));
+  }
+
+  templateInfo.collection.findOne({ _id }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, doc);
+  });
+};
+
+service.getTemplateResult = function getTemplateResult(_id, filePath, cb) {
+  if (!_id) {
+    return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: '_id' }));
+  }
+
+  if (!filePath) {
+    return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: 'filePath' }));
+  }
+
+  // 拿到部门信息
+  templateInfo.collection.findOne({ _id }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if (!doc) {
+      return cb && cb(i18n.t('libraryTemplateInfoIsNotExist'));
+    }
+
+    templateService.getTranscodeTemplateByDetail({ transcodeTemplateDetail: {
+      transcodeTemplates: doc.transcodeTemplateDetail.templatesId || [],
+      transcodeTemplateSelector: doc.transcodeTemplateDetail.script || '',
+    } }, filePath, (err, rs) => {
+      if (err) {
+        return cb && cb(err);
+      }
+
+      doc.templateId = rs; // 转码模板ID，这是工作流接口需要使用的参数
+
+      return cb && cb(null, templateInfo.getJobVo(doc));
+    }, true);
+  });
+};
+
+service.listTemplate = function listCatalogTask(fieldsNeed, page = 1, pageSize = 20, cb) {
+  const query = { };
+
+  templateInfo.pagination(query, page, pageSize, (err, docs) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, docs);
+  }, '-createdTime', fieldsNeed);
+};
+
+service.removeTemplate = function removeTemplate(_id, cb) {
+  if (!_id) {
+    return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: '_id' }));
+  }
+
+  templateInfo.collection.removeOne({ _id }, (err, r) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, r);
+  });
+};
+
+service.updateTemplate = function updateTemplate(_id, info, cb) {
+  if (!_id) {
+    return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: '_id' }));
+  }
+
+  const updateInfo = {};
+
+  if (info.hdExt) {
+    const exRs = checkHdExt(info.hdExt);
+    if (exRs.err) {
+      return cb && cb(exRs.err);
+    }
+
+    updateInfo.hdExt = exRs.result;
+  }
+
+  if (info.transcodeTemplates) {
+    const rs = templateService.composeTranscodeTemplates(info.transcodeTemplates);
+    if (rs.status !== '0') {
+      return cb && cb(rs.result);
+    } else if (rs.result) {
+      updateInfo.transcodeTemplateDetail = {};
+      updateInfo.transcodeTemplateDetail.templatesId = rs.result;
+    }
+  }
+
+  if (typeof info.source !== 'undefined') {
+    updateInfo.source = info.source;
+  }
+
+  if (typeof info.transcodeScript !== 'undefined') {
+    if (!updateInfo.transcodeTemplateDetail) {
+      updateInfo.transcodeTemplateDetail = {};
+    }
+    updateInfo.transcodeTemplateDetail.script = info.transcodeScript;
+  }
+
+  if (info.departmentId) {
+    groupService.getGroup(info.departmentId, (err, doc) => {
+      if (err) {
+        return cb && cb(err);
+      }
+
+      if (!doc) {
+        return cb && cb(i18n.t('libraryDepartmentInfoIsNotExist'));
+      }
+
+      updateInfo.department = { _id: doc._id, name: doc.name };
+
+      templateInfo.updateOne({ _id }, updateInfo, (err) => {
+        if (err) {
+          return cb && cb(err);
+        }
+
+        return cb && cb(null, updateInfo);
+      });
+    });
+  } else {
+    templateInfo.updateOne({ _id }, updateInfo, (err) => {
+      if (err) {
+        return cb && cb(err);
+      }
+
+      return cb && cb(null, updateInfo);
+    });
+  }
+};
+
+/* 入库模板 */
+
 module.exports = service;
+

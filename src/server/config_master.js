@@ -68,6 +68,7 @@ config.whitelist = [
   'http://10.0.15.68:8000',
   'http://10.0.15.105:8000',
   'http://10.0.15.105:8080',
+  'http://10.0.15.101:8080',
   'http://10.0.16.125:8000',
   'http://ump.szdev.cn',
   'http://api.szdev.cn',
@@ -79,7 +80,7 @@ config.normalMenuPermission = ['mediaCenter', 'taskCenter', 'personalCenter', 'l
 config.adminMenuPermission = config.normalMenuPermission.concat(['management']);
 
 // 快传api地址
-config.mediaExpressUrl = 'http://localhost:3001/';
+config.mediaExpressUrl = 'https://leo.cloudifeng.com/';
 
 // 升级包存在地址
 config.upgradePackage = config.uploadPath;
@@ -88,5 +89,10 @@ config.upgradeSystem = {
   // ump: '/Users/chaoningx/Desktop/temp/ump',
   // fe: '/Users/chaoningx/Desktop/temp/fe',
   ump: '',
-  fe: ''
+  fe: '',
 };
+
+
+// 订阅自动推送配置
+config.phoenixAdminUserName = 'xuyawen';   // 快传发送方
+config.subscribeDownloadTemplateId = 'subscribe_autopush';   // 下载模板Id

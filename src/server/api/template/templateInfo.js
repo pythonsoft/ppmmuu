@@ -24,12 +24,15 @@ class TemplateInfo extends DB {
       details: { type: 'object' },
       groupId: { type: 'string' },
       groupName: { type: 'string' },
-      transcodeTemplateDetail: { type: 'object', default() {
-        return {
-          transcodeTemplateSelector: '',
-          transcodeTemplates: []
-        };
-      }},
+      transcodeTemplateDetail: {
+        type: 'object',
+        default() {
+          return {
+            transcodeTemplateSelector: '',
+            transcodeTemplates: [],
+          };
+        },
+      },
     };
   }
 

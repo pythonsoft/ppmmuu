@@ -5,31 +5,31 @@ const path = require('path');
 const api = {};
 
 const composeTemplate = function composeTemplate(version, updateList) {
-  return`
+  return `
 {
   "version": "${version}",
   "updateList": [
     ${updateList.join(',\n    ')}
   ]
 }
-`
+`;
 };
 
 api.create = function (version, generatePath, cb) {
-  if(!version) {
+  if (!version) {
     return cb && cb('version is null.');
   }
 
-  if(!generatePath) {
+  if (!generatePath) {
     return cb && cb('generatePath is null.');
   }
 
-  if(!fs.existsSync(generatePath)) {
+  if (!fs.existsSync(generatePath)) {
     return cb && cb('generatePath is not exist');
   }
 
-  request('http://gitlab.szdev.cn/dev/UMP-FE/issues?private_token=vKXd3Vzzr_dPwKVkpxF8&scope=all&utf8=%E2%9C%93&state=closed&milestone_title=' + version, (error, response, data) => {
-    if(error) {
+  request(`http://gitlab.szdev.cn/dev/UMP-FE/issues?private_token=vKXd3Vzzr_dPwKVkpxF8&scope=all&utf8=%E2%9C%93&state=closed&milestone_title=${version}`, (error, response, data) => {
+    if (error) {
       return cb && cb(error);
     }
 
@@ -39,9 +39,9 @@ api.create = function (version, generatePath, cb) {
     let t = null;
     const rs = [];
 
-    for(let i = 0, len = mt.length; i < len; i++) {
+    for (let i = 0, len = mt.length; i < len; i++) {
       t = mt[i];
-      if(mt[i] && mt[i].match(issueReg)) {
+      if (mt[i] && mt[i].match(issueReg)) {
         rs.push(`"${RegExp.$1}"`);
       }
     }
@@ -57,5 +57,4 @@ api.create = function (version, generatePath, cb) {
 };
 
 module.exports = api;
-
 

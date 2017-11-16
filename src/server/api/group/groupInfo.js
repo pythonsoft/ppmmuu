@@ -65,6 +65,7 @@ class GroupInfo extends DB {
       description: { type: 'string' },
       deleteDeny: { type: 'string', default: GroupInfo.DELETE_DENY.YES, validation: v => utils.isValueInObject(v, GroupInfo.DELETE_DENY) }, // 删除保护，创建后默认为保护状态
       detail: { type: 'object' },
+      mediaExpressUser: { type: 'object', default: { username: '', password: '', userType: '', companyName: '' } },
     };
   }
 
@@ -79,6 +80,12 @@ GroupInfo.TYPE = {
 GroupInfo.DELETE_DENY = {
   YES: '1',
   NO: '0',
+};
+
+GroupInfo.MEDIAEXPRESS_USER_TYPE = {
+  COMPANYUSER: 0,   // 普通成员
+  COMPANYADMIN: 1,  // 组织管理员
+  PERSONUSER: 3, //个人用户
 };
 
 module.exports = GroupInfo;
