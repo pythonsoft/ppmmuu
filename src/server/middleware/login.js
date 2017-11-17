@@ -20,11 +20,13 @@ const userInfo = new UserInfo();
 const subscribeInfo = new SubscribeInfo();
 const redisClient = config.redisClient;
 
-const Login = {};
+const TICKET_COOKIE_NAME = 'ticket';
 
-Login.isLogin = function isLogin(req) {
+const login = {};
+
+login.isLogin = function isLogin(req) {
   const query = utils.trim(req.query);
-  const ticket = query.ticket || (req.cookies.ticket || req.header('ump-ticket')) || (req.body || req.body.ticket);
+  const ticket = query[TICKET_COOKIE_NAME] || (req.cookies[TICKET_COOKIE_NAME] || req.header('ump-' + TICKET_COOKIE_NAME)) || (req.body || req.body[TICKET_COOKIE_NAME]);
 
   if (!ticket) {
     return false;
@@ -39,7 +41,7 @@ Login.isLogin = function isLogin(req) {
   return decodeTicket;
 };
 
-Login.getUserInfo = function getUserInfo(userId, cb) {
+login.getUserInfo = function getUserInfo(userId, cb) {
   let info = {};
   userInfo.getUserInfo(userId, '', (err, doc) => {
     if (err) {
@@ -63,13 +65,13 @@ Login.getUserInfo = function getUserInfo(userId, cb) {
   });
 };
 
-Login.getUserInfoRedis = function getUserInfo(userId, cb) {
+login.getUserInfoRedis = function getUserInfo(userId, cb) {
   let info = {};
 
   redisClient.get(userId, (err, r) => {
     if (err) {
       logger.error(JSON.stringify(err));
-      Login.getUserInfo(userId, cb);  // 如果redis报错(redis挂了)，那么就去数据库拿，这样的话我们的重新登录功能就会失效
+      login.getUserInfo(userId, cb);  // 如果redis报错(redis挂了)，那么就去数据库拿，这样的话我们的重新登录功能就会失效
     } else {
       if (r) {
         info = JSON.parse(r);
@@ -80,8 +82,8 @@ Login.getUserInfoRedis = function getUserInfo(userId, cb) {
   });
 };
 
-Login.middleware = function middleware(req, res, next) {
-  const decodeTicket = Login.isLogin(req);
+login.middleware = function middleware(req, res, next) {
+  const decodeTicket = login.isLogin(req);
 
   if (decodeTicket) {
     const now = new Date().getTime();
@@ -93,9 +95,9 @@ Login.middleware = function middleware(req, res, next) {
         req.body = utils.trim(req.body);
       }
 
-      Login.getUserInfoRedis(req.ex.userId, (err, info) => {
+      login.getUserInfoRedis(req.ex.userId, (err, info) => {
         if (err) {
-          res.clearCookie('ticket');
+          res.clearCookie(TICKET_COOKIE_NAME);
           return res.json(result.fail(err));
         }
 
@@ -103,7 +105,7 @@ Login.middleware = function middleware(req, res, next) {
         next();
       });
     } else { // 过期
-      res.clearCookie('ticket');
+      res.clearCookie(TICKET_COOKIE_NAME);
       return res.json(result.fail(req.t('loginExpired')));
     }
   } else {
@@ -111,7 +113,40 @@ Login.middleware = function middleware(req, res, next) {
   }
 };
 
-Login.hasAccessMiddleware = function hasAccessMiddleware(req, res, next) {
+login.webSocketMiddleware = function (socket) {
+  const authorize = socket.request.headers['ump-' + TICKET_COOKIE_NAME] || utils.formatCookies(socket.request.headers.cookie)[TICKET_COOKIE_NAME];
+  let secret = socket.request.headers['ump-secret'] || '0';
+
+  if (authorize) {
+    try {
+      const dec = utils.decipher(authorize, config.KEY);
+      const codes = dec.split(',');
+      const userId = codes[0];
+      const expireDate = codes[1];
+
+      const now = new Date().getTime();
+
+      if (expireDate < now) { // 过期
+        return result.fail(i18n.t('imLoginDateExpire'));
+      }
+
+      secret = secret === '1' ? '1' : '0';
+
+      utils.console('secret', secret === '1' ? '加密传输' : '普通传输');
+
+      if (userId) {
+        return result.success({ socketId: socket.id, info: { userId, secret } });
+      }
+      return result.fail(i18n.t('imAuthorizeInvalid'));
+    } catch (e) {
+      return result.fail(i18n.t('imAuthorizeInvalid'));
+    }
+  } else {
+    return result.fail(i18n.t('imAuthorizeInHeadInvalid'));
+  }
+}
+
+login.hasAccessMiddleware = function hasAccessMiddleware(req, res, next) {
   const permissions = req.ex.userInfo.permissions || [];
   let url = req.originalUrl;
   let flag = 0;
@@ -152,7 +187,7 @@ Login.hasAccessMiddleware = function hasAccessMiddleware(req, res, next) {
   }
 };
 
-Login.hasSubscribeMiddleware = function hasSubscribeMiddleware(req, res, next) {
+login.hasSubscribeMiddleware = function hasSubscribeMiddleware(req, res, next) {
   const userInfo = req.ex.userInfo;
   const companyId = userInfo.company._id;
 
@@ -179,4 +214,4 @@ Login.hasSubscribeMiddleware = function hasSubscribeMiddleware(req, res, next) {
   });
 };
 
-module.exports = Login;
+module.exports = login;
