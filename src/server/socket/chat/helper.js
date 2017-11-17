@@ -47,6 +47,6 @@ helper.ensureLogin = function (socket, next) {
     socket.emit('error', rs);
     socket.disconnect();
   }
-}
+};
 
 module.exports = helper;

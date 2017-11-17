@@ -47,10 +47,24 @@ class CatalogInfo extends DB {
       createdTime: { type: 'date', validation: 'require', allowUpdate: false },
       lastModifyTime: { type: 'date', validation: 'require' },
       details: { type: 'object' },
+      from_where: {
+        type: 'number',
+        default: CatalogInfo.FROM_WHERE.UMP,
+      },
+      full_text: {
+        type: 'string',
+        default: '',
+      },
     };
   }
 
 }
+
+CatalogInfo.FROM_WHERE = {
+  HK: 1,
+  DAYANG: 2,
+  UMP: 3
+};
 
 CatalogInfo.AVAILABLE = {
   NO: '0',

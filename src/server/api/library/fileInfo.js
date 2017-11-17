@@ -28,6 +28,7 @@ class FileInfo extends DB {
       createdTime: { type: 'date', validation: 'require', allowUpdate: false },
       lastModifyTime: { type: 'date', validation: 'require' },
       details: { type: 'object' },
+      from_where: { type: 'number', default: 3 },
     };
   }
 }

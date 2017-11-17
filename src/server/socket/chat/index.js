@@ -35,7 +35,6 @@ class ChatIO {
           console.log(`${socket.info.userId}leave room ${socket.rooms[i]}`);
           socket.leave(socket.rooms[i]);
         }
-
       });
     });
   }

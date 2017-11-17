@@ -399,6 +399,7 @@ service.createTemplate = function createTemplate(params, cb) {
     subtitleType: [],
     description: '',
     groupId: '',
+    groupName: '',
     transcodeTemplateDetail: {
       transcodeTemplates: [],
       transcodeTemplateSelector: '',
@@ -474,6 +475,7 @@ service.createDownloadTemplate = function createDownloadTemplate(params, cb) {
     bucketId: '',
     script: '',
     groupId: '',
+    groupName: '',
     transcodeTemplates: '',
     transcodeTemplateSelector: '',
   }, params);
@@ -685,31 +687,29 @@ function filterTranscodeTemplates(doc = {}, filePath = '', cb, isResultReturnWit
       }
     }
 
-    if(!filePath) {
-      let r = getTranscode(filePath, info, doc);
+    if (!filePath) {
+      const r = getTranscode(filePath, info, doc);
       return cb && cb(null, isResultReturnWithMap ? [r] : r.template);
     }
-      let files = [];
+    let files = [];
 
-      if(filePath.indexOf(',') !== -1) {
-        files = filePath.split(',');
-      }else {
-        files.push(filePath);
-      }
+    if (filePath.indexOf(',') !== -1) {
+      files = filePath.split(',');
+    } else {
+      files.push(filePath);
+    }
 
-      let result = [];
+    let result = [];
 
-      for(let i = 0, len = files.length; i < len; i++) {
-        result.push(getTranscode(files[i], info, doc));
-      }
+    for (let i = 0, len = files.length; i < len; i++) {
+      result.push(getTranscode(files[i], info, doc));
+    }
 
-      if(!isResultReturnWithMap) {
-        result = result[0].template;
-      }
+    if (!isResultReturnWithMap) {
+      result = result[0].template;
+    }
 
-      return cb && cb(null, result);
-
-
+    return cb && cb(null, result);
   });
 }
 
@@ -778,7 +778,7 @@ service.getWatermark = function getWatermark(info, res) {
     res.end(err.message);
   }
 
-  const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/TemplateService/getWatermark?id=${id}`;
+  const url = `http://${config.TRANSCODE_API_SERVER.hostname}:${config.TRANSCODE_API_SERVER.port}/TemplateService/getWatermark?watermarkId=${id}`;
   request.get(url).on('error', (error) => {
     logger.error(error);
     res.end(error.message);
