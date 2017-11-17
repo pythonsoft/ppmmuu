@@ -333,6 +333,33 @@ utils.baseRequestCallApi = function baseRequestCallApi(url, method, info, token,
  * @param info
  * @param cb
  */
+utils.baseRequestUploadFile = function baseRequestCallApi(url, formData, token, cb) {
+  const options = {
+        method: 'POST',
+        url: url,
+        headers: {
+          'content-type': 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW',
+        },
+        formData: formData
+      };
+  request(options, (error, response) => {
+    if (!error && response.statusCode === 200) {
+      return cb && cb(null, response.body);
+    } else if (error) {
+      logger.error(error);
+      return cb && cb(i18n.t('requestCallApiError', { error }));
+    }
+    logger.error(response.body);
+    return cb && cb(i18n.t('requestCallApiFailed'));
+  });
+};
+
+/**
+ * @param uri
+ * @param method "POST" or "GET"
+ * @param info
+ * @param cb
+ */
 utils.requestCallApi = function requestCallApi(url, method, info, token, cb) {
   utils.baseRequestCallApi(url, method, info, token, (err, response) => {
     // console.log('requestCallApi ------>', response.body, err);

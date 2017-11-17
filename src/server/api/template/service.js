@@ -780,7 +780,7 @@ service.getWatermark = function getWatermark(info, res) {
     res.end(err.message);
   }
 
-  const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/TemplateService/getWatermark?id=${id}`;
+  const url = `http://${config.TRANSCODE_API_SERVER.hostname}:${config.TRANSCODE_API_SERVER.port}/TemplateService/getWatermark?id=${id}`;
   request.get(url).on('error', (error) => {
     logger.error(error);
     res.end(error.message);

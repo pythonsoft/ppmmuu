@@ -969,4 +969,8 @@ module.exports = {
     code: '-160010',
     message: '验证信息没有在request头部出现',
   },
+  noFileUpload: {
+    code: '-170001',
+    message: '没有上传文件',
+  }
 };
