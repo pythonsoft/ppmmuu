@@ -335,13 +335,13 @@ utils.baseRequestCallApi = function baseRequestCallApi(url, method, info, token,
  */
 utils.baseRequestUploadFile = function baseRequestCallApi(url, formData, token, cb) {
   const options = {
-        method: 'POST',
-        url: url,
-        headers: {
-          'content-type': 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW',
-        },
-        formData: formData
-      };
+    method: 'POST',
+    url,
+    headers: {
+      'content-type': 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW',
+    },
+    formData,
+  };
   request(options, (error, response) => {
     if (!error && response.statusCode === 200) {
       return cb && cb(null, response.body);
@@ -450,9 +450,9 @@ utils.formatCookies = function (cookies) {
   return cs;
 };
 
-utils.processWrite = function(str) {
+utils.processWrite = function (str) {
   const out = process.stdout;
-  if(!out || !out.clearLine) {
+  if (!out || !out.clearLine) {
     console.log(str);
     return;
   }
@@ -461,7 +461,7 @@ utils.processWrite = function(str) {
   out.write(str);
 };
 
-utils.formatSize = function(size, isNeedUnit) {
+utils.formatSize = function (size, isNeedUnit) {
   let str = '';
   let unit = 'B';
   if (size < 1000) {
@@ -476,7 +476,7 @@ utils.formatSize = function(size, isNeedUnit) {
     str = Math.round(100 * (size / (1024 * 1024 * 1024))) / 100;
     unit = 'GB';
   }
-  return isNeedUnit ? { size: str, unit: unit } : (str + ' ' + unit);
+  return isNeedUnit ? { size: str, unit } : (`${str} ${unit}`);
 };
 
 module.exports = utils;

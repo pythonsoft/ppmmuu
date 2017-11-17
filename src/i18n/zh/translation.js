@@ -972,5 +972,5 @@ module.exports = {
   noFileUpload: {
     code: '-170001',
     message: '没有上传文件',
-  }
+  },
 };

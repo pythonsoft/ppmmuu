@@ -38,7 +38,7 @@ const utils = require('../../common/utils');
  */
 router.post('/', upload.single('file'), (req, res) => {
   const file = req.file || '';
-  if(!file){
+  if (!file) {
     return res.json(result.json(i18n.t('noFileUpload')));
   }
   const filePath = file.filename;
@@ -72,7 +72,7 @@ router.post('/', upload.single('file'), (req, res) => {
  */
 router.post('/uploadWatermark', upload.single('file'), (req, res) => {
   const file = req.file;
-  if(!file){
+  if (!file) {
     return res.json(result.json(i18n.t('noFileUpload')));
   }
   const filePath = file.path || '';
@@ -80,18 +80,7 @@ router.post('/uploadWatermark', upload.single('file'), (req, res) => {
     file: fs.createReadStream(filePath),
   };
   const url = `http://${config.TRANSCODE_API_SERVER.hostname}:${config.TRANSCODE_API_SERVER.port}/TemplateService/uploadFile`;
-  //const url = 'http://localhost:8080/upload';
-  console.log(url);
-  const up = request.post(url, (err, httpResponse, body) => {
-    if (err) {
-      return res.json(result.fail(err));
-    }
-    console.log("resbody==>", httpResponse.statusCode);
-    return res.end(body);
-  });
-  const form = up.form();
-  form.append('file', fs.createReadStream(filePath), file.filename);
-  form.append('chunk', 0);
+  utils.baseRequestUploadFile(url, formData, '', (err, rs) => res.end(rs));
 });
 
 module.exports = router;
