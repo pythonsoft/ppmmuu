@@ -11,6 +11,7 @@ class ChatIO {
   constructor(io) {
     const me = this;
     const chatIO = io.of('/chat');
+
     chatIO.use(helper.ensureLogin);
 
     chatIO.on('connection', (socket) => {

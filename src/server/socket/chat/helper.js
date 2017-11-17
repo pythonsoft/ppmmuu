@@ -6,6 +6,7 @@ const result = require('../../common/result');
 const loginMiddleware = require('../../middleware/login');
 
 helper.ensureInRoom = function joinRoom(socket, userId, successFn) {
+  console.log('rooms -->', socket.rooms);
   if (!socket.rooms[userId]) {
     accountService.login(userId, (err, doc) => {
       if (err) {

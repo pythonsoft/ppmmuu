@@ -474,6 +474,7 @@ service.createDownloadTemplate = function createDownloadTemplate(params, cb) {
     bucketId: '',
     script: '',
     groupId: '',
+    downloadAudit: '',
     transcodeTemplates: '',
     transcodeTemplateSelector: '',
   }, params);
@@ -485,6 +486,10 @@ service.createDownloadTemplate = function createDownloadTemplate(params, cb) {
   if (!info.type) {
     info.type = TemplateInfo.TYPE.DOWNLOAD;
   }
+
+  info.downloadAudit = !!info.downloadAudit;
+
+  console.log(info.downloadAudit, info.downloadAudit.constructor);
 
   if (!utils.isValueInObject(info.type, TemplateInfo.TYPE)) {
     return cb && cb(i18n.t('templateTypeNotExist', { type: info.type }));
