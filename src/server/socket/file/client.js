@@ -169,12 +169,13 @@ class FileClient {
 };
 
 let fc = new FileClient({
-  host: '10.0.16.125',
+  host: '10.0.16.101',
   port: 8080,
   filePath: '/Users/chaoningx/Downloads/Microsoft_Office_2016_15.24.0_160709_Installer.pkg',
   concurrency: 5, //并发
   userId: 'chaoningx'
 });
+
 fc.transfer();
 
 module.exports = FileClient;

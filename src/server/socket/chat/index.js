@@ -3,7 +3,6 @@
  */
 const utils = require('../../common/utils');
 
-const loginMiddleware = require('../../middleware/login');
 const result = require('../../common/result');
 const helper = require('./helper');
 const sessionService = require('../../api/im/sessionService');
