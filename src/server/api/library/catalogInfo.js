@@ -49,7 +49,7 @@ class CatalogInfo extends DB {
       details: { type: 'object' },
       from_where: {
         type: 'number',
-        default: 3,
+        default: CatalogInfo.FROM_WHERE.UMP,
       },
       full_text: {
         type: 'string',
@@ -61,7 +61,9 @@ class CatalogInfo extends DB {
 }
 
 CatalogInfo.FROM_WHERE = {
-
+  HK: 1,
+  DAYANG: 2,
+  UMP: 3
 };
 
 CatalogInfo.AVAILABLE = {

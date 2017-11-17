@@ -13,6 +13,7 @@ const UserInfo = require('../user/userInfo');
 const AuditRuleInfo = require('../audit/auditRuleInfo');
 const AuditInfo = require('../audit/auditInfo');
 const ShelfTaskInfo = require('../shelves/shelfTaskInfo');
+const CatalogInfo = require('../library/catalogInfo');
 
 const userInfo = new UserInfo();
 const auditRuleInfo = new AuditRuleInfo();
@@ -52,7 +53,10 @@ const errorCall = function errorCall(str) {
 };
 
 const downloadRequest = function downloadRequest(bucketId, transferTemplateId = '', transferParams, downloadParams, userId, userName, subtitleParams, cb) {
-  const p = {};
+  const p = {
+    source: CatalogInfo.FROM_WHERE.HK,
+    fileId: ''
+  };
 
   if (bucketId) {
     p.bucketId = bucketId;
@@ -68,6 +72,11 @@ const downloadRequest = function downloadRequest(bucketId, transferTemplateId = 
 
   if (downloadParams) {
     p.downloadParams = JSON.stringify(downloadParams);
+  }
+
+  if(downloadParams && downloadParams.source){
+    p.source = downloadParams.source;
+    p.fileId = downloadParams.fileId || '';
   }
 
   if (userId) {
@@ -329,6 +338,7 @@ service.download = function download(info, cb) {
   const receiverId = info.receiverId;
   const receiverType = info.receiverType;
   const transferMode = info.transferMode || 'direct';
+  const source = info.source || CatalogInfo.FROM_WHERE.HK;
   const downloadParams = { objectid, inpoint: inpoint * 1, outpoint: outpoint * 1, filename, filetypeid, templateId };
   if (!downloadParams) {
     return cb && cb(i18n.t('joDownloadParamsIsNull'));
@@ -343,6 +353,8 @@ service.download = function download(info, cb) {
     templateId,
     destination: '', // 相对路径，windows路径 格式 \\2017\\09\\15
     targetname: '', // 文件名,不需要文件名后缀，非必须
+    source: source,  //来源
+    fileId: '',      //如果来源是ump,需要文件Id
   }, downloadParams);
 
   if (!params.objectid) {
