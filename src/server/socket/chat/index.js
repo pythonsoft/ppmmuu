@@ -3,7 +3,6 @@
  */
 const utils = require('../../common/utils');
 
-const loginMiddleware = require('../../middleware/login');
 const result = require('../../common/result');
 const helper = require('./helper');
 const sessionService = require('../../api/im/sessionService');
@@ -12,6 +11,7 @@ class ChatIO {
   constructor(io) {
     const me = this;
     const chatIO = io.of('/chat');
+
     chatIO.use(helper.ensureLogin);
 
     chatIO.on('connection', (socket) => {

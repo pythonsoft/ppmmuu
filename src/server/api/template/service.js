@@ -400,6 +400,7 @@ service.createTemplate = function createTemplate(params, cb) {
     description: '',
     groupId: '',
     groupName: '',
+    downloadAudit: '',
     transcodeTemplateDetail: {
       transcodeTemplates: [],
       transcodeTemplateSelector: '',
@@ -475,6 +476,7 @@ service.createDownloadTemplate = function createDownloadTemplate(params, cb) {
     bucketId: '',
     script: '',
     groupId: '',
+    downloadAudit: '',
     groupName: '',
     transcodeTemplates: '',
     transcodeTemplateSelector: '',
@@ -487,6 +489,8 @@ service.createDownloadTemplate = function createDownloadTemplate(params, cb) {
   if (!info.type) {
     info.type = TemplateInfo.TYPE.DOWNLOAD;
   }
+
+  info.downloadAudit = !!info.downloadAudit;
 
   if (!utils.isValueInObject(info.type, TemplateInfo.TYPE)) {
     return cb && cb(i18n.t('templateTypeNotExist', { type: info.type }));
@@ -650,8 +654,6 @@ function getTranscode(fp, templatesInfo, downloadTemplateInfo) {
     fileInfo.ext = path.extname(fp);
     fileInfo.name = path.basename(fp).replace(fileInfo.ext, '');
   }
-
-  console.log('templatesInfo vvv --->', templatesInfo);
 
   const transcodeTemplate = runTemplateSelector({
     transcodeTemplates: templatesInfo,
