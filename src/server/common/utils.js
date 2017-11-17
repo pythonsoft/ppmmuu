@@ -450,4 +450,33 @@ utils.formatCookies = function (cookies) {
   return cs;
 };
 
+utils.processWrite = function(str) {
+  const out = process.stdout;
+  if(!out || !out.clearLine) {
+    console.log(str);
+    return;
+  }
+  out.clearLine();
+  out.cursorTo(0);
+  out.write(str);
+};
+
+utils.formatSize = function(size, isNeedUnit) {
+  let str = '';
+  let unit = 'B';
+  if (size < 1000) {
+    str = size;
+  } else if (size < 1000 * 1000) {
+    str = Math.round(100 * (size / 1024)) / 100;
+    unit = 'KB';
+  } else if (size < 1000 * 1000 * 1000) {
+    str = Math.round(100 * (size / (1024 * 1024))) / 100;
+    unit = 'MB';
+  } else {
+    str = Math.round(100 * (size / (1024 * 1024 * 1024))) / 100;
+    unit = 'GB';
+  }
+  return isNeedUnit ? { size: str, unit: unit } : (str + ' ' + unit);
+};
+
 module.exports = utils;
