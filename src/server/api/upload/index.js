@@ -9,6 +9,8 @@ const upload = require('../../common/multer').upload;
 const config = require('../../config');
 const fs = require('fs');
 const request = require('request');
+const i18n = require('i18next');
+const utils = require('../../common/utils');
 
 /**
  * @apiName: upload
@@ -35,9 +37,12 @@ const request = require('request');
  *         description: UploadResult
  */
 router.post('/', upload.single('file'), (req, res) => {
-  let filePath = req.file.path;
-  filePath = filePath.split('/');
-  const fileName = `${config.domain}/uploads/${filePath[filePath.length - 1]}`;
+  const file = req.file || '';
+  if (!file) {
+    return res.json(result.json(i18n.t('noFileUpload')));
+  }
+  const filePath = file.filename;
+  const fileName = `${config.domain}/uploads/${filePath}`;
   res.status(200).json(result.json('', fileName));
 });
 
@@ -66,19 +71,16 @@ router.post('/', upload.single('file'), (req, res) => {
  *         description: UploadResult
  */
 router.post('/uploadWatermark', upload.single('file'), (req, res) => {
-  const filePath = req.file.path;
+  const file = req.file;
+  if (!file) {
+    return res.json(result.json(i18n.t('noFileUpload')));
+  }
+  const filePath = file.path || '';
   const formData = {
     file: fs.createReadStream(filePath),
   };
-  const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/TemplateService/uploadFile`;
-  // const url = 'http://localhost:8080/upload';
-  console.log(url);
-  request.post({ url, formData }, (err, httpResponse, body) => {
-    if (err) {
-      return res.json(result.fail(err));
-    }
-    return res.end(body);
-  });
+  const url = `http://${config.TRANSCODE_API_SERVER.hostname}:${config.TRANSCODE_API_SERVER.port}/TemplateService/uploadFile`;
+  utils.baseRequestUploadFile(url, formData, '', (err, rs) => res.end(rs));
 });
 
 module.exports = router;

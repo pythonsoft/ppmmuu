@@ -333,6 +333,33 @@ utils.baseRequestCallApi = function baseRequestCallApi(url, method, info, token,
  * @param info
  * @param cb
  */
+utils.baseRequestUploadFile = function baseRequestCallApi(url, formData, token, cb) {
+  const options = {
+    method: 'POST',
+    url,
+    headers: {
+      'content-type': 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW',
+    },
+    formData,
+  };
+  request(options, (error, response) => {
+    if (!error && response.statusCode === 200) {
+      return cb && cb(null, response.body);
+    } else if (error) {
+      logger.error(error);
+      return cb && cb(i18n.t('requestCallApiError', { error }));
+    }
+    logger.error(response.body);
+    return cb && cb(i18n.t('requestCallApiFailed'));
+  });
+};
+
+/**
+ * @param uri
+ * @param method "POST" or "GET"
+ * @param info
+ * @param cb
+ */
 utils.requestCallApi = function requestCallApi(url, method, info, token, cb) {
   utils.baseRequestCallApi(url, method, info, token, (err, response) => {
     // console.log('requestCallApi ------>', response.body, err);
@@ -423,9 +450,9 @@ utils.formatCookies = function (cookies) {
   return cs;
 };
 
-utils.processWrite = function(str) {
+utils.processWrite = function (str) {
   const out = process.stdout;
-  if(!out || !out.clearLine) {
+  if (!out || !out.clearLine) {
     console.log(str);
     return;
   }
@@ -434,7 +461,7 @@ utils.processWrite = function(str) {
   out.write(str);
 };
 
-utils.formatSize = function(size, isNeedUnit) {
+utils.formatSize = function (size, isNeedUnit) {
   let str = '';
   let unit = 'B';
   if (size < 1000) {
@@ -449,7 +476,7 @@ utils.formatSize = function(size, isNeedUnit) {
     str = Math.round(100 * (size / (1024 * 1024 * 1024))) / 100;
     unit = 'GB';
   }
-  return isNeedUnit ? { size: str, unit: unit } : (str + ' ' + unit);
+  return isNeedUnit ? { size: str, unit } : (`${str} ${unit}`);
 };
 
 module.exports = utils;

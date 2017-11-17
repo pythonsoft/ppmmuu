@@ -26,7 +26,7 @@ const login = {};
 
 login.isLogin = function isLogin(req) {
   const query = utils.trim(req.query);
-  const ticket = query[TICKET_COOKIE_NAME] || (req.cookies[TICKET_COOKIE_NAME] || req.header('ump-' + TICKET_COOKIE_NAME)) || (req.body || req.body[TICKET_COOKIE_NAME]);
+  const ticket = query[TICKET_COOKIE_NAME] || (req.cookies[TICKET_COOKIE_NAME] || req.header(`ump-${TICKET_COOKIE_NAME}`)) || (req.body || req.body[TICKET_COOKIE_NAME]);
 
   if (!ticket) {
     return false;
@@ -114,7 +114,7 @@ login.middleware = function middleware(req, res, next) {
 };
 
 login.webSocketMiddleware = function (socket) {
-  const authorize = socket.request.headers['ump-' + TICKET_COOKIE_NAME] || utils.formatCookies(socket.request.headers.cookie)[TICKET_COOKIE_NAME];
+  const authorize = socket.request.headers[`ump-${TICKET_COOKIE_NAME}`] || utils.formatCookies(socket.request.headers.cookie)[TICKET_COOKIE_NAME];
   let secret = socket.request.headers['ump-secret'] || '0';
 
   if (authorize) {
@@ -144,7 +144,7 @@ login.webSocketMiddleware = function (socket) {
   } else {
     return result.fail(i18n.t('imAuthorizeInHeadInvalid'));
   }
-}
+};
 
 login.hasAccessMiddleware = function hasAccessMiddleware(req, res, next) {
   const permissions = req.ex.userInfo.permissions || [];
