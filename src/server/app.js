@@ -15,6 +15,12 @@ const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 
+const redis = require('redis').createClient;
+const adapter = require('socket.io-redis');
+const pub = redis(config.redis_port, config.redis_host, config.redis_opts);
+const sub = redis(config.redis_port, config.redis_host, config.redis_opts);
+io.adapter(adapter({ pubClient: pub, subClient: sub }));
+
 const corsOptions = {
   origin(origin, callback) {
     if (typeof origin === 'undefined' || config.whitelist.indexOf(origin) !== -1) {
