@@ -40,8 +40,8 @@ class SessionInfo extends DB {
 }
 
 SessionInfo.TYPE = {
-  C2C: '0',
-  GROUP: '1',
+  C2C: '1',
+  GROUP: '2',
 };
 
 module.exports = SessionInfo;

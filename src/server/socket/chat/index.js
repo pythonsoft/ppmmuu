@@ -5,42 +5,49 @@ const utils = require('../../common/utils');
 
 const result = require('../../common/result');
 const helper = require('./helper');
-const sessionService = require('../../api/im/sessionService');
+const service = require('./service');
 
 class ChatIO {
   constructor(io) {
     const me = this;
     const chatIO = io.of('/chat');
 
-    chatIO.use(helper.ensureLogin);
+    chatIO.use(helper.login);
 
     chatIO.on('connection', (socket) => {
       utils.console('connection.socket.id', socket.id);
       utils.console('connection.info', socket.info);
 
-      socket.on('message', (msg) => {
-        utils.console(`message:${new Date().getTime()}`, msg);
-        me.dispatchMessage(msg, socket);
-      });
+      //确保当前连接放到登录用户的房间内
+      helper.ensureInRoom(chatIO, socket, socket.info.userId, () => {
+        socket.on('message', (msg) => {
+          utils.console(`message:${new Date().getTime()}`, msg);
+          me.dispatchMessage(msg, socket);
+        });
 
-      socket.on('error', (err) => {
-        utils.console(`socket error socket id: ${socket.id}`, err);
-        socket.disconnect();
-      });
-
-      socket.on('disconnect', () => {
-        utils.console(`disconnect with client :${socket.id}`);
-
-        for (let i = 0; i < socket.rooms.length; i++) {
-          console.log(`${socket.info.userId}leave room ${socket.rooms[i]}`);
-          socket.leave(socket.rooms[i]);
+        for(let k in service) {
+          socket.on(k, (q) => {
+            service[k](socket, q);
+          });
         }
+
+        socket.on('error', (err) => {
+          utils.console(`socket error socket id: ${socket.id}`, err);
+          socket.emit('error', err.message);
+          socket.disconnect();
+        });
+
+        socket.on('disconnect', () => {
+          utils.console(`disconnect with client :${socket.id}`);
+          // helper.logout(chatIO, socket);
+        });
+
       });
+
     });
   }
 
   dispatchMessage(msg, socket) {
-    console.log(socket.rooms, msg);
     if (!socket.rooms[msg.to]) {
       socket.join(msg.to, (err) => {
         console.log(err, socket.rooms);
@@ -49,16 +56,6 @@ class ChatIO {
     } else {
       socket.to(msg.to).emit('chat', `${msg.from}:${msg.content}`);
     }
-  }
-
-  getRecentContactList(socket, page, pageSize, fieldNeeds) {
-    sessionService.list(socket.accountInfo._id, page, pageSize, fieldNeeds, '-modifyTime', (err, docs) => {
-      if (err) {
-        return socket.emit('getRecentContactList', result.fail(err));
-      }
-
-      return socket.emit('getRecentContactList', result.success(docs));
-    });
   }
 
 }

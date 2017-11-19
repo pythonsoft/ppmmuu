@@ -10,9 +10,28 @@ const contactInfo = new ContactInfo();
 
 const service = {};
 
+const hasBeenAdd = function (ownerId, _id, type, cb) {
+  contactInfo.collection.findOne({ _id, type }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, doc);
+  });
+};
+
 service.add = function (info, ownerId, cb) {
   if (utils.isEmptyObject(info)) {
     return cb && cb(i18n.t('imContactFieldsIsNull', { field: 'info' }));
+  }
+
+  if (!info.targetId) {
+    return cb && cb(i18n.t('imContactFieldsIsNull', { field: 'targetId' }));
+  }
+
+  if (!info.targetName) {
+    return cb && cb(i18n.t('imContactFieldsIsNull', { field: 'targetName' }));
   }
 
   if (!info.type) {
@@ -23,11 +42,21 @@ service.add = function (info, ownerId, cb) {
     return cb && cb(i18n.t('imContactFieldsIsNull', { field: 'ownerId' }));
   }
 
+  const cInfo = utils.merge({
+    targetId: '',
+    targetName: '',
+    photo: '',
+    type: '',
+    fromWhere: '',
+    details: {}
+  }, info);
+
   const t = new Date();
 
-  info.createdTime = t;
-  info.modifyTime = t;
-  info.ownerId = ownerId;
+  cInfo._id = uuid.v1();
+  cInfo.createdTime = t;
+  cInfo.modifyTime = t;
+  cInfo.ownerId = ownerId;
 
   const insertOne = function (o) {
     contactInfo.insertOne(o, (err, r) => {
@@ -39,12 +68,10 @@ service.add = function (info, ownerId, cb) {
     });
   };
 
-  if (info.type !== ContactInfo.TYPE.PERSON) {
-    info._id = uuid.v1();
-
-    insertOne(info);
+  if (cInfo.type !== ContactInfo.TYPE.PERSON) {
+    insertOne(cInfo);
   } else {
-    userService.getUsers(info._id, (err, docs) => {
+    userService.getUsers(cInfo.targetId, (err, docs) => {
       if (err) {
         return cb && cb(err);
       }
@@ -53,7 +80,7 @@ service.add = function (info, ownerId, cb) {
         return cb && cb(i18n.t('imUserIsNotExist'));
       }
 
-      insertOne(info);
+      insertOne(cInfo);
     });
   }
 };

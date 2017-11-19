@@ -132,8 +132,6 @@ login.webSocketMiddleware = function (socket) {
 
       secret = secret === '1' ? '1' : '0';
 
-      utils.console('secret', secret === '1' ? '加密传输' : '普通传输');
-
       if (userId) {
         return result.success({ socketId: socket.id, info: { userId, secret } });
       }
