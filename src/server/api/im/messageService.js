@@ -28,12 +28,18 @@ service.add = function (info, cb) {
   info._id = uuid.v1();
   info.createTime = new Date();
 
-  if(!mInfo.content) {
-    return cb && cb(i18n.t('imMessageContentIsNull'));
-  }
-
   if(!mInfo.sessionId && mInfo.sessionId !== 36) {
     return cb && cb(i18n.t('imMessageFieldsIsInvalid', { field: 'sessionId' }));
+  }
+
+  if(typeof mInfo.content !== 'string') {
+    return cb && cb(i18n.t('imMessageFieldsIsInvalid', { field: 'content' }));
+  }
+
+  mInfo.content = mInfo.content.trim();
+
+  if(!mInfo.content) {
+    return cb && cb(i18n.t('imMessageContentIsNull'));
   }
 
   if(!mInfo.content.length > 1000) {
