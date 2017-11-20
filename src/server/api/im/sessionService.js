@@ -128,6 +128,26 @@ service.addUserToSession = function addUserToSession(sessionId, userId, cb) {
   });
 };
 
+//用户删除一个会话时，将用户从这个上会话移除
+service.leaveSession = function(sessionId, userId, cb) {
+  if (!sessionId) {
+    return cb && cb(i18n.t('imSessionFieldsIsNull', { field: 'sessionId' }));
+  }
+
+  if (!userId) {
+    return cb && cb(i18n.t('imSessionFieldsIsNull', { field: 'userId' }));
+  }
+
+  sessionInfo.collection.updateOne({ _id: sessionId }, { $pull: { "members._id": userId } }, (err, r) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, r);
+  });
+};
+
 service.getSession = function getSession(sessionId, cb) {
   if (!sessionId) {
     return cb && cb(i18n.t('imSessionFieldsIsNull', { field: 'sessionId' }));
@@ -148,7 +168,7 @@ service.getSession = function getSession(sessionId, cb) {
 };
 
 /**
- * 找到这两个ID共有的会话，仅支持私聊模式
+ * 找到这两个ID共有的会话，仅支持私聊模式，应用场景：在通讯录里边点好友头像，发起聊天，须找到两个人曾经有过的会话。
  * @param meId
  * @param targetId
  * @param cb
