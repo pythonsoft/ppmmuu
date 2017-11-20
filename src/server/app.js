@@ -21,6 +21,22 @@ const pub = redis(config.redis_port, config.redis_host, config.redis_opts);
 const sub = redis(config.redis_port, config.redis_host, config.redis_opts);
 io.adapter(adapter({ pubClient: pub, subClient: sub }));
 
+pub.on('error', (err) => {
+  console.log(`Redis pub Error: ${err}`);
+});
+
+pub.on('ready', () => {
+  console.log('Redis pub Connect Success!');
+});
+
+sub.on('error', (err) => {
+  console.log(`Redis sub Error: ${err}`);
+});
+
+sub.on('ready', () => {
+  console.log('Redis sub Connect Success!');
+});
+
 const corsOptions = {
   origin(origin, callback) {
     if (typeof origin === 'undefined' || config.whitelist.indexOf(origin) !== -1) {

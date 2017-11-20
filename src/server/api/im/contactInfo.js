@@ -6,6 +6,7 @@
 
 const DB = require('../../common/db');
 const config = require('../../config');
+const uuid = require('uuid');
 
 // 通讯录
 class ContactInfo extends DB {
@@ -13,8 +14,9 @@ class ContactInfo extends DB {
     super(config.dbInstance[`${config.dbName}DB`], 'IM_ContactInfo');
 
     this.struct = {
-      _id: { type: 'string', validation: 'require', allowUpdate: false }, // 如为人，则为人的ID，如果为群，那为群的ID，其它同理
-      name: { type: 'string', validation: 'require' },
+      _id: { type: 'string', validation: 'require', default() { return uuid.v1(); } },
+      targetId: { type: 'string', validation: 'require' }, // 如为人，则为人的ID，如果为群，那为群的ID，其它同理
+      targetName: { type: 'string', validation: 'require' }, //好友的名称，群的名称
       photo: { type: 'string' },
       type: { type: 'string',
         allowUpdate: false,
@@ -33,7 +35,7 @@ class ContactInfo extends DB {
       ownerId: { type: 'string', validation: 'require' },
       createdTime: { type: 'date', validation: 'require', allowUpdate: false },
       modifyTime: { type: 'date', validation: 'require' },
-      whereFrom: { type: 'string' },
+      fromWhere: { type: 'string' },
       details: { type: 'object' },
     };
   }
