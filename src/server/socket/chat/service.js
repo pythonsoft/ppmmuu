@@ -22,11 +22,11 @@ const json = function(err, r, cid) {
 };
 
 const errorJSON = function (err, cid) {
-  return JSON.stringify(result.fail(err, {}, cid));
+  return result.fail(err, {}, cid);
 };
 
 const successJSON = function (doc, cid) {
-  return JSON.stringify(result.success(doc, 'ok', cid));
+  return result.success(doc, 'ok', cid);
 };
 
 //获取最近会话
