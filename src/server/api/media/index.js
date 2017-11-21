@@ -150,7 +150,7 @@ router.get('/getEsMediaList', (req, res) => {
  *         description: defaultmedia list
  */
 router.get('/defaultMedia', (req, res) => {
-  service.defaultMediaList((err, r) => res.json(result.json(err, r)), req.ex.userId);
+  service.defaultMediaList((err, r) => res.json(result.json(err, r)), req.ex.userId, (req.query.size || 10) * 1);
 });
 
 /**
