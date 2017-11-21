@@ -78,7 +78,7 @@ function saveSearch(k, id, cb) {
 
 service.saveSearch = saveSearch;
 
-service.defaultMediaList = function defaultMediaList(cb, userId) {
+service.defaultMediaList = function defaultMediaList(cb, userId, size) {
   redisClient.get(REDIS_CACHE_MEIDA_LIST, (err, obj) => {
     service.getWatchHistoryForMediaPage(userId, (error, r) => {
       if (error) {
@@ -91,7 +91,7 @@ service.defaultMediaList = function defaultMediaList(cb, userId) {
       }
 
       if (err || obj === '[]') {
-        service.getEsMediaList({ pageSize: 10 }, (err, rs) => {
+        service.getEsMediaList({ pageSize: size }, (err, rs) => {
           if (err) {
             logger.error(err.message);
           }
@@ -100,9 +100,6 @@ service.defaultMediaList = function defaultMediaList(cb, userId) {
             rs = [];
           }
 
-          redisClient.set(REDIS_CACHE_MEIDA_LIST, JSON.stringify(rs));
-          redisClient.EXPIRE(REDIS_CACHE_MEIDA_LIST, 60 * 3);
-
           rs.push({ category: '瀏覽歷史', docs: r });
 
           return cb && cb(null, rs);
@@ -110,13 +107,17 @@ service.defaultMediaList = function defaultMediaList(cb, userId) {
       } else {
         try {
           obj = JSON.parse(obj);
+          obj.map((item) => {
+            item.docs = item.docs.sort((a, b) => new Date(b.publish_time) - new Date(a.publish_time)).slice(0, size - 10 === 0 ? 10 : size - 10);
+            return item;
+          });
           obj.push({ category: '瀏覽歷史', docs: r });
           return cb && cb(null, obj || []);
         } catch (e) {
           return cb && cb(e);
         }
       }
-    });
+    }, size);
   });
 };
 
@@ -606,11 +607,11 @@ service.getWatchHistory = (userId, cb, page, pageSize) => {
   watchingHistoryInfo.pagination({ userId, status: 'available' }, page, pageSize, (err, doc) => cb && cb(err, doc), '-updatedTime', '');
 };
 
-service.getWatchHistoryForMediaPage = (userId, cb) => {
+service.getWatchHistoryForMediaPage = (userId, cb, size) => {
   watchingHistoryInfo.collection
   .find({ userId, status: 'available' })
   .sort({ updatedTime: -1 })
-  .limit(10)
+  .limit(size < 10 ? size : 10)
   .toArray((err, docs) => {
     const r = [];
     if (docs) {
