@@ -22,6 +22,12 @@ const infos = [
     parentIndex: '',
   },
   {
+    _id: 'mediaCenter',
+    name: '媒体库',
+    index: 'mediaCenter',
+    parentIndex: '',
+  },
+  {
     _id: 'accountManagement',
     name: '账户管理',
     index: 'accountManagement',

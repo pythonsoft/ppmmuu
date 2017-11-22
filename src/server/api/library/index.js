@@ -9,8 +9,42 @@ const express = require('express');
 const router = express.Router();
 const result = require('../../common/result');
 const service = require('./service');
+const extService = require('./extService');
 const isLogin = require('../../middleware/login');
 const xml = require('./xml');
+
+/**
+ * @swagger
+ * /library/getAsyncCatalogInfoList:
+ *   get:
+ *     description: 获取入库编目信息
+ *     tags:
+ *       - v1
+ *       - library
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: lastmodify
+ *         description: ''
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: count
+ *         description: ''
+ *         required: false
+ *         type: string
+ *         default: '0'
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description:
+ * */
+router.get('/getAsyncCatalogInfoList', (req, res) => {
+  extService.getAsyncCatalogInfoList(req.query, (err, doc) => res.json(result.json(err, doc)));
+});
 
 router.use(isLogin.middleware);
 router.use(isLogin.hasAccessMiddleware);
@@ -1077,7 +1111,7 @@ router.post('/createCatalog', (req, res) => {
  *                  type: string
  */
 router.post('/updateCatalog', (req, res) => {
-  service.updateCatalog(req.body._id, req.body, (err, docs) => res.json(result.json(err, docs)));
+  service.updateCatalog(req.body.id, req.body, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**

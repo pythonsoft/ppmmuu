@@ -16,6 +16,9 @@ const logger = require('../../common/log')('error');
 router.use(isLogin.middleware);
 
 /**
+ * @permissionGroup: mediaCenter
+ * @permissionName: 媒体库搜索
+ * @permissionPath: /media/esSearch
  * @apiName: esSearch
  * @apiFuncType: post
  * @apiFuncUrl: /media/esSearch
@@ -79,7 +82,7 @@ router.use(isLogin.middleware);
  *                message:
  *                  type: string
  */
-router.post('/esSearch', (req, res) => {
+router.post('/esSearch', isLogin.hasAccessMiddleware, (req, res) => {
   service.esSearch(req.body, (err, doc) => {
     if (err) {
       return res.json(result.fail(err));
@@ -90,6 +93,9 @@ router.post('/esSearch', (req, res) => {
 
 /**
  * 用于mobile
+ * @permissionGroup: mediaCenter
+ * @permissionName: 媒体库搜索默认页
+ * @permissionPath: /media/getEsMediaList
  * @apiName: getEsMediaList
  * @apiFuncType: get
  * @apiFuncUrl: /media/getEsMediaList
@@ -127,11 +133,14 @@ router.post('/esSearch', (req, res) => {
  *                  type: string
  *
  */
-router.get('/getEsMediaList', (req, res) => {
+router.get('/getEsMediaList', isLogin.hasAccessMiddleware, (req, res) => {
   service.getCacheEsMediaList(req.query, (err, doc) => res.json(result.json(err, doc)));
 });
 
 /**
+ * @permissionGroup: mediaCenter
+ * @permissionName: 媒体库搜索手机版首页
+ * @permissionPath: /media/defaultMedia
  * @apiName: defaultMedia
  * @apiFuncType: get
  * @apiFuncUrl: /media/defaultMedia
@@ -149,7 +158,7 @@ router.get('/getEsMediaList', (req, res) => {
  *       200:
  *         description: defaultmedia list
  */
-router.get('/defaultMedia', (req, res) => {
+router.get('/defaultMedia', isLogin.hasAccessMiddleware, (req, res) => {
   service.defaultMediaList((err, r) => res.json(result.json(err, r)), req.ex.userId);
 });
 
@@ -208,6 +217,13 @@ router.get('/getSearchConfig', (req, res) => {
  *         type: string
  *         default: "FE1748B4-69F9-4CAB-8CC0-5EB8A35CB717"
  *         collectionFormat: csv
+ *       - in: query
+ *         name: fromWhere
+ *         required: false
+ *         type: string
+ *         default: '1'
+ *         description: '1:HK,2:DAYANG,3:UMP'
+ *         collectionFormat: csv
  *     responses:
  *       200:
  *         schema:
@@ -245,6 +261,13 @@ router.get('/getIcon', (req, res) => service.getIcon(req.query, res));
  *         required: true
  *         type: string
  *         default: "FE1748B4-69F9-4CAB-8CC0-5EB8A35CB717"
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: fromWhere
+ *         required: false
+ *         type: string
+ *         default: '1'
+ *         description: '1:HK,2:DAYANG,3:UMP'
  *         collectionFormat: csv
  *     responses:
  *       200:
@@ -287,6 +310,13 @@ router.get('/getObject', (req, res) => {
  *         type: string
  *         default: "FE1748B4-69F9-4CAB-8CC0-5EB8A35CB717"
  *         collectionFormat: csv
+ *       - in: query
+ *         name: fromWhere
+ *         required: false
+ *         type: string
+ *         default: '1'
+ *         description: '1:HK,2:DAYANG,3:UMP'
+ *         collectionFormat: csv
  *     responses:
  *       200:
  *         schema:
@@ -303,7 +333,7 @@ router.get('/getObject', (req, res) => {
  *                  type: string
  */
 router.get('/getStream', (req, res) => {
-  service.getStream(req.query.objectid, (err, doc) => {
+  service.getStream(req.query.objectid, req.query.fromWhere, (err, doc) => {
     if (doc) {
       doc.status += '';
 
@@ -314,9 +344,10 @@ router.get('/getStream', (req, res) => {
           }
         });
       }
+      return res.json(doc);
     }
 
-    return res.json(doc);
+    return res.json(err);
   });
 });
 
@@ -381,6 +412,13 @@ router.get('/getWatchHistory', (req, res) => {
  *         required: true
  *         type: string
  *         default: "30EAF8CB-A40A-4BD8-9F8E-20111E9AEC8A"
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: fromWhere
+ *         required: false
+ *         type: string
+ *         default: '1'
+ *         description: '1:HK,2:DAYANG,3:UMP'
  *         collectionFormat: csv
  *     responses:
  *       200:

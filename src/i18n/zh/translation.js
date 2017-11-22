@@ -973,4 +973,16 @@ module.exports = {
     code: '-170001',
     message: '没有上传文件',
   },
+  invalidLastModify: {
+    code: '-180001',
+    message: '非法的lastmodify',
+  },
+  catalogInfoNotFound: {
+    code: '-180002',
+    message: '找不到catalogInfo',
+  },
+  fileInfoNotFound: {
+    code: '-180003',
+    message: '找不到fileInfo',
+  },
 };

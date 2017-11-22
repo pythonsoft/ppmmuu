@@ -17,7 +17,7 @@ const sessionInfo = new SessionInfo();
 const service = {};
 
 // 列出含有userId的会话列表
-service.list = function (userId, page = 1, pageSize = 50, fieldNeeds, sort = '-modifyTime', cb) {
+service.list = function list(userId, page = 1, pageSize = 50, fieldNeeds, sort = '-modifyTime', cb) {
   if (!userId) {
     return cb && cb(i18n.t('imSessionFieldsIsNull', { field: 'userId' }));
   }
@@ -32,7 +32,7 @@ service.list = function (userId, page = 1, pageSize = 50, fieldNeeds, sort = '-m
   }, sort, fieldNeeds);
 };
 
-service.add = function (creatorId, info, cb) {
+service.add = function add(creatorId, info, cb) {
   if (!creatorId) {
     return cb && cb(i18n.t('imSessionFieldsIsNull', { field: 'creatorId' }));
   }
@@ -61,7 +61,7 @@ service.add = function (creatorId, info, cb) {
 
     info.members = users;
 
-    sessionInfo.insertOne(info, (err, r) => {
+    sessionInfo.insertOne(info, (err) => {
       if (err) {
         return cb && cb(err);
       }
@@ -71,7 +71,7 @@ service.add = function (creatorId, info, cb) {
   });
 };
 
-service.addToSession = function (sessionId, userId, cb) {
+service.addToSession = function addToSession(sessionId, userId, cb) {
   if (!sessionId) {
     return cb && cb(i18n.t('imSessionFieldsIsNull', { field: 'sessionId' }));
   }

@@ -26,7 +26,7 @@ del.sync(apiPathFile);
 del.sync(socketPathFile);
 del.sync(buildPath);
 
-const writeToSocketPATH = function () {
+const writeToSocketPATH = function writeToSocketPATH() {
   const socketRootPath = path.join(__dirname, './server/socket');
   const files = fs.readdirSync(socketRootPath);
 
@@ -116,8 +116,8 @@ const writeUploadApiFuncFile = function writeApiFuncFile(filePath, funcName, fun
 };
 
 const writeGetIconApiFuncFile = function writeApiFuncFile(filePath, funcName, funcType, funcUrl) {
-  const tpl = `api.${funcName} = function ${funcName}(id) {
-  return axios.defaults.baseURL + '${funcUrl}?objectid=' + id;
+  const tpl = `api.${funcName} = function ${funcName}(id, fromWhere=1) {
+  return axios.defaults.baseURL + '${funcUrl}?objectid=' + id + '&fromWhere=' + fromWhere;
 };
 
 `;
@@ -134,7 +134,7 @@ const feName = 'fe';
 const umpName = 'ump';
 const versionName = 'version.json';
 
-const chaoningCoolie = function (version, cb) {
+const chaoningCoolie = function chaoningCoolie(version, cb) {
   const chaoningDeployPath = '/Users/chaoningx/Desktop/ump';
   const chaoningFEProjectDistPath = '/Users/chaoningx/WebstormProjects/ump-fe/dist';
 
@@ -146,7 +146,7 @@ const chaoningCoolie = function (version, cb) {
   del.sync(chaoningDeployPath, { force: true });
   fs.mkdirSync(chaoningDeployPath);
 
-  exec(`cp -rf ${chaoningFEProjectDistPath} ${targetFe}`, (error, stdout, stderr) => {
+  exec(`cp -rf ${chaoningFEProjectDistPath} ${targetFe}`, (error, stdout) => {
     if (error) {
       console.error(error);
       return cb && cb(error);
@@ -154,7 +154,7 @@ const chaoningCoolie = function (version, cb) {
 
     console.log(`transfer ${feName} project success.`);
 
-    exec(`cp -rf ${buildPath} ${targetUMP}`, (error, stdout, stderr) => {
+    exec(`cp -rf ${buildPath} ${targetUMP}`, (error, stdout) => {
       if (error) {
         console.error(error);
         return cb && cb(error);
@@ -162,7 +162,7 @@ const chaoningCoolie = function (version, cb) {
 
       console.log(`transfer ${umpName} project success.`);
 
-      exec(`cp ${path.join(buildPath, versionName)} ${chaoningDeployPath}`, (error, stdout, stderr) => {
+      exec(`cp ${path.join(buildPath, versionName)} ${chaoningDeployPath}`, (error, stdout) => {
         if (error) {
           console.error(error);
           return cb && cb(error);
@@ -172,7 +172,7 @@ const chaoningCoolie = function (version, cb) {
 
         const formatVersion = version.replace(/\s/g, '');
 
-        exec(`cd ${chaoningDeployPath} && zip -r ${formatVersion}.zip ${feName} ${umpName} ${versionName}`, (error, stdout, stderr) => {
+        exec(`cd ${chaoningDeployPath} && zip -r ${formatVersion}.zip ${feName} ${umpName} ${versionName}`, (error, stdout) => {
           if (error) {
             console.error(error);
             return cb && cb(error);
@@ -204,7 +204,7 @@ const deployOnline = function deployOnline(cb) {
 
         if (chunk === 'start') {
           process.stdout.write(`start generate ${versionName} file...\n`);
-          generateVersionJson.create(version, buildPath, (err, tpl) => {
+          generateVersionJson.create(version, buildPath, (err) => {
             if (err) {
               console.error(err);
               process.stdout.write('please input \'start\' to retry ? \n');

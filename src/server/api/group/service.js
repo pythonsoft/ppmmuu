@@ -372,7 +372,7 @@ service.updateGroupInfo = function updateGroupInfo(info, cb) {
       return cb && cb(err);
     }
     info.mediaExpressUser = mediaExpressUser;
-    groupInfo.collection.updateOne({ _id: info._id }, { $set: info }, (err, r) => {
+    groupInfo.collection.updateOne({ _id: info._id }, { $set: info }, (err) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
