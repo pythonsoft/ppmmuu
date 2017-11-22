@@ -32,7 +32,8 @@ class SessionInfo extends DB {
         },
         default: () => SessionInfo.TYPE.C2C },
       members: { type: 'array' }, // [{ _id: '', name: '', photo: '' }]
-      createdTime: { type: 'date', validation: 'require', allowUpdate: false },
+      admin: { type: 'object', default() { return { _id: '', name: '' } } }, //管理员
+      createdTime: { type: 'date', validation: 'requirde', allowUpdate: false },
       modifyTime: { type: 'date', validation: 'require' },
       details: { type: 'object' },
     };
@@ -40,8 +41,8 @@ class SessionInfo extends DB {
 }
 
 SessionInfo.TYPE = {
-  C2C: '0',
-  GROUP: '1',
+  C2C: '1',
+  GROUP: '2',
 };
 
 module.exports = SessionInfo;

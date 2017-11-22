@@ -154,12 +154,21 @@ router.get('/getEsMediaList', isLogin.hasAccessMiddleware, (req, res) => {
  *       - Media
  *     produces:
  *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: size
+ *         description: "每个分类个数"
+ *         required: true
+ *         type: string
+ *         default: 10
+ *         collectionFormat: csv
  *     responses:
  *       200:
  *         description: defaultmedia list
  */
-router.get('/defaultMedia', isLogin.hasAccessMiddleware, (req, res) => {
-  service.defaultMediaList((err, r) => res.json(result.json(err, r)), req.ex.userId);
+
+router.get('/defaultMedia', (req, res) => {
+  service.defaultMediaList((err, r) => res.json(result.json(err, r)), req.ex.userId, (req.query.size || 10) * 1);
 });
 
 /**

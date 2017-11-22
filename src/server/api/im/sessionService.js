@@ -17,7 +17,7 @@ const sessionInfo = new SessionInfo();
 const service = {};
 
 // 列出含有userId的会话列表
-service.list = function list(userId, page = 1, pageSize = 50, fieldNeeds, sort = '-modifyTime', cb) {
+service.getRecentContactList = function getRecentContactList(userId, page = 1, pageSize = 50, fieldNeeds, sort = '-modifyTime', cb) {
   if (!userId) {
     return cb && cb(i18n.t('imSessionFieldsIsNull', { field: 'userId' }));
   }
@@ -32,7 +32,7 @@ service.list = function list(userId, page = 1, pageSize = 50, fieldNeeds, sort =
   }, sort, fieldNeeds);
 };
 
-service.add = function add(creatorId, info, cb) {
+service.createSession = function createSession(creatorId, info, cb) {
   if (!creatorId) {
     return cb && cb(i18n.t('imSessionFieldsIsNull', { field: 'creatorId' }));
   }
@@ -41,37 +41,48 @@ service.add = function add(creatorId, info, cb) {
     return cb && cb(i18n.t('imSessionFieldsIsNull', { field: 'info' }));
   }
 
-  if (!info._id) {
-    info._id = uuid.v1();
+  const sInfo = utils.merge({
+    name: '',
+    type: '',
+    members: ''
+  }, info);
+
+  sInfo._id = uuid.v1();
+  const t = new Date();
+  sInfo.createdTime = t;
+  sInfo.modifyTime = t;
+  sInfo.creatorId = creatorId;
+
+  if(!sInfo.name) {
+    return cb && cb(i18n.t('imSessionFieldsIsNull', { field: 'name' }));
   }
 
-  const t = new Date();
-  info.createdTime = t;
-  info.modifyTime = t;
-  info.creatorId = creatorId;
-
-  if (!info.members) {
+  if (!sInfo.members) {
     return cb && cb(i18n.t('imSessionFieldsIsNull', { field: 'members' }));
   }
 
-  accountService.getUsers(info.members, (err, users) => {
+  if(!sInfo.type || !utils.isValueInObject(sInfo.type, SessionInfo.TYPE)) {
+    return cb && cb(i18n.t('imSessionFieldsIsNull', { field: 'type' }));
+  }
+
+  accountService.getUsers(sInfo.members, (err, users) => {
     if (err) {
       return cb && cb(err);
     }
 
-    info.members = users;
+    sInfo.members = users;
 
-    sessionInfo.insertOne(info, (err) => {
+    sessionInfo.insertOne(sInfo, err => {
       if (err) {
         return cb && cb(err);
       }
 
-      return cb && cb(null, info);
+      return cb && cb(null, sInfo);
     });
   });
 };
 
-service.addToSession = function addToSession(sessionId, userId, cb) {
+service.addUserToSession = function addUserToSession(sessionId, userId, cb) {
   if (!sessionId) {
     return cb && cb(i18n.t('imSessionFieldsIsNull', { field: 'sessionId' }));
   }
@@ -115,6 +126,74 @@ service.addToSession = function addToSession(sessionId, userId, cb) {
       });
     });
   });
+};
+
+//用户删除一个会话时，将用户从这个上会话移除
+service.leaveSession = function(sessionId, userId, cb) {
+  if (!sessionId) {
+    return cb && cb(i18n.t('imSessionFieldsIsNull', { field: 'sessionId' }));
+  }
+
+  if (!userId) {
+    return cb && cb(i18n.t('imSessionFieldsIsNull', { field: 'userId' }));
+  }
+
+  sessionInfo.collection.updateOne({ _id: sessionId }, { $pull: { "members._id": userId } }, (err, r) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, r);
+  });
+};
+
+service.getSession = function getSession(sessionId, cb) {
+  if (!sessionId) {
+    return cb && cb(i18n.t('imSessionFieldsIsNull', { field: 'sessionId' }));
+  }
+
+  sessionInfo.collection.findOne({ _id: sessionId }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if (!docs) {
+      return cb && cb(i18n.t('imSessionIsNotExist'));
+    }
+
+    return cb && cb(null, doc);
+  });
+};
+
+/**
+ * 找到这两个ID共有的会话，仅支持私聊模式，应用场景：在通讯录里边点好友头像，发起聊天，须找到两个人曾经有过的会话。
+ * @param meId
+ * @param targetId
+ * @param cb
+ * @returns {*}
+ */
+service.getSessionByUserIdAtC2C = function getSessionByUserIdAtC2C(meId, targetId, cb) {
+  if (!targetId) {
+    return cb && cb(i18n.t('imSessionFieldsIsNull', { field: 'targetId' }));
+  }
+
+   sessionInfo.collection.findOne({
+     type: SessionInfo.TYPE.C2C,
+     "members._id": { $all: [meId, targetId] },
+   }, (err, doc) => {
+     if (err) {
+       logger.error(err.message);
+       return cb && cb(i18n.t('databaseError'));
+     }
+
+     if (!doc) {
+       return cb && cb(i18n.t('imSessionIsNotExist'));
+     }
+
+     return cb && cb(null, doc);
+   });
 };
 
 module.exports = service;

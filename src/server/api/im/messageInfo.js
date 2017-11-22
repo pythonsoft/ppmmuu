@@ -18,6 +18,7 @@ class MessageInfo extends DB {
       from: { type: 'object', default() { return { _id: '', type: '' }; } },
       to: { type: 'object', default() { return { _id: '', type: '' }; } },
       sessionId: { type: 'string', validation: 'require', allowUpdate: false },
+      seq: { type: 'number', validation(v) { return typeof v === 'number'}, default() { return 0; } },
       type: { type: 'string',
         allowUpdate: false,
         validation(v) {
@@ -40,8 +41,8 @@ class MessageInfo extends DB {
 }
 
 MessageInfo.TYPE = {
-  C2C: 'C2C',
-  GROUP: 'GROUP',
+  C2C: '1',
+  GROUP: '2',
 };
 
 module.exports = MessageInfo;

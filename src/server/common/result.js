@@ -22,20 +22,26 @@ const logger = require('../common/log')('error');
  *           message:
  *             type: string
  */
-const build = function build(code, data, message = null) {
+const build = function build(code, data, message = null, cid) {
   if (code === '0') {
     message = 'ok';
   }
 
-  return { status: code, data, statusInfo: { message } };
+  const rs = { status: code, data, statusInfo: { message } };
+
+  if(cid) {
+    rs.cid = cid;
+  }
+
+  return rs;
 };
 
-result.success = function success(data, message = 'ok') {
-  return build('0', data, message);
+result.success = function success(data, message = 'ok', cid) {
+  return build('0', data, message, cid);
 };
 
-result.fail = function fail(err, data = {}) {
-  return build(err.code, data, err.message);
+result.fail = function fail(err, data = {}, cid) {
+  return build(err.code, data, err.message, cid);
 };
 
 result.json = function json(err, rs, log4jContent) {

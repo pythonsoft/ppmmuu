@@ -26,7 +26,7 @@ del.sync(apiPathFile);
 del.sync(socketPathFile);
 del.sync(buildPath);
 
-const writeToSocketPATH = function writeToSocketPATH() {
+const writeToSocketPATH = function () {
   const socketRootPath = path.join(__dirname, './server/socket');
   const files = fs.readdirSync(socketRootPath);
 
@@ -116,8 +116,8 @@ const writeUploadApiFuncFile = function writeApiFuncFile(filePath, funcName, fun
 };
 
 const writeGetIconApiFuncFile = function writeApiFuncFile(filePath, funcName, funcType, funcUrl) {
-  const tpl = `api.${funcName} = function ${funcName}(id, fromWhere=1) {
-  return axios.defaults.baseURL + '${funcUrl}?objectid=' + id + '&fromWhere=' + fromWhere;
+  const tpl = `api.${funcName} = function ${funcName}(id) {
+  return axios.defaults.baseURL + '${funcUrl}?objectid=' + id;
 };
 
 `;
@@ -134,9 +134,11 @@ const feName = 'fe';
 const umpName = 'ump';
 const versionName = 'version.json';
 
-const chaoningCoolie = function chaoningCoolie(version, cb) {
+const chaoningCoolie = function (version, cb) {
   const chaoningDeployPath = '/Users/chaoningx/Desktop/ump';
-  const chaoningFEProjectDistPath = '/Users/chaoningx/WebstormProjects/ump-fe/dist';
+  const chaoningFEprojectPath = '/Users/chaoningx/WebstormProjects/ump-fe';
+  const chaoningFEProjectApiPath = path.join(chaoningFEprojectPath, 'src', 'fe', 'api');
+  const chaoningFEProjectDistPath = path.join(chaoningFEprojectPath, 'dist');
 
   const targetFe = path.join(chaoningDeployPath, feName);
   const targetUMP = path.join(chaoningDeployPath, umpName);
@@ -146,41 +148,53 @@ const chaoningCoolie = function chaoningCoolie(version, cb) {
   del.sync(chaoningDeployPath, { force: true });
   fs.mkdirSync(chaoningDeployPath);
 
-  exec(`cp -rf ${chaoningFEProjectDistPath} ${targetFe}`, (error, stdout) => {
+  //将API文件复制到fe下的API包中
+  console.log(`build fe project start.`);
+
+  exec(`cd ${feApiPath} && cp *.js ${chaoningFEProjectApiPath} && cd ${chaoningFEprojectPath} && npm run build`, (error, stdout, stderr) => {
     if (error) {
       console.error(error);
       return cb && cb(error);
     }
 
-    console.log(`transfer ${feName} project success.`);
+    console.log(`build fe project success.`);
 
-    exec(`cp -rf ${buildPath} ${targetUMP}`, (error, stdout) => {
+    exec(`cp -rf ${chaoningFEProjectDistPath} ${targetFe}`, (error, stdout, stderr) => {
       if (error) {
         console.error(error);
         return cb && cb(error);
       }
 
-      console.log(`transfer ${umpName} project success.`);
+      console.log(`transfer ${feName} project success.`);
 
-      exec(`cp ${path.join(buildPath, versionName)} ${chaoningDeployPath}`, (error, stdout) => {
+      exec(`cp -rf ${buildPath} ${targetUMP}`, (error, stdout, stderr) => {
         if (error) {
           console.error(error);
           return cb && cb(error);
         }
 
-        console.log(`transfer ${versionName} file success.`);
+        console.log(`transfer ${umpName} project success.`);
 
-        const formatVersion = version.replace(/\s/g, '');
-
-        exec(`cd ${chaoningDeployPath} && zip -r ${formatVersion}.zip ${feName} ${umpName} ${versionName}`, (error, stdout) => {
+        exec(`cp ${path.join(buildPath, versionName)} ${chaoningDeployPath}`, (error, stdout, stderr) => {
           if (error) {
             console.error(error);
             return cb && cb(error);
           }
 
-          console.log(`zip project success, fileName is ${formatVersion}.zip`);
+          console.log(`transfer ${versionName} file success.`);
 
-          return cb && cb(null, 'ok');
+          const formatVersion = version.replace(/\s/g, '');
+
+          exec(`cd ${chaoningDeployPath} && zip -r ${formatVersion}.zip ${feName} ${umpName} ${versionName}`, (error, stdout, stderr) => {
+            if (error) {
+              console.error(error);
+              return cb && cb(error);
+            }
+
+            console.log(`zip project success, fileName is ${formatVersion}.zip`);
+
+            return cb && cb(null, 'ok');
+          });
         });
       });
     });
@@ -204,7 +218,7 @@ const deployOnline = function deployOnline(cb) {
 
         if (chunk === 'start') {
           process.stdout.write(`start generate ${versionName} file...\n`);
-          generateVersionJson.create(version, buildPath, (err) => {
+          generateVersionJson.create(version, buildPath, (err, tpl) => {
             if (err) {
               console.error(err);
               process.stdout.write('please input \'start\' to retry ? \n');
