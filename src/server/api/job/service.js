@@ -339,7 +339,6 @@ service.jugeTemplateAuditAndCreateAudit = function jugeTemplateAuditAndCreateAud
 
 service.jugeDownload = function jugeDownload(info, cb) {
   service.jugeTemplateAuditAndCreateAudit(info, (err, needDownload) => {
-    console.log('err==>', err);
     if (err) {
       return cb && cb(err);
     }
@@ -363,7 +362,6 @@ service.download = function download(info, cb) {
   const transferMode = info.transferMode || 'direct';
   let source = info.fromWhere || CatalogInfo.FROM_WHERE.HK;
   source *= 1;
-  console.log('asdasfasfasf==>');
   const downloadParams = { objectid, inpoint: inpoint * 1, outpoint: outpoint * 1, filename, filetypeid, templateId };
   if (!downloadParams) {
     return cb && cb(i18n.t('joDownloadParamsIsNull'));
@@ -383,11 +381,9 @@ service.download = function download(info, cb) {
   }, downloadParams);
 
   if (!params.objectid && source !== CatalogInfo.FROM_WHERE.UMP) {
-    console.log('ggggg==>');
     return cb && cb(i18n.t('joDownloadParamsObjectIdIsNull'));
   }
 
-  console.log('afas==>');
 
   if (typeof params.inpoint !== 'number' || typeof params.outpoint !== 'number') {
     return cb && cb(i18n.t('joDownloadParamsInpointOrOutpointTypeError'));
@@ -409,7 +405,6 @@ service.download = function download(info, cb) {
     return cb && cb(i18n.t('userNotFind'));
   }
 
-  console.log('ggggg==>');
   const downloadTemplateId = downloadParams.templateId;
 
   // 拿到下载路径
@@ -785,7 +780,6 @@ const loopGetTranscodeTemplateId = function loopGetTranscodeTemplateId(groupIds,
       rs[groupId] = '';
       loopGetTranscodeTemplateId(groupIds, groupTemplateMap, filename, index + 1, rs, cb);
     } else {
-      console.log('transcodeTemplateId -->', transcodeTemplateId);
       rs[groupId] = transcodeTemplateId;
       loopGetTranscodeTemplateId(groupIds, groupTemplateMap, filename, index + 1, rs, cb);
     }
