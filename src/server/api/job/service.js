@@ -339,6 +339,7 @@ service.jugeTemplateAuditAndCreateAudit = function jugeTemplateAuditAndCreateAud
 
 service.jugeDownload = function jugeDownload(info, cb) {
   service.jugeTemplateAuditAndCreateAudit(info, (err, needDownload) => {
+    console.log('err==>', err);
     if (err) {
       return cb && cb(err);
     }
@@ -360,7 +361,9 @@ service.download = function download(info, cb) {
   const receiverId = info.receiverId;
   const receiverType = info.receiverType;
   const transferMode = info.transferMode || 'direct';
-  const source = info.fromWhere || CatalogInfo.FROM_WHERE.HK;
+  let source = info.fromWhere || CatalogInfo.FROM_WHERE.HK;
+  source *= 1;
+  console.log('asdasfasfasf==>');
   const downloadParams = { objectid, inpoint: inpoint * 1, outpoint: outpoint * 1, filename, filetypeid, templateId };
   if (!downloadParams) {
     return cb && cb(i18n.t('joDownloadParamsIsNull'));
@@ -379,9 +382,12 @@ service.download = function download(info, cb) {
     fileId: '',      //如果来源是ump,需要文件Id
   }, downloadParams);
 
-  if (!params.objectid) {
+  if (!params.objectid && source !== CatalogInfo.FROM_WHERE.UMP) {
+    console.log('ggggg==>');
     return cb && cb(i18n.t('joDownloadParamsObjectIdIsNull'));
   }
+
+  console.log('afas==>');
 
   if (typeof params.inpoint !== 'number' || typeof params.outpoint !== 'number') {
     return cb && cb(i18n.t('joDownloadParamsInpointOrOutpointTypeError'));
@@ -395,7 +401,7 @@ service.download = function download(info, cb) {
     return cb && cb(i18n.t('joDownloadParamsFileNameIsNull'));
   }
 
-  if (!params.filetypeid) {
+  if (!params.filetypeid && source !== CatalogInfo.FROM_WHERE.UMP) {
     return cb && cb(i18n.t('joDownloadParamsFileTypeIdIsNull'));
   }
 
@@ -403,6 +409,7 @@ service.download = function download(info, cb) {
     return cb && cb(i18n.t('userNotFind'));
   }
 
+  console.log('ggggg==>');
   const downloadTemplateId = downloadParams.templateId;
 
   // 拿到下载路径

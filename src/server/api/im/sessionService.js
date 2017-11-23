@@ -44,7 +44,7 @@ service.createSession = function createSession(creatorId, info, cb) {
   const sInfo = utils.merge({
     name: '',
     type: '',
-    members: ''
+    members: '',
   }, info);
 
   sInfo._id = uuid.v1();
@@ -53,7 +53,7 @@ service.createSession = function createSession(creatorId, info, cb) {
   sInfo.modifyTime = t;
   sInfo.creatorId = creatorId;
 
-  if(!sInfo.name) {
+  if (!sInfo.name) {
     return cb && cb(i18n.t('imSessionFieldsIsNull', { field: 'name' }));
   }
 
@@ -61,7 +61,7 @@ service.createSession = function createSession(creatorId, info, cb) {
     return cb && cb(i18n.t('imSessionFieldsIsNull', { field: 'members' }));
   }
 
-  if(!sInfo.type || !utils.isValueInObject(sInfo.type, SessionInfo.TYPE)) {
+  if (!sInfo.type || !utils.isValueInObject(sInfo.type, SessionInfo.TYPE)) {
     return cb && cb(i18n.t('imSessionFieldsIsNull', { field: 'type' }));
   }
 
@@ -72,7 +72,7 @@ service.createSession = function createSession(creatorId, info, cb) {
 
     sInfo.members = users;
 
-    sessionInfo.insertOne(sInfo, err => {
+    sessionInfo.insertOne(sInfo, (err) => {
       if (err) {
         return cb && cb(err);
       }
@@ -128,8 +128,8 @@ service.addUserToSession = function addUserToSession(sessionId, userId, cb) {
   });
 };
 
-//用户删除一个会话时，将用户从这个上会话移除
-service.leaveSession = function(sessionId, userId, cb) {
+// 用户删除一个会话时，将用户从这个上会话移除
+service.leaveSession = function (sessionId, userId, cb) {
   if (!sessionId) {
     return cb && cb(i18n.t('imSessionFieldsIsNull', { field: 'sessionId' }));
   }
@@ -138,7 +138,7 @@ service.leaveSession = function(sessionId, userId, cb) {
     return cb && cb(i18n.t('imSessionFieldsIsNull', { field: 'userId' }));
   }
 
-  sessionInfo.collection.updateOne({ _id: sessionId }, { $pull: { "members._id": userId } }, (err, r) => {
+  sessionInfo.collection.updateOne({ _id: sessionId }, { $pull: { 'members._id': userId } }, (err, r) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -179,21 +179,21 @@ service.getSessionByUserIdAtC2C = function getSessionByUserIdAtC2C(meId, targetI
     return cb && cb(i18n.t('imSessionFieldsIsNull', { field: 'targetId' }));
   }
 
-   sessionInfo.collection.findOne({
-     type: SessionInfo.TYPE.C2C,
-     "members._id": { $all: [meId, targetId] },
-   }, (err, doc) => {
-     if (err) {
-       logger.error(err.message);
-       return cb && cb(i18n.t('databaseError'));
-     }
+  sessionInfo.collection.findOne({
+    type: SessionInfo.TYPE.C2C,
+    'members._id': { $all: [meId, targetId] },
+  }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
 
-     if (!doc) {
-       return cb && cb(i18n.t('imSessionIsNotExist'));
-     }
+    if (!doc) {
+      return cb && cb(i18n.t('imSessionIsNotExist'));
+    }
 
-     return cb && cb(null, doc);
-   });
+    return cb && cb(null, doc);
+  });
 };
 
 module.exports = service;

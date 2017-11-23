@@ -46,6 +46,12 @@ const infos = [
     parentIndex: 'accountManagement',
   },
   {
+    _id: 'permissionGroup',
+    name: '权限组',
+    index: 'permissionGroup',
+    parentIndex: 'accountManagement',
+  },
+  {
     _id: 'permission',
     name: '权限',
     index: 'permission',

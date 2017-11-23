@@ -2,7 +2,7 @@
 
 const fieldMap = {};
 fieldMap.catalogInfoMap = {
-  _id: 'id',
+  objectId: 'id',
   root: 'rootid',
   fromWhere: 'from_where',
   fullText: 'full_text',

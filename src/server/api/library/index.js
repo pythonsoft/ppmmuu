@@ -1367,7 +1367,7 @@ router.get('/getFile', (req, res) => {
 });
 
 /**
- * @permissionGroup: library
+ * @permissionGroup: libraryTemplate
  * @permissionName: 生成入库XML文件
  * @permissionPath: /library/generateXML
  * @apiName: generateXML
@@ -1405,7 +1405,7 @@ router.get('/generateXML', (req, res) => {
 });
 
 /**
- * @permissionGroup: library
+ * @permissionGroup: libraryTemplate
  * @permissionName: 添加入库模板
  * @permissionPath: /library/addTemplate
  * @apiName: addTemplate
@@ -1471,7 +1471,7 @@ router.post('/addTemplate', (req, res) => {
 });
 
 /**
- * @permissionGroup: library
+ * @permissionGroup: libraryTemplate
  * @permissionName: 获取入库模板详细信息
  * @permissionPath: /library/getTemplateInfo
  * @apiName: getTemplateInfo
@@ -1503,7 +1503,7 @@ router.get('/getTemplateInfo', (req, res) => {
 });
 
 /**
- * @permissionGroup: library
+ * @permissionGroup: libraryTemplate
  * @permissionName: 获取入库模板信息以及根据文件选择出需要的转码模板Id
  * @permissionPath: /library/getTemplateResult
  * @apiName: getTemplateResult
@@ -1542,7 +1542,7 @@ router.get('/getTemplateResult', (req, res) => {
 });
 
 /**
- * @permissionGroup: library
+ * @permissionGroup: libraryTemplate
  * @permissionName: 列举入库模板信息
  * @permissionPath: /library/listTemplate
  * @apiName: listTemplate
@@ -1592,7 +1592,7 @@ router.get('/listTemplate', (req, res) => {
 });
 
 /**
- * @permissionGroup: library
+ * @permissionGroup: libraryTemplate
  * @permissionName: 删除入库模板
  * @permissionPath: /library/removeTemplate
  * @apiName: removeTemplate
@@ -1642,7 +1642,7 @@ router.post('/removeTemplate', (req, res) => {
 });
 
 /**
- * @permissionGroup: library
+ * @permissionGroup: libraryTemplate
  * @permissionName: 更新入库模板
  * @permissionPath: /library/updateTemplate
  * @apiName: updateTemplate

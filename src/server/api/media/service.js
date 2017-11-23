@@ -39,7 +39,7 @@ const service = {};
 
 const redisClient = config.redisClient;
 
-const ES_FILTER_FIELDS = 'id,duration,name,ccid,program_type,program_name_cn,hd_flag,program_name_en,last_modify,f_str_03,f_str_187,f_date_162,f_str_01,from_where,full_text,publish_time,rootid';
+const ES_FILTER_FIELDS = 'id,duration,name,ccid,program_type,program_name_en,hd_flag,program_name_cn,last_modify,content_introduction,content,news_data,program_name,from_where,full_text,publish_time,rootid';
 
 service.ES_FILTER_FIELDS = ES_FILTER_FIELDS;
 
@@ -194,7 +194,7 @@ const getEsOptions = function getEsOptions(info) {
   const sort = info.sort || [];
   const start = info.start || 0;
   const pageSize = info.pageSize || 24;
-  const source = info.source || '';
+  const source = info.source || ES_FILTER_FIELDS;
 
   // convert simplified to tranditional
   match = JSON.parse(nodecc.simplifiedToTraditional(JSON.stringify(match)));
@@ -261,10 +261,18 @@ const getEsOptions = function getEsOptions(info) {
     for (let i = 0, len = arr.length; i < len; i++) {
       const temp = arr[i];
       if (temp.value && temp.key !== key) {
-        const item = {
-          match: {},
-        };
-        item.match[temp.key] = temp.value;
+        const value = temp.value;
+        const item = {};
+        if (value.constructor.name.toLowerCase() === 'array') {
+          if (value.length === 0) {
+            continue;
+          }
+          item.terms = {};
+          item.terms[temp.key] = value;
+        } else {
+          item.match = {};
+          item.match[temp.key] = value;
+        }
         rs.push(item);
       }
     }
@@ -316,12 +324,13 @@ const getEsOptions = function getEsOptions(info) {
   };
 
   if (must.length && mustShould.length) {
+    const percent = mustShould.length > 1 ? '75%' : '100%';
     options.query = {
       bool: {
         must: {
           bool: {
             should: mustShould,
-            minimum_should_match: '75%',
+            minimum_should_match: percent,
             must,
           },
         },
@@ -394,6 +403,8 @@ service.esSearch = function esSearch(info, cb, userId, videoIds) {
     json: true,
   };
 
+  console.log(JSON.stringify(body));
+
   utils.commonRequestCallApi(options, (err, rs) => {
     if (err) {
       return cb && cb(err);
@@ -453,21 +464,16 @@ service.getIcon = function getIcon(info, res) {
   const fromWhere = info.fromWhere || CatalogInfo.FROM_WHERE.HK;
 
   if (fromWhere * 1 === CatalogInfo.FROM_WHERE.UMP) {
-    libraryExtService.getCatalogInfo({ _id: info.objectId }, (err, doc) => {
+    libraryExtService.getFileInfo({ objectId: doc.objectId, type: FileInfo.TYPE.THUMB }, (err, doc) => {
       if (err) {
         return res.end(err.message);
       }
-      libraryExtService.getFileInfo({ objectId: doc.objectId, type: FileInfo.TYPE.THUMB }, (err, doc) => {
-        if (err) {
-          return res.end(err.message);
-        }
-        try {
-          const stream = fs.createReadStream(doc.realPath);
-          stream.pipe(res);
-        } catch (e) {
-          return res.end(e.message);
-        }
-      });
+      try {
+        const stream = fs.createReadStream(doc.realPath);
+        stream.pipe(res);
+      } catch (e) {
+        return res.end(e.message);
+      }
     });
   } else {
     request.get(`${config.hongkongUrl}get_preview?objectid=${info.objectid}`).on('error', (error) => {
@@ -490,7 +496,7 @@ service.xml2srt = (info, cb) => {
   const fromWhere = info.fromWhere || CatalogInfo.FROM_WHERE.HK;
 
   if (fromWhere * 1 === CatalogInfo.FROM_WHERE.UMP) {
-    libraryExtService.getCatalogInfo({ _id: info.objectId, 'fileInfo.type': FileInfo.TYPE.SUBTITLE }, (err, doc) => {
+    libraryExtService.getCatalogInfo({ objectId: info.objectId, 'fileInfo.type': FileInfo.TYPE.SUBTITLE }, (err, doc) => {
       if (err) {
         return cb && cb(err);
       }
@@ -629,7 +635,7 @@ service.getStream = function getStream(objectId, fromWhere, res) {
   const err = utils.validation({ objectId }, struct);
 
   if (err) {
-    const rs = { status: '-10000', data: {}, statusInfo: { code: '-10000', message: err.message } };
+    const rs = { status: '-10000', result: {}, statusInfo: { code: '-10000', message: err.message } };
 
     if (typeof res === 'function') {
       return res && res(rs);
@@ -640,9 +646,9 @@ service.getStream = function getStream(objectId, fromWhere, res) {
   fromWhere = fromWhere || CatalogInfo.FROM_WHERE.HK;
 
   if (fromWhere * 1 === CatalogInfo.FROM_WHERE.UMP) {
-    libraryExtService.getCatalogInfo({ _id: objectId }, (err, doc) => {
+    libraryExtService.getCatalogInfo({ objectId, 'fileInfo.type': FileInfo.TYPE.LOW_BIT_VIDEO }, (err, doc) => {
       if (err) {
-        return res && res({ status: err.code, data: {}, statusInfo: { message: err.message } });
+        return res && res({ status: err.code, result: {}, statusInfo: { message: err.message } });
       }
       const rs = {
         FILENAME: '',
@@ -656,7 +662,7 @@ service.getStream = function getStream(objectId, fromWhere, res) {
       rs.OUTPOINT = doc.outpoint;
       rs.UNCPATH = doc.fileInfo.realPath;
 
-      return res && res(null, { status: '0', data: rs, statusInfo: { message: 'ok' } });
+      return res && res(null, { status: '0', result: rs, statusInfo: { message: 'ok' } });
     });
   } else {
     rq.get('/mamapi/get_stream', { objectid: objectId }, res);

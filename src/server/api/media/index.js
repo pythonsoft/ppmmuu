@@ -41,7 +41,7 @@ router.use(isLogin.middleware);
  *             match:
  *               type: array
  *               description: '条件, key:字段, value：值'
- *               example: [{key: "publish_status", value: 1}, {key: "full_text", value: "鏘鏘三人行"}]
+ *               example: [{key: "publish_status", value: 1}, {key: "program_type", value: ["广告","素材"]}]
  *             should:
  *               type: array
  *               description: '关联度, key:字段, value：值'

@@ -68,12 +68,13 @@ service.getAsyncCatalogInfoList = function getAsyncCatalogInfoList(info, cb) {
   };
 
   lastModify = formatTimeStrToDate(lastModify);
-  const query = {};
+  const query = { 'fileInfo.type': FileInfo.TYPE.ORIGINAL };
   if (lastModify) {
     query.lastModifyTime = { $gte: lastModify };
   } else {
     return cb && cb(i18n.t('invalidLastModify'));
   }
+
 
   catalogInfo.pagination(query, page, pageSize, (err, result) => {
     if (err) {
@@ -108,7 +109,7 @@ service.getAsyncCatalogInfoList = function getAsyncCatalogInfoList(info, cb) {
   });
 };
 
-service.getObject = function getObject(id, cb) {
+service.getObject = function getObject(objectId, cb) {
   const rs = {
     status: '0',
     result: {
@@ -123,6 +124,7 @@ service.getObject = function getObject(id, cb) {
 
   const formatFile = function formatFile(info, file) {
     let rsFile = {};
+    rsFile.OBJECTID = file.objectId;
     rsFile.FILENAME = file.name || '';
     rsFile.SANAME = FileInfo.TYPE_MAP[file.type];
     rsFile.FILESIZE = file.size;
@@ -132,74 +134,64 @@ service.getObject = function getObject(id, cb) {
     return rsFile;
   };
 
-  catalogInfo.collection.findOne({ _id: id }, (err, doc) => {
+  catalogInfo.collection.find({ objectId }).toArray((err, docs) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
-    if (!doc) {
+
+    docs = docs || [];
+
+    if (!docs || docs.length === 0) {
       return cb && cb(i18n.t('catalogInfoNotFound'));
     }
-    catalogInfo.collection.find({ objectId: doc.objectId, parentId: '' }).toArray((err, docs) => {
+
+    const doc = docs[0];
+
+    const basic = {};
+    basic.OBJECTID = objectId;
+    basic.INPOINT = doc.inpoint;
+    basic.OUTPOINT = doc.outpoint;
+    basic.ROOTID = doc.root;
+
+    rs.result.basic = basic;
+
+    for (const key in fieldMap.translateFields) {
+      if (doc[key]) {
+        const item = {
+          cn: fieldMap.translateFields[key].cn,
+          value: doc[key],
+        };
+        rs.result.detail.program[key] = item;
+      }
+    }
+    rs.result.detail.program.OBJECTID = rs.result.detail.program.objectId;
+    delete rs.result.detail.program.objectId;
+
+    const fileIds = [];
+    const docsObj = {};
+    for (let i = 0, len = docs.length; i < len; i++) {
+      if (docs[i].fileInfo && docs[i].fileInfo._id) {
+        fileIds.push(docs[i].fileInfo._id);
+        docsObj[docs[i].fileInfo._id] = docs[i];
+      }
+    }
+    fileInfo.collection.find({ _id: { $in: fileIds } }).toArray((err, files) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
 
-      docs = docs || [];
-
-      if (!docs || docs.length === 0) {
-        return cb && cb(i18n.t('catalogInfoNotFound'));
-      }
-
-      const doc = docs[0];
-
-      const basic = {};
-      basic.OBJECTID = id;
-      basic.INPOINT = doc.inpoint;
-      basic.OUTPOINT = doc.outpoint;
-      basic.ROOTID = doc.root;
-
-      rs.result.basic = basic;
-
-      for (const key in fieldMap.translateFields) {
-        if (doc[key]) {
-          const item = {
-            cn: fieldMap.translateFields[key].cn,
-            value: doc[key],
-          };
-          rs.result.detail.program[key] = item;
-        }
-      }
-      rs.result.detail.program.OBJECTID = rs.result.detail.program.objectId;
-      delete rs.result.detail.program.objectId;
-
-      fileInfo.collection.find({});
-      const fileIds = [];
-      const docsObj = {};
-      for (let i = 0, len = docs.length; i < len; i++) {
-        if (docs[i].fileInfo && docs[i].fileInfo._id) {
-          fileIds.push(docs[i].fileInfo._id);
-          docsObj[docs[i].fileInfo._id] = docs[i];
-        }
-      }
-      fileInfo.collection.find({ _id: { $in: fileIds } }).toArray((err, files) => {
-        if (err) {
-          logger.error(err.message);
-          return cb && cb(i18n.t('databaseError'));
-        }
-
-        if (!files || files.length === 0) {
-          return cb && cb(null, rs);
-        }
-
-        for (let i = 0, len = files.length; i < len; i++) {
-          const file = formatFile(docsObj[files[i]._id], files[i]);
-          rs.result.files.push(file);
-        }
-
+      if (!files || files.length === 0) {
         return cb && cb(null, rs);
-      });
+      }
+
+      for (let i = 0, len = files.length; i < len; i++) {
+        const file = formatFile(docsObj[files[i]._id], files[i]);
+        rs.result.files.push(file);
+      }
+
+      return cb && cb(null, rs);
     });
   });
 };
