@@ -15,6 +15,7 @@ const mediaService = require('../media/service');
 const templateService = require('../template/service');
 
 const ShelfTaskInfo = require('./shelfTaskInfo');
+const CatalogInfo = require('../library/catalogInfo');
 
 const shelfTaskInfo = new ShelfTaskInfo();
 
@@ -211,6 +212,8 @@ service.createShelfTask = function createShelfTask(req, cb) {
 
   info.creator = { _id: userInfo._id, name: userInfo.name };
   info.department = userInfo.department;
+  info.fromWhere = info.fromWhere || CatalogInfo.FROM_WHERE.HK;
+  info.fromWhere *= 1;
   const t = new Date();
   info.createdTime = t;
   info.lastModifyTime = t;
@@ -224,7 +227,7 @@ service.createShelfTask = function createShelfTask(req, cb) {
   }
   info = result.doc;
   info.editorInfo.name = info.name;
-  mediaService.getObject({ objectid: objectId }, (err, rs) => {
+  mediaService.getObject({ objectid: objectId, fromWhere: info.fromWhere }, (err, rs) => {
     if (err) {
       return cb && cb(err);
     }

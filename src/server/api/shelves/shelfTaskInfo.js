@@ -53,6 +53,10 @@ class ShelfTaskInfo extends DB {
           limit: '',
           cover: '',
         } },
+      fromWhere: {
+        type: 'number',
+        default: '1',
+      },
     };
   }
 }

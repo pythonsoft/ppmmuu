@@ -16,7 +16,7 @@ router.use(isLogin.middleware);
 router.use(isLogin.hasAccessMiddleware);
 
 /**
- * @permissionGroup: help
+ * @permissionGroup: managementAbout
  * @permissionName: 上传升级包
  * @permissionPath: /help/uploadPackage
  * @apiName: uploadPackage
@@ -52,7 +52,7 @@ router.post('/uploadPackage', upload.single('file'), (req, res) => {
 });
 
 /**
- * @permissionGroup: help
+ * @permissionGroup: managementAbout
  * @permissionName: 安装升级包
  * @permissionPath: /help/installPackage
  * @apiName: installPackage
@@ -82,7 +82,7 @@ router.post('/installPackage', (req, res) => {
 });
 
 /**
- * @permissionGroup: help
+ * @permissionGroup: managementAbout
  * @permissionName: 列举安装包内的目录及文件
  * @permissionPath: /help/listPackage
  * @apiName: listPackage
@@ -125,7 +125,7 @@ router.get('/listPackage', (req, res) => {
 });
 
 /**
- * @permissionGroup: help
+ * @permissionGroup: managementAbout
  * @permissionName: 读取文件内容
  * @permissionPath: /help/readFile
  * @apiName: readFile
@@ -168,7 +168,7 @@ router.get('/readFile', (req, res) => {
 });
 
 /**
- * @permissionGroup: help
+ * @permissionGroup: managementAbout
  * @permissionName: 安装版本详细信息
  * @permissionPath: /help/detail
  * @apiName: detail

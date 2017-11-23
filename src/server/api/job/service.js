@@ -55,15 +55,13 @@ const errorCall = function errorCall(str) {
 const downloadRequest = function downloadRequest(bucketId, transferTemplateId = '', transferParams, downloadParams, userId, userName, subtitleParams, cb) {
   const p = {
     source: CatalogInfo.FROM_WHERE.HK,
-    fileId: ''
+    fileId: '',
   };
+
+  const pArr = [];
 
   if (bucketId) {
     p.bucketId = bucketId;
-  }
-
-  if (transferTemplateId) {
-    p.templateId = transferTemplateId;
   }
 
   if (transferParams) {
@@ -74,7 +72,7 @@ const downloadRequest = function downloadRequest(bucketId, transferTemplateId = 
     p.downloadParams = JSON.stringify(downloadParams);
   }
 
-  if(downloadParams && downloadParams.source){
+  if (downloadParams && downloadParams.source) {
     p.source = downloadParams.source;
     p.fileId = downloadParams.fileId || '';
   }
@@ -91,17 +89,41 @@ const downloadRequest = function downloadRequest(bucketId, transferTemplateId = 
     p.subtitleParams = JSON.stringify(subtitleParams);
   }
 
-  const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/JobService/download`;
-  utils.requestCallApi(url, 'POST', p, '', (err, rs) => {
-    if (err) {
-      return cb && cb(err); // res.json(result.fail(err));
+  if (transferTemplateId) {
+    if (transferTemplateId.constructor.name.toLowerCase() === 'array') {
+      for (let i = 0, len = transferTemplateId.length; i < len; i++) {
+        const item = JSON.parse(JSON.stringify(p));
+        item.templateId = transferTemplateId[i];
+        pArr.push(item);
+      }
+    } else {
+      p.templateId = transferTemplateId;
+      pArr.push(p);
     }
+  } else {
+    pArr.push(p);
+  }
 
-    if (rs.status === '0') {
+  const loopCreateDownloadRequest = function loopCreateDownloadRequest(index) {
+    if (index >= pArr.length) {
       return cb && cb(null, 'ok');
     }
-    return cb && cb(i18n.t('joDownloadError', { error: rs.statusInfo.message }));
-  });
+    const param = pArr[index];
+    const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/JobService/download`;
+    utils.requestCallApi(url, 'POST', param, '', (err, rs) => {
+      if (err) {
+        return cb && cb(err); // res.json(result.fail(err));
+      }
+
+      if (rs.status === '0') {
+        loopCreateDownloadRequest(index + 1);
+      } else {
+        return cb && cb(i18n.t('joDownloadError', { error: rs.statusInfo.message }));
+      }
+    });
+  };
+
+  loopCreateDownloadRequest(0);
 };
 
 const getMediaExpressEmail = function getMediaExpressEmail(loginForm, receiver, cb) {
@@ -338,7 +360,8 @@ service.download = function download(info, cb) {
   const receiverId = info.receiverId;
   const receiverType = info.receiverType;
   const transferMode = info.transferMode || 'direct';
-  const source = info.source || CatalogInfo.FROM_WHERE.HK;
+  let source = info.fromWhere || CatalogInfo.FROM_WHERE.HK;
+  source *= 1;
   const downloadParams = { objectid, inpoint: inpoint * 1, outpoint: outpoint * 1, filename, filetypeid, templateId };
   if (!downloadParams) {
     return cb && cb(i18n.t('joDownloadParamsIsNull'));
@@ -353,13 +376,14 @@ service.download = function download(info, cb) {
     templateId,
     destination: '', // 相对路径，windows路径 格式 \\2017\\09\\15
     targetname: '', // 文件名,不需要文件名后缀，非必须
-    source: source,  //来源
+    source,  // 来源
     fileId: '',      //如果来源是ump,需要文件Id
   }, downloadParams);
 
-  if (!params.objectid) {
+  if (!params.objectid && source !== CatalogInfo.FROM_WHERE.UMP) {
     return cb && cb(i18n.t('joDownloadParamsObjectIdIsNull'));
   }
+
 
   if (typeof params.inpoint !== 'number' || typeof params.outpoint !== 'number') {
     return cb && cb(i18n.t('joDownloadParamsInpointOrOutpointTypeError'));
@@ -373,7 +397,7 @@ service.download = function download(info, cb) {
     return cb && cb(i18n.t('joDownloadParamsFileNameIsNull'));
   }
 
-  if (!params.filetypeid) {
+  if (!params.filetypeid && source !== CatalogInfo.FROM_WHERE.UMP) {
     return cb && cb(i18n.t('joDownloadParamsFileTypeIdIsNull'));
   }
 
@@ -756,7 +780,6 @@ const loopGetTranscodeTemplateId = function loopGetTranscodeTemplateId(groupIds,
       rs[groupId] = '';
       loopGetTranscodeTemplateId(groupIds, groupTemplateMap, filename, index + 1, rs, cb);
     } else {
-      console.log('transcodeTemplateId -->', transcodeTemplateId);
       rs[groupId] = transcodeTemplateId;
       loopGetTranscodeTemplateId(groupIds, groupTemplateMap, filename, index + 1, rs, cb);
     }

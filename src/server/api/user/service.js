@@ -65,14 +65,6 @@ function setCookie2(res, doc, cb) {
         return cb && cb(err);
       }
 
-      if (menu && menu.length) {
-        menu.push({
-          _id: 'mediaCenter',
-          name: '媒体库',
-          index: 'mediaCenter',
-          parentIndex: '',
-        });
-      }
       res.cookie('ticket', token, {
         expires: new Date(expires),
         httpOnly: true,
@@ -93,6 +85,7 @@ function setCookie2(res, doc, cb) {
             parentIndex: '',
           });
         }
+        console.log(JSON.stringify(menu));
         return cb && cb(null, {
           token,
           menu,

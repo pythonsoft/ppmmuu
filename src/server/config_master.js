@@ -5,7 +5,7 @@
 'use strict';
 
 /* eslint-disable no-undef */
-config.host = 'localhost:8080';
+config.host = '10.0.15.101:8080';
 config.domain = `http://${config.host}`;
 
 config.dbName = process.env.NODE_ENV === 'test' ? 'ump_test' : 'ump';
@@ -76,7 +76,7 @@ config.whitelist = [
   'http://localhost.szdev.cn:8080',
 ];
 
-config.normalMenuPermission = ['mediaCenter', 'taskCenter', 'personalCenter', 'library'];
+config.normalMenuPermission = ['taskCenter', 'personalCenter'];
 config.adminMenuPermission = config.normalMenuPermission.concat(['management']);
 
 // 快传api地址

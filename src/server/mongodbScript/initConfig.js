@@ -36,7 +36,7 @@ const meidaCenterSearchSelects = [
     selected: '',
   },
   {
-    key: 'f_str_145',
+    key: 'news_type',
     label: '新聞類型',
     items: [
       { value: '鳳凰新聞', label: '鳳凰新聞' },
@@ -61,7 +61,7 @@ const meidaCenterSearchSelects = [
     selected: '',
   },
   {
-    key: 'f_str_324',
+    key: 'occur_country',
     label: '事發國家',
     items: [
       { value: '安哥拉 Angola AO', label: 'Angola AO安哥拉' },
@@ -249,7 +249,7 @@ const meidaCenterSearchSelects = [
     selected: '',
   },
   {
-    key: 'f_str_323',
+    key: 'versions',
     label: '版本',
     items: [
       { value: '播出版', label: '播出版' },
@@ -268,7 +268,7 @@ const meidaCenterSearchSelects = [
     selected: '',
   },
   {
-    key: 'f_str_223',
+    key: 'production_site',
     label: '製作地點',
     items: [
       { value: '北京', label: '北京' },
@@ -281,7 +281,7 @@ const meidaCenterSearchSelects = [
     selected: '',
   },
   {
-    key: 'f_str_314',
+    key: 'resource_location',
     label: '資源所屬部門',
     items: [
       { value: '節目資料管理部', label: '節目資料管理部' },
@@ -312,7 +312,7 @@ const mediaCenterSearchRadios = [
     selected: 'all',
   },
   {
-    key: 'f_str_067',
+    key: 'pigeonhole',
     label: '是否歸檔',
     items: [
       { value: 'all', label: '全部' },
