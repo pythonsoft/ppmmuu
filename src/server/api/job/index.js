@@ -94,6 +94,13 @@ router.use(isLogin.hasAccessMiddleware);
  *         type: string
  *         default: ''
  *         collectionFormat: csv
+ *       - in: body
+ *         name: fromWhere
+ *         required: false
+ *         type: string
+ *         default: '1'
+ *         description: '1:HK,2:DAYANG,3:UMP'
+ *         collectionFormat: csv
  *     responses:
  *       200:
  *         description:

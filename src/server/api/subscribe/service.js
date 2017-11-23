@@ -15,6 +15,7 @@ const SubscribeInfo = require('../subscribeManagement/subscribeInfo');
 const SubscribeType = require('../subscribeManagement/subscribeType');
 const ShelfInfo = require('../shelves/shelfTaskInfo');
 const ConfigurationInfo = require('../configuration/configurationInfo');
+const CatalogInfo = require('../library/catalogInfo');
 
 const subscribeInfo = new SubscribeInfo();
 const subscribeType = new SubscribeType();
@@ -53,6 +54,7 @@ const filterDoc = function filterDoc(_source) {
   doc.outpoint = _source.details.OUTPOINT;
   doc.duration = _source.details.OUTPOINT - _source.details.INPOINT;
   doc.files = _source.files;
+  doc.fromWhere = _source.fromWhere || CatalogInfo.FROM_WHERE.HK;
   return doc;
 };
 
@@ -562,7 +564,7 @@ service.getEsMediaList = function getEsMediaList(req, cb) {
 
 service.getShelfInfo = function getShelfInfo(req, cb) {
   const _id = req.query._id || '';
-  const fields = '_id,name,programNO,objectId,details,editorInfo,lastModifyTime';
+  const fields = '_id,name,programNO,objectId,details,editorInfo,lastModifyTime,files,fromWhere';
 
   const info = {
     _id,
@@ -574,6 +576,7 @@ service.getShelfInfo = function getShelfInfo(req, cb) {
       return cb && cb(err);
     }
     const rs = JSON.parse(JSON.stringify(fieldConfig));
+    doc.fromWhere = doc.fromWhere || CatalogInfo.FROM_WHERE.HK;
     if (doc.details) {
       const program = doc.details;
       for (const key in rs) {

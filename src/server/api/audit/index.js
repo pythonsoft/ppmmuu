@@ -16,7 +16,7 @@ router.use(isLogin.middleware);
 router.use(isLogin.hasAccessMiddleware);
 
 /**
- * @permissionGroup: auditManager
+ * @permissionGroup: auditDownload
  * @permissionName: auditPass
  * @permissionPath: /audit/pass
  * @apiName: auditPass
@@ -49,7 +49,7 @@ router.post('/pass', (req, res) => {
 });
 
 /**
- * @permissionGroup: auditManager
+ * @permissionGroup: auditDownload
  * @permissionName: listAudit
  * @permissionPath: /audit/list
  * @apiName: listAudit
@@ -125,7 +125,7 @@ router.get('/list', (req, res) => {
 
 // 审核授权
 /**
- * @permissionGroup: auditManager
+ * @permissionGroup: auditEmpower
  * @permissionName: listAuditRule
  * @permissionPath: /audit/listAuditRule
  * @apiName: listAuditRule
@@ -192,7 +192,7 @@ router.get('/listAuditRule', (req, res) => {
 });
 
 /**
- * @permissionGroup: auditManager
+ * @permissionGroup: auditEmpower
  * @permissionName: createAuditRule
  * @permissionPath: /audit/createAuditRule
  * @apiName: createAuditRule
@@ -265,7 +265,7 @@ router.post('/createAuditRule', (req, res) => {
 });
 
 /**
- * @permissionGroup: auditManager
+ * @permissionGroup: auditEmpower
  * @permissionName: updateAuditRule
  * @permissionPath: /audit/updateAuditRule
  * @apiName: updateAuditRule
@@ -340,7 +340,7 @@ router.post('/updateAuditRule', (req, res) => {
 });
 
 /**
- * @permissionGroup: auditManager
+ * @permissionGroup: auditEmpower
  * @permissionName: removeAuditRule
  * @permissionPath: /audit/removeAuditRule
  * @apiName: removeAuditRule
