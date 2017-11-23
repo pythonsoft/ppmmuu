@@ -311,7 +311,7 @@ generateFeApiFuncFile();
 
 writeToApiPath();
 
-writeToSocketPATH();
+// writeToSocketPATH();
 
 initPermissionInfo();
 

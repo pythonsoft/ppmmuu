@@ -380,7 +380,7 @@ service.esSearch = function esSearch(info, cb, userId, videoIds) {
   }
 
   const body = getEsOptions(info);
-  const url = `${config.esBaseUrl}es/program/_search`;
+  const url = `${config.esBaseUrl}global_es/_search`;
   const options = {
     method: 'POST',
     url,
