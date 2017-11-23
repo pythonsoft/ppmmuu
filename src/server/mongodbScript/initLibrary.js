@@ -27,6 +27,8 @@ const catalogtaskinfo = {
   objectId,
 };
 
+const tt = new Date();
+catalogInfo.collection.updateMany({}, { $set: { publishTime: tt, airTime: tt, newsTime: tt } }, (err) => {});
 catalogTaskInfo.collection.findOne({ objectId }, (err, doc) => {
   if (err) {
     console.log('error==>', err.message);

@@ -28,7 +28,7 @@ class FileInfo extends DB {
       createdTime: { type: 'date', validation: 'require', allowUpdate: false },
       lastModifyTime: { type: 'date', validation: 'require' },
       details: { type: 'object' },
-      from_where: { type: 'number', default: 3 },
+      fromWhere: { type: 'number', default: 3 },
     };
   }
 }
@@ -40,6 +40,14 @@ FileInfo.TYPE = {
   SUBTITLE: '2', // 字幕
   THUMB: '3', // 缩略图
   OTHER: '4', // 其它
+};
+
+FileInfo.TYPE_MAP = {
+  0: '源文件', // 源文件
+  1: '低码流', // 低码流
+  2: '字幕', // 字幕
+  3: '缩略图', // 缩略图
+  4: '其它', // 其它
 };
 
 FileInfo.AVAILABLE = {

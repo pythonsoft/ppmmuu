@@ -47,13 +47,43 @@ class CatalogInfo extends DB {
       createdTime: { type: 'date', validation: 'require', allowUpdate: false },
       lastModifyTime: { type: 'date', validation: 'require' },
       details: { type: 'object' },
-      from_where: {
+      fromWhere: {
         type: 'number',
         default: CatalogInfo.FROM_WHERE.UMP,
       },
-      full_text: {
+      fullText: {
         type: 'string',
         default: '',
+      },
+      ccid: {             // 编目类
+        type: 'string',
+      },
+      publishTime: {      // 发布日期
+        type: 'string',
+      },
+      newsTime: {        // 新闻日期
+        type: 'string',
+      },
+      airTime: {         // 首播日期
+        type: 'string',
+      },
+      newsType: {        // 新闻类型
+        type: 'string',
+      },
+      occurCountry: {    // 事发国家
+        type: 'string',
+      },
+      madeLocation: {    // 制作地点
+        type: 'string',
+      },
+      resourceDepartment: {  // 资源所属部门
+        type: 'string',
+      },
+      hdFlag: {             // 高标清
+        type: 'number',
+      },
+      pigeonhole: {        // 是否归档
+        type: 'string',
       },
     };
   }
@@ -63,7 +93,7 @@ class CatalogInfo extends DB {
 CatalogInfo.FROM_WHERE = {
   HK: 1,
   DAYANG: 2,
-  UMP: 3
+  UMP: 3,
 };
 
 CatalogInfo.AVAILABLE = {

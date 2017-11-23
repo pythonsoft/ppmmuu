@@ -22,6 +22,12 @@ const infos = [
     parentIndex: '',
   },
   {
+    _id: 'mediaCenter',
+    name: '媒体库',
+    index: 'mediaCenter',
+    parentIndex: '',
+  },
+  {
     _id: 'accountManagement',
     name: '账户管理',
     index: 'accountManagement',
@@ -37,6 +43,12 @@ const infos = [
     _id: 'role',
     name: '角色',
     index: 'role',
+    parentIndex: 'accountManagement',
+  },
+  {
+    _id: 'permissionGroup',
+    name: '权限组',
+    index: 'permissionGroup',
     parentIndex: 'accountManagement',
   },
   {

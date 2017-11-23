@@ -10,6 +10,7 @@ npm-debug.log
 .idea/
 
 /src/server/apiPath.js
+/src/server/socketPath.js
 
 /src/fe/lib/api
 

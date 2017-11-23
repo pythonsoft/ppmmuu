@@ -106,32 +106,32 @@ service.createCatalogTask = function createCatalogTask(info, creatorId, creatorN
 };
 
 const setCatalogInfoAndFileInfoAvailable = function setCatalogInfoAndFileInfoAvailable(objectId, available, cb) {
-  let val = '';
-
   const q = {
     available: '',
   };
 
+  const updateInfo = {
+    available,
+    lastModifyTime: new Date(),
+  };
+
   if (available === CatalogInfo.AVAILABLE.NO) {
     q.flag = CatalogInfo.AVAILABLE.YES;
-    val = CatalogInfo.AVAILABLE.NO;
   } else {
     q.flag = CatalogInfo.AVAILABLE.NO;
-    val = CatalogInfo.AVAILABLE.YES;
+    updateInfo.publishTime = updateInfo.lastModifyTime;
   }
 
   let actionName = 'updateOne';
 
   if (objectId.indexOf(',') !== -1) {
     q.objectId = { $in: objectId.split(',') };
-    actionName = 'udpateMany';
+    actionName = 'updateMany';
   } else {
     q.objectId = objectId;
   }
 
-  const updateInfo = { $set: { available: val, lastModifyTime: new Date() } };
-
-  catalogInfo.collection[actionName](q, updateInfo, (err) => {
+  catalogInfo.collection[actionName](q, { $set: updateInfo }, (err) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(err);
@@ -497,7 +497,7 @@ service.getCatalogTask = function getCatalogTask(taskId, cb) {
   });
 };
 
-service.getCatalogByObjectId = function (objectId, fields, cb) {
+service.getCatalogByObjectId = function getCatalogByObjectId(objectId, fields, cb) {
   if (!objectId) {
     return cb && cb(i18n.t('libraryCatalogObjectIdIsNull'));
   }
@@ -607,6 +607,8 @@ service.createCatalog = function createCatalog(ownerId, ownerName, info, cb) {
       if (!info.source) {
         info.source = doc.source;
       }
+
+      info.root = doc.root || doc._id;
 
       info.department = doc.department;
 
@@ -747,7 +749,7 @@ service.getFile = function getFile(id, cb) {
 
 /* file */
 
-const checkHdExt = function (hdExt) {
+const checkHdExt = function checkHdExt(hdExt) {
   const constructorType = hdExt.constructor;
   let arr = [];
   if (constructorType === String) {
@@ -981,8 +983,6 @@ service.updateTemplate = function updateTemplate(_id, info, cb) {
     });
   }
 };
-
-/* 入库模板 */
 
 module.exports = service;
 
