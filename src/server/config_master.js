@@ -101,3 +101,5 @@ config.upgradeSystem = {
 // 订阅自动推送配置
 config.phoenixAdminUserName = 'xuyawen';   // 快传发送方
 config.subscribeDownloadTemplateId = 'subscribe_autopush';   // 下载模板Id
+
+config.socketURL = 'http://localhost:9000';
