@@ -44,14 +44,14 @@ deploy_to_67_job:
     - scp -r build/* ump@10.0.15.67:"${proj_path}-manager/build"
     - scp -r node_modules/* ump@10.0.15.67:"${proj_path}-manager/node_modules"
     - at_67 "sed -i -re \"s/(^\s*config\.host)\s*=.*/\1='api\.szdev\.cn'/\" ${proj_path}-manager/build/config_master.js"
-    - at_67 "killall -q node; nohup node ${proj_path}-manager/build/server.js >/dev/null 2>&1 &"
+    - at_67 "pm2 startOrReload ${proj_path}-manager/build/pm2.json"
 
   environment:
     name: test
   tags:
     - test
   only:
-    - master
+    - dev
 
 
 restart_to_68_job:
@@ -67,4 +67,4 @@ restart_to_68_job:
   tags:
     - test
   only:
-    - master
+    - dev

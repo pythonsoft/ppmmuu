@@ -55,6 +55,11 @@ config.HKAPI = {
   port: 80,
 };
 
+
+//视频服务器地址
+config.streamURL = 'http://ump-live.phoenixtv.com';
+config.hkRuku = '/h';
+
 // 日志路径
 config.logPath = path.join(__dirname, '../logs/');
 
@@ -74,6 +79,7 @@ config.whitelist = [
   'http://api.szdev.cn',
   'http://localhost.szdev.cn:8000',
   'http://localhost.szdev.cn:8080',
+  'http://10.0.15.80:8080',
 ];
 
 config.normalMenuPermission = ['taskCenter', 'personalCenter'];

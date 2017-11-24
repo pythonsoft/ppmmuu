@@ -244,6 +244,20 @@ service.createShelfTask = function createShelfTask(req, cb) {
       info.details[key] = program[key].value;
     }
 
+
+    //为了订阅搜索统一一下搜索字段和香港接口一样
+    const FILED_MAP = {
+      'newsTime': 'FIELD162',
+      'airTime': 'FIELD36',
+      'version': 'FIELD323'
+    }
+
+    for(const key in FILED_MAP){
+      if(info.details[key]){
+        info.details[FILED_MAP[key]] = info.details[key];
+      }
+    }
+
     if (force) {
       shelfTaskInfo.insertOne(info, (err) => {
         if (err) {

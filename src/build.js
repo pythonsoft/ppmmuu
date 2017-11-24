@@ -325,6 +325,7 @@ webpack(webpackConfig, (err, stats) => {
   console.log('server webpack completely...');
 
   if (process.env.NODE_ENV !== 'online') {
+    writeFile(pm2JSONPath, 'pm2.json');
     require('./runGulp')(() => {
       process.exit(0);
     });

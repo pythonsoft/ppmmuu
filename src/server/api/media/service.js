@@ -467,8 +467,11 @@ service.getIcon = function getIcon(info, res) {
         return res.end(err.message);
       }
       try {
-        const stream = fs.createReadStream(doc.realPath);
-        stream.pipe(res);
+        const streamUrl = formatPathToUrl(doc.realPath, doc.name);
+        request.get(streamUrl).on('error', (error) => {
+          logger.error(error);
+          res.end(error.message);
+        }).pipe(res);
       } catch (e) {
         return res.end(e.message);
       }
@@ -500,8 +503,13 @@ service.xml2srt = (info, cb) => {
       }
       const realPath = doc.fileInfo.realPath || '';
       try {
-        const text = fs.readFileSync(realPath, 'utf8');
-        return cb && cb(null, text);
+        const xmlUrl = formatPathToUrl(doc.realPath, doc.name);
+        utils.baseRequestCallApi(xmlUrl, 'GET', '', '', function(err, response){
+          if(err){
+            return cb && cb(err);
+          }
+          return cb && cb(null, response.body);
+        })
       } catch (e) {
         return cb && cb(null, '');
       }
@@ -624,6 +632,19 @@ service.saveWatching = function saveWatching(userId, videoId, cb) {
     },
     (err, r) => cb && cb(err, r));
 };
+
+const formatPathToUrl = function formatPathToUrl(path, fileName){
+  if (path) {
+    path = path.replace('\\', '\\\\').match(/\\\d{4}\\\d{2}\\\d{2}/g);
+
+    if (path && path.length === 1) {
+      path = path[0].replace(/\\/g, '\/');
+    }
+
+    return `${config.streamURL}${config.hkRuku}${path}/${fileName}`;
+  }
+  return '';
+}
 
 service.getStream = function getStream(objectId, fromWhere, res) {
   const struct = {
