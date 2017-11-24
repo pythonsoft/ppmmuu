@@ -56,7 +56,7 @@ config.HKAPI = {
 };
 
 
-//视频服务器地址
+// 视频服务器地址
 config.streamURL = 'http://ump-live.phoenixtv.com';
 config.hkRuku = '/h';
 

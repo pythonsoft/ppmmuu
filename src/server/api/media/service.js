@@ -504,12 +504,12 @@ service.xml2srt = (info, cb) => {
       const realPath = doc.fileInfo.realPath || '';
       try {
         const xmlUrl = formatPathToUrl(doc.realPath, doc.name);
-        utils.baseRequestCallApi(xmlUrl, 'GET', '', '', function(err, response){
-          if(err){
+        utils.baseRequestCallApi(xmlUrl, 'GET', '', '', (err, response) => {
+          if (err) {
             return cb && cb(err);
           }
           return cb && cb(null, response.body);
-        })
+        });
       } catch (e) {
         return cb && cb(null, '');
       }
@@ -633,7 +633,7 @@ service.saveWatching = function saveWatching(userId, videoId, cb) {
     (err, r) => cb && cb(err, r));
 };
 
-const formatPathToUrl = function formatPathToUrl(path, fileName){
+const formatPathToUrl = function formatPathToUrl(path, fileName) {
   if (path) {
     path = path.replace('\\', '\\\\').match(/\\\d{4}\\\d{2}\\\d{2}/g);
 
@@ -644,7 +644,7 @@ const formatPathToUrl = function formatPathToUrl(path, fileName){
     return `${config.streamURL}${config.hkRuku}${path}/${fileName}`;
   }
   return '';
-}
+};
 
 service.getStream = function getStream(objectId, fromWhere, res) {
   const struct = {
