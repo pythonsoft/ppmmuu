@@ -402,7 +402,7 @@ router.post('/delete', (req, res) => {
 });
 
 /*
- * @permissionGroup: role
+ * @permissionGroup: permission
  * @permissionName: 权限列表
  * @permissionPath: /role/listPermission
  * @apiName: getPermissionList
@@ -584,7 +584,7 @@ router.post('/deleteOwnerRole', (req, res) => {
 });
 
 /**
- * @permissionGroup: role
+ * @permissionGroup: permissionGroup
  * @permissionName: 启用或禁用权限
  * @permissionPath: /role/enablePermission
  * @apiName: postEnablePermission
@@ -743,6 +743,57 @@ router.get('/getRoleOwners', (req, res) => {
 router.get('/search/userOrGroup', (req, res) => {
   service.searchUserOrGroup(req.query, (err, docs) =>
     res.json(result.json(err, docs)));
+});
+
+/**
+ * @permissionGroup: role
+ * @permissionName: 权限组列表
+ * @permissionPath: /role/listPermissionGroup
+ * @apiName: listPermissionGroup
+ * @apiFuncType: get
+ * @apiFuncUrl: /role/listPermissionGroup
+ * @swagger
+ * /role/listPermissionGroup:
+ *   get:
+ *     description: get list permission group
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - RoleInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         description:
+ *         required: false
+ *         type: integer
+ *         default: 1
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: pageSize
+ *         description:
+ *         required: false
+ *         type: integer
+ *         default: 999
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: keyword
+ *         description:
+ *         required: false
+ *         type: string
+ *         example: "添加"
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: RoleInfo
+ */
+router.get('/listPermissionGroup', (req, res) => {
+  const page = req.query.page || 1;
+  const pageSize = req.query.pageSize || 30;
+  const keyword = req.query.keyword || '';
+
+  service.listPermissionGroup(page, pageSize, keyword, (err, docs) => res.json(result.json(err, docs)));
 });
 
 module.exports = router;

@@ -32,6 +32,10 @@ const UserInfo = require('../user/userInfo');
 
 const userInfo = new UserInfo();
 
+const PermissionGroup = require('./permissionGroup');
+
+const permissionGroup = new PermissionGroup();
+
 const service = {};
 
 const SEARCH_TYPE = {
@@ -319,7 +323,7 @@ service.listPermission = function lPermission(roleId, status, name, page, pageSi
       query.status = status;
     }
     if (name) {
-      query.name = { $regex: name, $options: 'i' };
+      query.$or = [{ name: { $regex: name, $options: 'i' } }, { groupIndex: name }];
     }
     listPermission(query, page, pageSize, sortFields, fieldsNeed, (err, docs) => cb && cb(err, docs));
   }
@@ -577,6 +581,23 @@ service.searchUserOrGroup = function searchUserOrGroup(info, cb) {
   } else {
     searchGroup(query);
   }
+};
+
+service.listPermissionGroup = function listPermissionGroup(page, pageSize, keyword, cb) {
+  const query = {};
+
+  if (keyword) {
+    query.$or = [{ groupIndex: { $regex: keyword, $options: 'i' } }, { name: { $regex: keyword, $options: 'i' } }];
+  }
+
+  permissionGroup.pagination(query, page, pageSize, (err, docs) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, docs);
+  });
 };
 
 module.exports = service;

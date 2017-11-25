@@ -52,6 +52,10 @@ router.use(isLogin.hasAccessMiddleware);
  *               type: Boolean
  *               description: '不管之前有没有上架过，强制加入'
  *               example: false
+ *             fromWhere:
+ *               type: string
+ *               default: '1'
+ *               description: '1:HK,2:DAYANG,3:UMP'
  *     responses:
  *       200:
  *         description: ShelfTaskInfo

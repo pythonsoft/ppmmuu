@@ -21,7 +21,7 @@ config.KEY = 'secret';
 config.cookieExpires = 1000 * 60 * 60 * 24 * 7; // cookie有效期七天
 config.redisExpires = 1 * 60 * 60 * 12; // redis有效期12小时
 config.redisMediaThumbExpires = 60 * 60 * 12 * 30; // 缓存媒体库缩略图有效期30天
-config.port = process.env.NODE_ENV === 'development' ? 8080 : 8080;
+config.port = 8080;
 
 config.engineCenter = {
   host: '10.0.15.66',
@@ -75,8 +75,10 @@ config.mediaExpressUrl = 'https://leo.cloudifeng.com/';
 config.upgradePackage = config.uploadPath;
 
 config.upgradeSystem = {
-  // ump: '/Users/chaoningxie/Desktop/temp/install/ump',
-  // fe: '/Users/chaoningxie/Desktop/temp/install/fe',
-  ump: '',
-  fe: '',
+  ump: '/home/ump',
+  fe: '/home/ump-fe',
 };
+
+// 订阅自动推送配置
+config.phoenixAdminUserName = 'quxiaoguo@phoenixtv.com';   // 快传发送方
+config.subscribeDownloadTemplateId = 'subscribe_autopush';   // 下载模板Id

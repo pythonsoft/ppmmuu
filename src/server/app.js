@@ -13,13 +13,6 @@ const cors = require('cors');
 
 const app = express();
 const server = require('http').Server(app);
-const io = require('socket.io')(server);
-
-const redis = require('redis').createClient;
-const adapter = require('socket.io-redis');
-const pub = redis(config.redis_port, config.redis_host, config.redis_opts);
-const sub = redis(config.redis_port, config.redis_host, config.redis_opts);
-io.adapter(adapter({ pubClient: pub, subClient: sub }));
 
 const corsOptions = {
   origin(origin, callback) {
@@ -72,7 +65,6 @@ const runServer = function runServer(dbName = config.dbName) {
   initMongodb([dbName], () => {
     server.listen(config.port, () => {
       require('./apiPath.js')(app); // eslint-disable-line
-      require('./socketPath.js')(io); // eslint-disable-line
       require('./mongodbScript/index');
       require('./setTimeOutJob/index');
 

@@ -8,7 +8,6 @@ const result = require('../../common/result');
 const upload = require('../../common/multer').upload;
 const config = require('../../config');
 const fs = require('fs');
-const request = require('request');
 const i18n = require('i18next');
 const utils = require('../../common/utils');
 

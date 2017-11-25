@@ -13,9 +13,12 @@ const fieldConfig = require('./fieldConfig');
 const ConfigurationInfo = require('../configuration/configurationInfo');
 const SearchHistoryInfo = require('../user/searchHistoryInfo');
 const WatchingHistoryInfo = require('../user/watchingHistoryInfo');
+const CatalogInfo = require('../library/catalogInfo');
+const FileInfo = require('../library/fileInfo');
 const uuid = require('uuid');
 const nodecc = require('node-opencc');
 const Xml2Srt = require('../../common/parseXmlSub');
+const fs = require('fs');
 
 const HttpRequest = require('../../common/httpRequest');
 
@@ -29,11 +32,14 @@ const REDIS_CACHE_MEIDA_LIST = 'cachedMediaList';
 const configurationInfo = new ConfigurationInfo();
 const searchHistoryInfo = new SearchHistoryInfo();
 const watchingHistoryInfo = new WatchingHistoryInfo();
+
+const libraryExtService = require('../library/extService');
+
 const service = {};
 
 const redisClient = config.redisClient;
 
-const ES_FILTER_FIELDS = 'id,duration,name,ccid,program_type,program_name_cn,hd_flag,program_name_en,last_modify,f_str_03,f_str_187,f_date_162,f_str_01,from_where,full_text,publish_time,rootid';
+const ES_FILTER_FIELDS = 'id,duration,name,ccid,program_type,program_name_en,hd_flag,program_name_cn,last_modify,content_introduction,content,news_data,program_name,from_where,full_text,publish_time,rootid';
 
 service.ES_FILTER_FIELDS = ES_FILTER_FIELDS;
 
@@ -78,7 +84,7 @@ function saveSearch(k, id, cb) {
 
 service.saveSearch = saveSearch;
 
-service.defaultMediaList = function defaultMediaList(cb, userId) {
+service.defaultMediaList = function defaultMediaList(cb, userId, size) {
   redisClient.get(REDIS_CACHE_MEIDA_LIST, (err, obj) => {
     service.getWatchHistoryForMediaPage(userId, (error, r) => {
       if (error) {
@@ -91,7 +97,7 @@ service.defaultMediaList = function defaultMediaList(cb, userId) {
       }
 
       if (err || obj === '[]') {
-        service.getEsMediaList({ pageSize: 10 }, (err, rs) => {
+        service.getEsMediaList({ pageSize: size }, (err, rs) => {
           if (err) {
             logger.error(err.message);
           }
@@ -100,9 +106,6 @@ service.defaultMediaList = function defaultMediaList(cb, userId) {
             rs = [];
           }
 
-          redisClient.set(REDIS_CACHE_MEIDA_LIST, JSON.stringify(rs));
-          redisClient.EXPIRE(REDIS_CACHE_MEIDA_LIST, 60 * 3);
-
           rs.push({ category: '瀏覽歷史', docs: r });
 
           return cb && cb(null, rs);
@@ -110,13 +113,17 @@ service.defaultMediaList = function defaultMediaList(cb, userId) {
       } else {
         try {
           obj = JSON.parse(obj);
+          obj.map((item) => {
+            item.docs = item.docs.sort((a, b) => new Date(b.publish_time) - new Date(a.publish_time)).slice(0, size - 10 === 0 ? 10 : size - 10);
+            return item;
+          });
           obj.push({ category: '瀏覽歷史', docs: r });
           return cb && cb(null, obj || []);
         } catch (e) {
           return cb && cb(e);
         }
       }
-    });
+    }, size);
   });
 };
 
@@ -187,7 +194,7 @@ const getEsOptions = function getEsOptions(info) {
   const sort = info.sort || [];
   const start = info.start || 0;
   const pageSize = info.pageSize || 24;
-  const source = info.source || '';
+  const source = info.source || ES_FILTER_FIELDS;
 
   // convert simplified to tranditional
   match = JSON.parse(nodecc.simplifiedToTraditional(JSON.stringify(match)));
@@ -207,13 +214,13 @@ const getEsOptions = function getEsOptions(info) {
       const temp = arr[i];
       if (temp.value) {
         if (temp.key === key) {
-          const full_text = temp.value.trim().split(' ');
-          for (let j = 0, len1 = full_text.length; j < len1; j++) {
-            if (full_text[j]) {
+          const fullText = temp.value.trim().split(' ');
+          for (let j = 0, len1 = fullText.length; j < len1; j++) {
+            if (fullText[j]) {
               const item = {
                 match: {},
               };
-              item.match[key] = full_text[j];
+              item.match[key] = fullText[j];
               rs.push(item);
             }
           }
@@ -234,13 +241,13 @@ const getEsOptions = function getEsOptions(info) {
     for (let i = 0, len = arr.length; i < len; i++) {
       const temp = arr[i];
       if (temp.value && temp.key === key) {
-        const full_text = temp.value.trim().split(' ');
-        for (let j = 0, len1 = full_text.length; j < len1; j++) {
-          if (full_text[j]) {
+        const fullText = temp.value.trim().split(' ');
+        for (let j = 0, len1 = fullText.length; j < len1; j++) {
+          if (fullText[j]) {
             const item = {
               match: {},
             };
-            item.match[key] = full_text[j];
+            item.match[key] = fullText[j];
             rs.push(item);
           }
         }
@@ -254,10 +261,18 @@ const getEsOptions = function getEsOptions(info) {
     for (let i = 0, len = arr.length; i < len; i++) {
       const temp = arr[i];
       if (temp.value && temp.key !== key) {
-        const item = {
-          match: {},
-        };
-        item.match[temp.key] = temp.value;
+        const value = temp.value;
+        const item = {};
+        if (value.constructor.name.toLowerCase() === 'array') {
+          if (value.length === 0) {
+            continue;
+          }
+          item.terms = {};
+          item.terms[temp.key] = value;
+        } else {
+          item.match = {};
+          item.match[temp.key] = value;
+        }
         rs.push(item);
       }
     }
@@ -309,12 +324,13 @@ const getEsOptions = function getEsOptions(info) {
   };
 
   if (must.length && mustShould.length) {
+    const percent = mustShould.length > 1 ? '75%' : '100%';
     options.query = {
       bool: {
         must: {
           bool: {
             should: mustShould,
-            minimum_should_match: '75%',
+            minimum_should_match: percent,
             must,
           },
         },
@@ -379,7 +395,7 @@ service.esSearch = function esSearch(info, cb, userId, videoIds) {
   }
 
   const body = getEsOptions(info);
-  const url = `${config.esBaseUrl}es/program/_search`;
+  const url = `${config.esBaseUrl}global_es/_search`;
   const options = {
     method: 'POST',
     url,
@@ -440,13 +456,29 @@ service.getIcon = function getIcon(info, res) {
   const err = utils.validation(info, struct);
 
   if (err) {
-    res.end(err.message);
+    return res.end(err.message);
   }
 
-  request.get(`${config.hongkongUrl}get_preview?objectid=${info.objectid}`).on('error', (error) => {
-    logger.error(error);
-    res.end(error.message);
-  }).pipe(res);
+  const fromWhere = info.fromWhere || CatalogInfo.FROM_WHERE.HK;
+
+  if (fromWhere * 1 === CatalogInfo.FROM_WHERE.UMP) {
+    libraryExtService.getFileInfo({ objectId: doc.objectId, type: FileInfo.TYPE.THUMB }, (err, doc) => {
+      if (err) {
+        return res.end(err.message);
+      }
+      try {
+        const stream = fs.createReadStream(doc.realPath);
+        stream.pipe(res);
+      } catch (e) {
+        return res.end(e.message);
+      }
+    });
+  } else {
+    request.get(`${config.hongkongUrl}get_preview?objectid=${info.objectid}`).on('error', (error) => {
+      logger.error(error);
+      res.end(error.message);
+    }).pipe(res);
+  }
 };
 
 service.xml2srt = (info, cb) => {
@@ -459,52 +491,60 @@ service.xml2srt = (info, cb) => {
     return cb(err);
   }
 
-  const options = {
-    uri: `${config.hongkongUrl}get_subtitle`,
-    method: 'GET',
-    encoding: 'utf-8',
-    qs: info,
-  };
+  const fromWhere = info.fromWhere || CatalogInfo.FROM_WHERE.HK;
 
-  request(options, (error, response) => {
-    if (error) {
-      logger.error(error);
-      return cb(i18n.t('getSubtitleError', { error }));
-    }
-
-    if (response.statusCode !== 200) {
-      logger.error(response.body);
-      return cb(i18n.t('getSubtitleFailed'));
-    }
-
-    const rs = JSON.parse(response.body);
-    rs.status = '0';
-
-    if (Object.keys(rs.result).length === 0) {
-      rs.result = '';
-    }
-
-    const parser = new Xml2Srt(rs.result);
-    parser.getSrtStr((err, r) => {
+  if (fromWhere * 1 === CatalogInfo.FROM_WHERE.UMP) {
+    libraryExtService.getCatalogInfo({ objectId: info.objectId, 'fileInfo.type': FileInfo.TYPE.SUBTITLE }, (err, doc) => {
       if (err) {
-        logger.error(err);
+        return cb && cb(err);
+      }
+      const realPath = doc.fileInfo.realPath || '';
+      try {
+        const text = fs.readFileSync(realPath, 'utf8');
+        return cb && cb(null, text);
+      } catch (e) {
+        return cb && cb(null, '');
+      }
+    });
+  } else {
+    const options = {
+      uri: `${config.hongkongUrl}get_subtitle`,
+      method: 'GET',
+      encoding: 'utf-8',
+      qs: info,
+    };
+
+    request(options, (error, response) => {
+      if (error) {
+        logger.error(error);
+        return cb(i18n.t('getSubtitleError', { error }));
+      }
+
+      if (response.statusCode !== 200) {
+        logger.error(response.body);
         return cb(i18n.t('getSubtitleFailed'));
       }
-      return cb(null, r);
+
+      const rs = JSON.parse(response.body);
+      rs.status = '0';
+
+      if (Object.keys(rs.result).length === 0) {
+        rs.result = '';
+      }
+
+      const parser = new Xml2Srt(rs.result);
+      parser.getSrtStr((err, r) => {
+        if (err) {
+          logger.error(err);
+          return cb(i18n.t('getSubtitleFailed'));
+        }
+        return cb(null, r);
+      });
     });
-  });
+  }
 };
 
-service.getObject = function getObject(info, cb) {
-  const struct = {
-    objectid: { type: 'string', validation: 'require' },
-  };
-  const err = utils.validation(info, struct);
-
-  if (err) {
-    return cb(err.message);
-  }
-
+const getObjectFromHK = function getObjectFromHK(info, cb) {
   const options = {
     uri: `${config.hongkongUrl}get_object`,
     method: 'GET',
@@ -552,6 +592,24 @@ service.getObject = function getObject(info, cb) {
   });
 };
 
+service.getObject = function getObject(info, cb) {
+  const struct = {
+    objectid: { type: 'string', validation: 'require' },
+  };
+  const err = utils.validation(info, struct);
+  const fromWhere = info.fromWhere || CatalogInfo.FROM_WHERE.HK;
+
+  if (err) {
+    return cb(err.message);
+  }
+
+  if (fromWhere * 1 === CatalogInfo.FROM_WHERE.UMP) {
+    libraryExtService.getObject(info.objectid, cb);
+  } else {
+    getObjectFromHK(info, cb);
+  }
+};
+
 service.saveWatching = function saveWatching(userId, videoId, cb) {
   watchingHistoryInfo.findOneAndUpdate(
     { videoId, userId },
@@ -567,7 +625,7 @@ service.saveWatching = function saveWatching(userId, videoId, cb) {
     (err, r) => cb && cb(err, r));
 };
 
-service.getStream = function getStream(objectId, res) {
+service.getStream = function getStream(objectId, fromWhere, res) {
   const struct = {
     objectId: { type: 'string', validation: 'require' },
   };
@@ -575,7 +633,7 @@ service.getStream = function getStream(objectId, res) {
   const err = utils.validation({ objectId }, struct);
 
   if (err) {
-    const rs = { status: 1, data: {}, statusInfo: { code: 10000, message: err.message } };
+    const rs = { status: '-10000', result: {}, statusInfo: { code: '-10000', message: err.message } };
 
     if (typeof res === 'function') {
       return res && res(rs);
@@ -583,7 +641,30 @@ service.getStream = function getStream(objectId, res) {
     return res.end(JSON.stringify(rs));
   }
 
-  rq.get('/mamapi/get_stream', { objectid: objectId }, res);
+  fromWhere = fromWhere || CatalogInfo.FROM_WHERE.HK;
+
+  if (fromWhere * 1 === CatalogInfo.FROM_WHERE.UMP) {
+    libraryExtService.getCatalogInfo({ objectId, 'fileInfo.type': FileInfo.TYPE.LOW_BIT_VIDEO }, (err, doc) => {
+      if (err) {
+        return res && res({ status: err.code, result: {}, statusInfo: { message: err.message } });
+      }
+      const rs = {
+        FILENAME: '',
+        INPOINT: 0,
+        OUTPOINT: 0,
+        UNCPATH: '',
+      };
+
+      rs.FILENAME = doc.fileInfo.name;
+      rs.INPOINT = doc.inpoint;
+      rs.OUTPOINT = doc.outpoint;
+      rs.UNCPATH = doc.fileInfo.realPath;
+
+      return res && res(null, { status: '0', result: rs, statusInfo: { message: 'ok' } });
+    });
+  } else {
+    rq.get('/mamapi/get_stream', { objectid: objectId }, res);
+  }
 };
 
 service.getSearchHistory = (userId, cb, page, pageSize) => {
@@ -606,11 +687,11 @@ service.getWatchHistory = (userId, cb, page, pageSize) => {
   watchingHistoryInfo.pagination({ userId, status: 'available' }, page, pageSize, (err, doc) => cb && cb(err, doc), '-updatedTime', '');
 };
 
-service.getWatchHistoryForMediaPage = (userId, cb) => {
+service.getWatchHistoryForMediaPage = (userId, cb, size) => {
   watchingHistoryInfo.collection
   .find({ userId, status: 'available' })
   .sort({ updatedTime: -1 })
-  .limit(10)
+  .limit(size < 10 ? size : 10)
   .toArray((err, docs) => {
     const r = [];
     if (docs) {
