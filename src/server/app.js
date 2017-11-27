@@ -116,4 +116,9 @@ if (process.env.NODE_ENV === 'development') {
   runServer(config.dbName);
 }
 
+const stop = function stop() {
+  server.close();
+}
+
 module.exports = app;
+module.exports.stop = stop;

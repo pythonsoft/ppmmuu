@@ -462,12 +462,13 @@ service.getIcon = function getIcon(info, res) {
   const fromWhere = info.fromWhere || CatalogInfo.FROM_WHERE.HK;
 
   if (fromWhere * 1 === CatalogInfo.FROM_WHERE.UMP) {
-    libraryExtService.getFileInfo({ objectId: doc.objectId, type: FileInfo.TYPE.THUMB }, (err, doc) => {
+    libraryExtService.getFileInfo({ objectId: info.objectId, type: FileInfo.TYPE.THUMB }, (err, doc) => {
       if (err) {
         return res.end(err.message);
       }
       try {
         const streamUrl = formatPathToUrl(doc.realPath, doc.name);
+        //const streamUrl = `${config.streamURL}${config.hkRuku}/moved/2017/11/24/PMELOOP10_77/transcoding_PMELOOP10_77.jpg`;
         request.get(streamUrl).on('error', (error) => {
           logger.error(error);
           res.end(error.message);
@@ -504,6 +505,7 @@ service.xml2srt = (info, cb) => {
       const realPath = doc.fileInfo.realPath || '';
       try {
         const xmlUrl = formatPathToUrl(doc.realPath, doc.name);
+        //const xmlUrl = `${config.streamURL}${config.hkRuku}/moved/2017/11/24/PMELOOP10_77/catalog.xml`;
         utils.baseRequestCallApi(xmlUrl, 'GET', '', '', (err, response) => {
           if (err) {
             return cb && cb(err);
@@ -665,7 +667,7 @@ service.getStream = function getStream(objectId, fromWhere, res) {
   fromWhere = fromWhere || CatalogInfo.FROM_WHERE.HK;
 
   if (fromWhere * 1 === CatalogInfo.FROM_WHERE.UMP) {
-    libraryExtService.getCatalogInfo({ objectId, 'fileInfo.type': FileInfo.TYPE.LOW_BIT_VIDEO }, (err, doc) => {
+    libraryExtService.getCatalogInfo({ objectId, 'fileInfo.type': FileInfo.TYPE.ORIGINAL }, (err, doc) => {
       if (err) {
         return res && res({ status: err.code, result: {}, statusInfo: { message: err.message } });
       }
