@@ -31,6 +31,9 @@ class TemplateInfo extends DB {
           };
         },
       },
+      bucketId: {
+        type: 'string'
+      }
     };
   }
 

@@ -789,6 +789,7 @@ service.addTemplate = function addTemplate(info, creatorId, creatorName, cb) {
     departmentId: '',
     transcodeTemplates: [], //
     transcodeScript: '',
+    bucketId: '',
     hdExt: [],
   }, info);
 
@@ -944,6 +945,11 @@ service.updateTemplate = function updateTemplate(_id, info, cb) {
 
     updateInfo.hdExt = exRs.result;
   }
+
+  if(!info.bucketId){
+    return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: 'bucketId' }));
+  }
+  updateInfo.bucketId = info.bucketId;
 
   if (info.transcodeTemplates) {
     const rs = templateService.composeTranscodeTemplates(info.transcodeTemplates);
