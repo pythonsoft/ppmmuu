@@ -43,6 +43,7 @@ class TemplateInfo extends DB {
       source: '',
       department: '',
       hdExt: [],
+      bucketId: '',
       templateId: [], // { file: '', template: '' }
     }, info);
   }
