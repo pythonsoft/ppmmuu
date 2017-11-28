@@ -102,6 +102,15 @@ service.getAsyncCatalogInfoList = function getAsyncCatalogInfoList(info, cb) {
       }
       item.duration = item.outpoint - item.inpoint;
       item.full_text = fullText;
+      if (!item.news_data) {
+        delete item.news_data;
+      }
+      if (!item.airdata) {
+        delete item.airdata;
+      }
+      if (!item.publish_time) {
+        delete item.publish_time;
+      }
       rs.push(item);
     }
 

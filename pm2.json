@@ -2,23 +2,13 @@
   "apps": [
     {
       "name": "ump",
+      "cwd": "UMP/dev/ump-manager/build",
       "script": "server.js",
       "instances": 2,
       "exec_mode": "cluster",
       "watch": false,
       "error_file": "ump-err.log",
       "out_file": "ump-out.log",
-      "merge_logs": true,
-      "log_date_format": "YYYY-MM-DD HH:mm Z"
-    },
-    {
-      "name": "ump-fe",
-      "script": "server.js",
-      "cwd": "/home/ump-fe",
-      "instances": 2,
-      "exec_mode": "cluster",
-      "error_file": "fe-err.log",
-      "out_file": "fe-out.log",
       "merge_logs": true,
       "log_date_format": "YYYY-MM-DD HH:mm Z"
     }

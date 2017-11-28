@@ -1,5 +1,6 @@
 const config = require('../config');
 const UserInfo = require('../api/user/userInfo');
+
 const userInfo = new UserInfo();
 
 const request = require('request');
@@ -33,5 +34,4 @@ userInfo.collection.find({}).toArray((err, docs) => {
   }
 
 });
-
 
