@@ -468,7 +468,7 @@ service.getIcon = function getIcon(info, res) {
       }
       try {
         const streamUrl = formatPathToUrl(doc.realPath, doc.name);
-        //const streamUrl = `${config.streamURL}${config.hkRuku}/moved/2017/11/24/PMELOOP10_77/transcoding_PMELOOP10_77.jpg`;
+        // const streamUrl = `${config.streamURL}${config.hkRuku}/moved/2017/11/24/PMELOOP10_77/transcoding_PMELOOP10_77.jpg`;
         request.get(streamUrl).on('error', (error) => {
           logger.error(error);
           res.end(error.message);
@@ -505,7 +505,7 @@ service.xml2srt = (info, cb) => {
       const realPath = doc.fileInfo.realPath || '';
       try {
         const xmlUrl = formatPathToUrl(doc.realPath, doc.name);
-        //const xmlUrl = `${config.streamURL}${config.hkRuku}/moved/2017/11/24/PMELOOP10_77/catalog.xml`;
+        // const xmlUrl = `${config.streamURL}${config.hkRuku}/moved/2017/11/24/PMELOOP10_77/catalog.xml`;
         utils.baseRequestCallApi(xmlUrl, 'GET', '', '', (err, response) => {
           if (err) {
             return cb && cb(err);
