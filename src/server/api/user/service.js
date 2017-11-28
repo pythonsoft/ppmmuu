@@ -85,7 +85,6 @@ function setCookie2(res, doc, cb) {
             parentIndex: '',
           });
         }
-        console.log(JSON.stringify(menu));
         return cb && cb(null, {
           token,
           menu,
