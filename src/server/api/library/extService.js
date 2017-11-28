@@ -68,7 +68,7 @@ service.getAsyncCatalogInfoList = function getAsyncCatalogInfoList(info, cb) {
   };
 
   lastModify = formatTimeStrToDate(lastModify);
-  const query = { 'fileInfo.type': FileInfo.TYPE.ORIGINAL };
+  const query = { 'fileInfo.type': FileInfo.TYPE.LOW_BIT_VIDEO };
   if (lastModify) {
     query.lastModifyTime = { $gte: lastModify };
   } else {
