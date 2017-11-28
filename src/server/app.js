@@ -118,7 +118,7 @@ if (process.env.NODE_ENV === 'development') {
 
 const stop = function stop() {
   server.close();
-}
+};
 
 module.exports = app;
 module.exports.stop = stop;
