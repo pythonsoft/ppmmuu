@@ -40,7 +40,7 @@ deploy_to_67_job:
   script:
     - proj_path="/home/ump/UMP/$CI_BUILD_REF_NAME/ump"
     - function at_67 { ssh ump@10.0.15.67 $1; }
-    - at_67 "mkdir -p ${proj_path}-manager/build ${proj_path}-manager/node_modules"
+    - at_67 "mkdir -p ${proj_path}-manager/build ${proj_path}-manager/node_modules /home/ump/UMP/$CI_BUILD_REF_NAME/uploads"
     - scp -r build/* ump@10.0.15.67:"${proj_path}-manager/build"
     - scp -r node_modules/* ump@10.0.15.67:"${proj_path}-manager/node_modules"
     - at_67 "sed -i -re \"s/(^\s*config\.host)\s*=.*/\1='api\.szdev\.cn'/\" ${proj_path}-manager/build/config_master.js"
