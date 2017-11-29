@@ -66,6 +66,10 @@ router.use(isLogin.middleware);
  *               type: number
  *               description: '每页数量'
  *               example: 20
+ *             isRelated:
+ *               type: boolean
+ *               description: '是否是搜索相关视频'
+ *               example: 20
  *     responses:
  *       200:
  *         description: GroupInfo
