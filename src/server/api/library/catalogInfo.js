@@ -93,7 +93,7 @@ class CatalogInfo extends DB {
 CatalogInfo.FROM_WHERE = {
   HK: 1,
   DAYANG: 2,
-  UMP: 3,
+  UMP: 3,   //香港凤凰入库
 };
 
 CatalogInfo.AVAILABLE = {

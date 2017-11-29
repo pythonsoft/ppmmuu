@@ -32,8 +32,15 @@ class TemplateInfo extends DB {
         },
       },
       bucketId: {
-        type: 'string'
-      }
+        type: 'string',
+      },
+      fromWhere: {          // 入库模板绑定哪里入库的视频       3: 香港
+        type: 'number',
+        validation: 'require',
+      },
+      mapPath: {           // 入库视频转码后的目录映射到网盘的盘符
+        type: 'string',
+      },
     };
   }
 
@@ -49,5 +56,10 @@ class TemplateInfo extends DB {
   }
 
 }
+
+TemplateInfo.FROM_WHERE = {
+  HONGKONG: 3,    // 香港凤凰入库
+  BEIJING: 4,      // 北京凤凰入库
+};
 
 module.exports = TemplateInfo;

@@ -59,8 +59,6 @@ config.HKAPI = {
 // 视频服务器地址
 // config.streamURL = 'http://10.0.15.68:8099';
 config.streamURL = 'http://ump-live.phoenixtv.com';
-// config.hkRuku = '/mnt/transcoding';
-config.hkRuku = '/h';
 
 // 日志路径
 config.logPath = path.join(__dirname, '../logs/');
