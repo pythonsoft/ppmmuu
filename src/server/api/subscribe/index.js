@@ -115,6 +115,10 @@ router.get('/getSubscribeTypeSummary', (req, res) => {
  *               type: number
  *               description: '每页数量'
  *               example: 20
+ *             isRelated:
+ *               type: boolean
+ *               description: '是否是相关视频的搜索'
+ *               example: false
  *     responses:
  *       200:
  *         description: GroupInfo

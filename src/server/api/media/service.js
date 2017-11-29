@@ -143,7 +143,7 @@ service.getEsMediaList = function getEsMediaList(info, cb) {
       }],
       source: ES_FILTER_FIELDS,
       sort: [{
-        key: 'publish_time',
+        key: 'last_modify',
         value: 'desc',
       }],
       start: 0,
@@ -402,6 +402,7 @@ service.esSearch = function esSearch(info, cb, userId, videoIds) {
     body,
     json: true,
   };
+  console.log(JSON.stringify(body));
 
   utils.commonRequestCallApi(options, (err, rs) => {
     if (err) {
