@@ -69,7 +69,7 @@ router.use(isLogin.middleware);
  *             isRelated:
  *               type: boolean
  *               description: '是否是搜索相关视频'
- *               example: 20
+ *               example: false
  *     responses:
  *       200:
  *         description: GroupInfo
