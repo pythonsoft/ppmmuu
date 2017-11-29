@@ -143,7 +143,7 @@ service.getEsMediaList = function getEsMediaList(info, cb) {
       }],
       source: ES_FILTER_FIELDS,
       sort: [{
-        key: 'publish_time',
+        key: 'last_modify',
         value: 'desc',
       }],
       start: 0,
@@ -402,6 +402,7 @@ service.esSearch = function esSearch(info, cb, userId, videoIds) {
     body,
     json: true,
   };
+  console.log(JSON.stringify(body));
 
   utils.commonRequestCallApi(options, (err, rs) => {
     if (err) {
@@ -462,13 +463,17 @@ service.getIcon = function getIcon(info, res) {
   const fromWhere = info.fromWhere || CatalogInfo.FROM_WHERE.HK;
 
   if (fromWhere * 1 === CatalogInfo.FROM_WHERE.UMP) {
-    libraryExtService.getFileInfo({ objectId: doc.objectId, type: FileInfo.TYPE.THUMB }, (err, doc) => {
+    libraryExtService.getFileInfo({ objectId: info.objectId, type: FileInfo.TYPE.THUMB }, (err, doc) => {
       if (err) {
         return res.end(err.message);
       }
       try {
-        const stream = fs.createReadStream(doc.realPath);
-        stream.pipe(res);
+        const streamUrl = formatPathToUrl(doc.realPath, doc.name);
+        // const streamUrl = `${config.streamURL}${config.hkRuku}/moved/2017/11/24/PMELOOP10_77/transcoding_PMELOOP10_77.jpg`;
+        request.get(streamUrl).on('error', (error) => {
+          logger.error(error);
+          res.end(error.message);
+        }).pipe(res);
       } catch (e) {
         return res.end(e.message);
       }
@@ -500,8 +505,14 @@ service.xml2srt = (info, cb) => {
       }
       const realPath = doc.fileInfo.realPath || '';
       try {
-        const text = fs.readFileSync(realPath, 'utf8');
-        return cb && cb(null, text);
+        const xmlUrl = formatPathToUrl(doc.realPath, doc.name);
+        // const xmlUrl = `${config.streamURL}${config.hkRuku}/moved/2017/11/24/PMELOOP10_77/catalog.xml`;
+        utils.baseRequestCallApi(xmlUrl, 'GET', '', '', (err, response) => {
+          if (err) {
+            return cb && cb(err);
+          }
+          return cb && cb(null, response.body);
+        });
       } catch (e) {
         return cb && cb(null, '');
       }
@@ -625,6 +636,19 @@ service.saveWatching = function saveWatching(userId, videoId, cb) {
     (err, r) => cb && cb(err, r));
 };
 
+const formatPathToUrl = function formatPathToUrl(path, fileName) {
+  if (path) {
+    path = path.replace('\\', '\\\\').match(/\\\d{4}\\\d{2}\\\d{2}/g);
+
+    if (path && path.length === 1) {
+      path = path[0].replace(/\\/g, '\/');
+    }
+
+    return `${config.streamURL}${config.hkRuku}${path}/${fileName}`;
+  }
+  return '';
+};
+
 service.getStream = function getStream(objectId, fromWhere, res) {
   const struct = {
     objectId: { type: 'string', validation: 'require' },
@@ -644,7 +668,7 @@ service.getStream = function getStream(objectId, fromWhere, res) {
   fromWhere = fromWhere || CatalogInfo.FROM_WHERE.HK;
 
   if (fromWhere * 1 === CatalogInfo.FROM_WHERE.UMP) {
-    libraryExtService.getCatalogInfo({ objectId, 'fileInfo.type': FileInfo.TYPE.LOW_BIT_VIDEO }, (err, doc) => {
+    libraryExtService.getCatalogInfo({ objectId, 'fileInfo.type': FileInfo.TYPE.ORIGINAL }, (err, doc) => {
       if (err) {
         return res && res({ status: err.code, result: {}, statusInfo: { message: err.message } });
       }

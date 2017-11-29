@@ -8,6 +8,8 @@ const ConfigInfo = require('../api/configuration/configurationInfo');
 
 const configInfo = new ConfigInfo();
 
+const utils = require('../common/utils');
+
 const meidaCenterSearchSelects = [
   {
     key: 'program_type',
@@ -21,7 +23,7 @@ const meidaCenterSearchSelects = [
       { value: '墊播', label: '墊播' },
       { value: '素材', label: '素材' },
     ],
-    selected: '',
+    selected: [],
   },
   {
     key: 'ccid',
@@ -33,7 +35,7 @@ const meidaCenterSearchSelects = [
       { value: '片頭子類', label: '片頭子類' },
       { value: 'segment', label: 'segment' },
     ],
-    selected: '',
+    selected: [],
   },
   {
     key: 'news_type',
@@ -58,7 +60,7 @@ const meidaCenterSearchSelects = [
       { value: '資訊台十週年節目素材', label: '資訊台十週年節目素材' },
       { value: 'NowTV', label: 'NowTV' },
     ],
-    selected: '',
+    selected: [],
   },
   {
     key: 'occur_country',
@@ -246,7 +248,7 @@ const meidaCenterSearchSelects = [
       { value: '扎伊爾 Zaire ZR', label: 'Zaire ZR扎伊爾' },
       { value: '贊比亞 Zambia ZM', label: 'Zambia ZM贊比亞' },
     ],
-    selected: '',
+    selected: [],
   },
   {
     key: 'versions',
@@ -265,7 +267,7 @@ const meidaCenterSearchSelects = [
       { value: '播放前版', label: '播放前版' },
       { value: '參展版', label: '參展版' },
     ],
-    selected: '',
+    selected: [],
   },
   {
     key: 'production_site',
@@ -278,7 +280,7 @@ const meidaCenterSearchSelects = [
       { value: '上海', label: '上海' },
       { value: 'NIL', label: 'NIL' },
     ],
-    selected: '',
+    selected: [],
   },
   {
     key: 'resource_location',
@@ -296,7 +298,7 @@ const meidaCenterSearchSelects = [
       { value: '節目購銷部', label: '節目購銷部' },
       { value: '影帶管理部', label: '影帶管理部' },
     ],
-    selected: '',
+    selected: [],
   },
 ];
 

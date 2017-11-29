@@ -20,7 +20,7 @@ class FileInfo extends DB {
       size: { type: 'number', validation: 'require' },
       realPath: { type: 'string', validation: 'require' },
       path: { type: 'string', validation: 'require' },
-      type: { type: 'string', allowUpdate: false, validation: 'require', default: () => FileInfo.TYPE.ORIGINAL },
+      type: { type: 'string', validation: 'require', default: () => FileInfo.TYPE.ORIGINAL },
       available: { type: 'string', default: () => FileInfo.AVAILABLE.NO },
       status: { type: 'string', validation: 'require', default: () => FileInfo.STATUS.UNKNOW },
       description: { type: 'string' },

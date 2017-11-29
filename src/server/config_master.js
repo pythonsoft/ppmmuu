@@ -5,7 +5,7 @@
 'use strict';
 
 /* eslint-disable no-undef */
-config.host = '10.0.15.101:8080';
+config.host = 'localhost:8080';
 config.domain = `http://${config.host}`;
 
 config.dbName = process.env.NODE_ENV === 'test' ? 'ump_test' : 'ump';
@@ -55,6 +55,13 @@ config.HKAPI = {
   port: 80,
 };
 
+
+// 视频服务器地址
+// config.streamURL = 'http://10.0.15.68:8099';
+config.streamURL = 'http://ump-live.phoenixtv.com';
+// config.hkRuku = '/mnt/transcoding';
+config.hkRuku = '/h';
+
 // 日志路径
 config.logPath = path.join(__dirname, '../logs/');
 
@@ -66,7 +73,9 @@ config.whitelist = [
   'http://localhost:8000',
   'http://localhost:8080',
   'http://10.0.15.68:8000',
-  'http://10.0.15.105:8000',
+  'http://10.0.16.115:8000',
+  'http://10.0.16.115:8080',
+  'http://10.0.16.105:8000',
   'http://10.0.15.105:8080',
   'http://10.0.15.101:8080',
   'http://10.0.16.125:8000',
@@ -74,6 +83,7 @@ config.whitelist = [
   'http://api.szdev.cn',
   'http://localhost.szdev.cn:8000',
   'http://localhost.szdev.cn:8080',
+  'http://10.0.15.80:8080',
 ];
 
 config.normalMenuPermission = ['taskCenter', 'personalCenter'];

@@ -31,6 +31,9 @@ class TemplateInfo extends DB {
           };
         },
       },
+      bucketId: {
+        type: 'string'
+      }
     };
   }
 
@@ -40,6 +43,7 @@ class TemplateInfo extends DB {
       source: '',
       department: '',
       hdExt: [],
+      bucketId: '',
       templateId: [], // { file: '', template: '' }
     }, info);
   }

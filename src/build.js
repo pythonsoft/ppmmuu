@@ -116,8 +116,8 @@ const writeUploadApiFuncFile = function writeApiFuncFile(filePath, funcName, fun
 };
 
 const writeGetIconApiFuncFile = function writeApiFuncFile(filePath, funcName, funcType, funcUrl) {
-  const tpl = `api.${funcName} = function ${funcName}(id) {
-  return axios.defaults.baseURL + '${funcUrl}?objectid=' + id;
+  const tpl = `api.${funcName} = function ${funcName}(id, fromWhere) {
+  return axios.defaults.baseURL + '${funcUrl}?objectid=' + id + '&fromWhere=' + fromWhere;
 };
 
 `;
@@ -325,6 +325,7 @@ webpack(webpackConfig, (err, stats) => {
   console.log('server webpack completely...');
 
   if (process.env.NODE_ENV !== 'online') {
+    writeFile(pm2JSONPath, 'pm2.json');
     require('./runGulp')(() => {
       process.exit(0);
     });
