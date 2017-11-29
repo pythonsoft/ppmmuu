@@ -263,7 +263,7 @@ service.getSubscribeSearchConfig = function getSubscribeSearchConfig(req, cb) {
   });
 };
 
-const executeEsSerach = function executeEsSearch(body, userId, keyword, cb) {
+const executeEsSerach = function executeEsSearch(body, userId, keyword, isRelated, cb) {
   const url = `${config.esBaseUrl}ump_v1/ShelfTaskInfo/_search`;
   const options = {
     method: 'POST',
@@ -294,7 +294,7 @@ const executeEsSerach = function executeEsSearch(body, userId, keyword, cb) {
       newRs.docs.push(filterDoc(_source));
     }
 
-    if (userId && keyword) {
+    if (userId && keyword && !isRelated) {
       mediaService.saveSearch(keyword, userId, (err) => {
         if (err) {
           logger.error(err);
@@ -432,6 +432,7 @@ service.esSearch = function esSearch(req, cb) {
   const info = req.body;
   const userInfo = req.ex.userInfo;
   const companyId = userInfo.company._id;
+  const isRelated = info.isRelated || false;
   let subscribeType = info.subscribeType || '';
 
   // 检查subscribeType是否合法
@@ -466,7 +467,7 @@ service.esSearch = function esSearch(req, cb) {
     const options = getEsOptions(info);
     let keyword = info.keyword || '';
     keyword = keyword.trim();
-    executeEsSerach(options, userInfo._id, keyword, (err, docs) => {
+    executeEsSerach(options, userInfo._id, keyword, isRelated, (err, docs) => {
       if (err) {
         return cb && cb(err);
       }
