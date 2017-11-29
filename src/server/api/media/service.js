@@ -388,6 +388,7 @@ const getEsOptions = function getEsOptions(info) {
 service.esSearch = function esSearch(info, cb, userId, videoIds) {
   // search by videoId will overwrite original keywords
   const match = info.match || [];
+  const isRelated = info.isRelated || false;
 
   if (videoIds) {
     videoIds = videoIds.split(',').join(' ');
@@ -402,7 +403,7 @@ service.esSearch = function esSearch(info, cb, userId, videoIds) {
     body,
     json: true,
   };
-  console.log(JSON.stringify(body));
+  //console.log(JSON.stringify(body));
 
   utils.commonRequestCallApi(options, (err, rs) => {
     if (err) {
@@ -437,7 +438,7 @@ service.esSearch = function esSearch(info, cb, userId, videoIds) {
       }
     }
 
-    if (userId && fullText) {
+    if (userId && fullText && !isRelated) {
       saveSearch(fullText, userId, (err) => {
         if (err) {
           logger.error(err);
