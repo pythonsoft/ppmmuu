@@ -668,15 +668,15 @@ service.getObject = function getObject(info, cb) {
 service.saveWatching = function saveWatching(userId, videoId, fromWhere, cb) {
   watchingHistoryInfo.findOneAndUpdate(
       { videoId, userId },
-      {
-        $set: { updatedTime: new Date(), fromWhere: fromWhere || CatalogInfo.FROM_WHERE.MAM },
-        $inc: { count: 1 },
-        $setOnInsert: { videoContent: '', status: 'unavailable', _id: uuid.v1() },
-      },
-      {
-        returnOriginal: false,
-        upsert: true,
-      },
+    {
+      $set: { updatedTime: new Date(), fromWhere: fromWhere || CatalogInfo.FROM_WHERE.MAM },
+      $inc: { count: 1 },
+      $setOnInsert: { videoContent: '', status: 'unavailable', _id: uuid.v1() },
+    },
+    {
+      returnOriginal: false,
+      upsert: true,
+    },
       (err, r) => cb && cb(err, r));
 };
 
@@ -739,10 +739,10 @@ service.getSearchHistoryForMediaPage = (userId, cb) => {
       .find({ userId })
       .sort({ updatedTime: -1 })
       .limit(10).project({
-    keyword: 1,
-    updatedTime: 1,
-    count: 1,
-  })
+        keyword: 1,
+        updatedTime: 1,
+        count: 1,
+      })
       .toArray((err, docs) => cb && cb(err, docs));
 };
 
