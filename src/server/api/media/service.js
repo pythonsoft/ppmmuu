@@ -215,11 +215,6 @@ const getEsOptions = function getEsOptions(info) {
       if (temp.value) {
         if (temp.key === key) {
           const fullText = temp.value.trim().split(' ');
-          const matchPhrase = {};
-          matchPhrase[key] = temp.value.trim();
-          rs.push({
-            match_phrase: matchPhrase,
-          });
           for (let j = 0, len1 = fullText.length; j < len1; j++) {
             if (fullText[j]) {
               const item = {
@@ -317,7 +312,7 @@ const getEsOptions = function getEsOptions(info) {
 
   const must = formatMustMust(match, 'full_text');
   const mustShould = formatMustShould(match, 'full_text');
-  const shoulds = formatShould(should, 'full_name');
+  const shoulds = formatShould(should, 'name');
   const sorts = formatSort(sort);
   const highlight = getHighLightFields(hl);
   formatRange(range, must);
@@ -408,7 +403,6 @@ service.esSearch = function esSearch(info, cb, userId, videoIds) {
     body,
     json: true,
   };
-  // console.log(JSON.stringify(body));
 
   utils.commonRequestCallApi(options, (err, rs) => {
     if (err) {
@@ -627,11 +621,11 @@ service.getObject = function getObject(info, cb) {
   }
 };
 
-service.saveWatching = function saveWatching(userId, videoId, fromWhere, cb) {
+service.saveWatching = function saveWatching(userId, videoId, cb) {
   watchingHistoryInfo.findOneAndUpdate(
     { videoId, userId },
     {
-      $set: { updatedTime: new Date(), fromWhere: fromWhere || CatalogInfo.FROM_WHERE.HK },
+      $set: { updatedTime: new Date() },
       $inc: { count: 1 },
       $setOnInsert: { videoContent: '', status: 'unavailable', _id: uuid.v1() },
     },
