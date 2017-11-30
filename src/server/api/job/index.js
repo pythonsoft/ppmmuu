@@ -98,8 +98,8 @@ router.use(isLogin.hasAccessMiddleware);
  *         name: fromWhere
  *         required: false
  *         type: string
- *         default: '1'
- *         description: '1:HK,2:DAYANG,3:UMP'
+ *         default: 'MAM'
+ *         description: 'MAM,DAYANG,HK_RUKU'
  *         collectionFormat: csv
  *     responses:
  *       200:

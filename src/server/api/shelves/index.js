@@ -54,8 +54,8 @@ router.use(isLogin.hasAccessMiddleware);
  *               example: false
  *             fromWhere:
  *               type: string
- *               default: '1'
- *               description: '1:HK,2:DAYANG,3:UMP'
+ *               default: 'MAM'
+ *               description: 'MAM,DAYANG,HK_RUKU'
  *     responses:
  *       200:
  *         description: ShelfTaskInfo
@@ -818,7 +818,7 @@ router.post('/editShelfTaskAgain', (req, res) => {
  */
 router.get('/searchUser', (req, res) => {
   service.searchUser(req, (err, docs) =>
-    res.json(result.json(err, docs)));
+      res.json(result.json(err, docs)));
 });
 
 /**
@@ -856,7 +856,7 @@ router.get('/searchUser', (req, res) => {
  */
 router.get('/listSubscribeType', (req, res) => {
   service.listSubscribeType((err, docs) =>
-    res.json(result.json(err, docs)));
+      res.json(result.json(err, docs)));
 });
 
 module.exports = router;

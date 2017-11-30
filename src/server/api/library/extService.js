@@ -11,21 +11,21 @@ const FileInfo = require('./fileInfo');
 
 const fileInfo = new FileInfo();
 
-const TemplateInfo = require('./templateInfo');
+const PathInfo = require('../storage/pathInfo');
 
-const templateInfo = new TemplateInfo();
+const pathInfo = new PathInfo();
 
 const fieldMap = require('./fieldMap');
 
 const service = {};
 
 service.getMapPath = function getMapPath(fromWhere, cb) {
-  templateInfo.collection.findOne({ fromWhere: fromWhere * 1 }, (err, doc) => {
+  pathInfo.collection.findOne({ name: fromWhere }, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
-    let mapPath = doc ? doc.mapPath : '';
+    let mapPath = doc ? doc.streamingPath : '';
     if (mapPath) {
       mapPath = mapPath.replace(/\//g, '');
       mapPath = `/${mapPath}`;

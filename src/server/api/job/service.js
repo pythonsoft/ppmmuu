@@ -54,7 +54,7 @@ const errorCall = function errorCall(str) {
 
 const downloadRequest = function downloadRequest(bucketId, transferTemplateId = '', transferParams, downloadParams, userId, userName, subtitleParams, cb) {
   const p = {
-    source: CatalogInfo.FROM_WHERE.HK,
+    source: CatalogInfo.FROM_WHERE.MAM,
     fileId: '',
   };
 
@@ -360,8 +360,7 @@ service.download = function download(info, cb) {
   const receiverId = info.receiverId;
   const receiverType = info.receiverType;
   const transferMode = info.transferMode || 'direct';
-  let source = info.fromWhere || CatalogInfo.FROM_WHERE.HK;
-  source *= 1;
+  const source = info.fromWhere || CatalogInfo.FROM_WHERE.MAM;
   const downloadParams = { objectid, inpoint: inpoint * 1, outpoint: outpoint * 1, filename, filetypeid, templateId };
   if (!downloadParams) {
     return cb && cb(i18n.t('joDownloadParamsIsNull'));
@@ -380,7 +379,7 @@ service.download = function download(info, cb) {
     fileId: '',      //如果来源是ump,需要文件Id
   }, downloadParams);
 
-  if (!params.objectid && source !== CatalogInfo.FROM_WHERE.UMP) {
+  if (!params.objectid && (source === CatalogInfo.FROM_WHERE.MAM || source === CatalogInfo.FROM_WHERE.DAYANG)) {
     return cb && cb(i18n.t('joDownloadParamsObjectIdIsNull'));
   }
 
@@ -397,7 +396,7 @@ service.download = function download(info, cb) {
     return cb && cb(i18n.t('joDownloadParamsFileNameIsNull'));
   }
 
-  if (!params.filetypeid && source !== CatalogInfo.FROM_WHERE.UMP) {
+  if (!params.filetypeid && (source === CatalogInfo.FROM_WHERE.MAM || source === CatalogInfo.FROM_WHERE.DAYANG)) {
     return cb && cb(i18n.t('joDownloadParamsFileTypeIdIsNull'));
   }
 
@@ -419,7 +418,7 @@ service.download = function download(info, cb) {
 
     // 需要进行使用转码模板
     if (rs.templateInfo && rs.templateInfo.transcodeTemplateDetail && rs.templateInfo.transcodeTemplateDetail.transcodeTemplates &&
-      rs.templateInfo.transcodeTemplateDetail.transcodeTemplates.length > 0 && rs.templateInfo.transcodeTemplateDetail.transcodeTemplateSelector) {
+        rs.templateInfo.transcodeTemplateDetail.transcodeTemplates.length > 0 && rs.templateInfo.transcodeTemplateDetail.transcodeTemplateSelector) {
       // 获取符合条件的转码模板ID
       templateService.getTranscodeTemplate(downloadTemplateId, params.filename, (err, transcodeTemplateId) => {
         if (err) {
@@ -443,7 +442,7 @@ service.download = function download(info, cb) {
           });
           return false;
         }
-          // 调用下载接口
+        // 调用下载接口
         downloadRequest(rs.templateInfo.details.bucketId, transcodeTemplateId, '', params, userInfo._id, userInfo.name, subtitleParams, (err) => {
           if (err) {
             return cb && cb(err);
@@ -466,7 +465,7 @@ service.download = function download(info, cb) {
       });
       return false;
     }
-      // 调用下载接口
+    // 调用下载接口
     downloadRequest(rs.templateInfo.details.bucketId, '', '', params, userInfo._id, userInfo.name, subtitleParams, (err) => {
       if (err) {
         return cb && cb(err);

@@ -77,9 +77,9 @@ service.getSearchConfig = function getSearchConfig(cb) {
 
 function saveSearch(k, id, cb) {
   searchHistoryInfo.findOneAndUpdate({ keyword: k, userId: id },
-    { $set: { updatedTime: new Date() }, $inc: { count: 1 }, $setOnInsert: { _id: uuid.v1() } },
-    { returnOriginal: false, upsert: true },
-    (err, r) => cb && cb(err, r));
+      { $set: { updatedTime: new Date() }, $inc: { count: 1 }, $setOnInsert: { _id: uuid.v1() } },
+      { returnOriginal: false, upsert: true },
+      (err, r) => cb && cb(err, r));
 }
 
 service.saveSearch = saveSearch;
@@ -485,7 +485,8 @@ service.getIcon = function getIcon(info, res) {
       }
     });
   } else {
-    request.get(`${config.hongkongUrl}get_preview?objectid=${info.objectid}`).on('error', (error) => {
+    const t = new Date().getTime();
+    request.get(`${config.hongkongUrl}get_preview?objectid=${info.objectid}&t=${t}`).on('error', (error) => {
       logger.error(error);
       res.end(error.message);
     }).pipe(res);
@@ -629,17 +630,17 @@ service.getObject = function getObject(info, cb) {
 
 service.saveWatching = function saveWatching(userId, videoId, fromWhere, cb) {
   watchingHistoryInfo.findOneAndUpdate(
-    { videoId, userId },
-    {
-      $set: { updatedTime: new Date(), fromWhere: fromWhere || CatalogInfo.FROM_WHERE.HK },
-      $inc: { count: 1 },
-      $setOnInsert: { videoContent: '', status: 'unavailable', _id: uuid.v1() },
-    },
-    {
-      returnOriginal: false,
-      upsert: true,
-    },
-    (err, r) => cb && cb(err, r));
+      { videoId, userId },
+      {
+        $set: { updatedTime: new Date(), fromWhere: fromWhere || CatalogInfo.FROM_WHERE.HK },
+        $inc: { count: 1 },
+        $setOnInsert: { videoContent: '', status: 'unavailable', _id: uuid.v1() },
+      },
+      {
+        returnOriginal: false,
+        upsert: true,
+      },
+      (err, r) => cb && cb(err, r));
 };
 
 const formatPathToUrl = function formatPathToUrl(path, fileName) {
@@ -703,14 +704,14 @@ service.getSearchHistory = (userId, cb, page, pageSize) => {
 
 service.getSearchHistoryForMediaPage = (userId, cb) => {
   searchHistoryInfo.collection
-  .find({ userId })
-  .sort({ updatedTime: -1 })
-  .limit(10).project({
+      .find({ userId })
+      .sort({ updatedTime: -1 })
+      .limit(10).project({
     keyword: 1,
     updatedTime: 1,
     count: 1,
   })
-  .toArray((err, docs) => cb && cb(err, docs));
+      .toArray((err, docs) => cb && cb(err, docs));
 };
 
 service.getWatchHistory = (userId, cb, page, pageSize) => {
@@ -719,18 +720,18 @@ service.getWatchHistory = (userId, cb, page, pageSize) => {
 
 service.getWatchHistoryForMediaPage = (userId, cb, size) => {
   watchingHistoryInfo.collection
-  .find({ userId, status: 'available' })
-  .sort({ updatedTime: -1 })
-  .limit(size < 10 ? size : 10)
-  .toArray((err, docs) => {
-    const r = [];
-    if (docs) {
-      docs.forEach((item) => {
-        r.push(item.videoContent);
+      .find({ userId, status: 'available' })
+      .sort({ updatedTime: -1 })
+      .limit(size < 10 ? size : 10)
+      .toArray((err, docs) => {
+        const r = [];
+        if (docs) {
+          docs.forEach((item) => {
+            r.push(item.videoContent);
+          });
+        }
+        return cb && cb(err, r);
       });
-    }
-    return cb && cb(err, r);
-  });
 };
 
 module.exports = service;
