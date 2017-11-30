@@ -49,7 +49,6 @@ service.getCatalogInfo = function getCatalogInfo(query, cb) {
 
 service.getFileInfo = function getFileInfo(query, cb) {
   fileInfo.collection.findOne(query, (err, doc) => {
-    console.log(doc, query);
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));

@@ -489,7 +489,6 @@ service.getIcon = function getIcon(info, res) {
   }
 
   const fromWhere = info.fromWhere || CatalogInfo.FROM_WHERE.MAM;
-  console.log('fromWhere==>', isFromWhereHK(fromWhere));
 
   if (isFromWhereHK(fromWhere)) {
     request.get(`${config.hongkongUrl}get_preview?objectid=${info.objectid}`).on('error', (error) => {
