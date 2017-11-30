@@ -403,7 +403,6 @@ service.esSearch = function esSearch(info, cb, userId, videoIds) {
     body,
     json: true,
   };
-  //console.log(JSON.stringify(body));
 
   utils.commonRequestCallApi(options, (err, rs) => {
     if (err) {
