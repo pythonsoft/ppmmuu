@@ -66,6 +66,10 @@ router.use(isLogin.middleware);
  *               type: number
  *               description: '每页数量'
  *               example: 20
+ *             isRelated:
+ *               type: boolean
+ *               description: '是否是搜索相关视频'
+ *               example: false
  *     responses:
  *       200:
  *         description: GroupInfo
@@ -230,8 +234,8 @@ router.get('/getSearchConfig', (req, res) => {
  *         name: fromWhere
  *         required: false
  *         type: string
- *         default: '1'
- *         description: '1:HK,2:DAYANG,3:UMP'
+ *         default: 'MAM'
+ *         description: 'MAM,DAYANG,HK_RUKU'
  *         collectionFormat: csv
  *     responses:
  *       200:
@@ -275,8 +279,8 @@ router.get('/getIcon', (req, res) => service.getIcon(req.query, res));
  *         name: fromWhere
  *         required: false
  *         type: string
- *         default: '1'
- *         description: '1:HK,2:DAYANG,3:UMP'
+ *         default: 'MAM'
+ *         description: 'MAM,DAYANG,HK_RUKU'
  *         collectionFormat: csv
  *     responses:
  *       200:
@@ -323,8 +327,8 @@ router.get('/getObject', (req, res) => {
  *         name: fromWhere
  *         required: false
  *         type: string
- *         default: '1'
- *         description: '1:HK,2:DAYANG,3:UMP'
+ *         default: 'MAM'
+ *         description: 'MAM,DAYANG,HK_RUKU'
  *         collectionFormat: csv
  *     responses:
  *       200:
@@ -347,7 +351,7 @@ router.get('/getStream', (req, res) => {
       doc.status += '';
 
       if (doc.status === '0' && req.ex.userId) {
-        service.saveWatching(req.ex.userId, req.query.objectid, (err) => {
+        service.saveWatching(req.ex.userId, req.query.objectid, req.query.fromWhere, (err) => {
           if (err) {
             logger.error(err);
           }
@@ -426,8 +430,8 @@ router.get('/getWatchHistory', (req, res) => {
  *         name: fromWhere
  *         required: false
  *         type: string
- *         default: '1'
- *         description: '1:HK,2:DAYANG,3:UMP'
+ *         default: 'MAM'
+ *         description: 'MAM,DAYANG,HK_RUKU'
  *         collectionFormat: csv
  *     responses:
  *       200:

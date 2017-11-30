@@ -946,7 +946,7 @@ service.updateTemplate = function updateTemplate(_id, info, cb) {
     updateInfo.hdExt = exRs.result;
   }
 
-  if(!info.bucketId){
+  if (!info.bucketId) {
     return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: 'bucketId' }));
   }
   updateInfo.bucketId = info.bucketId;
