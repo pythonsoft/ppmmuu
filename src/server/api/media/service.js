@@ -18,6 +18,7 @@ const FileInfo = require('../library/fileInfo');
 const uuid = require('uuid');
 const nodecc = require('node-opencc');
 const Xml2Srt = require('../../common/parseXmlSub');
+const fs = require('fs');
 
 const HttpRequest = require('../../common/httpRequest');
 
@@ -454,22 +455,6 @@ service.esSearch = function esSearch(info, cb, userId, videoIds) {
   });
 };
 
-const formatPathToUrl = function formatPathToUrl(path, fileName, mapPath) {
-  if (path) {
-    path = path.replace('\\', '\\\\').match(/\\\d{4}\\\d{2}\\\d{2}/g);
-
-    if (path && path.length === 1) {
-      path = path[0].replace(/\\/g, '\/');
-    }
-
-    if (mapPath && path) {
-      return `${config.streamURL}${mapPath}${path}/${fileName}`;
-    }
-    return '';
-  }
-  return '';
-};
-
 service.getIcon = function getIcon(info, res) {
   const struct = {
     objectid: { type: 'string', validation: 'require' },
@@ -481,32 +466,23 @@ service.getIcon = function getIcon(info, res) {
     return res.end(err.message);
   }
 
-  let fromWhere = info.fromWhere || CatalogInfo.FROM_WHERE.HK;
-  fromWhere *= 1;
+  const fromWhere = info.fromWhere || CatalogInfo.FROM_WHERE.HK;
 
-  if (fromWhere === CatalogInfo.FROM_WHERE.UMP) {
-    libraryExtService.getFileInfo({ objectId: info.objectid, type: FileInfo.TYPE.THUMB, fromWhere }, (err, doc) => {
+  if (fromWhere * 1 === CatalogInfo.FROM_WHERE.UMP) {
+    libraryExtService.getFileInfo({ objectId: info.objectId, type: FileInfo.TYPE.THUMB }, (err, doc) => {
       if (err) {
         return res.end(err.message);
       }
-      libraryExtService.getMapPath(fromWhere, (err, mapPath) => {
-        if (err) {
-          return res.end(err.message);
-        }
-        try {
-          const streamUrl = formatPathToUrl(doc.realPath, doc.name, mapPath);
-          if (!streamUrl) {
-            return res.end('');
-          }
-          // const streamUrl = `${config.streamURL}${config.hkRuku}/moved/2017/11/24/PMELOOP10_77/transcoding_PMELOOP10_77.jpg`;
-          request.get(streamUrl).on('error', (error) => {
-            logger.error(error);
-            res.end(error.message);
-          }).pipe(res);
-        } catch (e) {
-          return res.end(e.message);
-        }
-      });
+      try {
+        const streamUrl = formatPathToUrl(doc.realPath, doc.name);
+        // const streamUrl = `${config.streamURL}${config.hkRuku}/moved/2017/11/24/PMELOOP10_77/transcoding_PMELOOP10_77.jpg`;
+        request.get(streamUrl).on('error', (error) => {
+          logger.error(error);
+          res.end(error.message);
+        }).pipe(res);
+      } catch (e) {
+        return res.end(e.message);
+      }
     });
   } else {
     request.get(`${config.hongkongUrl}get_preview?objectid=${info.objectid}`).on('error', (error) => {
@@ -526,34 +502,26 @@ service.xml2srt = (info, cb) => {
     return cb(err);
   }
 
-  let fromWhere = info.fromWhere || CatalogInfo.FROM_WHERE.HK;
-  fromWhere *= 1;
+  const fromWhere = info.fromWhere || CatalogInfo.FROM_WHERE.HK;
 
-  if (fromWhere === CatalogInfo.FROM_WHERE.UMP) {
-    libraryExtService.getFileInfo({ objectId: info.objectid, type: FileInfo.TYPE.SUBTITLE, fromWhere }, (err, doc) => {
+  if (fromWhere * 1 === CatalogInfo.FROM_WHERE.UMP) {
+    libraryExtService.getCatalogInfo({ objectId: info.objectId, 'fileInfo.type': FileInfo.TYPE.SUBTITLE }, (err, doc) => {
       if (err) {
         return cb && cb(err);
       }
-      libraryExtService.getMapPath(fromWhere, (err, mapPath) => {
-        if (err) {
-          return cb && cb(err);
-        }
-        try {
-          const xmlUrl = formatPathToUrl(doc.realPath, doc.name, mapPath);
-          if (!xmlUrl) {
-            return cb && cb(null, '');
+      const realPath = doc.fileInfo.realPath || '';
+      try {
+        const xmlUrl = formatPathToUrl(doc.realPath, doc.name);
+        // const xmlUrl = `${config.streamURL}${config.hkRuku}/moved/2017/11/24/PMELOOP10_77/catalog.xml`;
+        utils.baseRequestCallApi(xmlUrl, 'GET', '', '', (err, response) => {
+          if (err) {
+            return cb && cb(err);
           }
-          // const xmlUrl = `${config.streamURL}${config.hkRuku}/moved/2017/11/24/PMELOOP10_77/catalog.xml`;
-          utils.baseRequestCallApi(xmlUrl, 'GET', '', '', (err, response) => {
-            if (err) {
-              return cb && cb(err);
-            }
-            return cb && cb(null, response.body);
-          });
-        } catch (e) {
-          return cb && cb(null, '');
-        }
-      });
+          return cb && cb(null, response.body);
+        });
+      } catch (e) {
+        return cb && cb(null, '');
+      }
     });
   } else {
     const options = {
@@ -659,11 +627,11 @@ service.getObject = function getObject(info, cb) {
   }
 };
 
-service.saveWatching = function saveWatching(userId, videoId, cb) {
+service.saveWatching = function saveWatching(userId, videoId, fromWhere, cb) {
   watchingHistoryInfo.findOneAndUpdate(
     { videoId, userId },
     {
-      $set: { updatedTime: new Date() },
+      $set: { updatedTime: new Date(), fromWhere: fromWhere || CatalogInfo.FROM_WHERE.HK },
       $inc: { count: 1 },
       $setOnInsert: { videoContent: '', status: 'unavailable', _id: uuid.v1() },
     },
@@ -672,6 +640,19 @@ service.saveWatching = function saveWatching(userId, videoId, cb) {
       upsert: true,
     },
     (err, r) => cb && cb(err, r));
+};
+
+const formatPathToUrl = function formatPathToUrl(path, fileName) {
+  if (path) {
+    path = path.replace('\\', '\\\\').match(/\\\d{4}\\\d{2}\\\d{2}/g);
+
+    if (path && path.length === 1) {
+      path = path[0].replace(/\\/g, '\/');
+    }
+
+    return `${config.streamURL}${config.hkRuku}${path}/${fileName}`;
+  }
+  return '';
 };
 
 service.getStream = function getStream(objectId, fromWhere, res) {
@@ -691,34 +672,25 @@ service.getStream = function getStream(objectId, fromWhere, res) {
   }
 
   fromWhere = fromWhere || CatalogInfo.FROM_WHERE.HK;
-  fromWhere *= 1;
 
-  if (fromWhere === CatalogInfo.FROM_WHERE.UMP) {
-    libraryExtService.getCatalogInfo({ objectId, 'fileInfo.type': FileInfo.TYPE.ORIGINAL, fromWhere }, (err, doc) => {
+  if (fromWhere * 1 === CatalogInfo.FROM_WHERE.UMP) {
+    libraryExtService.getCatalogInfo({ objectId, 'fileInfo.type': FileInfo.TYPE.ORIGINAL }, (err, doc) => {
       if (err) {
         return res && res({ status: err.code, result: {}, statusInfo: { message: err.message } });
       }
+      const rs = {
+        FILENAME: '',
+        INPOINT: 0,
+        OUTPOINT: 0,
+        UNCPATH: '',
+      };
 
-      libraryExtService.getMapPath(fromWhere, (err, mapPath) => {
-        if (err) {
-          return res && res({ status: err.code, result: {}, statusInfo: { message: err.message } });
-        }
+      rs.FILENAME = doc.fileInfo.name;
+      rs.INPOINT = doc.inpoint;
+      rs.OUTPOINT = doc.outpoint;
+      rs.UNCPATH = doc.fileInfo.realPath;
 
-        const rs = {
-          FILENAME: '',
-          INPOINT: 0,
-          OUTPOINT: 0,
-          UNCPATH: '',
-        };
-
-        rs.FILENAME = doc.fileInfo.name;
-        rs.INPOINT = doc.inpoint;
-        rs.OUTPOINT = doc.outpoint;
-        rs.UNCPATH = doc.fileInfo.realPath;
-        rs.mapPath = mapPath;
-
-        return res && res(null, { status: '0', result: rs, statusInfo: { message: 'ok' } });
-      });
+      return res && res(null, { status: '0', result: rs, statusInfo: { message: 'ok' } });
     });
   } else {
     rq.get('/mamapi/get_stream', { objectid: objectId }, res);
