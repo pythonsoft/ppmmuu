@@ -48,8 +48,8 @@ class CatalogInfo extends DB {
       lastModifyTime: { type: 'date', validation: 'require' },
       details: { type: 'object' },
       fromWhere: {
-        type: 'number',
-        default: CatalogInfo.FROM_WHERE.UMP,
+        type: 'string',
+        default: CatalogInfo.FROM_WHERE.HK_RUKU,
       },
       fullText: {
         type: 'string',
@@ -91,9 +91,9 @@ class CatalogInfo extends DB {
 }
 
 CatalogInfo.FROM_WHERE = {
-  HK: 1,
-  DAYANG: 2,
-  UMP: 3,   //香港凤凰入库
+  MAM: 'MAM',
+  DAYANG: 'DAYANG',
+  HK_RUKU: 'HK_RUKU',   //香港凤凰入库
 };
 
 CatalogInfo.AVAILABLE = {

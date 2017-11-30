@@ -98,8 +98,8 @@ router.use(isLogin.hasAccessMiddleware);
  *         name: fromWhere
  *         required: false
  *         type: string
- *         default: '1'
- *         description: '1:HK,2:DAYANG,3:UMP'
+ *         default: 'MAM'
+ *         description: 'MAM,DAYANG,HK_RUKU'
  *         collectionFormat: csv
  *     responses:
  *       200:
@@ -389,6 +389,8 @@ router.get('/stop', (req, res) => {
  *       - in: query
  *         name: jobId
  *         type: string
+ *         description: '支持多个删除,用逗号隔开'
+ *         example: '13213,123213,124214'
  *         collectionFormat: csv
  *     responses:
  *       200:

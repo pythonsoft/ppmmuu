@@ -11,21 +11,21 @@ const FileInfo = require('./fileInfo');
 
 const fileInfo = new FileInfo();
 
-const TemplateInfo = require('./templateInfo');
+const PathInfo = require('../storage/pathInfo');
 
-const templateInfo = new TemplateInfo();
+const pathInfo = new PathInfo();
 
 const fieldMap = require('./fieldMap');
 
 const service = {};
 
 service.getMapPath = function getMapPath(fromWhere, cb) {
-  templateInfo.collection.findOne({ fromWhere: fromWhere * 1 }, (err, doc) => {
+  pathInfo.collection.findOne({ _id: fromWhere }, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
-    let mapPath = doc ? doc.mapPath : '';
+    let mapPath = doc ? doc.streamingPath : '';
     if (mapPath) {
       mapPath = mapPath.replace(/\//g, '');
       mapPath = `/${mapPath}`;
@@ -49,7 +49,6 @@ service.getCatalogInfo = function getCatalogInfo(query, cb) {
 
 service.getFileInfo = function getFileInfo(query, cb) {
   fileInfo.collection.findOne(query, (err, doc) => {
-    console.log(doc, query);
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -114,12 +113,7 @@ service.getAsyncCatalogInfoList = function getAsyncCatalogInfoList(info, cb) {
           fullText += `${item[fieldMap.catalogInfoMap[key]]} `;
         }
       }
-      if (item.materialDate.from) {
-        item.materialDate.from = new Date('2017-03-25').toISOString();
-      }
-      if (item.materialDate.to) {
-        item.materialDate.to = new Date('2017-09-25').toISOString();
-      }
+
       item.duration = item.outpoint - item.inpoint;
       item.full_text = fullText;
       if (!item.news_data) {
