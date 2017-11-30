@@ -790,8 +790,6 @@ service.addTemplate = function addTemplate(info, creatorId, creatorName, cb) {
     transcodeTemplates: [], //
     transcodeScript: '',
     bucketId: '',
-    fromWhere: '',
-    mapPath: '',
     hdExt: [],
   }, info);
 
@@ -802,21 +800,6 @@ service.addTemplate = function addTemplate(info, creatorId, creatorName, cb) {
   if (!tInfo.departmentId) {
     return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: 'departmentId' }));
   }
-
-  if (!tInfo.bucketId) {
-    return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: 'bucketId' }));
-  }
-
-  if (!tInfo.fromWhere) {
-    return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: 'fromWhere' }));
-  }
-
-  if (!tInfo.mapPath) {
-    return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: 'mapPath' }));
-  }
-  tInfo.bucketId = info.bucketId;
-  tInfo.fromWhere = info.fromWhere * 1;
-  tInfo.mapPath = info.mapPath;
 
   const t = new Date();
 
@@ -966,17 +949,7 @@ service.updateTemplate = function updateTemplate(_id, info, cb) {
   if (!info.bucketId) {
     return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: 'bucketId' }));
   }
-
-  if (!info.fromWhere) {
-    return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: 'fromWhere' }));
-  }
-
-  if (!info.mapPath) {
-    return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: 'mapPath' }));
-  }
   updateInfo.bucketId = info.bucketId;
-  updateInfo.fromWhere = info.fromWhere * 1;
-  updateInfo.mapPath = info.mapPath;
 
   if (info.transcodeTemplates) {
     const rs = templateService.composeTranscodeTemplates(info.transcodeTemplates);
