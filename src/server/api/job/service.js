@@ -880,7 +880,7 @@ service.mediaExpressDispatch = function mediaExpressDispatch(shelfTaskId, filety
               }
               for (const key in groupTemplateIdMap) {
                 if (groupTemplateIdMap[key] && transferParams[key]) {
-                  if (rs.transferParamMap.hasOwnProperty(groupTemplateIdMap[key])) {
+                  if (rs.transferParamMap.prototype.hasOwnProperty(groupTemplateIdMap[key])) {
                     rs.transferParamMap[groupTemplateIdMap[key]].push(transferParams[key]);
                   } else {
                     rs.templateList.push(groupTemplateIdMap[key]);
