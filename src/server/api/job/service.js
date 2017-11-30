@@ -662,7 +662,7 @@ service.delete = function del(deleteParams, res) {
         return res.end(err);
       }
 
-      request.get('/JobService/stop', params, res);
+      request.get('/JobService/delete', params, res);
     });
   } else {
     request.get('/JobService/delete', params, res);
