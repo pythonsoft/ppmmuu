@@ -20,7 +20,7 @@ const fieldMap = require('./fieldMap');
 const service = {};
 
 service.getMapPath = function getMapPath(fromWhere, cb) {
-  pathInfo.collection.findOne({ name: fromWhere }, (err, doc) => {
+  pathInfo.collection.findOne({ _id: fromWhere }, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -114,12 +114,7 @@ service.getAsyncCatalogInfoList = function getAsyncCatalogInfoList(info, cb) {
           fullText += `${item[fieldMap.catalogInfoMap[key]]} `;
         }
       }
-      if (item.materialDate.from) {
-        item.materialDate.from = new Date('2017-03-25').toISOString();
-      }
-      if (item.materialDate.to) {
-        item.materialDate.to = new Date('2017-09-25').toISOString();
-      }
+
       item.duration = item.outpoint - item.inpoint;
       item.full_text = fullText;
       if (!item.news_data) {

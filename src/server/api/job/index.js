@@ -389,6 +389,8 @@ router.get('/stop', (req, res) => {
  *       - in: query
  *         name: jobId
  *         type: string
+ *         description: '支持多个删除,用逗号隔开'
+ *         example: '13213,123213,124214'
  *         collectionFormat: csv
  *     responses:
  *       200:
