@@ -55,13 +55,6 @@ config.HKAPI = {
   port: 80,
 };
 
-
-// 视频服务器地址
-// config.streamURL = 'http://10.0.15.68:8099';
-config.streamURL = 'http://ump-live.phoenixtv.com';
-// config.hkRuku = '/mnt/transcoding';
-config.hkRuku = '/h';
-
 // 日志路径
 config.logPath = path.join(__dirname, '../logs/');
 
@@ -107,3 +100,7 @@ config.phoenixAdminUserName = 'xuyawen';   // 快传发送方
 config.subscribeDownloadTemplateId = 'subscribe_autopush';   // 下载模板Id
 
 config.socketURL = 'http://localhost:9000';
+
+// 视频服务器地址
+config.streamURL = 'http://10.0.15.68:8099';
+config.hkRuku = '/h';
