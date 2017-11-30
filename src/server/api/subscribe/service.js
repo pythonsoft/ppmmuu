@@ -54,7 +54,7 @@ const filterDoc = function filterDoc(_source) {
   doc.outpoint = _source.details.OUTPOINT;
   doc.duration = _source.details.OUTPOINT - _source.details.INPOINT;
   doc.files = _source.files;
-  doc.fromWhere = _source.fromWhere || CatalogInfo.FROM_WHERE.HK;
+  doc.fromWhere = _source.fromWhere || CatalogInfo.FROM_WHERE.MAM;
   return doc;
 };
 
@@ -577,7 +577,7 @@ service.getShelfInfo = function getShelfInfo(req, cb) {
       return cb && cb(err);
     }
     const rs = JSON.parse(JSON.stringify(fieldConfig));
-    doc.fromWhere = doc.fromWhere || CatalogInfo.FROM_WHERE.HK;
+    doc.fromWhere = doc.fromWhere || CatalogInfo.FROM_WHERE.MAM;
     if (doc.details) {
       const program = doc.details;
       for (const key in rs) {

@@ -31,6 +31,10 @@ class CatalogTaskInfo extends DB {
       lastModifyTime: { type: 'date', validation: 'require' },
       description: { type: 'string' },
       details: { type: 'object' },
+      fromWhere: {
+        type: 'string',
+        default: 'HK_RUKU',
+      },
     };
   }
 }
