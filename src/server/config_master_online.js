@@ -82,3 +82,7 @@ config.upgradeSystem = {
 // 订阅自动推送配置
 config.phoenixAdminUserName = 'quxiaoguo@phoenixtv.com';   // 快传发送方
 config.subscribeDownloadTemplateId = 'subscribe_autopush';   // 下载模板Id
+
+// 视频服务器地址
+config.streamURL = 'http://ump-live.phoenixtv.com';
+config.hkRuku = '/moved';
