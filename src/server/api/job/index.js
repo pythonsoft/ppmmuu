@@ -107,6 +107,97 @@ router.use(isLogin.hasAccessMiddleware);
  */
 router.post('/download', (req, res) => {
   req.body.userInfo = req.ex.userInfo;
+  req.body.isMultiDownload = false;
+  service.jugeDownload(req.body, (err, docs) => res.json(result.json(err, docs)));
+});
+
+/**
+ * @permissionGroup: movieEditor
+ * @permissionName: 下载合并任务
+ * @permissionPath: /job/multiDownload
+ * @apiName: multiDownload
+ * @apiFuncType: post
+ * @apiFuncUrl: /job/multiDownload
+ * @swagger
+ * /job/multiDownload:
+ *   get:
+ *     description: multiDownload task create
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: objectid
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: filename
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: templateId
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: receiverId
+ *         description:
+ *         required: false
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: receiverType
+ *         description:
+ *         required: false
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: transferMode
+ *         description:
+ *         required: false
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: fromWhere
+ *         required: false
+ *         type: string
+ *         default: 'MAM'
+ *         description: 'MAM,DAYANG,HK_RUKU'
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: fileInfo
+ *         required: true
+ *         type: array
+ *         description: '多个文件信息, startTime: 起始位置, endTime：结束位置'
+ *         example: [{fileId: "asdas", startTime: ["00:00:05.000"], endTime: ["00:00:10.000"]}]
+ *         collectionFormat: csv
+ *       - in: body
+ *         name: downloadParams
+ *         required: false
+ *         type: array
+ *         description: '多个下载信息, objectid: , inpoint：起始位置, outpoint:结束位置, filename:文件名, filetypeid:文件Id, destination:目录,targetname:'
+ *         example: [{objectid: "asdas", inpoint: 0, outpoint: 0, filename: '', filetypeid: '', destination: '', targetname: ''}]
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description:
+ */
+router.post('/multiDownload', (req, res) => {
+  req.body.userInfo = req.ex.userInfo;
+  req.body.isMultiDownload = true;
   service.jugeDownload(req.body, (err, docs) => res.json(result.json(err, docs)));
 });
 

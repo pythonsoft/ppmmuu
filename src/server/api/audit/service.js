@@ -193,7 +193,11 @@ service.passOrReject = function passOrReject(req, cb) {
         if (index >= docs.length) {
           updateAuditInfo(successIds, cb);
         } else {
-          jobService.download(docs[index].detail, (err) => {
+          let downloadFunc = jobService.download;
+          if (docs[index].detail && docs[index].detail.isMultiDownload) {
+            downloadFunc = jobService.multiDownload;
+          }
+          downloadFunc(docs[index].detail, (err) => {
             if (err) {
               updateAuditInfo(successIds, () => cb && cb(err));
             } else {
