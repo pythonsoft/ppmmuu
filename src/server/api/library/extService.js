@@ -11,9 +11,28 @@ const FileInfo = require('./fileInfo');
 
 const fileInfo = new FileInfo();
 
+const TemplateInfo = require('./templateInfo');
+
+const templateInfo = new TemplateInfo();
+
 const fieldMap = require('./fieldMap');
 
 const service = {};
+
+service.getMapPath = function getMapPath(fromWhere, cb) {
+  templateInfo.collection.findOne({ fromWhere: fromWhere * 1 }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+    let mapPath = doc ? doc.mapPath : '';
+    if (mapPath) {
+      mapPath = mapPath.replace(/\//g, '');
+      mapPath = `/${mapPath}`;
+    }
+    return cb && cb(null, mapPath);
+  });
+};
 
 service.getCatalogInfo = function getCatalogInfo(query, cb) {
   catalogInfo.collection.findOne(query, (err, doc) => {
@@ -30,6 +49,7 @@ service.getCatalogInfo = function getCatalogInfo(query, cb) {
 
 service.getFileInfo = function getFileInfo(query, cb) {
   fileInfo.collection.findOne(query, (err, doc) => {
+    console.log(doc, query);
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));

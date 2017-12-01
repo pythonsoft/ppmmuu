@@ -55,7 +55,7 @@ class ShelfTaskInfo extends DB {
         } },
       fromWhere: {
         type: 'number',
-        default: '1',
+        default: 1,
       },
     };
   }
