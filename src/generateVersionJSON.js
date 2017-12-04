@@ -61,9 +61,11 @@ api.create = function (version, generatePath, cb) {
         if(rs[l - 1] === logs[logs.length - 1]) {
           doneFn && doneFn();
         }else {
+          logs = logs.concat(rs);
           req(page + 1, doneFn);
         }
       }else {
+        logs = logs.concat(rs);
         req(page + 1, doneFn);
       }
     });
