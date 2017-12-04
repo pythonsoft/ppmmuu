@@ -654,7 +654,7 @@ service.getObject = function getObject(info, cb) {
   const fromWhere = info.fromWhere || CatalogInfo.FROM_WHERE.MAM;
 
   if (err) {
-    return cb(err.message);
+    return cb(err);
   }
 
   if (!isFromWhereHK(fromWhere)) {

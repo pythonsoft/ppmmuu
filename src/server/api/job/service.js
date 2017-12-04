@@ -302,102 +302,116 @@ service.jugeTemplateAuditAndCreateAudit = function jugeTemplateAuditAndCreateAud
   if (utils.isEmptyObject(info)) {
     return cb && cb(i18n.t('jobDownloadParamsIsNull'));
   }
+  let objectid = info.objectid || '';
+  objectid = objectid.split(',');
 
-  mediaService.getObject({ objectid: info.objectid }, (err, rs, fromWhere = 'mam') => {
-    if (err) {
-      return cb && cb(err);
-    }
-    // fromWhere说明是哪里来的数据，如果是mam的那么所属部门的字段为detail里边的FIELD314
-
-    if (rs.status !== '0') {
-      return cb && cb(rs.result);
-    }
-
-    let ownerName = '';
-
-    if (fromWhere === 'mam') {
-      if (rs.result && rs.result.detail && rs.result.detail.program && rs.result.detail.program.FIELD314 && rs.result.detail.program.FIELD314.value) {
-        ownerName = rs.result.detail.program.FIELD314.value;
-      }
-    }
-
-    if (!ownerName) {
+  const loopGetObject = function loopGetObject(index) {
+    if (index >= objectid.length) {
       return cb && cb(null, true);
     }
 
-    const userInfo = info.userInfo;
-    const id = info.templateId || '';
-    info.ownerName = ownerName;
-
-    templateService.getDetail(id, (err, doc) => {
+    mediaService.getObject({objectid: objectid[index]}, (err, rs, fromWhere = 'mam') => {
       if (err) {
         return cb && cb(err);
       }
+      // fromWhere说明是哪里来的数据，如果是mam的那么所属部门的字段为detail里边的FIELD314
 
-      if (!doc) {
-        return cb && cb(i18n.t('templateIsNotExist'));
+      if (rs.status !== '0') {
+        return cb && cb(rs.result);
       }
 
-      if (!doc.details || !doc.details.bucketId) {
-        return cb && cb(i18n.t('templateBucketIdIsNotExist'));
+      let ownerName = '';
+
+      if (fromWhere === 'mam') {
+        if (rs.result && rs.result.detail && rs.result.detail.program && rs.result.detail.program.FIELD314 && rs.result.detail.program.FIELD314.value) {
+          ownerName = rs.result.detail.program.FIELD314.value;
+        }
       }
 
-      if (!doc.downloadAudit) {
-        return cb && cb(null, true);
+      if (!ownerName) {
+        loopGetObject(index + 1);
+        return;
       }
 
-      auditRuleInfo.collection.findOne({ ownerName }, (err, doc) => {
+      const userInfo = info.userInfo;
+      const id = info.templateId || '';
+      info.ownerName = ownerName;
+
+      templateService.getDetail(id, (err, doc) => {
         if (err) {
-          logger.error(err.message);
-          return cb && cb(i18n.t('databaseError'));
+          return cb && cb(err);
         }
 
         if (!doc) {
-          return cb && cb(null, true);
+          return cb && cb(i18n.t('templateIsNotExist'));
         }
 
-        if (doc.permissionType === AuditRuleInfo.PERMISSTION_TYPE.PUBLIC) {
-          return cb && cb(null, true);
+        if (!doc.details || !doc.details.bucketId) {
+          return cb && cb(i18n.t('templateBucketIdIsNotExist'));
         }
 
-        const whiteList = doc.whiteList || [];
-        for (let i = 0, len = whiteList.length; i < len; i++) {
-          const _id = whiteList[i]._id;
-          if (_id === userInfo._id || _id === userInfo.company._id || _id === userInfo.department._id) {
-            return cb && cb(null, true);
-          }
+        if (!doc.downloadAudit) {
+          loopGetObject(index + 1);
+          return;
         }
 
-        const insertInfo = {
-          name: info.filename,
-          description: '',
-          detail: info,
-          applicant: {
-            _id: userInfo._id,
-            name: userInfo.name,
-            companyId: userInfo.company._id,
-            companyName: userInfo.company.name,
-            departmentName: userInfo.department.name,
-            departmentId: userInfo.department._id,
-          },
-          ownerDepartment: doc.auditDepartment,
-        };
-        insertInfo.createTime = new Date();
-        insertInfo.lastModify = new Date();
-        insertInfo.status = AuditInfo.STATUS.WAITING;
-        insertInfo.type = AuditInfo.TYPE.DOWNLOAD;
-
-        auditInfo.insertOne(insertInfo, (err) => {
+        auditRuleInfo.collection.findOne({ownerName}, (err, doc) => {
           if (err) {
             logger.error(err.message);
             return cb && cb(i18n.t('databaseError'));
           }
 
-          return cb && cb(null, false);
+          if (!doc) {
+            return cb && cb(null, true);
+          }
+
+          if (doc.permissionType === AuditRuleInfo.PERMISSTION_TYPE.PUBLIC) {
+            loopGetObject(index + 1);
+            return;
+          }
+
+          const whiteList = doc.whiteList || [];
+          for (let i = 0, len = whiteList.length; i < len; i++) {
+            const _id = whiteList[i]._id;
+            if (_id === userInfo._id || _id === userInfo.company._id || _id === userInfo.department._id) {
+              loopGetObject(index + 1);
+              return;
+            }
+          }
+
+          const insertInfo = {
+            name: info.filename,
+            description: '',
+            detail: info,
+            applicant: {
+              _id: userInfo._id,
+              name: userInfo.name,
+              companyId: userInfo.company._id,
+              companyName: userInfo.company.name,
+              departmentName: userInfo.department.name,
+              departmentId: userInfo.department._id,
+            },
+            ownerDepartment: doc.auditDepartment,
+          };
+          insertInfo.createTime = new Date();
+          insertInfo.lastModify = new Date();
+          insertInfo.status = AuditInfo.STATUS.WAITING;
+          insertInfo.type = AuditInfo.TYPE.DOWNLOAD;
+
+          auditInfo.insertOne(insertInfo, (err) => {
+            if (err) {
+              logger.error(err.message);
+              return cb && cb(i18n.t('databaseError'));
+            }
+
+            return cb && cb(null, false);
+          });
         });
       });
     });
-  });
+  }
+
+  loopGetObject(0);
 };
 
 service.jugeDownload = function jugeDownload(info, cb) {
@@ -834,20 +848,10 @@ service.delete = function del(deleteParams, res) {
 
   const params = utils.merge({
     jobId: '',
+    userId: ''
   }, deleteParams);
 
-  // 如果传入userId, 则检查任务的userId与之是否相等，相等则有权限操作
-  if (deleteParams.userId) {
-    checkOwner(deleteParams.jobId, deleteParams.userId, (err) => {
-      if (err) {
-        return res.end(err);
-      }
-
-      request.get('/JobService/delete', params, res);
-    });
-  } else {
-    request.get('/JobService/delete', params, res);
-  }
+  request.get('/JobService/delete', params, res);
 };
 
 service.deleteTemplate = function del(deleteParams, res) {
