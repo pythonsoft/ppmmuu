@@ -414,7 +414,7 @@ service.adAccountSync = function adAccountSync(info, cb) {
 
   const companyName = utils.trim(info.companyName);
 
-  const result = userInfo.assign(info);
+  const result = userInfo.updateAssign(info);
 
   if (result.err) {
     return cb & cb(result.err);
