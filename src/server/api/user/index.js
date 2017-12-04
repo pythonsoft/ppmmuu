@@ -688,7 +688,6 @@ router.get('/listJob', (req, res) => {
   jobService.list({ page: page * 1, pageSize: pageSize * 1, status, currentStep, userId }, res);
 });
 
-
 /* downloadTask */
 /**
  * @apiName: listMyAuditJob
@@ -921,6 +920,8 @@ router.get('/stopJob', (req, res) => {
  *       - in: query
  *         name: jobId
  *         type: string
+ *         description: '支持多个删除,用逗号隔开'
+ *         example: '12324,12312,124214'
  *         collectionFormat: csv
  *     responses:
  *       200:

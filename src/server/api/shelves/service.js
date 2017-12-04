@@ -212,8 +212,7 @@ service.createShelfTask = function createShelfTask(req, cb) {
 
   info.creator = { _id: userInfo._id, name: userInfo.name };
   info.department = userInfo.department;
-  info.fromWhere = info.fromWhere || CatalogInfo.FROM_WHERE.HK;
-  info.fromWhere *= 1;
+  info.fromWhere = info.fromWhere || CatalogInfo.FROM_WHERE.MAM;
   const t = new Date();
   info.createdTime = t;
   info.lastModifyTime = t;

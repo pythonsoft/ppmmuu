@@ -28,7 +28,7 @@ class FileInfo extends DB {
       createdTime: { type: 'date', validation: 'require', allowUpdate: false },
       lastModifyTime: { type: 'date', validation: 'require' },
       details: { type: 'object' },
-      fromWhere: { type: 'number', default: 3 },
+      fromWhere: { type: 'string', default: 'HK_RUKU' },
     };
   }
 }

@@ -12,6 +12,8 @@ const WebosApi = require('../../common/webosAPI');
 const config = require('../../config');
 const Login = require('../../middleware/login');
 
+const jwt = require('jsonwebtoken');
+
 const SearchHistoryInfo = require('./searchHistoryInfo');
 const WatchingHistoryInfo = require('./watchingHistoryInfo');
 const UserInfo = require('./userInfo');
@@ -54,6 +56,12 @@ function setCookie2(res, doc, cb) {
   const expires = new Date().getTime() + config.cookieExpires;
   const token = generateToken(doc._id, expires);
 
+  const jwtToken = jwt.sign({
+    service: 'bd-bigdata',
+  }, config.KEY, {
+    expiresIn: expires,
+  });
+
   Login.getUserInfo(doc._id, (err, info) => {
     if (err) {
       return cb && cb(i18n.t('loginCannotGetUserInfo'));
@@ -89,6 +97,7 @@ function setCookie2(res, doc, cb) {
           token,
           menu,
           userInfo: info,
+          jwtToken,
         });
       });
     });
@@ -405,7 +414,7 @@ service.adAccountSync = function adAccountSync(info, cb) {
 
   const companyName = utils.trim(info.companyName);
 
-  const result = userInfo.assign(info);
+  const result = userInfo.updateAssign(info);
 
   if (result.err) {
     return cb & cb(result.err);

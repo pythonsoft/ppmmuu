@@ -52,9 +52,48 @@ const errorCall = function errorCall(str) {
   return JSON.stringify({ status: 1, data: {}, statusInfo: i18n.t(str) });
 };
 
+const multiDownloadRequest = function multiDownloadRequest(p, cb) {
+  const transcodeTemplateId = p.templateId || '';
+  const pArr = [];
+  if (transcodeTemplateId) {
+    if (transcodeTemplateId.constructor.name.toLowerCase() === 'array') {
+      for (let i = 0, len = transcodeTemplateId.length; i < len; i++) {
+        const item = JSON.parse(JSON.stringify(p));
+        item.templateId = transcodeTemplateId[i];
+        pArr.push(item);
+      }
+    } else {
+      p.templateId = transcodeTemplateId;
+      pArr.push(p);
+    }
+  } else {
+    pArr.push(p);
+  }
+
+  const loopCreateDownloadRequest = function loopCreateDownloadRequest(index) {
+    if (index >= pArr.length) {
+      return cb && cb(null, 'ok');
+    }
+    const param = pArr[index];
+    const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/JobService/multiDownload`;
+    utils.requestCallApi(url, 'POST', param, '', (err, rs) => {
+      if (err) {
+        return cb && cb(err); // res.json(result.fail(err));
+      }
+
+      if (rs.status === '0') {
+        loopCreateDownloadRequest(index + 1);
+      } else {
+        return cb && cb(i18n.t('joDownloadError', { error: rs.statusInfo.message }));
+      }
+    });
+  };
+  loopCreateDownloadRequest(0);
+};
+
 const downloadRequest = function downloadRequest(bucketId, transferTemplateId = '', transferParams, downloadParams, userId, userName, subtitleParams, cb) {
   const p = {
-    source: CatalogInfo.FROM_WHERE.HK,
+    source: CatalogInfo.FROM_WHERE.MAM,
     fileId: '',
   };
 
@@ -210,6 +249,30 @@ const getTransferParams = function getTransferParams(bodyParams, cb) {
   });
 };
 
+const multiTranscodeAndTransfer = function multiTranscodeAndTransfer(p, userInfo, receiverId, receiverType, transferMode, cb) {
+  // 获取传输参数
+  getTransferParams({
+    userId: userInfo._id,
+    receiverId,
+    receiverType,
+    TransferMode: transferMode,
+  }, (err, transferParams) => {
+    if (err) {
+      return cb && cb(err);
+    }
+    p.transferParams = JSON.stringify(transferParams);
+
+    // 调用下载接口
+    multiDownloadRequest(p, (err, r) => {
+      if (err) {
+        return cb && cb(err);
+      }
+
+      return cb && cb(null, r);
+    });
+  });
+};
+
 const transcodeAndTransfer = function transcodeAndTransfer(bucketId, receiverId, receiverType, transcodeTemplateId, userInfo, transferMode, downloadParams, subtitleParams, cb) {
   // 获取传输参数
   getTransferParams({
@@ -239,105 +302,120 @@ service.jugeTemplateAuditAndCreateAudit = function jugeTemplateAuditAndCreateAud
   if (utils.isEmptyObject(info)) {
     return cb && cb(i18n.t('jobDownloadParamsIsNull'));
   }
+  let objectid = info.objectid || '';
+  objectid = objectid.split(',');
 
-  mediaService.getObject({ objectid: info.objectid }, (err, rs, fromWhere = 'mam') => {
-    if (err) {
-      return cb && cb(err);
-    }
-    // fromWhere说明是哪里来的数据，如果是mam的那么所属部门的字段为detail里边的FIELD314
-
-    if (rs.status !== '0') {
-      return cb && cb(rs.result);
-    }
-
-    let ownerName = '';
-
-    if (fromWhere === 'mam') {
-      if (rs.result && rs.result.detail && rs.result.detail.program && rs.result.detail.program.FIELD314 && rs.result.detail.program.FIELD314.value) {
-        ownerName = rs.result.detail.program.FIELD314.value;
-      }
-    }
-
-    if (!ownerName) {
+  const loopGetObject = function loopGetObject(index) {
+    if (index >= objectid.length) {
       return cb && cb(null, true);
     }
 
-    const userInfo = info.userInfo;
-    const id = info.templateId || '';
-    info.ownerName = ownerName;
-
-    templateService.getDetail(id, (err, doc) => {
+    mediaService.getObject({objectid: objectid[index]}, (err, rs, fromWhere = 'mam') => {
       if (err) {
         return cb && cb(err);
       }
+      // fromWhere说明是哪里来的数据，如果是mam的那么所属部门的字段为detail里边的FIELD314
 
-      if (!doc) {
-        return cb && cb(i18n.t('templateIsNotExist'));
+      if (rs.status !== '0') {
+        return cb && cb(rs.result);
       }
 
-      if (!doc.details || !doc.details.bucketId) {
-        return cb && cb(i18n.t('templateBucketIdIsNotExist'));
+      let ownerName = '';
+
+      if (fromWhere === 'mam') {
+        if (rs.result && rs.result.detail && rs.result.detail.program && rs.result.detail.program.FIELD314 && rs.result.detail.program.FIELD314.value) {
+          ownerName = rs.result.detail.program.FIELD314.value;
+        }
       }
 
-      if (!doc.downloadAudit) {
-        return cb && cb(null, true);
+      if (!ownerName) {
+        loopGetObject(index + 1);
+        return;
       }
 
-      auditRuleInfo.collection.findOne({ ownerName }, (err, doc) => {
+      const userInfo = info.userInfo;
+      const id = info.templateId || '';
+      info.ownerName = ownerName;
+
+      templateService.getDetail(id, (err, doc) => {
         if (err) {
-          logger.error(err.message);
-          return cb && cb(i18n.t('databaseError'));
+          return cb && cb(err);
         }
 
         if (!doc) {
-          return cb && cb(null, true);
+          return cb && cb(i18n.t('templateIsNotExist'));
         }
 
-        if (doc.permissionType === AuditRuleInfo.PERMISSTION_TYPE.PUBLIC) {
-          return cb && cb(null, true);
+        if (!doc.details || !doc.details.bucketId) {
+          return cb && cb(i18n.t('templateBucketIdIsNotExist'));
         }
 
-        const whiteList = doc.whiteList || [];
-        for (let i = 0, len = whiteList.length; i < len; i++) {
-          const _id = whiteList[i]._id;
-          if (_id === userInfo._id || _id === userInfo.company._id || _id === userInfo.department._id) {
-            return cb && cb(null, true);
-          }
+        if (!doc.downloadAudit) {
+          loopGetObject(index + 1);
+          return;
         }
 
-        const insertInfo = {
-          name: info.filename,
-          description: '',
-          detail: info,
-          applicant: {
-            _id: userInfo._id,
-            name: userInfo.name,
-            companyId: userInfo.company._id,
-            companyName: userInfo.company.name,
-            departmentName: userInfo.department.name,
-            departmentId: userInfo.department._id,
-          },
-          ownerDepartment: doc.auditDepartment,
-        };
-        insertInfo.createTime = new Date();
-        insertInfo.lastModify = new Date();
-        insertInfo.status = AuditInfo.STATUS.WAITING;
-        insertInfo.type = AuditInfo.TYPE.DOWNLOAD;
-
-        auditInfo.insertOne(insertInfo, (err) => {
+        auditRuleInfo.collection.findOne({ownerName}, (err, doc) => {
           if (err) {
             logger.error(err.message);
             return cb && cb(i18n.t('databaseError'));
           }
 
-          return cb && cb(null, false);
+          if (!doc) {
+            return cb && cb(null, true);
+          }
+
+          if (doc.permissionType === AuditRuleInfo.PERMISSTION_TYPE.PUBLIC) {
+            loopGetObject(index + 1);
+            return;
+          }
+
+          const whiteList = doc.whiteList || [];
+          for (let i = 0, len = whiteList.length; i < len; i++) {
+            const _id = whiteList[i]._id;
+            if (_id === userInfo._id || _id === userInfo.company._id || _id === userInfo.department._id) {
+              loopGetObject(index + 1);
+              return;
+            }
+          }
+
+          const insertInfo = {
+            name: info.filename,
+            description: '',
+            detail: info,
+            applicant: {
+              _id: userInfo._id,
+              name: userInfo.name,
+              companyId: userInfo.company._id,
+              companyName: userInfo.company.name,
+              departmentName: userInfo.department.name,
+              departmentId: userInfo.department._id,
+            },
+            ownerDepartment: doc.auditDepartment,
+          };
+          insertInfo.createTime = new Date();
+          insertInfo.lastModify = new Date();
+          insertInfo.status = AuditInfo.STATUS.WAITING;
+          insertInfo.type = AuditInfo.TYPE.DOWNLOAD;
+
+          auditInfo.insertOne(insertInfo, (err) => {
+            if (err) {
+              logger.error(err.message);
+              return cb && cb(i18n.t('databaseError'));
+            }
+
+            return cb && cb(null, false);
+          });
         });
       });
     });
-  });
+  }
+
+  loopGetObject(0);
 };
 
 service.jugeDownload = function jugeDownload(info, cb) {
+  const isMultiDownload = info.isMultiDownload || false;
   service.jugeTemplateAuditAndCreateAudit(info, (err, needDownload) => {
     if (err) {
       return cb && cb(err);
@@ -345,7 +423,124 @@ service.jugeDownload = function jugeDownload(info, cb) {
     if (!needDownload) {
       return cb && cb(null, 'audit');
     }
-    service.download(info, cb);
+    if (isMultiDownload) {
+      service.multiDownload(info, cb);
+    } else {
+      service.download(info, cb);
+    }
+  });
+};
+
+service.multiDownload = function multiDownload(info, cb) {
+  const struct = {
+    templateId: { type: 'string', validation: 'require' },
+    fromWhere: { type: 'string', validation: 'require' },
+    fileInfo: { type: 'array', validation: 'require' },
+  };
+  const err = utils.validation(info, struct);
+  if (err) {
+    return cb && cb(err);
+  }
+
+  const userInfo = info.userInfo;
+  const downloadParams = info.downloadParams || '';
+  const fromWhere = info.fromWhere;
+  const fileInfo = info.fileInfo;
+  const downloadTemplateId = info.templateId;
+  const receiverId = info.receiverId || '';
+  const receiverType = info.receiverType || '';
+  const transferMode = info.transferMode || 'direct';
+
+  const params = {
+    bucketId: '',
+    templateId: '',
+    userId: userInfo._id,
+    userName: userInfo.name,
+    source: fromWhere,
+    multiFileInfos: {},
+  };
+
+  params.multiFileInfos = JSON.stringify({ fileInfo });
+
+  templateService.getDownloadPath(userInfo, downloadTemplateId, (err, rs) => {
+    if (err) {
+      return cb && cb(err);
+    }
+
+    const destination = rs.downloadPath;
+    const subtitleType = rs.templateInfo.subtitleType;
+    let subtitleParams = '';
+    if (utils.getValueType(downloadParams) === 'array') {
+      for (let i = 0, len = downloadParams.length; i < len; i++) {
+        downloadParams[i].destination = destination;
+      }
+      params.multiDownloadParams = JSON.stringify({ downloadParams });
+    }
+
+    if (rs.templateInfo && rs.templateInfo.details && rs.templateInfo.details.bucketId) {
+      params.bucketId = rs.templateInfo.details.bucketId;
+    }
+
+    // 需要进行使用转码模板
+    if (rs.templateInfo && rs.templateInfo.transcodeTemplateDetail && rs.templateInfo.transcodeTemplateDetail.transcodeTemplates &&
+        rs.templateInfo.transcodeTemplateDetail.transcodeTemplates.length > 0 && rs.templateInfo.transcodeTemplateDetail.transcodeTemplateSelector) {
+      // 获取符合条件的转码模板ID
+      templateService.getTranscodeTemplate(downloadTemplateId, info.filename || '', (err, transcodeTemplateId) => {
+        if (err) {
+          return cb && cb(err);
+        }
+
+        params.templateId = transcodeTemplateId;
+
+        // 只有需要转码的才需要传字幕合成方式参数
+        if (subtitleType && subtitleType.length > 0 && transcodeTemplateId) {
+          subtitleParams = {};
+          subtitleParams.subtitleTypes = subtitleType;
+          params.subtitleParams = JSON.stringify(subtitleParams);
+        }
+
+        // 需要使用快传进行传输
+        if (rs.templateInfo.type === TemplateInfo.TYPE.DOWNLOAD_MEDIAEXPRESS && receiverId && receiverType) {
+          multiTranscodeAndTransfer(params, userInfo, receiverId, receiverType, transferMode, (err) => {
+            if (err) {
+              return cb && cb(err);
+            }
+
+            return cb && cb(null, 'ok');
+          });
+          return false;
+        }
+        // 调用下载接口
+        multiDownloadRequest(params, (err) => {
+          if (err) {
+            return cb && cb(err);
+          }
+          return cb && cb(null, 'ok');
+        });
+        return false;
+      });
+      return false;
+    }
+
+    // 需要使用快传进行传转
+    if (rs.templateInfo.type === TemplateInfo.TYPE.DOWNLOAD_MEDIAEXPRESS && receiverId && receiverType) {
+      multiTranscodeAndTransfer(params, userInfo, receiverId, receiverType, transferMode, (err) => {
+        if (err) {
+          return cb && cb(err);
+        }
+
+        return cb && cb(null, 'ok');
+      });
+      return false;
+    }
+    // 调用下载接口
+    multiDownloadRequest(params, (err) => {
+      if (err) {
+        return cb && cb(err);
+      }
+      return cb && cb(null, 'ok');
+    });
+    return false;
   });
 };
 
@@ -360,8 +555,7 @@ service.download = function download(info, cb) {
   const receiverId = info.receiverId;
   const receiverType = info.receiverType;
   const transferMode = info.transferMode || 'direct';
-  let source = info.fromWhere || CatalogInfo.FROM_WHERE.HK;
-  source *= 1;
+  const source = info.fromWhere || CatalogInfo.FROM_WHERE.MAM;
   const downloadParams = { objectid, inpoint: inpoint * 1, outpoint: outpoint * 1, filename, filetypeid, templateId };
   if (!downloadParams) {
     return cb && cb(i18n.t('joDownloadParamsIsNull'));
@@ -380,7 +574,7 @@ service.download = function download(info, cb) {
     fileId: '',      //如果来源是ump,需要文件Id
   }, downloadParams);
 
-  if (!params.objectid && source !== CatalogInfo.FROM_WHERE.UMP) {
+  if (!params.objectid && (source === CatalogInfo.FROM_WHERE.MAM || source === CatalogInfo.FROM_WHERE.DAYANG)) {
     return cb && cb(i18n.t('joDownloadParamsObjectIdIsNull'));
   }
 
@@ -397,7 +591,7 @@ service.download = function download(info, cb) {
     return cb && cb(i18n.t('joDownloadParamsFileNameIsNull'));
   }
 
-  if (!params.filetypeid && source !== CatalogInfo.FROM_WHERE.UMP) {
+  if (!params.filetypeid && (source === CatalogInfo.FROM_WHERE.MAM || source === CatalogInfo.FROM_WHERE.DAYANG)) {
     return cb && cb(i18n.t('joDownloadParamsFileTypeIdIsNull'));
   }
 
@@ -419,7 +613,7 @@ service.download = function download(info, cb) {
 
     // 需要进行使用转码模板
     if (rs.templateInfo && rs.templateInfo.transcodeTemplateDetail && rs.templateInfo.transcodeTemplateDetail.transcodeTemplates &&
-      rs.templateInfo.transcodeTemplateDetail.transcodeTemplates.length > 0 && rs.templateInfo.transcodeTemplateDetail.transcodeTemplateSelector) {
+        rs.templateInfo.transcodeTemplateDetail.transcodeTemplates.length > 0 && rs.templateInfo.transcodeTemplateDetail.transcodeTemplateSelector) {
       // 获取符合条件的转码模板ID
       templateService.getTranscodeTemplate(downloadTemplateId, params.filename, (err, transcodeTemplateId) => {
         if (err) {
@@ -443,7 +637,7 @@ service.download = function download(info, cb) {
           });
           return false;
         }
-          // 调用下载接口
+        // 调用下载接口
         downloadRequest(rs.templateInfo.details.bucketId, transcodeTemplateId, '', params, userInfo._id, userInfo.name, subtitleParams, (err) => {
           if (err) {
             return cb && cb(err);
@@ -466,7 +660,7 @@ service.download = function download(info, cb) {
       });
       return false;
     }
-      // 调用下载接口
+    // 调用下载接口
     downloadRequest(rs.templateInfo.details.bucketId, '', '', params, userInfo._id, userInfo.name, subtitleParams, (err) => {
       if (err) {
         return cb && cb(err);
@@ -654,20 +848,10 @@ service.delete = function del(deleteParams, res) {
 
   const params = utils.merge({
     jobId: '',
+    userId: ''
   }, deleteParams);
 
-  // 如果传入userId, 则检查任务的userId与之是否相等，相等则有权限操作
-  if (deleteParams.userId) {
-    checkOwner(deleteParams.jobId, deleteParams.userId, (err) => {
-      if (err) {
-        return res.end(err);
-      }
-
-      request.get('/JobService/stop', params, res);
-    });
-  } else {
-    request.get('/JobService/delete', params, res);
-  }
+  request.get('/JobService/delete', params, res);
 };
 
 service.deleteTemplate = function del(deleteParams, res) {
