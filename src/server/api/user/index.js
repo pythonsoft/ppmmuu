@@ -688,7 +688,6 @@ router.get('/listJob', (req, res) => {
   jobService.list({ page: page * 1, pageSize: pageSize * 1, status, currentStep, userId }, res);
 });
 
-
 /* downloadTask */
 /**
  * @apiName: listMyAuditJob
