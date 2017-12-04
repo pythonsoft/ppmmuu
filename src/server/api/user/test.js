@@ -1,38 +1,41 @@
-/**
- * Created by steven on 17/5/8.
- */
-
 'use strict';
 
-/* eslint-disable */
-const should = require('should');
-const assert = require('assert');
-/* eslint-enable */
-const request = require('supertest');
-const config = require('../../config');
+// const config = require('../../config');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
+const app = require('../../app');
 
-describe('user', () => {
-  const url = config.domain;
+chai.use(chaiHttp);
+const expect = chai.expect;
+const agent = chai.request.agent(app);
 
-  before((done) => {
-    done();
-  });
-
-  describe('#login', () => {
-    it('/user/login', (done) => {
-      request(url)
+setTimeout(() => {
+  describe('/user', () => {
+    describe('POST /login', () => {
+      it('should login', (done) => {
+        agent
         .post('/user/login')
         .send({ username: 'xuyawen', password: '123123' })
-        .expect('Content-Type', /json/)
-        .expect(200) // Status code
         .end((err, res) => {
-          if (err) {
-            throw err;
-          }
-          // Should.js fluent syntax applied
-          res.body.status.should.equal('0');
+          expect(res).to.have.status(200);
+          expect(res.body.status).to.equal('0');
           done();
         });
+      });
+    });
+
+    describe('GET /getSearchHistory', () => {
+      it('should get search history', (done) => {
+        agent
+        .get('/user/getSearchHistory')
+        .end((err, res) => {
+          expect(res).to.have.status(200);
+          expect(res.body.status).to.equal('0');
+          done();
+        });
+      });
     });
   });
-});
+
+  run();
+}, 4000);
