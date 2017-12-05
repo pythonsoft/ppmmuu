@@ -146,6 +146,9 @@ service.getEsMediaList = function getEsMediaList(info, cb) {
       match: [{
         key: 'program_type',
         value: category,
+      },{
+        key: 'publish_status',
+        value: 1
       }],
       source: ES_FILTER_FIELDS,
       sort: [{
