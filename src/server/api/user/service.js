@@ -439,6 +439,11 @@ service.adAccountSync = function adAccountSync(info, cb) {
     if (err) {
       return cb && cb(err);
     }
+
+    if(!doc.company) {
+      doc.company = { _id: '', name: '' };
+    }
+
     doc.company._id = r._id;
     doc.company.name = r.name;
 
@@ -455,6 +460,11 @@ service.adAccountSync = function adAccountSync(info, cb) {
         return cb && cb(err);
       }
       if (dept) {
+
+        if(!doc.department) {
+          doc.department = { _id: '', name: '' };
+        }
+
         doc.department._id = dept._id;
         doc.department.name = dept.name;
       }
