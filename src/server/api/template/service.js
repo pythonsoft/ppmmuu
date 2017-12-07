@@ -34,7 +34,7 @@ const insertGroup = function insertGroup(info, cb) {
       return cb && cb(i18n.t('databaseError'));
     }
 
-    return cb && cb(null, r);
+    return cb && cb(null, r.insertedId);
   });
 };
 

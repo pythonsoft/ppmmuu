@@ -139,6 +139,7 @@ service.getSubscribeInfo = function getSubscribeInfo(info, cb) {
     return cb & cb(i18n.t('subscribeInfoShortId'));
   }
 
+  console.log('_id====>', _id);
   subscribeInfo.collection.findOne({ _id }, (err, doc) => {
     if (err) {
       logger.error(err.message);
@@ -291,12 +292,12 @@ service.createSubscribeType = function createSubscribeType(req, cb) {
     name: userInfo.name,
   };
 
-  subscribeType.insertOne(info, (err) => {
+  subscribeType.insertOne(info, (err, r) => {
     if (err) {
       return cb && cb(err);
     }
 
-    return cb && cb(null, 'ok');
+    return cb && cb(null, r.ops[0]._id);
   });
 };
 

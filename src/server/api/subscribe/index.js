@@ -216,40 +216,6 @@ router.get('/getSubscribeSearchConfig', (req, res) => {
 });
 
 /**
- * @apiName: getSubscribeSearchConfig
- * @apiFuncType: get
- * @apiFuncUrl: /subscribe/getSubscribeSearchConfig
- * @swagger
- * /subscribe/getSubscribeSearchConfig:
- *   get:
- *     description: 订阅搜索配置项
- *     version: 1.0.0
- *     tags:
- *       - v1
- *       - Search
- *     produces:
- *       - application/json
- *     responses:
- *       200:
- *         schema:
- *           type: object
- *           properties:
- *            status:
- *              type: string
- *            data:
- *              type: object
- *            statusInfo:
- *              type: object
- *              properties:
- *                message:
- *                  type: string
- *
- */
-router.get('/getSubscribeSearchConfig', (req, res) => {
-  service.getSubscribeSearchConfig(req, (err, doc) => res.json(result.json(err, doc)));
-});
-
-/**
  * @apiName: getVideoInfo
  * @apiFuncType: get
  * @apiFuncUrl: /subscribe/getVideoInfo

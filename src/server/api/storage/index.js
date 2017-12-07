@@ -163,8 +163,8 @@ router.get('/getBucketDetail', (req, res) => {
  */
 router.post('/addBucket', (req, res) => {
   req.body.creator = { _id: req.ex.userInfo._id, name: req.ex.userInfo.name };
-  service.addBucket(req.body, (err) => {
-    res.json(result.json(err, {}));
+  service.addBucket(req.body, (err, r) => {
+    res.json(result.json(err, r));
   });
 });
 
@@ -459,12 +459,16 @@ router.get('/getPathDetail', (req, res) => {
  *           type: object
  *           required:
  *             - id
+ *             - viceId
  *             - name
  *             - path
  *             - type
  *             - maxSize
  *           properties:
  *             id:
+ *               type: string
+ *               example: ''
+ *             viceId:
  *               type: string
  *               example: ''
  *             name:
@@ -499,8 +503,8 @@ router.get('/getPathDetail', (req, res) => {
 router.post('/addPath', (req, res) => {
   const bucketId = req.body.bucket._id || '';
   req.body.creator = { _id: req.ex.userInfo._id, name: req.ex.userInfo.name };
-  service.addPath(bucketId, req.body, (err) => {
-    res.json(result.json(err, {}));
+  service.addPath(bucketId, req.body, (err, r) => {
+    res.json(result.json(err, r));
   });
 });
 
@@ -840,8 +844,8 @@ router.get('/getTacticsDetail', (req, res) => {
  */
 router.post('/addTactics', (req, res) => {
   req.body.creator = { _id: req.ex.userInfo._id, name: req.ex.userInfo.name };
-  service.addTactics(req.body, (err) => {
-    res.json(result.json(err, {}));
+  service.addTactics(req.body, (err, r) => {
+    res.json(result.json(err, r));
   });
 });
 

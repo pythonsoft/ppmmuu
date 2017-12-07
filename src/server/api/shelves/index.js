@@ -655,7 +655,7 @@ router.get('/listLineShelfTask', (req, res) => {
  *           required:
  *             - _ids
  *           properties:
- *             _id:
+ *             _ids:
  *               type: string
  *               description: ''
  *               example: "aa"
@@ -704,7 +704,7 @@ router.post('/onlineShelfTask', (req, res) => {
  *           required:
  *             - _ids
  *           properties:
- *             _id:
+ *             _ids:
  *               type: string
  *               description: ''
  *               example: "aa"
@@ -751,7 +751,7 @@ router.post('/offlineShelfTask', (req, res) => {
  *         schema:
  *           type: object
  *           required:
- *             - _ids
+ *             - _id
  *           properties:
  *             _id:
  *               type: string

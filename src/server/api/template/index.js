@@ -72,7 +72,7 @@ router.post('/addGroup', (req, res) => {
     _id,
   };
 
-  service.addGroup(info, err => res.json(result.json(err, 'ok')));
+  service.addGroup(info, (err, r) => res.json(result.json(err, r)));
 });
 
 /**
@@ -555,10 +555,10 @@ router.get('/search/userOrGroup', (req, res) => {
  *         schema:
  *          type: object
  *          required:
- *            - id
+ *            - _id
  *            - users
  *          parameters:
- *            id:
+ *            _id:
  *              type: string
  *              example: ''
  *            users:
