@@ -192,20 +192,20 @@ login.hasSubscribeMiddleware = function hasSubscribeMiddleware(req, res, next) {
   subscribeInfo.collection.findOne({ _id: companyId }, (err, doc) => {
     if (err) {
       logger.error(err.message);
-      return res.json(i18n.t('databaseError'));
+      return res.json(result.fail(i18n.t('databaseError')));
     }
 
     if (!doc) {
-      return res.json(i18n.t('companyHasNoSubscribeInfo'));
+      return res.json(result.fail(i18n.t('companyHasNoSubscribeInfo')));
     }
 
     doc = SubscribeInfo.getStatus(doc);
     if (doc.status === SubscribeInfo.STATUS.UNUSED) {
-      return res.json(i18n.t('companySubscribeInfoUnused'));
+      return res.json(result.fail(i18n.t('companySubscribeInfoUnused')));
     }
 
     if (doc.status === SubscribeInfo.STATUS.EXPIRED) {
-      return res.json(i18n.t('companySubscribeInfoExpired'));
+      return res.json(result.fail(i18n.t('companySubscribeInfoExpired')));
     }
 
     next();

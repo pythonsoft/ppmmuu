@@ -4,24 +4,26 @@
 
 'use strict';
 
-/* eslint-disable */
+const chai = require('chai');
+const chaiHttp = require('chai-http');
+const app = require('../../app');
 const should = require('should');
-const assert = require('assert');
-/* eslint-enable */
-const request = require('supertest');
+
+chai.use(chaiHttp);
+const expect = chai.expect;
+const agent = chai.request.agent(app);
 const config = require('../../config');
 const mongodb = require('mongodb');
+const uuid = require('uuid');
 
 describe('role', () => {
-  const url = config.domain;
-  let userCookie = '';
   let userIds = '';
   let adminRoleId = '';
   let userInfo = '';
   let roleInfo = '';
 
   before((done) => {
-    mongodb.MongoClient.connect(config.mongodb.umpURL, (err, db) => {
+    mongodb.MongoClient.connect('mongodb://10.0.15.62:27017/ump_test', (err, db) => {
       if (err) {
         console.log(err);
         done();
@@ -40,7 +42,7 @@ describe('role', () => {
             console.log(err);
             done();
           }
-          adminRoleId = doc._id;
+          adminRoleId = doc ? doc._id : '';
           done();
         });
       });
@@ -49,30 +51,25 @@ describe('role', () => {
 
   describe('#login', () => {
     it('/user/login', (done) => {
-      request(url)
-        .post('/user/login')
-        .send({ username: 'xuyawen', password: '123123' })
-        .expect('Content-Type', /json/)
-        .expect(200) // Status code
-        .end((err, res) => {
-          if (err) {
-            throw err;
-          }
-          // Should.js fluent syntax applied
-          res.body.status.should.equal('0');
-          userCookie = res.headers['set-cookie'];
-          done();
-        });
+      agent
+          .post('/user/login')
+          .send({ username: 'xuyawen', password: '123123' })
+          .end((err, res) => {
+            if (err) {
+              throw err;
+            }
+            // Should.js fluent syntax applied
+            res.body.status.should.equal('0');
+            done();
+          });
     });
   });
 
+
   describe('#list', () => {
     it('/role/list', (done) => {
-      request(url)
+      agent
         .get('/role/list')
-        .set('Cookie', userCookie)
-        .expect('Content-Type', /json/)
-        .expect(200) // Status code
         .end((err, res) => {
           if (err) {
             throw err;
@@ -87,13 +84,9 @@ describe('role', () => {
   let _roleId = '';
   describe('#add', () => {
     it('/role/add', (done) => {
-      request(url)
+      agent
         .post('/role/add')
-        .set('Cookie', userCookie)
-        .set('Content-Type', 'application/json;charset=utf-8')
         .send({ name: 'test', allowedPermissions: ['/role/list'], _id: 'test' })
-        .expect('Content-Type', /json/)
-        .expect(200) // Status code
         .end((err, res) => {
           if (err) {
             throw err;
@@ -115,13 +108,9 @@ describe('role', () => {
 
   describe('#getDetail', () => {
     it('/role/getDetail', (done) => {
-      request(url)
+      agent
         .get('/role/getDetail')
-        .set('Cookie', userCookie)
-        .set('Content-Type', 'application/json;charset=utf-8')
         .query({ _id: _roleId })
-        .expect('Content-Type', /json/)
-        .expect(200) // Status code
         .end((err, res) => {
           if (err) {
             throw err;
@@ -135,13 +124,9 @@ describe('role', () => {
 
   describe('#update', () => {
     it('/role/update', (done) => {
-      request(url)
+      agent
         .post('/role/update')
-        .set('Cookie', userCookie)
-        .set('Content-Type', 'application/json;charset=utf-8')
         .send({ _id: _roleId, name: 'test' })
-        .expect('Content-Type', /json/)
-        .expect(200) // Status code
         .end((err, res) => {
           if (err) {
             throw err;
@@ -155,13 +140,9 @@ describe('role', () => {
 
   describe('#delete', () => {
     it('/role/delete', (done) => {
-      request(url)
+      agent
         .post('/role/delete')
-        .set('Cookie', userCookie)
-        .set('Content-Type', 'application/json;charset=utf-8')
         .send({ _ids: _roleId })
-        .expect('Content-Type', /json/)
-        .expect(200) // Status code
         .end((err, res) => {
           if (err) {
             throw err;
@@ -175,12 +156,8 @@ describe('role', () => {
 
   describe('#listPermission', () => {
     it('/role/listPermission', (done) => {
-      request(url)
+      agent
         .get('/role/listPermission')
-        .set('Cookie', userCookie)
-        .set('Content-Type', 'application/json;charset=utf-8')
-        .expect('Content-Type', /json/)
-        .expect(200) // Status code
         .end((err, res) => {
           if (err) {
             throw err;
@@ -194,13 +171,9 @@ describe('role', () => {
 
   describe('#assignRole', () => {
     it('/role/assignRole', (done) => {
-      request(url)
+      agent
         .post('/role/assignRole')
-        .set('Cookie', userCookie)
-        .set('Content-Type', 'application/json;charset=utf-8')
         .send({ _id: userIds, roles: adminRoleId, type: '3' })
-        .expect('Content-Type', /json/)
-        .expect(200) // Status code
         .end((err, res) => {
           if (err) {
             throw err;
@@ -212,14 +185,23 @@ describe('role', () => {
     });
   });
 
+  describe('#login', () => {
+    it('/user/login', (done) => {
+      agent
+          .post('/user/login')
+          .send({ username: 'xuyawen', password: '123123' })
+          .end((err, res) => {
+            expect(res).to.have.header('set-cookie');
+            done();
+          });
+    });
+  });
+
   describe('#getRoleOwners', () => {
     it('/role/getRoleOwners', (done) => {
-      request(url)
+      agent
         .get('/role/getRoleOwners')
-        .set('Cookie', userCookie)
         .query({ _id: adminRoleId })
-        .expect('Content-Type', /json/)
-        .expect(200) // Status code
         .end((err, res) => {
           if (err) {
             throw err;
@@ -232,14 +214,10 @@ describe('role', () => {
   });
 
   describe('#deleteOwnerRole', () => {
-    it('/role/delete', (done) => {
-      request(url)
+    it('/role/deleteOwnerRole', (done) => {
+      agent
         .post('/role/deleteOwnerRole')
-        .set('Cookie', userCookie)
-        .set('Content-Type', 'application/json;charset=utf-8')
         .send({ _id: userIds, roles: 'guest' })
-        .expect('Content-Type', /json/)
-        .expect(200) // Status code
         .end((err, res) => {
           if (err) {
             throw err;
@@ -251,12 +229,22 @@ describe('role', () => {
     });
   });
 
+  describe('#login', () => {
+    it('/user/login', (done) => {
+      agent
+          .post('/user/login')
+          .send({ username: 'xuyawen', password: '123123' })
+          .end((err, res) => {
+            expect(res).to.have.header('set-cookie');
+            done();
+          });
+    });
+  });
+
   describe('#updateRoleAddPermission', () => {
     it('/role/updateRoleAddPermission', (done) => {
-      request(url)
+      agent
         .post('/role/updateRoleAddPermission')
-        .set('Cookie', userCookie)
-        .set('Content-Type', 'application/json;charset=utf-8')
         .send({ _id: adminRoleId,
           allowedPermissions: [
             '/role/list',
@@ -268,8 +256,6 @@ describe('role', () => {
             '/role/update',
           ],
         })
-        .expect('Content-Type', /json/)
-        .expect(200) // Status code
         .end((err, res) => {
           if (err) {
             throw err;
@@ -281,13 +267,23 @@ describe('role', () => {
     });
   });
 
+  describe('#login', () => {
+    it('/user/login', (done) => {
+      agent
+          .post('/user/login')
+          .send({ username: 'xuyawen', password: '123123' })
+          .end((err, res) => {
+            expect(res).to.have.header('set-cookie');
+            done();
+          });
+    });
+  });
+
 
   describe('#updateRoleDeletePermission', () => {
     it('/role/updateRoleDeletePermission', (done) => {
-      request(url)
+      agent
         .post('/role/updateRoleDeletePermission')
-        .set('Cookie', userCookie)
-        .set('Content-Type', 'application/json;charset=utf-8')
         .send({ _id: adminRoleId,
           allowedPermissions: [
             '/role/list',
@@ -298,8 +294,6 @@ describe('role', () => {
             '/role/update',
           ],
         })
-        .expect('Content-Type', /json/)
-        .expect(200) // Status code
         .end((err, res) => {
           if (err) {
             throw err;
@@ -308,6 +302,81 @@ describe('role', () => {
           res.body.status.should.equal('0');
           done();
         });
+    });
+  });
+
+  describe('#login', () => {
+    it('/user/login', (done) => {
+      agent
+          .post('/user/login')
+          .send({ username: 'xuyawen', password: '123123' })
+          .end((err, res) => {
+            expect(res).to.have.header('set-cookie');
+            done();
+          });
+    });
+  });
+
+  describe('#enablePermission', () => {
+    it('/role/enablePermission', (done) => {
+      agent
+          .post('/role/enablePermission')
+          .send({
+            paths: '/role/list,/role/update',
+            status: '0',
+          })
+          .end((err, res) => {
+            if (err) {
+              throw err;
+            }
+            // Should.js fluent syntax applied
+            res.body.status.should.equal('0');
+            done();
+          });
+    });
+  });
+
+  describe('#login', () => {
+    it('/user/login', (done) => {
+      agent
+          .post('/user/login')
+          .send({ username: 'xuyawen', password: '123123' })
+          .end((err, res) => {
+            expect(res).to.have.header('set-cookie');
+            done();
+          });
+    });
+  });
+
+
+  describe('#userOrGroup', () => {
+    it('/role/search/userOrGroup', (done) => {
+      agent
+          .get('/role/search/userOrGroup')
+          .query({ type: '0', keyword: 'x' })
+          .end((err, res) => {
+            if (err) {
+              throw err;
+            }
+            // Should.js fluent syntax applied
+            res.body.status.should.equal('0');
+            done();
+          });
+    });
+  });
+
+  describe('#listPermissionGroup', () => {
+    it('/role/listPermissionGroup', (done) => {
+      agent
+          .get('/role/listPermissionGroup')
+          .end((err, res) => {
+            if (err) {
+              throw err;
+            }
+            // Should.js fluent syntax applied
+            res.body.status.should.equal('0');
+            done();
+          });
     });
   });
 });

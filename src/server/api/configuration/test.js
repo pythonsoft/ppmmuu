@@ -4,22 +4,26 @@
 
 'use strict';
 
-/* eslint-disable */
+const chai = require('chai');
+const chaiHttp = require('chai-http');
+const app = require('../../app');
 const should = require('should');
-const assert = require('assert');
-/* eslint-enable */
-const request = require('supertest');
+
+chai.use(chaiHttp);
+const expect = chai.expect;
+const agent = chai.request.agent(app);
 const config = require('../../config');
 const mongodb = require('mongodb');
+const uuid = require('uuid');
 
 describe('configuration', () => {
   const url = config.domain;
-  let userCookie = '';
+  const userCookie = '';
   let configurationInfo = '';
   let configurationGroupInfo = '';
 
   before((done) => {
-    mongodb.MongoClient.connect(config.mongodb.umpURL, (err, db) => {
+    mongodb.MongoClient.connect('mongodb://10.0.15.62:27017/ump_test', (err, db) => {
       if (err) {
         console.log(err);
         done();
@@ -32,30 +36,24 @@ describe('configuration', () => {
 
   describe('#login', () => {
     it('/user/login', (done) => {
-      request(url)
-        .post('/user/login')
-        .send({ username: 'xuyawen', password: '123123' })
-        .expect('Content-Type', /json/)
-        .expect(200) // Status code
-        .end((err, res) => {
-          if (err) {
-            throw err;
-          }
-          // Should.js fluent syntax applied
-          res.body.status.should.equal('0');
-          userCookie = res.headers['set-cookie'];
-          done();
-        });
+      agent
+          .post('/user/login')
+          .send({ username: 'xuyawen', password: '123123' })
+          .end((err, res) => {
+            if (err) {
+              throw err;
+            }
+            // Should.js fluent syntax applied
+            res.body.status.should.equal('0');
+            done();
+          });
     });
   });
 
   describe('#list', () => {
     it('/configuration/list', (done) => {
-      request(url)
+      agent
         .get('/configuration/list')
-        .set('Cookie', userCookie)
-        .expect('Content-Type', /json/)
-        .expect(200) // Status code
         .end((err, res) => {
           if (err) {
             throw err;
@@ -70,18 +68,14 @@ describe('configuration', () => {
   let _id = '';
   describe('#add', () => {
     it('/configuration/add', (done) => {
-      request(url)
+      agent
         .post('/configuration/add')
-        .set('Cookie', userCookie)
-        .set('Content-Type', 'application/json;charset=utf-8')
         .send({
-          key: 'testKey',
+          key: 'testKeytest',
           value: 'testValue',
           genre: 'testGenre',
           description: 'A simple description',
         })
-        .expect('Content-Type', /json/)
-        .expect(200) // Status code
         .end((err, res) => {
           if (err) {
             throw err;
@@ -89,7 +83,7 @@ describe('configuration', () => {
           // Should.js fluent syntax applied
 
           res.body.status.should.equal('0');
-          configurationInfo.findOne({ key: 'testKey' }, (err, doc) => {
+          configurationInfo.findOne({ key: 'testKeytest' }, (err, doc) => {
             if (err) {
               console.log(err);
               done();
@@ -103,19 +97,15 @@ describe('configuration', () => {
 
   describe('#update', () => {
     it('/configuration/update', (done) => {
-      request(url)
+      agent
         .post('/configuration/update')
-        .set('Cookie', userCookie)
-        .set('Content-Type', 'application/json;charset=utf-8')
         .send({
           _id,
-          key: 'testKey',
+          key: 'testKeytest',
           value: 'testValue',
           genre: 'testGenre',
           description: 'A simple description',
         })
-        .expect('Content-Type', /json/)
-        .expect(200) // Status code
         .end((err, res) => {
           if (err) {
             throw err;
@@ -130,15 +120,11 @@ describe('configuration', () => {
 
   describe('#delete', () => {
     it('/configuration/delete', (done) => {
-      request(url)
+      agent
         .post('/configuration/delete')
-        .set('Cookie', userCookie)
-        .set('Content-Type', 'application/json;charset=utf-8')
         .send({
           _id,
         })
-        .expect('Content-Type', /json/)
-        .expect(200) // Status code
         .end((err, res) => {
           if (err) {
             throw err;
@@ -154,16 +140,12 @@ describe('configuration', () => {
   let groupId = '';
   describe('#addGroup', () => {
     it('/configuration/addGroup', (done) => {
-      request(url)
+      agent
         .post('/configuration/addGroup')
-        .set('Cookie', userCookie)
-        .set('Content-Type', 'application/json;charset=utf-8')
         .send({
           name: 'testGroup',
           parent: '',
         })
-        .expect('Content-Type', /json/)
-        .expect(200) // Status code
         .end((err, res) => {
           if (err) {
             throw err;
@@ -185,11 +167,8 @@ describe('configuration', () => {
 
   describe('#listGroup', () => {
     it('/configuration/listGroup', (done) => {
-      request(url)
+      agent
         .get('/configuration/listGroup')
-        .set('Cookie', userCookie)
-        .expect('Content-Type', /json/)
-        .expect(200) // Status code
         .end((err, res) => {
           if (err) {
             throw err;
@@ -203,16 +182,12 @@ describe('configuration', () => {
 
   describe('#updateGroup', () => {
     it('/configuration/updateGroup', (done) => {
-      request(url)
+      agent
         .post('/configuration/updateGroup')
-        .set('Cookie', userCookie)
-        .set('Content-Type', 'application/json;charset=utf-8')
         .send({
           _id: groupId,
           name: 'testGroup1',
         })
-        .expect('Content-Type', /json/)
-        .expect(200) // Status code
         .end((err, res) => {
           if (err) {
             throw err;
@@ -226,15 +201,11 @@ describe('configuration', () => {
 
   describe('#deleteGroup', () => {
     it('/configuration/deleteGroup', (done) => {
-      request(url)
+      agent
         .post('/configuration/deleteGroup')
-        .set('Cookie', userCookie)
-        .set('Content-Type', 'application/json;charset=utf-8')
         .send({
           _id: groupId,
         })
-        .expect('Content-Type', /json/)
-        .expect(200) // Status code
         .end((err, res) => {
           if (err) {
             throw err;

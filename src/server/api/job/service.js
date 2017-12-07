@@ -311,7 +311,7 @@ service.jugeTemplateAuditAndCreateAudit = function jugeTemplateAuditAndCreateAud
       return cb && cb(null, true);
     }
 
-    mediaService.getObject({objectid: objectid[index], fromWhere}, (err, rs, fromWhere = 'mam') => {
+    mediaService.getObject({ objectid: objectid[index], fromWhere }, (err, rs, fromWhere = 'mam') => {
       if (err) {
         return cb && cb(err);
       }
@@ -356,7 +356,7 @@ service.jugeTemplateAuditAndCreateAudit = function jugeTemplateAuditAndCreateAud
           return;
         }
 
-        auditRuleInfo.collection.findOne({ownerName}, (err, doc) => {
+        auditRuleInfo.collection.findOne({ ownerName }, (err, doc) => {
           if (err) {
             logger.error(err.message);
             return cb && cb(i18n.t('databaseError'));
@@ -410,7 +410,7 @@ service.jugeTemplateAuditAndCreateAudit = function jugeTemplateAuditAndCreateAud
         });
       });
     });
-  }
+  };
 
   loopGetObject(0);
 };
@@ -849,7 +849,7 @@ service.delete = function del(deleteParams, res) {
 
   const params = utils.merge({
     jobId: '',
-    userId: ''
+    userId: '',
   }, deleteParams);
 
   request.get('/JobService/delete', params, res);
@@ -1065,7 +1065,7 @@ service.mediaExpressDispatch = function mediaExpressDispatch(shelfTaskId, filety
               }
               for (const key in groupTemplateIdMap) {
                 if (groupTemplateIdMap[key] && transferParams[key]) {
-                  if (rs.transferParamMap.prototype.hasOwnProperty(groupTemplateIdMap[key])) {
+                  if (rs.transferParamMap.hasOwnProperty(groupTemplateIdMap[key])) {
                     rs.transferParamMap[groupTemplateIdMap[key]].push(transferParams[key]);
                   } else {
                     rs.templateList.push(groupTemplateIdMap[key]);

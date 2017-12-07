@@ -146,9 +146,9 @@ service.getEsMediaList = function getEsMediaList(info, cb) {
       match: [{
         key: 'program_type',
         value: category,
-      },{
+      }, {
         key: 'publish_status',
-        value: 1
+        value: 1,
       }],
       source: ES_FILTER_FIELDS,
       sort: [{
@@ -187,9 +187,15 @@ service.getEsMediaList = function getEsMediaList(info, cb) {
 };
 
 service.getCacheEsMediaList = function getCacheEsMediaList(info, cb) {
+  const size = info.pageSize || 10;
   redisClient.get(REDIS_CACHE_MEIDA_LIST, (err, obj) => {
     if (obj) {
-      return cb & cb(null, JSON.parse(obj));
+      obj = JSON.parse(obj);
+      obj.map((item) => {
+        item.docs = item.docs.sort((a, b) => new Date(b.publish_time) - new Date(a.publish_time)).slice(0, size - 10 === 0 ? 10 : size - 10);
+        return item;
+      });
+      return cb & cb(null, obj);
     }
     service.getEsMediaList(info, cb);
   });
