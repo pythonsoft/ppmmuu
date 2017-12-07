@@ -1,10 +1,10 @@
 'use strict';
 
+const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
 const del = require('del');
 const webpackConfig = require('../webpack.config');
-const fs = require('fs');
 const generateVersionJson = require('./generateVersionJSON');
 const exec = require('child_process').exec;
 
@@ -310,8 +310,6 @@ const initPermissionInfo = function initPermissionInfo() {
 generateFeApiFuncFile();
 
 writeToApiPath();
-
-// writeToSocketPATH();
 
 initPermissionInfo();
 
