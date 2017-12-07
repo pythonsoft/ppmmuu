@@ -612,7 +612,7 @@ router.post('/deleteOwnerRole', (req, res) => {
  *           properties:
  *             paths:
  *               type: string
- *               example: "/role/list,/role/udpate"
+ *               example: "/role/list,/role/update"
  *             status:
  *               type: string
  *               example: "0"

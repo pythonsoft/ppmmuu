@@ -93,8 +93,7 @@ service.addBucket = function addBucket(info = {}, cb) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
-
-    return cb && cb(null, r);
+    return cb && cb(null, r.insertedId);
   });
 };
 
@@ -328,7 +327,7 @@ service.addPath = function addPath(bucketId, info = {}, cb) {
         return cb && cb(i18n.t('databaseError'));
       }
 
-      return cb && cb(null, r);
+      return cb && cb(null, r.insertedId);
     });
   });
 };
@@ -543,7 +542,7 @@ service.addTactics = function addTactics(info = {}, cb) {
         return cb && cb(i18n.t('databaseError'));
       }
 
-      return cb && cb(null, r);
+      return cb && cb(null, r.insertedId);
     });
   });
 };

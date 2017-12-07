@@ -323,7 +323,7 @@ const createAuditDepartment = function createAuditDepartment(permissionType, aud
 
     return { err: null, doc };
   }
-  return { err: null, doc: null };
+  return { err: null, doc: { _id: '', name: '' } };
 };
 
 service.createAuditRule = function createRule(info, creator, cb) {

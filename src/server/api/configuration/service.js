@@ -210,7 +210,6 @@ service.deleteConfig = function deleteConfig(id, cb) {
   if (!id) {
     return cb && cb(i18n.t('validateError', { param: 'id' }));
   }
-  console.log('_id===>', id);
   configurationInfo.collection.deleteOne({ _id: id }, (err, r) => {
     if (err) {
       logger.error(err.message);
