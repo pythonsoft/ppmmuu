@@ -13,7 +13,7 @@ const mediaService = require('../api/media/service');
       r = r.map(o => ({
         category: o.category,
         docs: o.docs.map((o) => {
-          o.getIcon = `getIcon?objectid=${o.id}&fromWhere=${o.from_where}&t=${new Date().getTime()}`;
+          o.getIcon = `/media/getIcon?objectid=${o.id}&fromWhere=${o.from_where}&t=${new Date().getTime()}`;
           return o;
         }),
       }));
