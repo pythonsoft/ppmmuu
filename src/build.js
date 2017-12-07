@@ -151,7 +151,7 @@ const chaoningCoolie = function (version, cb) {
   // 将API文件复制到fe下的API包中
   console.log('build fe project start.');
 
-  exec(`cd ${feApiPath} && cp *.js ${chaoningFEProjectApiPath} && cd ${chaoningFEprojectPath} && npm run build`, (error, stdout, stderr) => {
+  exec(`cd ${feApiPath} && cp *.js ${chaoningFEProjectApiPath} && cd ${chaoningFEprojectPath} && npm run build && npm run build:mobile`, (error, stdout, stderr) => {
     if (error) {
       console.error(error);
       return cb && cb(error);
