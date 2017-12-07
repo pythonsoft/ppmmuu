@@ -303,6 +303,7 @@ service.jugeTemplateAuditAndCreateAudit = function jugeTemplateAuditAndCreateAud
     return cb && cb(i18n.t('jobDownloadParamsIsNull'));
   }
   let objectid = info.objectid || '';
+  const fromWhere = info.fromWhere || CatalogInfo.FROM_WHERE.MAM;
   objectid = objectid.split(',');
 
   const loopGetObject = function loopGetObject(index) {
@@ -310,7 +311,7 @@ service.jugeTemplateAuditAndCreateAudit = function jugeTemplateAuditAndCreateAud
       return cb && cb(null, true);
     }
 
-    mediaService.getObject({objectid: objectid[index]}, (err, rs, fromWhere = 'mam') => {
+    mediaService.getObject({objectid: objectid[index], fromWhere}, (err, rs, fromWhere = 'mam') => {
       if (err) {
         return cb && cb(err);
       }
