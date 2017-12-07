@@ -14,7 +14,7 @@ const expect = chai.expect;
 const agent = chai.request.agent(app);
 const mongodb = require('mongodb');
 
-describe('user', () => {
+describe('/user', () => {
   let searchId = '';
   let watchId = '';
   before((done) => {

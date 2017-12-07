@@ -37,6 +37,7 @@ describe('/transcode', () => {
   let dealingId = '';
   let errorId = '';
   let completeId = '';
+  let taskId = '';
   describe('GET /transcode/list', () => {
     it('should transcode list', (done) => {
       agent
@@ -47,6 +48,7 @@ describe('/transcode', () => {
             for (let i = 0, len = docs.length; i < len; i++) {
               const status = docs[i].status;
               const _id = docs[i].id;
+              taskId = _id;
               if (status === 'dealing') {
                 dealingId = _id;
               } else if (status === 'error') {
@@ -69,7 +71,9 @@ describe('/transcode', () => {
           })
           .end((err, res) => {
             expect(res).to.have.status(200);
-            expect(res.body.status).to.equal('0');
+            if(taskId) {
+              expect(res.body.status).to.equal('0');
+            }
             done();
           });
     });
@@ -84,6 +88,9 @@ describe('/transcode', () => {
           })
           .end((err, res) => {
             expect(res).to.have.status(200);
+            if(errorId) {
+              expect(res.body.status).to.equal('0');
+            }
             done();
           });
     });
@@ -97,7 +104,11 @@ describe('/transcode', () => {
             parentId: dealingId,
           })
           .end((err, res) => {
+        console.log(res.body);
             expect(res).to.have.status(200);
+            if(dealingId) {
+              expect(res.body.status).to.equal('0');
+            }
             done();
           });
     });

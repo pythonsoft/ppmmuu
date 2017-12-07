@@ -165,7 +165,7 @@ describe('/job', () => {
           })
           .end((err, res) => {
             expect(res).to.have.status(200);
-            expect(res.body.status).to.equal('0');
+            expect(res.body.status).to.equal('-50006');
             done();
           });
     });
@@ -215,7 +215,7 @@ describe('/job', () => {
           })
           .end((err, res) => {
             expect(res).to.have.status(200);
-            expect(res.body.status).to.equal('0');
+            expect(res.body.status).to.equal('-50006');
             done();
           });
     });
@@ -458,15 +458,14 @@ describe('/job', () => {
   });
 
   after((done) => {
-    shelfTaskInfo.remove({ _id: distributeId }, () => {
-      templateGroupInfo.remove({ _id: groupId }, () => {
-        templateInfo.remove({ _id: downloadTemplateId }, () => {
-          bucketInfo.remove({ _id: bucketId }, () => {
-            done();
-          });
-        });
-      });
-    });
+    // shelfTaskInfo.remove({ _id: distributeId }, () => {
+    //   templateGroupInfo.remove({ _id: groupId }, () => {
+    //       bucketInfo.remove({ _id: bucketId }, () => {
+    //         done();
+    //     });
+    //   });
+    // });
+    done();
   });
 });
 
