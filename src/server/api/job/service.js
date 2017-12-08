@@ -148,6 +148,7 @@ const downloadRequest = function downloadRequest(bucketId, transferTemplateId = 
       return cb && cb(null, 'ok');
     }
     const param = pArr[index];
+    console.log(JSON.stringify(param));
     const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/JobService/download`;
     utils.requestCallApi(url, 'POST', param, '', (err, rs) => {
       if (err) {
@@ -311,7 +312,7 @@ service.jugeTemplateAuditAndCreateAudit = function jugeTemplateAuditAndCreateAud
       return cb && cb(null, true);
     }
 
-    mediaService.getObject({objectid: objectid[index], fromWhere}, (err, rs, fromWhere = 'mam') => {
+    mediaService.getObject({ objectid: objectid[index], fromWhere }, (err, rs, fromWhere = 'mam') => {
       if (err) {
         return cb && cb(err);
       }
@@ -356,7 +357,7 @@ service.jugeTemplateAuditAndCreateAudit = function jugeTemplateAuditAndCreateAud
           return;
         }
 
-        auditRuleInfo.collection.findOne({ownerName}, (err, doc) => {
+        auditRuleInfo.collection.findOne({ ownerName }, (err, doc) => {
           if (err) {
             logger.error(err.message);
             return cb && cb(i18n.t('databaseError'));
@@ -410,7 +411,7 @@ service.jugeTemplateAuditAndCreateAudit = function jugeTemplateAuditAndCreateAud
         });
       });
     });
-  }
+  };
 
   loopGetObject(0);
 };
@@ -849,7 +850,7 @@ service.delete = function del(deleteParams, res) {
 
   const params = utils.merge({
     jobId: '',
-    userId: ''
+    userId: '',
   }, deleteParams);
 
   request.get('/JobService/delete', params, res);
@@ -1065,7 +1066,7 @@ service.mediaExpressDispatch = function mediaExpressDispatch(shelfTaskId, filety
               }
               for (const key in groupTemplateIdMap) {
                 if (groupTemplateIdMap[key] && transferParams[key]) {
-                  if (rs.transferParamMap.prototype.hasOwnProperty(groupTemplateIdMap[key])) {
+                  if (rs.transferParamMap.hasOwnProperty(groupTemplateIdMap[key])) {
                     rs.transferParamMap[groupTemplateIdMap[key]].push(transferParams[key]);
                   } else {
                     rs.templateList.push(groupTemplateIdMap[key]);
