@@ -58,9 +58,9 @@ setTimeout(() => {
     describe('/initIVideo', () => {
       it('should init ivideo', (done) => {
         projectInfo.collection.find().toArray((err, docs) => {
-          expect(docs).to.have.lengthOf(1);
+          expect(docs).to.have.lengthOf.at.least(1);
           itemInfo.collection.find().toArray((err, docs) => {
-            expect(docs).to.have.lengthOf(4);
+            expect(docs).to.have.lengthOf.at.least(4);
             done();
           });
         });
