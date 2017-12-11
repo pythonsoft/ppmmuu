@@ -440,7 +440,7 @@ service.adAccountSync = function adAccountSync(info, cb) {
       return cb && cb(err);
     }
 
-    if(!doc.company) {
+    if (!doc.company) {
       doc.company = { _id: '', name: '' };
     }
 
@@ -460,8 +460,7 @@ service.adAccountSync = function adAccountSync(info, cb) {
         return cb && cb(err);
       }
       if (dept) {
-
-        if(!doc.department) {
+        if (!doc.department) {
           doc.department = { _id: '', name: '' };
         }
 

@@ -28,7 +28,7 @@ const utils = require('../../common/utils');
  *       - application/json
  *     parameters:
  *       - in: formData
- *         name: image
+ *         name: file
  *         type: file
  *         description: The file to upload
  *     responses:
@@ -62,7 +62,7 @@ router.post('/', upload.single('file'), (req, res) => {
  *       - application/json
  *     parameters:
  *       - in: formData
- *         name: image
+ *         name: file
  *         type: file
  *         description: The file to upload
  *     responses:
