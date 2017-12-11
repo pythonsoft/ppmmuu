@@ -69,32 +69,31 @@ setTimeout(() => {
 
 
     describe('mediaHistoryContent', () => {
-        it('should mediaHistoryContent', (done) => {
-          setTimeout(()=>{
-            userInfo.collection.findOne({ 'name': 'xuyawen'}, (err, doc)=> {
+      it('should mediaHistoryContent', (done) => {
+        setTimeout(() => {
+          userInfo.collection.findOne({ name: 'xuyawen' }, (err, doc) => {
+            if (err) {
+              console.log(err);
+            }
+            userId = doc ? doc._id : '';
+            watchingHistoryInfo.collection.findOne({ videoId: objectId, userId }, (err, doc) => {
               if (err) {
                 console.log(err);
               }
-              userId = doc ? doc._id : '';
-              watchingHistoryInfo.collection.findOne({videoId: objectId, userId: userId}, function (err, doc) {
-                if (err) {
-                  console.log(err);
-                }
-                console.log(doc);
-                const videoContent = doc ? doc.videoContent : {};
-                let updatedTime = doc ? doc.updatedTime : '1990-01-01';
-                updatedTime = new Date(updatedTime);
-                let t = new Date();
-                t.setSeconds(t.getSeconds() - 9);
-                expect(updatedTime).to.be.above(t);
-                expect(videoContent.full_text).to.have.lengthOf.at.least(1);
-                done();
-              })
-            })
-          }, 8000)
-        })
+              const videoContent = doc ? doc.videoContent : {};
+              let updatedTime = doc ? doc.updatedTime : '1990-01-01';
+              updatedTime = new Date(updatedTime);
+              const t = new Date();
+              t.setSeconds(t.getSeconds() - 9);
+              expect(updatedTime).to.be.above(t);
+              expect(videoContent.full_text).to.have.lengthOf.at.least(1);
+              done();
+            });
+          });
+        }, 8000);
       });
     });
+  });
 
   run();
 }, 5000);

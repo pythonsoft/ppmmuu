@@ -8,6 +8,8 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const app = require('../../app');
 const should = require('should');
+const path = require('path');
+const fs = require('graceful-fs');
 
 chai.use(chaiHttp);
 const expect = chai.expect;
@@ -17,24 +19,7 @@ const mongodb = require('mongodb');
 const uuid = require('uuid');
 
 setTimeout(() => {
-  describe('configuration', () => {
-    const url = config.domain;
-    const userCookie = '';
-    let configurationInfo = '';
-    let configurationGroupInfo = '';
-
-    before((done) => {
-      mongodb.MongoClient.connect('mongodb://10.0.15.62:27017/ump_test', (err, db) => {
-        if (err) {
-          console.log(err);
-          done();
-        }
-        configurationInfo = db.collection('ConfigurationInfo');
-        configurationGroupInfo = db.collection('ConfigurationGroupInfo');
-        done();
-      });
-    });
-
+  describe('manuscript', () => {
     describe('#login', () => {
       it('/user/login', (done) => {
         agent
@@ -51,143 +36,97 @@ setTimeout(() => {
       });
     });
 
-    describe('#list', () => {
-      it('/configuration/list', (done) => {
-        agent
-            .get('/configuration/list')
-            .end((err, res) => {
-              if (err) {
-                throw err;
-              }
-              // Should.js fluent syntax applied
-              res.body.status.should.equal('0');
-              done();
-            });
-      });
-    });
-
     let _id = '';
     describe('#add', () => {
-      it('/configuration/add', (done) => {
+      it('/manuscript/add', (done) => {
         agent
-            .post('/configuration/add')
+            .post('/manuscript/add')
             .send({
-              key: 'testKeytest',
-              value: 'testValue',
-              genre: 'testGenre',
-              description: 'A simple description',
+              title: '标题',
+              content: '正文',
+              viceTitle: '副标题',
+              collaborators: [
+                { _id: 'b9e77160-da6e-11e7-9ab4-f3602b15a057', name: 'xuyawen' },
+              ],
             })
             .end((err, res) => {
               if (err) {
                 throw err;
               }
               // Should.js fluent syntax applied
-
               res.body.status.should.equal('0');
-              configurationInfo.findOne({ key: 'testKeytest' }, (err, doc) => {
-                if (err) {
-                  console.log(err);
-                  done();
-                }
-                _id = doc._id;
-                done();
-              });
+              _id = res.body.data;
+              done();
             });
       });
     });
 
-    describe('#update', () => {
-      it('/configuration/update', (done) => {
+    describe('#listManuscript', () => {
+      it('/manuscript/list', (done) => {
         agent
-            .post('/configuration/update')
+            .get('/manuscript/list')
+            .end((err, res) => {
+              if (err) {
+                throw err;
+              }
+              // Should.js fluent syntax applied
+              res.body.status.should.equal('0');
+              done();
+            });
+      });
+    });
+
+    describe('#getManuscript', () => {
+      it('/manuscript/getManuscript', (done) => {
+        agent
+            .get('/manuscript/getManuscript')
+            .query({ _id })
+            .end((err, res) => {
+              if (err) {
+                throw err;
+              }
+              // Should.js fluent syntax applied
+              res.body.status.should.equal('0');
+              done();
+            });
+      });
+    });
+
+
+    const filePath = path.join(__dirname, 'index.js');
+    const attachments = [];
+    let attachId = '';
+    describe('#addAttachment', () => {
+      it('/manuscript/addAttachment', (done) => {
+        agent
+            .post('/manuscript/addAttachment')
+            .attach('file', fs.readFileSync(filePath), 'index.js')
+            .end((err, res) => {
+              if (err) {
+                throw err;
+              }
+              // Should.js fluent syntax applied
+              res.body.status.should.equal('0');
+              attachId = res.body.data._id;
+              attachments.push(res.body.data);
+              done();
+            });
+      });
+    });
+
+    describe('#updateManuscript', () => {
+      it('/manuscript/updateManuscript', (done) => {
+        agent
+            .post('/manuscript/updateManuscript')
             .send({
               _id,
-              key: 'testKeytest',
-              value: 'testValue',
-              genre: 'testGenre',
-              description: 'A simple description',
-            })
-            .end((err, res) => {
-              if (err) {
-                throw err;
-              }
-              // Should.js fluent syntax applied
-
-              res.body.status.should.equal('0');
-              done();
-            });
-      });
-    });
-
-    describe('#delete', () => {
-      it('/configuration/delete', (done) => {
-        agent
-            .post('/configuration/delete')
-            .send({
-              _id,
-            })
-            .end((err, res) => {
-              if (err) {
-                throw err;
-              }
-              // Should.js fluent syntax applied
-
-              res.body.status.should.equal('0');
-              done();
-            });
-      });
-    });
-
-    let groupId = '';
-    describe('#addGroup', () => {
-      it('/configuration/addGroup', (done) => {
-        agent
-            .post('/configuration/addGroup')
-            .send({
-              name: 'testGroup',
-              parent: '',
-            })
-            .end((err, res) => {
-              if (err) {
-                throw err;
-              }
-              // Should.js fluent syntax applied
-
-              res.body.status.should.equal('0');
-              configurationGroupInfo.findOne({ name: 'testGroup' }, (err, doc) => {
-                if (err) {
-                  throw err;
-                }
-
-                groupId = doc._id;
-                done();
-              });
-            });
-      });
-    });
-
-    describe('#listGroup', () => {
-      it('/configuration/listGroup', (done) => {
-        agent
-            .get('/configuration/listGroup')
-            .end((err, res) => {
-              if (err) {
-                throw err;
-              }
-              // Should.js fluent syntax applied
-              res.body.status.should.equal('0');
-              done();
-            });
-      });
-    });
-
-    describe('#updateGroup', () => {
-      it('/configuration/updateGroup', (done) => {
-        agent
-            .post('/configuration/updateGroup')
-            .send({
-              _id: groupId,
-              name: 'testGroup1',
+              title: '标题1',
+              content: '正文1',
+              viceTitle: '副标题1',
+              collaborators: [
+                "{'_id': 'b9e77160-da6e-11e7-9ab4-f3602b15a057', name: 'xuyawen2'}",
+              ],
+              attachments,
             })
             .end((err, res) => {
               if (err) {
@@ -200,12 +139,71 @@ setTimeout(() => {
       });
     });
 
-    describe('#deleteGroup', () => {
-      it('/configuration/deleteGroup', (done) => {
+    describe('#changeManuscriptStatus', () => {
+      it('/manuscript/changeManuscriptStatus', (done) => {
         agent
-            .post('/configuration/deleteGroup')
+            .post('/manuscript/changeManuscriptStatus')
             .send({
-              _id: groupId,
+              _ids: _id,
+              status: '2',
+            })
+            .end((err, res) => {
+              if (err) {
+                throw err;
+              }
+              // Should.js fluent syntax applied
+              res.body.status.should.equal('0');
+              done();
+            });
+      });
+    });
+
+
+    describe('#deleteAttachments', () => {
+      it('/manuscript/deleteAttachments', (done) => {
+        agent
+            .post('/manuscript/deleteAttachments')
+            .send({
+              _ids: attachId,
+            })
+            .end((err, res) => {
+              if (err) {
+                throw err;
+              }
+              // Should.js fluent syntax applied
+              res.body.status.should.equal('0');
+              done();
+            });
+      });
+    });
+
+    describe('#changeManuscriptStatus', () => {
+      it('/manuscript/changeManuscriptStatus', (done) => {
+        agent
+            .post('/manuscript/changeManuscriptStatus')
+            .send({
+              _ids: _id,
+              status: '4',
+            })
+            .end((err, res) => {
+              if (err) {
+                throw err;
+              }
+              // Should.js fluent syntax applied
+              res.body.status.should.equal('0');
+              done();
+            });
+      });
+    });
+
+    describe('#hongKongSimplified', () => {
+      it('/manuscript/hongKongSimplified', (done) => {
+        agent
+            .post('/manuscript/hongKongSimplified')
+            .send({
+              conversionType: '1',
+              title: '你好啊，我是简体呢',
+              content: '我很好，你说明天会发生什么',
             })
             .end((err, res) => {
               if (err) {
@@ -218,5 +216,6 @@ setTimeout(() => {
       });
     });
   });
+
   run();
 }, 5000);

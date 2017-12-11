@@ -1009,4 +1009,24 @@ module.exports = {
     code: '-180003',
     message: '找不到fileInfo',
   },
+  manuscriptIdIsNull: {
+    code: '-190001',
+    message: '缺少参数_id',
+  },
+  cannotFindManuscript: {
+    code: '-190002',
+    message: '找不到稿件',
+  },
+  manuscriptIdsIsNull: {
+    code: '-190003',
+    message: '缺少参数_ids',
+  },
+  attachmentIdsIsNull: {
+    code: '-190004',
+    message: '缺少参数_ids',
+  },
+  existNotYourManuscript: {
+    code: '-190005',
+    message: '不能修改不是自己创建的稿件状态',
+  },
 };

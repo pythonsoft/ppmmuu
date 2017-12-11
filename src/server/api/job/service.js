@@ -148,7 +148,6 @@ const downloadRequest = function downloadRequest(bucketId, transferTemplateId = 
       return cb && cb(null, 'ok');
     }
     const param = pArr[index];
-    console.log(JSON.stringify(param));
     const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/JobService/download`;
     utils.requestCallApi(url, 'POST', param, '', (err, rs) => {
       if (err) {
