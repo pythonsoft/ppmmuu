@@ -280,6 +280,32 @@ service.deleteAttachmentInfos = function deleteAttachmentInfos(info, cb) {
   deleteAttachments(query, (err, r) => cb && cb(err, r));
 };
 
+service.listAttachments = function listAttachments(info, cb) {
+  const pageSize = info.pageSize || 15;
+  const page = info.page || 1;
+  const keyword = info.keyword || '';
+  const manuscriptId = info.manuscriptId || '';
+  const userId = info.userInfo._id;
+  const q = {};
+
+  if (manuscriptId) {
+    q.manuscriptId = manuscriptId;
+  }
+
+  if (keyword) {
+    q.name = { name: { $regex: keyword, $options: 'i' } };
+  }
+
+  attachmentInfo.pagination(q, page, pageSize, (err, r) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, r);
+  });
+};
+
 service.hongKongSimplified = function hongKongSimplified(info, cb) {
   const api = info.conversionType === ManuscriptInfo.CONVERSION_TYPE.HK_TO_SIMPLIFIED ? opencc.hongKongToSimplified : opencc.simplifiedToHongKong;
   if (info.conversionType) {

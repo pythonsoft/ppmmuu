@@ -158,6 +158,24 @@ setTimeout(() => {
       });
     });
 
+    describe('#listAttachments', () => {
+      it('/manuscript/listAttachments', (done) => {
+        agent
+            .get('/manuscript/listAttachments')
+            .query({
+              manuscriptId: _id,
+            })
+            .end((err, res) => {
+              if (err) {
+                throw err;
+              }
+              // Should.js fluent syntax applied
+              res.body.status.should.equal('0');
+              done();
+            });
+      });
+    });
+
 
     describe('#deleteAttachments', () => {
       it('/manuscript/deleteAttachments', (done) => {
