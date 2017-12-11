@@ -330,6 +330,61 @@ router.post('/addAttachment', upload.single('file'), (req, res) => {
 });
 
 /**
+ * @apiName: listAttachments
+ * @apiFuncType: get
+ * @apiFuncUrl: /manuscript/listAttachments
+ * @swagger
+ * /manuscript/listAttachments:
+ *   get:
+ *     description: 附件列表接口
+ *     tags:
+ *       - v1
+ *       - ManuscriptInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: manuscriptId
+ *         description: "稿件_id"
+ *         required: false
+ *         type: string
+ *         default: "12131"
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: keyword
+ *         description: 关键字模糊搜素
+ *         required: false
+ *         type: string
+ *         default: ""
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: page
+ *         description: ''
+ *         required: false
+ *         type: integer
+ *         default: 1
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: pageSize
+ *         description: ''
+ *         required: false
+ *         type: integer
+ *         default: 15
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: ManuscriptInfo
+ */
+router.get('/listAttachments', (req, res) => {
+  const info = req.query;
+  const userInfo = { _id: req.ex.userInfo._id, name: req.ex.userInfo.name };
+  info.userInfo = userInfo;
+
+  service.listAttachments(info, (err, docs) =>
+      res.json(result.json(err, docs)));
+});
+
+/**
  * @apiName: deleteAttachments
  * @apiFuncType: post
  * @apiFuncUrl: /manuscript/deleteAttachments
