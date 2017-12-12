@@ -550,8 +550,7 @@ setTimeout(() => {
               expect(res.body.status).to.equal('0');
               done();
             });
-      },
-      );
+      });
     });
 
     after((done) => {
