@@ -532,8 +532,7 @@ setTimeout(() => {
               transcodeTemplates: '[]',
               bucketId: 'testg',
               t: 1512469715744,
-            },
-            )
+            })
             .end((err, res) => {
               expect(res).to.have.status(200);
               expect(res.body.status).to.equal('0');
@@ -552,7 +551,8 @@ setTimeout(() => {
               expect(res.body.status).to.equal('0');
               done();
             });
-      });
+      },
+      );
     });
 
     after((done) => {

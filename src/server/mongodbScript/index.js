@@ -9,7 +9,6 @@ require('./initConfig');
 require('./initIVideo');
 require('./initPermissionInfo');
 require('./initPermissionGroup');
-require('./initLibrary');
 require('./initDownloadTemplate');
 require('./initLibraryTemplate');
 require('./initFromWhere');
