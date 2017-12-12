@@ -38,7 +38,7 @@ const service = {};
 
 const redisClient = config.redisClient;
 
-const ES_FILTER_FIELDS = 'id,duration,name,ccid,program_type,program_name_en,hd_flag,program_name_cn,last_modify,content_introduction,content,news_data,program_name,from_where,full_text,publish_time,rootid';
+const ES_FILTER_FIELDS = 'id,duration,name,ccid,program_type,program_name_en,hd_flag,program_name_cn,last_modify,content_introduction,content,news_data,airdata,program_name,from_where,full_text,publish_time,rootid';
 
 service.ES_FILTER_FIELDS = ES_FILTER_FIELDS;
 
@@ -647,6 +647,18 @@ const getObjectFromHK = function getObjectFromHK(info, cb) {
           if (file[k] === null || file[k] === '') {
             delete file[k];
           }
+        }
+      }
+    }
+
+    if(rs.result.detail && rs.result.detail.sequence){
+      const sequence = rs.result.detail.sequence;
+
+      for (const key in sequence) {
+        if (sequence[key] === '' || sequence[key] === null) {
+          delete sequence[key];
+        } else {
+          sequence[key] = { value: sequence[key], cn: fieldConfig[key] ? fieldConfig[key].cn : '' };
         }
       }
     }
