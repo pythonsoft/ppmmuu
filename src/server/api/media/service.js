@@ -637,6 +637,11 @@ const getObjectFromHK = function getObjectFromHK(info, cb) {
         if (program[key] === '' || program[key] === null) {
           delete program[key];
         } else {
+          if(typeof program[key] === 'string' && program[key].match("\\d{4}-\\d{2}-\\d{2}")){
+            if(new Date(program[key]) < new Date('1900-01-01')){
+              program[key] = 'N/A';
+            }
+          }
           program[key] = { value: program[key], cn: fieldConfig[key] ? fieldConfig[key].cn : '' };
         }
       }
@@ -658,6 +663,11 @@ const getObjectFromHK = function getObjectFromHK(info, cb) {
         if (sequence[key] === '' || sequence[key] === null) {
           delete sequence[key];
         } else {
+          if(typeof sequence[key] === 'string' && sequence[key].match("\\d{4}-\\d{2}-\\d{2}")){
+            if(new Date(sequence[key]) < new Date('1900-01-01')){
+              sequence[key] = 'N/A';
+            }
+          }
           sequence[key] = { value: sequence[key], cn: fieldConfig[key] ? fieldConfig[key].cn : '' };
         }
       }
