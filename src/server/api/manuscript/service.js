@@ -12,11 +12,11 @@ const path = require('path');
 const fs = require('fs');
 const opencc = require('node-opencc');
 
-const ManuscriptInfo = require('./ManuscriptInfo');
+const ManuscriptInfo = require('./manuscriptInfo');
 
 const manuscriptInfo = new ManuscriptInfo();
 
-const AttachmentInfo = require('./AttachmentInfo');
+const AttachmentInfo = require('./attachmentInfo');
 
 const attachmentInfo = new AttachmentInfo();
 
