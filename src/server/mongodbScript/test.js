@@ -48,7 +48,7 @@ setTimeout(() => {
     describe('/initDownloadTemplate', () => {
       it('should init download template', (done) => {
         templateInfo.collection.find().toArray((err, docs) => {
-          expect(docs).to.have.lengthOf(1);
+          expect(docs).to.have.lengthOf.at.least(1);
           done();
         });
       });

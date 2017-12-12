@@ -31,7 +31,10 @@ setTimeout(() => {
         }
         itemInfo = db.collection('MovieEditor_ItemInfo');
         projectInfo = db.collection('MovieEditor_ProjectInfo');
-        done();
+        itemInfo.findOne({'parentId': {$ne: ''}}, (err, doc)=>{
+          itemInfoParentId = doc ? doc.parentId : '';
+          done();
+        })
       });
     });
 
@@ -47,25 +50,6 @@ setTimeout(() => {
               // Should.js fluent syntax applied
               res.body.status.should.equal('0');
               done();
-            });
-      });
-    });
-
-    describe('POST /ivideo/createItem', () => {
-      it('should create item', (done) => {
-        agent
-            .post('/ivideo/createItem')
-            .send({
-              parentId: '',
-              name: 'testst',
-            })
-            .end((err, res) => {
-              expect(res).to.have.status(200);
-              expect(res.body.status).to.equal('0');
-              itemInfo.findOne({ name: 'testst' }, (err, doc) => {
-                itemInfoParentId = doc ? doc._id : '';
-                done();
-              });
             });
       });
     });
@@ -156,21 +140,6 @@ setTimeout(() => {
             .post('/ivideo/removeItem')
             .send({
               id: createItemId,
-            })
-            .end((err, res) => {
-              expect(res).to.have.status(200);
-              expect(res.body.status).to.equal('0');
-              done();
-            });
-      });
-    });
-
-    describe('POST /ivideo/removeItem', () => {
-      it('should remove item', (done) => {
-        agent
-            .post('/ivideo/removeItem')
-            .send({
-              id: itemInfoParentId,
             })
             .end((err, res) => {
               expect(res).to.have.status(200);
