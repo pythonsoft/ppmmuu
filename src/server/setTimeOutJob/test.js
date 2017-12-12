@@ -8,6 +8,7 @@ chai.use(chaiHttp);
 
 const expect = chai.expect;
 const agent = chai.request.agent(app);
+const mongodb = require('mongodb');
 
 setTimeout(() => {
   let userId = '';
@@ -96,6 +97,19 @@ setTimeout(() => {
       });
     });
   });
+
+  after((done)=>{
+    mongodb.MongoClient.connect('mongodb://10.0.15.62:27017/ump_test', (err, db) => {
+      if (err) {
+        console.log(err);
+        done();
+      }
+      if(db){
+        db.dropDatabase();
+      }
+      done();
+    })
+  })
 
   run();
 }, 5000);
