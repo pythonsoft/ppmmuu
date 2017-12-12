@@ -228,16 +228,6 @@ setTimeout(() => {
       });
     });
 
-    describe('GET /template/getWatermark', () => {
-      it('should template getWatermark', (done) => {
-        agent
-            .get('/template/getWatermark')
-            .end((err, res) => {
-              expect(res).to.have.status(200);
-              done();
-            });
-      });
-    });
 
     describe('POST /template/removeGroup', () => {
       it('should template removeGroup', (done) => {
@@ -250,6 +240,17 @@ setTimeout(() => {
               console.log('dasd==>', res.body);
               expect(res).to.have.status(200);
               expect(res.body.status).to.equal('0');
+              done();
+            });
+      });
+    });
+
+    describe('GET /template/getWatermark', () => {
+      it('should template getWatermark', (done) => {
+        agent
+            .get('/template/getWatermark')
+            .end((err, res) => {
+              expect(res).to.have.status(200);
               done();
             });
       });

@@ -77,7 +77,7 @@ bucketInfo.collection.findOne({ _id: bucket._id }, (err, doc) => {
       const name = '凤云快传下载';
       const bucketId = bucket._id;
       const creatorId = userId;
-      service.createDownloadTemplate({ creatorId, id, name, description, bucketId, script }, (err) => {
+      service.createDownloadTemplate({ creatorId, id, name, description, bucketId, script, downloadAudit: true }, (err) => {
         if (err) {
           throw new Error(`初始化下载模板失败:${err.message}`);
         }
