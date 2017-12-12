@@ -9,7 +9,6 @@ setTimeout(() => {
   require('./initConfig');
   require('./initDownloadTemplate');
   require('./initIVideo');
-  require('./initLibrary');
   require('./initPermissionGroup');
   require('./initPermissionInfo');
   require('./initUser');
@@ -46,14 +45,14 @@ setTimeout(() => {
       });
     });
 
-    // describe('/initDownloadTemplate', () => {
-    //   it('should init download template', (done) => {
-    //     templateInfo.collection.find().toArray((err, docs) => {
-    //       expect(docs).to.have.lengthOf(1);
-    //       done();
-    //     });
-    //   });
-    // });
+    describe('/initDownloadTemplate', () => {
+      it('should init download template', (done) => {
+        templateInfo.collection.find().toArray((err, docs) => {
+          expect(docs).to.have.lengthOf(1);
+          done();
+        });
+      });
+    });
 
     describe('/initIVideo', () => {
       it('should init ivideo', (done) => {
@@ -61,18 +60,6 @@ setTimeout(() => {
           expect(docs).to.have.lengthOf.at.least(1);
           itemInfo.collection.find().toArray((err, docs) => {
             expect(docs).to.have.lengthOf.at.least(4);
-            done();
-          });
-        });
-      });
-    });
-
-    describe('/initLibrary', () => {
-      it('should init library', (done) => {
-        catalogInfo.collection.find().toArray((err, docs) => {
-          expect(docs).to.have.lengthOf(30);
-          fileInfo.collection.find().toArray((err, docs) => {
-            expect(docs).to.have.lengthOf(30);
             done();
           });
         });

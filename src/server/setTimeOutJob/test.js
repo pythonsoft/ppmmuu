@@ -33,6 +33,21 @@ setTimeout(() => {
     });
   });
 
+  const objectId = '53D7705C-DB29-4509-9A51-15D0A2298205';
+
+  describe('GET /media/getStream', () => {
+    it('should media getStream', (done) => {
+      agent
+          .get('/media/getStream')
+          .query({ objectid: objectId, fromWhere: 'MAM' })
+          .end((err, res) => {
+            expect(res).to.have.status(200);
+            expect(res.body.status).to.equal('0');
+            done();
+          });
+    });
+  });
+
   describe('cached MediaList', () => {
     describe('/cached MediaList', () => {
       it('should cached MediaList', (done) => {
@@ -47,21 +62,6 @@ setTimeout(() => {
                 expect(rs[key].docs).to.have.lengthOf.at.least(1);
                 expect(rs[key].docs).to.have.lengthOf.at.most(4);
               }
-              done();
-            });
-      });
-    });
-
-    const objectId = '53D7705C-DB29-4509-9A51-15D0A2298205';
-
-    describe('GET /media/getStream', () => {
-      it('should media getStream', (done) => {
-        agent
-            .get('/media/getStream')
-            .query({ objectid: objectId, fromWhere: 'MAM' })
-            .end((err, res) => {
-              expect(res).to.have.status(200);
-              expect(res.body.status).to.equal('0');
               done();
             });
       });

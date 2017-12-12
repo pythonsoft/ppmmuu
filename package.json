@@ -74,7 +74,6 @@
     "cors": "^2.8.3",
     "del": "^2.2.2",
     "express": "^4.15.3",
-    "fs": "0.0.1-security",
     "i18next": "^8.1.0",
     "i18next-express-middleware": "^1.0.5",
     "i18next-node-fs-backend": "^1.0.0",
