@@ -191,8 +191,8 @@ const deleteAttachments = function deleteAttachments(query, cb) {
 
     // 删除磁盘上的附件
     docs.forEach((doc) => {
-      if (doc.name) {
-        const attachmentPath = path.join(config.uploadPath, doc.name);
+      if (doc.fileInfo && doc.fileInfo.filename) {
+        const attachmentPath = path.join(config.uploadPath, doc.fileInfo.filename);
         fs.unlinkSync(attachmentPath);
       }
     });
@@ -258,7 +258,7 @@ service.createAttachment = function createAttachment(info, cb) {
     return cb && cb(i18n.t('noFileUpload'));
   }
   info.name = file.originalname;
-  info.path = `${config.domain}/uploads/${info.name}`;
+  info.path = `${config.domain}/uploads/${file.filename}`;
   attachmentInfo.insertOne(info, (err, r) => {
     if (err) {
       logger.error(err.message);
