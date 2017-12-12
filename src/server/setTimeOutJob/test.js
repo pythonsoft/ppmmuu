@@ -59,8 +59,10 @@ setTimeout(() => {
               expect(res.body.status).to.equal('0');
               const rs = res.body.data;
               for (const key in rs) {
-                expect(rs[key].docs).to.have.lengthOf.at.least(1);
-                expect(rs[key].docs).to.have.lengthOf.at.most(4);
+                if(rs[key].category !== '瀏覽歷史') {
+                  expect(rs[key].docs).to.have.lengthOf.at.least(1);
+                  expect(rs[key].docs).to.have.lengthOf.at.most(4);
+                }
               }
               done();
             });
@@ -84,7 +86,7 @@ setTimeout(() => {
               let updatedTime = doc ? doc.updatedTime : '1990-01-01';
               updatedTime = new Date(updatedTime);
               const t = new Date();
-              t.setSeconds(t.getSeconds() - 9);
+              t.setSeconds(t.getSeconds() - 10);
               expect(updatedTime).to.be.above(t);
               expect(videoContent.full_text).to.have.lengthOf.at.least(1);
               done();
