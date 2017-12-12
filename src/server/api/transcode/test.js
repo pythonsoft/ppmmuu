@@ -15,10 +15,6 @@ const agent = chai.request.agent(app);
 
 setTimeout(() => {
   describe('/transcode', () => {
-    before((done) => {
-      done();
-    });
-
     describe('#login', () => {
       it('/user/login', (done) => {
         agent

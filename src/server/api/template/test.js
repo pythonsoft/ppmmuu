@@ -12,6 +12,8 @@ const should = require('should');
 chai.use(chaiHttp);
 const expect = chai.expect;
 const agent = chai.request.agent(app);
+const fs = require('fs');
+const path = require('path');
 
 setTimeout(() => {
   describe('/template', () => {
@@ -245,10 +247,28 @@ setTimeout(() => {
       });
     });
 
+    const filePath = path.join(__dirname, 'index.js');
+    let watemarkId = '';
+    describe('POST /upload/uploadWatermark', () => {
+      it('should upload uploadWatermark', (done) => {
+        agent
+            .post('/upload/uploadWatermark')
+            .attach('file', fs.readFileSync(filePath), 'index.png')
+            .end((err, res) => {
+              const rs = JSON.parse(res.text);
+              expect(res).to.have.status(200);
+              expect(rs.status).to.equal('0');
+              watemarkId = rs.statusInfo.message;
+              done();
+            });
+      });
+    });
+
     describe('GET /template/getWatermark', () => {
       it('should template getWatermark', (done) => {
         agent
             .get('/template/getWatermark')
+            .query({objectid: watemarkId})
             .end((err, res) => {
               expect(res).to.have.status(200);
               done();
