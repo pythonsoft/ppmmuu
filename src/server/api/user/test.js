@@ -489,11 +489,7 @@ setTimeout(() => {
             .query({ jobId: dealingJobId })
             .end((err, res) => {
               expect(res).to.have.status(200);
-              if (dealingJobId) {
-                expect(res.body.status).to.equal('0');
-              } else {
-                res.body.status.should.not.equal('0');
-              }
+              expect(res.body.statusInfo.message).to.not.equal('');
               done();
             });
       });
