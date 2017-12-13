@@ -48,6 +48,20 @@ setTimeout(() => {
               collaborators: [
                 { _id: 'b9e77160-da6e-11e7-9ab4-f3602b15a057', name: 'xuyawen' },
               ],
+              editContent: [
+                {
+                  tag: '2',
+                  content: '这是内容1',
+                },
+                {
+                  tag: '3',
+                  content: '这是内容2',
+                },
+                {
+                  tag: '4',
+                  content: '这是内容3',
+                }
+              ]
             })
             .end((err, res) => {
               if (err) {
@@ -157,6 +171,20 @@ setTimeout(() => {
                 "{'_id': 'b9e77160-da6e-11e7-9ab4-f3602b15a057', name: 'xuyawen2'}",
               ],
               attachments,
+              editContent: [
+                {
+                  tag: '2',
+                  content: '这是内容3',
+                },
+                {
+                  tag: '3',
+                  content: '这是内容4',
+                },
+                {
+                  tag: '4',
+                  content: '这是内容5',
+                }
+              ]
             })
             .end((err, res) => {
               if (err) {
