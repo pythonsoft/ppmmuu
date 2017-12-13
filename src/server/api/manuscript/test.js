@@ -38,9 +38,9 @@ setTimeout(() => {
 
     let _id = '';
     describe('#add', () => {
-      it('/manuscript/add', (done) => {
+      it('/manuscript/addOrUpdate', (done) => {
         agent
-            .post('/manuscript/add')
+            .post('/manuscript/addOrUpdate')
             .send({
               title: '标题',
               content: '正文',
@@ -159,9 +159,9 @@ setTimeout(() => {
     });
 
     describe('#updateManuscript', () => {
-      it('/manuscript/updateManuscript', (done) => {
+      it('/manuscript/addOrUpdate', (done) => {
         agent
-            .post('/manuscript/updateManuscript')
+            .post('/manuscript/addOrUpdate')
             .send({
               _id,
               title: '标题1',

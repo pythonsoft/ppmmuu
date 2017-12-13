@@ -87,13 +87,13 @@ router.get('/getManuscript', (req, res) => {
 });
 
 /**
- * @apiName: addManuscript
+ * @apiName: addOrUpdateManuscript
  * @apiFuncType: post
- * @apiFuncUrl: /manuscript/add
+ * @apiFuncUrl: /manuscript/addOrUpdate
  * @swagger
- * /manuscript/add:
+ * /manuscript/addOrUpdate:
  *   post:
- *     description: add manuscript
+ *     description: add or update manuscript
  *     tags:
  *       - v1
  *       - ManuscriptInfo
@@ -102,21 +102,19 @@ router.get('/getManuscript', (req, res) => {
  *     parameters:
  *       - in: body
  *         name: body
- *         description: 必须的字段title,content
+ *         description: 必须的字段title
  *         schema:
  *           type: object
  *           required:
  *            - title
- *            - content
  *           properties:
+ *             _id:
+ *               type: string
+ *               description: "如果有_id就是更新"
  *             title:
  *               type: string
  *               description: "标题"
  *               example: "标题"
- *             content:
- *               type: string
- *               example: "正文"
- *               description: "正文"
  *             viceTitle:
  *               type: string
  *               description: "副标题"
@@ -173,12 +171,12 @@ router.get('/getManuscript', (req, res) => {
  *                message:
  *                  type: string
  */
-router.post('/add', (req, res) => {
+router.post('/addOrUpdate', (req, res) => {
   const info = req.body;
   const creator = { _id: req.ex.userInfo._id, name: req.ex.userInfo.name };
   info.creator = creator;
 
-  service.addManuscript(info, (err, docs) => res.json(result.json(err, docs)));
+  service.addOrUpdateManuscript(info, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
@@ -263,104 +261,6 @@ router.get('/list', (req, res) => {
  */
 router.get('/getManuscript', (req, res) => {
   service.getManuscript(req.query, (err, docs) => res.json(result.json(err, docs)));
-});
-
-/**
- * @apiName: updateManuscript
- * @apiFuncType: post
- * @apiFuncUrl: /manuscript/updateManuscript
- * @swagger
- * /manuscript/updateManuscript:
- *   post:
- *     description: add manuscript
- *     tags:
- *       - v1
- *       - ManuscriptInfo
- *     consumes:
- *       - application/json
- *     parameters:
- *       - in: body
- *         name: body
- *         description: '必须的字段_id'
- *         schema:
- *           type: object
- *           required:
- *            - _id
- *           properties:
- *             _id:
- *               type: string
- *               description: ''
- *               example: '123'
- *             title:
- *               type: string
- *               description: "标题"
- *               example: "标题"
- *             content:
- *               type: string
- *               example: "正文"
- *               description: "正文"
- *             viceTitle:
- *               type: string
- *               description: "副标题"
- *               example: "副标题"
- *             editContent:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   tag:
- *                     type: string
- *                     description: "标签  1:口播, 2:正文, 3:同声期, 4:现场配音, 5:字幕, 6:备注"
- *                   content:
- *                     type: string
- *                     description: "标签对应的文字内容"
- *                     example: '这是一段内容'
- *             attachments:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   attachmentId:
- *                     type: string
- *                     description: "附件的_id"
- *                     example: '1231'
- *                   userId:
- *                     type: string
- *                     description: "上传附件用户的_id"
- *                     example: '1231'
- *                   name:
- *                     type: string
- *                     description: "附件名"
- *                     example: 'test.mp4'
- *               description: '附件'
- *             collaborators:
- *               type: array
- *               items:
- *                 type: object
- *                 example: {'_id': '123', name: 'xuyawen'}
- *               description: '协作人'
- *     responses:
- *       200:
- *         description: GroupInfo
- *         schema:
- *           type: object
- *           properties:
- *            status:
- *              type: string
- *            data:
- *              type: object
- *            statusInfo:
- *              type: object
- *              properties:
- *                message:
- *                  type: string
- */
-router.post('/updateManuscript', (req, res) => {
-  const info = req.body;
-  const creator = { _id: req.ex.userInfo._id, name: req.ex.userInfo.name };
-  info.creator = creator;
-
-  service.updateManuscript(info, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
