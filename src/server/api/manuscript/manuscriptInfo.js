@@ -16,16 +16,40 @@ const utils = require('../../common/utils');
  *   ManuscriptInfo:
  *     required:
  *       - title
- *       - content
+ *       - editContent
  *     properties:
  *       title:
  *         type: string
  *       viceTitle:
  *         type: string
- *       content:
- *         type: string
+ *       editContent:
+ *         type: array
+ *         items:
+ *           type: object
+ *           properties:
+ *             tag:
+ *               type: string
+ *               description: '标签'
+ *             content:
+ *               type: string
+ *               description: '内容'
+ *             modifyTime:
+ *               type: string
+ *               description: '修改时间'
  *       creator:
  *         type: object
+ *       type:
+ *         type: string
+ *         description: '稿件类别'
+ *       contentType:
+ *         type: string
+ *         description: '类别'
+ *       source:
+ *         type: string
+ *         description: '来源'
+ *       important:
+ *         type: string
+ *         description: '重要性'
  *       collaborators:
  *         type: array
  *         items:
@@ -54,9 +78,9 @@ class ManuscriptInfo extends DB {
       title: { type: 'string', validation: 'require' },
       viceTitle: { type: 'string' },
       collaborators: { type: 'array' },
-      content: { type: 'string' },
-      tags: {
-        type: 'array'
+      editContent: {
+        type: 'array',
+        default: [{ tag: '2', content: '', modifyTime: new Date()}]
       },
       type: { type: 'string', default: ManuscriptInfo.TYPE.SOT, validation: v => utils.isValueInObject(v, ManuscriptInfo.TYPE)},
       contentType: { type: 'string', default: ManuscriptInfo.CONTENT_TYPE.ZHENGDIAN, validation: v => utils.isValueInObject(v, ManuscriptInfo.CONTENT_TYPE)},
