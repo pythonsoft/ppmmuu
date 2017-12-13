@@ -51,8 +51,7 @@ setTimeout(() => {
               transcodeTemplateSelector: '',
               transcodeTemplates: [],
               transcodeTemplateDetail: { transcodeTemplates: [], transcodeTemplateSelector: '' },
-            },
-            )
+            })
             .end((err, res) => {
               expect(res).to.have.status(200);
               expect(res.body.status).to.equal('0');
@@ -76,8 +75,7 @@ setTimeout(() => {
               transcodeTemplateSelector: '',
               transcodeTemplates: [],
               transcodeTemplateDetail: { transcodeTemplates: [], transcodeTemplateSelector: '' },
-            },
-            )
+            })
             .end((err, res) => {
               expect(res).to.have.status(200);
               expect(res.body.status).to.equal('0');
