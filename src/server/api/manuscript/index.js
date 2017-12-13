@@ -121,17 +121,35 @@ router.get('/getManuscript', (req, res) => {
  *               type: string
  *               description: "副标题"
  *               example: "副标题"
- *             tags:
+ *             editContent:
  *               type: array
  *               items:
- *                 type: string
- *                 example: '1'
- *               description: "标签  1:口播, 2:正文, 3:同声期, 4:现场配音, 5:字幕, 6:备注"
+ *                 type: object
+ *                 properties:
+ *                   tag:
+ *                     type: string
+ *                     description: "标签  1:口播, 2:正文, 3:同声期, 4:现场配音, 5:字幕, 6:备注"
+ *                   content:
+ *                     type: string
+ *                     description: "标签对应的文字内容"
+ *                     example: '这是一段内容'
  *             attachments:
  *               type: array
  *               items:
  *                 type: object
- *                 example: {'attachmentId': '123', 'userId': '456', 'name': 'test.mp4' }
+ *                 properties:
+ *                   attachmentId:
+ *                     type: string
+ *                     description: "附件的_id"
+ *                     example: '1231'
+ *                   userId:
+ *                     type: string
+ *                     description: "上传附件用户的_id"
+ *                     example: '1231'
+ *                   name:
+ *                     type: string
+ *                     description: "附件名"
+ *                     example: 'test.mp4'
  *               description: '附件'
  *             collaborators:
  *               type: array
@@ -285,17 +303,35 @@ router.get('/getManuscript', (req, res) => {
  *               type: string
  *               description: "副标题"
  *               example: "副标题"
- *             tags:
+ *             editContent:
  *               type: array
  *               items:
- *                 type: string
- *                 example: '1'
- *               description: "标签  1:口播, 2:正文, 3:同声期, 4:现场配音, 5:字幕, 6:备注"
+ *                 type: object
+ *                 properties:
+ *                   tag:
+ *                     type: string
+ *                     description: "标签  1:口播, 2:正文, 3:同声期, 4:现场配音, 5:字幕, 6:备注"
+ *                   content:
+ *                     type: string
+ *                     description: "标签对应的文字内容"
+ *                     example: '这是一段内容'
  *             attachments:
  *               type: array
  *               items:
  *                 type: object
- *                 example: {'attachmentId': '123', 'userId': '456', 'name': 'test.mp4' }
+ *                 properties:
+ *                   attachmentId:
+ *                     type: string
+ *                     description: "附件的_id"
+ *                     example: '1231'
+ *                   userId:
+ *                     type: string
+ *                     description: "上传附件用户的_id"
+ *                     example: '1231'
+ *                   name:
+ *                     type: string
+ *                     description: "附件名"
+ *                     example: 'test.mp4'
  *               description: '附件'
  *             collaborators:
  *               type: array
