@@ -220,4 +220,19 @@ service.deleteConfig = function deleteConfig(id, cb) {
   });
 };
 
+service.getConfig = function getSearchConfig(query, cb) {
+  configurationInfo.collection.findOne(query, { fields: { key: 1, value: 1 } }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    try {
+      return cb && cb(null, JSON.parse(doc.value));
+    } catch (e) {
+      return cb && cb(i18n.t('getConfigError'));
+    }
+  });
+};
+
 module.exports = service;

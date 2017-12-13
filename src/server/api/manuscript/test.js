@@ -61,6 +61,36 @@ setTimeout(() => {
       });
     });
 
+    describe('#getTagsConfig', () => {
+      it('/manuscript/getTagsConfig', (done) => {
+        agent
+            .get('/manuscript/getTagsConfig')
+            .end((err, res) => {
+              if (err) {
+                throw err;
+              }
+              // Should.js fluent syntax applied
+              res.body.status.should.equal('0');
+              done();
+            });
+      });
+    });
+
+    describe('#getManuscriptConfig', () => {
+      it('/manuscript/getManuscriptConfig', (done) => {
+        agent
+            .get('/manuscript/getManuscriptConfig')
+            .end((err, res) => {
+              if (err) {
+                throw err;
+              }
+              // Should.js fluent syntax applied
+              res.body.status.should.equal('0');
+              done();
+            });
+      });
+    });
+
     describe('#listManuscript', () => {
       it('/manuscript/list', (done) => {
         agent

@@ -20,6 +20,8 @@ const AttachmentInfo = require('./attachmentInfo');
 
 const attachmentInfo = new AttachmentInfo();
 
+const configService = require('../configuration/service')
+
 const service = {};
 
 service.listManuscript = function listManuscript(info, cb) {
@@ -219,6 +221,7 @@ service.changeManuscriptStatus = function changeManuscriptStatus(info, cb) {
     _id: { $in: _ids },
     'creator._id': info.creator._id,
   };
+  delete info._ids;
 
   manuscriptInfo.collection.find(query).toArray((err, docs) => {
     if (err) {
@@ -231,7 +234,14 @@ service.changeManuscriptStatus = function changeManuscriptStatus(info, cb) {
     }
 
     if (status !== ManuscriptInfo.DELETED) {
-      manuscriptInfo.collection.updateMany(query, { $set: { status } }, (err) => {
+      const rs = manuscriptInfo.updateAssign(info);
+      if(rs.err){
+        return cb && cb(rs.err);
+      }
+      info = rs.doc;
+      info.modifyTime = new Date();
+
+      manuscriptInfo.collection.updateMany(query, { $set: info }, (err) => {
         if (err) {
           return cb && cb(err);
         }
@@ -316,5 +326,14 @@ service.hongKongSimplified = function hongKongSimplified(info, cb) {
   return cb && cb(null, info);
 };
 
+service.getTagsConfig = function getTagsConfig(cb){
+  const query = { key: 'manuscriptTags'};
+  configService.getConfig(query, cb);
+}
+
+service.getManuscriptConfig = function getManuscriptConfig(cb){
+  const query = { key: 'manuscriptInfoConfig'};
+  configService.getConfig(query, cb);
+}
 
 module.exports = service;

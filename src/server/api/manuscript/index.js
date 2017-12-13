@@ -15,6 +15,76 @@ const upload = require('../../common/multer').upload;
 router.use(isLogin.middleware);
 router.use(isLogin.hasAccessMiddleware);
 
+/**
+ * @apiName: getTagsConfig
+ * @apiFuncType: get
+ * @apiFuncUrl: /manuscript/getTagsConfig
+ * @swagger
+ * /manuscript/getTagsConfig:
+ *   get:
+ *     description: 获取标签配置
+ *     tags:
+ *       - v1
+ *       - ManuscriptInfo
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: ManuscriptInfo
+ */
+router.get('/getTagsConfig', (req, res) => {
+  service.getTagsConfig((err, docs) => res.json(result.json(err, docs)));
+});
+
+/**
+ * @apiName: getManuscriptConfig
+ * @apiFuncType: get
+ * @apiFuncUrl: /manuscript/getManuscriptConfig
+ * @swagger
+ * /manuscript/getManuscriptConfig:
+ *   get:
+ *     description: 提交稿件时用到的相关配置项
+ *     tags:
+ *       - v1
+ *       - ManuscriptInfo
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: ManuscriptInfo
+ */
+router.get('/getManuscriptConfig', (req, res) => {
+  service.getManuscriptConfig((err, docs) => res.json(result.json(err, docs)));
+});
+
+/**
+ * @apiName: getManuscript
+ * @apiFuncType: get
+ * @apiFuncUrl: /manuscript/getManuscript
+ * @swagger
+ * /manuscript/getManuscript:
+ *   get:
+ *     description: get list allChildGroups
+ *     tags:
+ *       - v1
+ *       - ManuscriptInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: _id
+ *         description: ''
+ *         required: false
+ *         type: string
+ *         default: "043741f0-5cac-11e7-9a4a-5b43dc9cf567"
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: ManuscriptInfo
+ */
+router.get('/getManuscript', (req, res) => {
+  service.getManuscript(req.query, (err, docs) => res.json(result.json(err, docs)));
+});
 
 /**
  * @apiName: addManuscript
@@ -51,6 +121,12 @@ router.use(isLogin.hasAccessMiddleware);
  *               type: string
  *               description: "副标题"
  *               example: "副标题"
+ *             tags:
+ *               type: array
+ *               items:
+ *                 type: string
+ *                 example: '1'
+ *               description: "标签  1:口播, 2:正文, 3:同声期, 4:现场配音, 5:字幕, 6:备注"
  *             attachments:
  *               type: array
  *               items:
@@ -209,6 +285,12 @@ router.get('/getManuscript', (req, res) => {
  *               type: string
  *               description: "副标题"
  *               example: "副标题"
+ *             tags:
+ *               type: array
+ *               items:
+ *                 type: string
+ *                 example: '1'
+ *               description: "标签  1:口播, 2:正文, 3:同声期, 4:现场配音, 5:字幕, 6:备注"
  *             attachments:
  *               type: array
  *               items:
@@ -273,6 +355,18 @@ router.post('/updateManuscript', (req, res) => {
  *             status:
  *               type: string
  *               description: "1: 草稿, 2: 已提交, 3: 垃圾箱, 4:删除"
+ *             type:
+ *               type: string
+ *               description: "稿件类别  1: SOT, 2: 干稿"
+ *             source:
+ *               type: string
+ *               description: "来源 1: HK香港, 2: BJ北京"
+ *             contentType:
+ *               type: string
+ *               description: "类别 1: 正点, 2: 直通车"
+ *             important:
+ *               type: string
+ *               description: "重要性 1: 高, 2: 普通, 3: 直通车"
  *     responses:
  *       200:
  *         description: ManuscriptInfo

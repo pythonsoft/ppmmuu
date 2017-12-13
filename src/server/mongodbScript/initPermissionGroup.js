@@ -333,6 +333,12 @@ const infos = [
     index: 'trends',
     parentIndex: '',
   },
+  {
+    _id: 'movieEditor',
+    name: '视频编辑',
+    index: 'movieEditor',
+    parentIndex: '',
+  },
 ];
 
 
