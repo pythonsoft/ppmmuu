@@ -99,6 +99,14 @@ const updateAttachments = function updateAttachments(attachments, manuscriptId, 
   });
 };
 
+service.addOrUpdateManuscript = function addOrUpdateManuscript(info, cb){
+  if(info._id){
+    service.updateManuscript(info, cb);
+  }else{
+    service.addManuscript(info, cb);
+  }
+}
+
 service.addManuscript = function addManuscript(info, cb) {
   if( info.editContent && utils.getValueType(info.editContent) === 'array'){
     let editContent = info.editContent;
