@@ -1,13 +1,21 @@
 const request = require('request');
 const fs = require('fs');
 const path = require('path');
+const utils = require('./server/common/utils')
 
 const api = {};
+
+api.generateBuildVersion = function (version) {
+  const arr = version.split('.');
+  const len = arr.length;
+  arr[len - 1] = utils.formatTime(new Date(), 'YYYYMMDDHHmmss');
+  return arr.join('.');
+};
 
 const composeTemplate = function composeTemplate(version, updateList) {
   return `
 {
-  "version": "${version}",
+  "version": "${api.generateBuildVersion(version)}",
   "updateList": [
     ${updateList.join(',\n    ')}
   ]
