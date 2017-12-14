@@ -8,7 +8,7 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const app = require('../../app');
 const should = require('should');
-const fs = require('graceful-fs');
+const fs = require('fs');
 const path = require('path');
 
 chai.use(chaiHttp);

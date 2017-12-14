@@ -368,7 +368,7 @@ service.getManuscriptConfig = function getManuscriptConfig(cb) {
 };
 
 service.listGroup = function listGroup(info, cb) {
-  const parentId = info.parentId || '';
+  let parentId = info.parentId || '';
   const type = info.type || '';
   const page = info.page || 1;
   const pageSize = info.pageSize || 999;
@@ -376,7 +376,9 @@ service.listGroup = function listGroup(info, cb) {
 
   if (type === GroupInfo.TYPE.COMPANY) {
     _id = info.userInfo.company._id;
-  } else if (!parentId) {
+  } else if (type === GroupInfo.TYPE.DEPARTMENT && !parentId) {
+    parentId = info.userInfo.company._id;
+  } else {
     return cb && cb(i18n.t('groupParentIdIsNull'));
   }
   groupService.listGroup(parentId, type, page, pageSize, cb, _id);

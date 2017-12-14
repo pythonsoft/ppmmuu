@@ -9,7 +9,7 @@ const chaiHttp = require('chai-http');
 const app = require('../../app');
 const should = require('should');
 const path = require('path');
-const fs = require('graceful-fs');
+const fs = require('fs');
 
 chai.use(chaiHttp);
 const expect = chai.expect;
