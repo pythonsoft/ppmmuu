@@ -38,9 +38,9 @@ setTimeout(() => {
 
     let _id = '';
     describe('#add', () => {
-      it('/manuscript/add', (done) => {
+      it('/manuscript/addOrUpdate', (done) => {
         agent
-            .post('/manuscript/add')
+            .post('/manuscript/addOrUpdate')
             .send({
               title: '标题',
               content: '正文',
@@ -48,6 +48,20 @@ setTimeout(() => {
               collaborators: [
                 { _id: 'b9e77160-da6e-11e7-9ab4-f3602b15a057', name: 'xuyawen' },
               ],
+              editContent: [
+                {
+                  tag: '2',
+                  content: '这是内容1',
+                },
+                {
+                  tag: '3',
+                  content: '这是内容2',
+                },
+                {
+                  tag: '4',
+                  content: '这是内容3',
+                }
+              ]
             })
             .end((err, res) => {
               if (err) {
@@ -145,9 +159,9 @@ setTimeout(() => {
     });
 
     describe('#updateManuscript', () => {
-      it('/manuscript/updateManuscript', (done) => {
+      it('/manuscript/addOrUpdate', (done) => {
         agent
-            .post('/manuscript/updateManuscript')
+            .post('/manuscript/addOrUpdate')
             .send({
               _id,
               title: '标题1',
@@ -157,6 +171,20 @@ setTimeout(() => {
                 "{'_id': 'b9e77160-da6e-11e7-9ab4-f3602b15a057', name: 'xuyawen2'}",
               ],
               attachments,
+              editContent: [
+                {
+                  tag: '2',
+                  content: '这是内容3',
+                },
+                {
+                  tag: '3',
+                  content: '这是内容4',
+                },
+                {
+                  tag: '4',
+                  content: '这是内容5',
+                }
+              ]
             })
             .end((err, res) => {
               if (err) {

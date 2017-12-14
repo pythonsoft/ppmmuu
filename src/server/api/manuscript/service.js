@@ -99,7 +99,23 @@ const updateAttachments = function updateAttachments(attachments, manuscriptId, 
   });
 };
 
+service.addOrUpdateManuscript = function addOrUpdateManuscript(info, cb){
+  if(info._id){
+    service.updateManuscript(info, cb);
+  }else{
+    service.addManuscript(info, cb);
+  }
+}
+
 service.addManuscript = function addManuscript(info, cb) {
+  if( info.editContent && utils.getValueType(info.editContent) === 'array'){
+    let editContent = info.editContent;
+    info.editContent = editContent.map(item=>({
+      tag: item.tag,
+      content: item.content,
+      modifyTime: new Date()
+    }))
+  }
   manuscriptInfo.insertOne(info, (err, r) => {
     if (err) {
       logger.error(err.message);
@@ -166,6 +182,15 @@ service.updateManuscript = function updateManuscript(info, cb) {
 
   if (!_id) {
     return cb && cb(i18n.t('manuscriptIdIsNull'));
+  }
+
+  if( info.editContent && utils.getValueType(info.editContent) === 'array'){
+    let editContent = info.editContent;
+    info.editContent = editContent.map(item=>({
+      tag: item.tag,
+      content: item.content,
+      modifyTime: new Date()
+    }))
   }
 
   manuscriptInfo.updateOne({ _id }, info, (err) => {
