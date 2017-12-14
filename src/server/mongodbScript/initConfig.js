@@ -422,8 +422,8 @@ const assistTags = [
       { value: '6', label: '备注' },
     ],
     selected: [],
-  }
-]
+  },
+];
 
 const manuscriptTags = [
   {
@@ -439,9 +439,9 @@ const manuscriptTags = [
       { value: '6', label: '备注' },
     ],
     selected: [],
-    multiple: true
-  }
-]
+    multiple: true,
+  },
+];
 
 const manuscriptSubmit = [
   {
@@ -450,10 +450,10 @@ const manuscriptSubmit = [
     type: 'label',
     items: [
       { value: '1', label: 'SOT' },
-      { value: '2', label: '干稿' }
+      { value: '2', label: '干稿' },
     ],
     selected: '',
-    multiple: false
+    multiple: false,
   },
   {
     key: 'source',
@@ -477,10 +477,10 @@ const manuscriptSubmit = [
       { value: '15', label: 'TW台湾' },
       { value: '16', label: '特约记者' },
       { value: '17', label: '娱乐新闻' },
-      { value: '18', label: '其他' }
+      { value: '18', label: '其他' },
     ],
     selected: '',
-    multiple: false
+    multiple: false,
   },
   {
     key: 'contentType',
@@ -508,7 +508,7 @@ const manuscriptSubmit = [
       { value: '19', label: '香港台' },
     ],
     selected: '',
-    multiple: false
+    multiple: false,
   },
   {
     key: 'important',
@@ -517,18 +517,18 @@ const manuscriptSubmit = [
     items: [
       { value: '1', label: '高' },
       { value: '2', label: '普通' },
-      { value: '3', label: '紧急稿件' }
+      { value: '3', label: '紧急稿件' },
     ],
     selected: '',
-    multiple: false
+    multiple: false,
   },
-]
+];
 
-const initConfig = function initConfig(groupName, info){
+const initConfig = function initConfig(groupName, info) {
   configGroup.collection.removeOne({ name: groupName }, (err) => {
     const keys = [];
-    for(let i = 0, len = info.length; i < len; i++){
-      keys.push(info[i].key)
+    for (let i = 0, len = info.length; i < len; i++) {
+      keys.push(info[i].key);
     }
     configInfo.collection.removeMany({ key: { $in: keys } }, (err) => {
       configGroup.insertOne({ name: groupName }, (err, r) => {
@@ -538,7 +538,7 @@ const initConfig = function initConfig(groupName, info){
         }
 
         const genre = r.insertedId;
-        for(let i = 0, len = info.length; i < len; i++){
+        for (let i = 0, len = info.length; i < len; i++) {
           info[i].genre = genre;
         }
         configInfo.insertMany(info, (err) => {
@@ -550,19 +550,18 @@ const initConfig = function initConfig(groupName, info){
       });
     });
   });
-
-}
+};
 
 const mediaInfo = [
   {
     key: 'meidaCenterSearchSelects',
     value: JSON.stringify(meidaCenterSearchSelects),
-    description: ''
+    description: '',
   },
   {
     key: 'mediaCenterSearchRadios',
     value: JSON.stringify(mediaCenterSearchRadios),
-    description: ''
+    description: '',
   },
 ];
 initConfig('新版媒体库搜索配置', mediaInfo);
@@ -570,20 +569,20 @@ initConfig('新版媒体库搜索配置', mediaInfo);
 const subInfo = [{
   key: 'subscribeSearchConfig',
   value: JSON.stringify(subscribeConfig),
-  description: ''
+  description: '',
 }];
 initConfig('订阅搜索配置', subInfo);
 
 const manuscriptInfoTags = [{
   key: 'manuscriptTags',
   value: JSON.stringify(manuscriptTags),
-  description: ''
+  description: '',
 }];
 initConfig('稿件标签配置', manuscriptInfoTags);
 
 const manuscriptInfo = [{
   key: 'manuscriptInfoConfig',
   value: JSON.stringify(manuscriptSubmit),
-  description: ''
+  description: '',
 }];
 initConfig('稿件配置', manuscriptInfo);

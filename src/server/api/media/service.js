@@ -637,8 +637,8 @@ const getObjectFromHK = function getObjectFromHK(info, cb) {
         if (program[key] === '' || program[key] === null) {
           delete program[key];
         } else {
-          if(typeof program[key] === 'string' && program[key].match("\\d{4}-\\d{2}-\\d{2}")){
-            if(new Date(program[key]) < new Date('1900-01-01')){
+          if (typeof program[key] === 'string' && program[key].match('\\d{4}-\\d{2}-\\d{2}')) {
+            if (new Date(program[key]) < new Date('1900-01-01')) {
               program[key] = 'N/A';
             }
           }
@@ -656,15 +656,15 @@ const getObjectFromHK = function getObjectFromHK(info, cb) {
       }
     }
 
-    if(rs.result.detail && rs.result.detail.sequence){
+    if (rs.result.detail && rs.result.detail.sequence) {
       const sequence = rs.result.detail.sequence;
 
       for (const key in sequence) {
         if (sequence[key] === '' || sequence[key] === null) {
           delete sequence[key];
         } else {
-          if(typeof sequence[key] === 'string' && sequence[key].match("\\d{4}-\\d{2}-\\d{2}")){
-            if(new Date(sequence[key]) < new Date('1900-01-01')){
+          if (typeof sequence[key] === 'string' && sequence[key].match('\\d{4}-\\d{2}-\\d{2}')) {
+            if (new Date(sequence[key]) < new Date('1900-01-01')) {
               sequence[key] = 'N/A';
             }
           }

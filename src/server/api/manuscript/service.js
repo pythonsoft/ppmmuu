@@ -20,7 +20,13 @@ const AttachmentInfo = require('./attachmentInfo');
 
 const attachmentInfo = new AttachmentInfo();
 
-const configService = require('../configuration/service')
+const GroupInfo = require('../group/groupInfo');
+
+const configService = require('../configuration/service');
+
+const groupService = require('../group/service');
+
+const groupUserService = require('../group/userService');
 
 const service = {};
 
@@ -99,22 +105,22 @@ const updateAttachments = function updateAttachments(attachments, manuscriptId, 
   });
 };
 
-service.addOrUpdateManuscript = function addOrUpdateManuscript(info, cb){
-  if(info._id){
+service.addOrUpdateManuscript = function addOrUpdateManuscript(info, cb) {
+  if (info._id) {
     service.updateManuscript(info, cb);
-  }else{
+  } else {
     service.addManuscript(info, cb);
   }
-}
+};
 
 service.addManuscript = function addManuscript(info, cb) {
-  if( info.editContent && utils.getValueType(info.editContent) === 'array'){
-    let editContent = info.editContent;
-    info.editContent = editContent.map(item=>({
+  if (info.editContent && utils.getValueType(info.editContent) === 'array') {
+    const editContent = info.editContent;
+    info.editContent = editContent.map(item => ({
       tag: item.tag,
       content: item.content,
-      modifyTime: new Date()
-    }))
+      modifyTime: new Date(),
+    }));
   }
   manuscriptInfo.insertOne(info, (err, r) => {
     if (err) {
@@ -184,13 +190,13 @@ service.updateManuscript = function updateManuscript(info, cb) {
     return cb && cb(i18n.t('manuscriptIdIsNull'));
   }
 
-  if( info.editContent && utils.getValueType(info.editContent) === 'array'){
-    let editContent = info.editContent;
-    info.editContent = editContent.map(item=>({
+  if (info.editContent && utils.getValueType(info.editContent) === 'array') {
+    const editContent = info.editContent;
+    info.editContent = editContent.map(item => ({
       tag: item.tag,
       content: item.content,
-      modifyTime: new Date()
-    }))
+      modifyTime: new Date(),
+    }));
   }
 
   manuscriptInfo.updateOne({ _id }, info, (err) => {
@@ -260,7 +266,7 @@ service.changeManuscriptStatus = function changeManuscriptStatus(info, cb) {
 
     if (status !== ManuscriptInfo.DELETED) {
       const rs = manuscriptInfo.updateAssign(info);
-      if(rs.err){
+      if (rs.err) {
         return cb && cb(rs.err);
       }
       info = rs.doc;
@@ -351,14 +357,33 @@ service.hongKongSimplified = function hongKongSimplified(info, cb) {
   return cb && cb(null, info);
 };
 
-service.getTagsConfig = function getTagsConfig(cb){
-  const query = { key: 'manuscriptTags'};
+service.getTagsConfig = function getTagsConfig(cb) {
+  const query = { key: 'manuscriptTags' };
   configService.getConfig(query, cb);
-}
+};
 
-service.getManuscriptConfig = function getManuscriptConfig(cb){
-  const query = { key: 'manuscriptInfoConfig'};
+service.getManuscriptConfig = function getManuscriptConfig(cb) {
+  const query = { key: 'manuscriptInfoConfig' };
   configService.getConfig(query, cb);
-}
+};
+
+service.listGroup = function listGroup(info, cb) {
+  const parentId = info.parentId || '';
+  const type = info.type || '';
+  const page = info.page || 1;
+  const pageSize = info.pageSize || 999;
+  let _id = '';
+
+  if (type === GroupInfo.TYPE.COMPANY) {
+    _id = info.userInfo.company._id;
+  } else if (!parentId) {
+    return cb && cb(i18n.t('groupParentIdIsNull'));
+  }
+  groupService.listGroup(parentId, type, page, pageSize, cb, _id);
+};
+
+service.getGroupUserList = function getGroupUserList(info, cb) {
+  groupUserService.getGroupUserList(info, cb);
+};
 
 module.exports = service;

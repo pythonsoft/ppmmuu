@@ -60,7 +60,7 @@ setTimeout(() => {
               expect(res.body.status).to.equal('0');
               const rs = res.body.data;
               for (const key in rs) {
-                if(rs[key].category !== '瀏覽歷史') {
+                if (rs[key].category !== '瀏覽歷史') {
                   expect(rs[key].docs).to.have.lengthOf.at.least(1);
                   expect(rs[key].docs).to.have.lengthOf.at.most(4);
                 }
@@ -98,18 +98,18 @@ setTimeout(() => {
     });
   });
 
-  after((done)=>{
+  after((done) => {
     mongodb.MongoClient.connect('mongodb://10.0.15.62:27017/ump_test', (err, db) => {
       if (err) {
         console.log(err);
         done();
       }
-      if(db){
+      if (db) {
         db.dropDatabase();
       }
       done();
-    })
-  })
+    });
+  });
 
   run();
 }, 5000);

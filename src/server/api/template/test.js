@@ -268,7 +268,7 @@ setTimeout(() => {
       it('should template getWatermark', (done) => {
         agent
             .get('/template/getWatermark')
-            .query({objectid: watemarkId})
+            .query({ objectid: watemarkId })
             .end((err, res) => {
               expect(res).to.have.status(200);
               done();
