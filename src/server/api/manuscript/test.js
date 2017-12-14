@@ -19,6 +19,90 @@ const mongodb = require('mongodb');
 const uuid = require('uuid');
 
 setTimeout(() => {
+  let userIds = '';
+  let userInfo = '';
+  let groupInfo = '';
+  const parentId = 'fhws';
+  const groupId = '';
+  const departmentId = 'xcb';
+
+  before((done) => {
+    mongodb.MongoClient.connect('mongodb://10.0.15.62:27017/ump_test', (err, db) => {
+      if (err) {
+        console.log(err);
+        done();
+      }
+      userInfo = db.collection('UserInfo');
+      groupInfo = db.collection('GroupInfo');
+      userInfo.findOne({ email: 'xuyawen@phoenixtv.com' }, (err, doc) => {
+        if (err) {
+          console.log(err);
+          done();
+        }
+        userIds = doc._id;
+        groupInfo.insertOne({
+          _id: parentId,
+          name: 'fhws',
+          logo: 'http://localhost:8080/uploads/baa8fb5a1fb9567ba2b054c3fb23080e',
+          creator: {
+            _id: 'xuyawen@phoenixtv.com',
+            name: 'xuyawen',
+          },
+          parentId: '',
+          contact: {
+            _id: 'asfasf',
+            name: 'xuyawen',
+            phone: '18719058667',
+            email: 'asfasf@qq.com',
+          },
+          memberCount: 50,
+          ad: '',
+          type: '0',
+          createdTime: '2017-07-04T03:44:47.787Z',
+          modifyTime: '2017-07-04T03:44:47.787Z',
+          description: '',
+          deleteDeny: '1',
+          detail: {},
+          t: 1510314404064.0,
+          mediaExpressUser: {
+            username: '',
+            password: '',
+            userType: '',
+            companyName: '',
+            email: '',
+          },
+        }, () => {
+          groupInfo.insertOne({
+            _id: departmentId,
+            name: '宣传部',
+            logo: '',
+            creator: {
+              _id: 'xuyawen@phoenixtv.com',
+              name: 'xuyawen',
+            },
+            parentId,
+            contact: {
+              name: '',
+              phone: '',
+              email: '',
+            },
+            memberCount: 0,
+            ad: '',
+            type: '1',
+            createdTime: '2017-07-04T06:36:44.472Z',
+            modifyTime: '2017-07-04T06:36:55.498Z',
+            description: '',
+            deleteDeny: '0',
+            detail: {},
+            t: 1509100084234.0,
+          }, () => {
+            done();
+          });
+        });
+      });
+    });
+  });
+
   describe('manuscript', () => {
     describe('#login', () => {
       it('/user/login', (done) => {
@@ -60,8 +144,8 @@ setTimeout(() => {
                 {
                   tag: '4',
                   content: '这是内容3',
-                }
-              ]
+                },
+              ],
             })
             .end((err, res) => {
               if (err) {
@@ -183,8 +267,8 @@ setTimeout(() => {
                 {
                   tag: '4',
                   content: '这是内容5',
-                }
-              ]
+                },
+              ],
             })
             .end((err, res) => {
               if (err) {
@@ -290,6 +374,40 @@ setTimeout(() => {
               done();
             });
       });
+    });
+  });
+
+  describe('#listGroup', () => {
+    it('/manuscript/listGroup', (done) => {
+      agent
+          .get('/manuscript/listGroup')
+          .query({
+            type: '0',
+          })
+          .end((err, res) => {
+            if (err) {
+              throw err;
+            }
+            // Should.js fluent syntax applied
+            res.body.status.should.equal('0');
+            done();
+          });
+    });
+  });
+
+  describe('#listUser', () => {
+    it('/manuscript/listUser', (done) => {
+      agent
+          .get('/manuscript/listUser')
+          .query({ _id: parentId, type: '0' })
+          .end((err, res) => {
+            if (err) {
+              throw err;
+            }
+            // Should.js fluent syntax applied
+            res.body.status.should.equal('0');
+            done();
+          });
     });
   });
 

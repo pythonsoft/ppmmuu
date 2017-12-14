@@ -39,7 +39,7 @@ setTimeout(() => {
     describe('/initConfig', () => {
       it('should init config', (done) => {
         configInfo.collection.find().toArray((err, docs) => {
-          expect(docs).to.have.lengthOf(3);
+          expect(docs).to.have.lengthOf(5);
           done();
         });
       });

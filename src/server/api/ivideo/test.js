@@ -31,10 +31,10 @@ setTimeout(() => {
         }
         itemInfo = db.collection('MovieEditor_ItemInfo');
         projectInfo = db.collection('MovieEditor_ProjectInfo');
-        itemInfo.findOne({'parentId': {$ne: ''}}, (err, doc)=>{
+        itemInfo.findOne({ parentId: { $ne: '' } }, (err, doc) => {
           itemInfoParentId = doc ? doc.parentId : '';
           done();
-        })
+        });
       });
     });
 

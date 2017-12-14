@@ -513,4 +513,120 @@ router.post('/hongKongSimplified', (req, res) => {
   service.hongKongSimplified(info, (err, r) => res.json(result.json(err, r)));
 });
 
+
+/**
+ * @apiName: getGroupList
+ * @apiFuncType: get
+ * @apiFuncUrl: /manuscript/listGroup
+ * @swagger
+ * /manuscript/listGroup:
+ *   get:
+ *     description: get list manuscript
+ *     tags:
+ *       - v1
+ *       - ManuscriptInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: parentId
+ *         description:
+ *         required: false
+ *         type: string
+ *         default: "043741f0-5cac-11e7-9a4a-5b43dc9cf567"
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: type
+ *         description: group type
+ *         required: false
+ *         type: string
+ *         default: "0"
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: page
+ *         description:
+ *         required: false
+ *         type: integer
+ *         default: 1
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: pageSize
+ *         description:
+ *         required: false
+ *         type: integer
+ *         default: 999
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: RoleInfo
+ */
+router.get('/listGroup', (req, res) => {
+  const info = req.query;
+  const userInfo = req.ex.userInfo;
+  info.userInfo = userInfo;
+
+  service.listGroup(info, (err, docs) =>
+      res.json(result.json(err, docs)));
+});
+
+/**
+ * @apiName: getGroupUserList
+ * @apiFuncType: get
+ * @apiFuncUrl: /manuscript/listUser
+ * @swagger
+ * /manuscript/listUser:
+ *   get:
+ *     description: get manuscript user list
+ *     tags:
+ *       - v1
+ *       - ManuscriptInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: _id
+ *         description: "组织_id"
+ *         required: true
+ *         type: string
+ *         example: "bea711c0-67ae-11e7-8b13-c506d97b38b0"
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: type
+ *         description: "'0'表示公司,'1'表示部门,'2'表示小组"
+ *         required: true
+ *         type: string
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: status
+ *         description: "'1'表示启用,'0'表示禁用,'all'表示全部"
+ *         required: false
+ *         type: string
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: keyword
+ *         description:
+ *         required: false
+ *         type: string
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: page
+ *         description:
+ *         required: false
+ *         type: integer
+ *         default: 1
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: pageSize
+ *         description:
+ *         required: false
+ *         type: integer
+ *         default: 30
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: GroupInfo
+ */
+router.get('/listUser', (req, res) => {
+  service.getGroupUserList(req.query, (err, docs) => res.json(result.json(err, docs)));
+});
 module.exports = router;
