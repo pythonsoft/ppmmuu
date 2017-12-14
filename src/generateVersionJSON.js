@@ -1,7 +1,7 @@
 const request = require('request');
 const fs = require('fs');
 const path = require('path');
-const utils = require('./server/common/utils')
+const utils = require('./server/common/utils');
 
 const api = {};
 
