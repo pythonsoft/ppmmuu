@@ -183,7 +183,7 @@ const chaoningCoolie = function (version, cb) {
 
           console.log(`transfer ${versionName} file success.`);
 
-          const formatVersion = version.replace(/\s/g, '');
+          const formatVersion = generateVersionJson.generateBuildVersion(version.replace(/\s/g, ''));
 
           exec(`cd ${chaoningDeployPath} && zip -r ${formatVersion}.zip ${feName} ${umpName} ${versionName}`, (error, stdout, stderr) => {
             if (error) {
