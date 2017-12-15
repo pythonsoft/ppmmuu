@@ -173,8 +173,8 @@ ManuscriptInfo.CONVERSION_TYPE = {
 };
 
 ManuscriptInfo.LIST_TYPE = {
-  OWNER: '0',        // 自己创建的类型
-  COLLABORATOR: '1',  // 协作类型
+  OWNER: '1',        // 自己创建的类型
+  COLLABORATOR: '2',  // 协作类型
 };
 
 ManuscriptInfo.DELETED = '4';
