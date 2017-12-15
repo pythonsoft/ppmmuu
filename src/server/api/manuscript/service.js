@@ -70,10 +70,10 @@ service.listManuscript = function listManuscript(info, cb) {
 
     const docs = r.docs || [];
     for (let i = 0, len = docs.length; i < len; i++) {
-      if (docs[i]['creator._id'] === userId) {
-        docs[i].type = ManuscriptInfo.LIST_TYPE.OWNER;
+      if (docs[i].creator._id === userId) {
+        docs[i].createType = ManuscriptInfo.LIST_TYPE.OWNER;
       } else {
-        docs[i].type = ManuscriptInfo.LIST_TYPE.COLLABORATOR;
+        docs[i].createType = ManuscriptInfo.LIST_TYPE.COLLABORATOR;
       }
     }
     return cb && cb(null, r);
