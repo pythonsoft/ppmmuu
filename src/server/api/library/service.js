@@ -27,7 +27,6 @@ const templateInfo = new TemplateInfo();
 
 const userService = require('../user/service');
 const groupService = require('../group/service');
-const templateService = require('../template/service');
 
 const service = {};
 
@@ -780,58 +779,17 @@ const checkHdExt = function checkHdExt(hdExt) {
 
 /* 入库模板 */
 service.addTemplate = function addTemplate(info, creatorId, creatorName, cb) {
-  if (utils.isEmptyObject(info)) {
-    return cb && cb(i18n.t('libraryTemplateInfoIsNull'));
-  }
-
-  const tInfo = utils.merge({
-    source: '',
-    departmentId: '',
-    transcodeTemplates: [], //
-    transcodeScript: '',
-    bucketId: '',
-    hdExt: [],
-  }, info);
-
-  if (!tInfo.source) {
-    return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: 'source' }));
-  }
-
-  if (!tInfo.departmentId) {
+  const t = new Date();
+  if (!info.departmentId) {
     return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: 'departmentId' }));
   }
 
-  const t = new Date();
+  info._id = uuid.v1();
+  info.creator = { _id: creatorId, name: creatorName };
+  info.createdTime = t;
+  info.lastModifyTime = t;
 
-  tInfo._id = uuid.v1();
-  tInfo.creator = { _id: creatorId, name: creatorName };
-  tInfo.createdTime = t;
-  tInfo.lastModifyTime = t;
-
-  tInfo.transcodeTemplateDetail = {
-    script: tInfo.transcodeScript || '',
-    templatesId: [],
-  };
-
-  if (tInfo.transcodeTemplates) {
-    const rs = templateService.composeTranscodeTemplates(tInfo.transcodeTemplates);
-    if (rs.status !== '0') {
-      return cb && cb(rs.result);
-    } else if (rs.result) {
-      tInfo.transcodeTemplateDetail.templatesId = rs.result;
-    }
-  }
-
-  if (tInfo.hdExt) {
-    const exRs = checkHdExt(tInfo.hdExt);
-    if (exRs.err) {
-      return cb && cb(exRs.err);
-    }
-
-    tInfo.hdExt = exRs.result;
-  }
-
-  groupService.getGroup(tInfo.departmentId, (err, doc) => {
+  groupService.getGroup(info.departmentId, (err, doc) => {
     if (err) {
       return cb && cb(err);
     }
@@ -840,14 +798,13 @@ service.addTemplate = function addTemplate(info, creatorId, creatorName, cb) {
       return cb && cb(i18n.t('libraryDepartmentInfoIsNotExist'));
     }
 
-    tInfo.department = { _id: doc._id, name: doc.name };
-
-    templateInfo.insertOne(tInfo, (err) => {
+    info.department = { _id: doc._id, name: doc.name };
+    templateInfo.insertOne(info, (err) => {
       if (err) {
         return cb && cb(err);
       }
 
-      return cb && cb(null, tInfo);
+      return cb && cb(null, info);
     });
   });
 };
@@ -872,11 +829,6 @@ service.getTemplateResult = function getTemplateResult(_id, filePath, cb) {
     return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: '_id' }));
   }
 
-  if (!filePath) {
-    return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: 'filePath' }));
-  }
-
-  // 拿到部门信息
   templateInfo.collection.findOne({ _id }, (err, doc) => {
     if (err) {
       logger.error(err.message);
@@ -887,18 +839,7 @@ service.getTemplateResult = function getTemplateResult(_id, filePath, cb) {
       return cb && cb(i18n.t('libraryTemplateInfoIsNotExist'));
     }
 
-    templateService.getTranscodeTemplateByDetail({ transcodeTemplateDetail: {
-      transcodeTemplates: doc.transcodeTemplateDetail.templatesId || [],
-      transcodeTemplateSelector: doc.transcodeTemplateDetail.script || '',
-    } }, filePath, (err, rs) => {
-      if (err) {
-        return cb && cb(err);
-      }
-
-      doc.templateId = rs; // 转码模板ID，这是工作流接口需要使用的参数
-
-      return cb && cb(null, templateInfo.getJobVo(doc));
-    }, true);
+    return cb && cb(null, templateInfo.getJobVo(doc));
   });
 };
 
@@ -935,42 +876,7 @@ service.updateTemplate = function updateTemplate(_id, info, cb) {
     return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: '_id' }));
   }
 
-  const updateInfo = {};
-
-  if (info.hdExt) {
-    const exRs = checkHdExt(info.hdExt);
-    if (exRs.err) {
-      return cb && cb(exRs.err);
-    }
-
-    updateInfo.hdExt = exRs.result;
-  }
-
-  if (!info.bucketId) {
-    return cb && cb(i18n.t('libraryTemplateInfoFieldIsNull', { field: 'bucketId' }));
-  }
-  updateInfo.bucketId = info.bucketId;
-
-  if (info.transcodeTemplates) {
-    const rs = templateService.composeTranscodeTemplates(info.transcodeTemplates);
-    if (rs.status !== '0') {
-      return cb && cb(rs.result);
-    } else if (rs.result) {
-      updateInfo.transcodeTemplateDetail = {};
-      updateInfo.transcodeTemplateDetail.templatesId = rs.result;
-    }
-  }
-
-  if (typeof info.source !== 'undefined') {
-    updateInfo.source = info.source;
-  }
-
-  if (typeof info.transcodeScript !== 'undefined') {
-    if (!updateInfo.transcodeTemplateDetail) {
-      updateInfo.transcodeTemplateDetail = {};
-    }
-    updateInfo.transcodeTemplateDetail.script = info.transcodeScript;
-  }
+  delete info._id;
 
   if (info.departmentId) {
     groupService.getGroup(info.departmentId, (err, doc) => {
@@ -982,23 +888,23 @@ service.updateTemplate = function updateTemplate(_id, info, cb) {
         return cb && cb(i18n.t('libraryDepartmentInfoIsNotExist'));
       }
 
-      updateInfo.department = { _id: doc._id, name: doc.name };
+      info.department = { _id: doc._id, name: doc.name };
 
-      templateInfo.updateOne({ _id }, updateInfo, (err) => {
+      templateInfo.updateOne({ _id }, info, (err) => {
         if (err) {
           return cb && cb(err);
         }
 
-        return cb && cb(null, updateInfo);
+        return cb && cb(null, info);
       });
     });
   } else {
-    templateInfo.updateOne({ _id }, updateInfo, (err) => {
+    templateInfo.updateOne({ _id }, info, (err) => {
       if (err) {
         return cb && cb(err);
       }
 
-      return cb && cb(null, updateInfo);
+      return cb && cb(null, info);
     });
   }
 };
