@@ -13,7 +13,6 @@ const isLogin = require('../../middleware/login');
 const upload = require('../../common/multer').upload;
 
 router.use(isLogin.middleware);
-router.use(isLogin.hasAccessMiddleware);
 
 /**
  * @apiName: getTagsConfig
@@ -31,6 +30,23 @@ router.use(isLogin.hasAccessMiddleware);
  *     responses:
  *       200:
  *         description: ManuscriptInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *             status:
+ *               type: string
+ *               example: '0'
+ *             data:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 example: { value: '1', label: '口播' }
+ *             statusInfo:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: 'ok'
  */
 router.get('/getTagsConfig', (req, res) => {
   service.getTagsConfig((err, docs) => res.json(result.json(err, docs)));
@@ -224,6 +240,133 @@ router.post('/addOrUpdate', (req, res) => {
  *     responses:
  *       200:
  *         description: ManuscriptInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *              example: '0'
+ *            data:
+ *              type: object
+ *              properties:
+ *                page:
+ *                  type: number
+ *                  description: '页码'
+ *                  example: 1
+ *                pageSize:
+ *                  type: number
+ *                  description: '每页个数'
+ *                  example: 15
+ *                pageCount:
+ *                  type: number
+ *                  description: '页码总数'
+ *                  example: 1
+ *                total:
+ *                  type: number
+ *                  description: '总共个数'
+ *                  example: 1
+ *                docs:
+ *                  type: array
+ *                  items:
+ *                    type: object
+ *                    properties:
+ *                      title:
+ *                        type: string
+ *                        description: '标题'
+ *                        example: '标题'
+ *                      viceTitle:
+ *                        type: string
+ *                        description: '副标题'
+ *                        example: '副标题'
+ *                      collaborators:
+ *                        type: array
+ *                        items:
+ *                          type: object
+ *                          properties:
+ *                            _id:
+ *                              type: string
+ *                              description: ''
+ *                            name:
+ *                              type: string
+ *                              description: ''
+ *                          example: {_id: '', name: ''}
+ *                        description: '协作者'
+ *                      editContent:
+ *                        type: array
+ *                        items:
+ *                          type: object
+ *                          properties:
+ *                            tag:
+ *                              type: string
+ *                              description: '当前默认为2'
+ *                              example: '2'
+ *                            content:
+ *                              type: string
+ *                              description: '内容'
+ *                              example: '内容'
+ *                            modifyTime:
+ *                              type: string
+ *                              description: '修改时间'
+ *                              example: "2017-12-15T07:56:32.174Z"
+ *                      type:
+ *                        type: string
+ *                        description: '稿件类别'
+ *                        example: '1'
+ *                      contentType:
+ *                        type: string
+ *                        description: '类别'
+ *                        example: '1'
+ *                      source:
+ *                        type: string
+ *                        description: '来源'
+ *                        example: '1'
+ *                      important:
+ *                        type: string
+ *                        description: '重要性'
+ *                        example: '1'
+ *                      creator:
+ *                        type: object
+ *                        description: '创建者'
+ *                        example: { _id: '', name: ''}
+ *                      status:
+ *                        type: string
+ *                        description: '稿件状态'
+ *                        example: '1'
+ *                      createType:
+ *                        type: string
+ *                        description: '创建类型, 1:自己创建的,2:协作者'
+ *                        example: '1'
+ *                      attachments:
+ *                        type: array
+ *                        items:
+ *                          type: object
+ *                          properties:
+ *                            userId:
+ *                              type: string
+ *                              description: '创建附件的人的_id'
+ *                              example: ''
+ *                            attachmentId:
+ *                              type: string
+ *                              description: '附件_id'
+ *                              example: ''
+ *                            name:
+ *                              type: string
+ *                              description: '附件名'
+ *                              example: 'test.mp4'
+ *                      createdTime:
+ *                        type: string
+ *                        description: '创建时间'
+ *                        example: "2017-12-15T07:56:32.174Z"
+ *                      modifyTime:
+ *                        type: string
+ *                        description: '修改时间'
+ *                        example: "2017-12-15T07:56:32.174Z"
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *                  example: 'ok'
  */
 router.get('/list', (req, res) => {
   const info = req.query;

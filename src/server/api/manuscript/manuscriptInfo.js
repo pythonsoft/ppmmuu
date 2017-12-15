@@ -140,7 +140,7 @@ ManuscriptInfo.CONTENT_TYPE = {  // 类别
   HONGKONG_TV: '19',
 };
 
-ManuscriptInfo.SOURCE = {  // 重要性
+ManuscriptInfo.SOURCE = {  // 来源
   HK: '1',
   BJ: '2',
   NY: '3',
