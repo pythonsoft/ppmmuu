@@ -378,7 +378,7 @@ service.listGroup = function listGroup(info, cb) {
     _id = info.userInfo.company._id;
   } else if (type === GroupInfo.TYPE.DEPARTMENT && !parentId) {
     parentId = info.userInfo.company._id;
-  } else {
+  } else if (!parentId) {
     return cb && cb(i18n.t('groupParentIdIsNull'));
   }
   groupService.listGroup(parentId, type, page, pageSize, cb, _id);
