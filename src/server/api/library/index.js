@@ -1428,7 +1428,7 @@ router.get('/generateXML', (req, res) => {
  *           type: object
  *           required:
  *             - source
- *             - departmentId
+ *             - department
  *           properties:
  *             source:
  *               type: string
@@ -1438,18 +1438,58 @@ router.get('/generateXML', (req, res) => {
  *               type: string
  *               description: ''
  *               example: ""
- *             transcodeTemplates:
+ *             bucketId:
+ *               type: string
+ *               description: '存储区_id'
+ *               example: ""
+ *             highTemplate:
+ *               type: object
+ *               description: '高码流模板'
+ *               properties:
+ *                 _id:
+ *                   type: 'string'
+ *                 name:
+ *                   type: 'string'
+ *               example: { _id: '', name: '' }
+ *             lowTemplate:
+ *               type: object
+ *               description: '低码流模板'
+ *               properties:
+ *                 _id:
+ *                   type: 'string'
+ *                 name:
+ *                   type: 'string'
+ *               example: { _id: '', name: '' }
+ *             windowsPath:
  *               type: string
  *               description: ''
- *               example: ""
- *             transcodeScript:
+ *               example: ''
+ *             linuxPath:
  *               type: string
  *               description: ''
- *               example: ""
- *             hdExt:
- *               type: string
- *               description: ''
- *               example: ""
+ *               example: ''
+ *             highBitrateStandard:
+ *               type: object
+ *               description: '高码流配置'
+ *               properties:
+ *                 fileFomart:
+ *                   type: 'string'
+ *                 videoCode:
+ *                   type: 'string'
+ *                 bitrate:
+ *                   type: 'string'
+ *               example: { fileFomart: 'mxf', videoCode: 'mpeg2video', bitrate: '50000000' }
+ *             lowBitrateStandard:
+ *               type: object
+ *               description: '低码流配置'
+ *               properties:
+ *                 fileFomart:
+ *                   type: 'string'
+ *                 videoCode:
+ *                   type: 'string'
+ *                 bitrate:
+ *                   type: 'string'
+ *               example: { fileFomart: 'mp4', videoCode: 'libx264', bitrate: '1500000' }
  *     responses:
  *       200:
  *         description: FileInfo
@@ -1669,20 +1709,8 @@ router.post('/removeTemplate', (req, res) => {
  *             _id:
  *               type: string
  *               description: ''
- *               example: ""
+ *               example: ''
  *             source:
- *               type: string
- *               description: ''
- *               example: ""
- *             hdExt:
- *               type: string
- *               description: ''
- *               example: ""
- *             transcodeTemplates:
- *               type: string
- *               description: ''
- *               example: ""
- *             transcodeScript:
  *               type: string
  *               description: ''
  *               example: ""
@@ -1690,6 +1718,58 @@ router.post('/removeTemplate', (req, res) => {
  *               type: string
  *               description: ''
  *               example: ""
+ *             bucketId:
+ *               type: string
+ *               description: '存储区_id'
+ *               example: ""
+ *             highTemplate:
+ *               type: object
+ *               description: '高码流模板'
+ *               properties:
+ *                 _id:
+ *                   type: 'string'
+ *                 name:
+ *                   type: 'string'
+ *               example: { _id: '', name: '' }
+ *             lowTemplate:
+ *               type: object
+ *               description: '低码流模板'
+ *               properties:
+ *                 _id:
+ *                   type: 'string'
+ *                 name:
+ *                   type: 'string'
+ *               example: { _id: '', name: '' }
+ *             windowsPath:
+ *               type: string
+ *               description: ''
+ *               example: ''
+ *             linuxPath:
+ *               type: string
+ *               description: ''
+ *               example: ''
+ *             highBitrateStandard:
+ *               type: object
+ *               description: '高码流配置'
+ *               properties:
+ *                 fileFomart:
+ *                   type: 'string'
+ *                 videoCode:
+ *                   type: 'string'
+ *                 bitrate:
+ *                   type: 'string'
+ *               example: { fileFomart: 'mxf', videoCode: 'mpeg2video', bitrate: '50000000' }
+ *             lowBitrateStandard:
+ *               type: object
+ *               description: '低码流配置'
+ *               properties:
+ *                 fileFomart:
+ *                   type: 'string'
+ *                 videoCode:
+ *                   type: 'string'
+ *                 bitrate:
+ *                   type: 'string'
+ *               example: { fileFomart: 'mp4', videoCode: 'libx264', bitrate: '1500000' }
  *     responses:
  *       200:
  *         description: TemplateInfo

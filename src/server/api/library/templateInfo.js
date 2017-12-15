@@ -5,7 +5,6 @@
 'use strict';
 
 const DB = require('../../common/db');
-const utils = require('../../common/utils');
 const config = require('../../config');
 const uuid = require('uuid');
 
@@ -17,35 +16,33 @@ class TemplateInfo extends DB {
       _id: { type: 'string', default() { return uuid.v1(); }, allowUpdate: false },
       source: { type: 'string', validation: 'require' }, // 来源：MAM, MAS, 。。。
       creator: { type: 'object', default() { return { _id: '', name: '' }; } },
-      department: { type: 'object', default() { return { _id: '', name: '' }; } },
-      hdExt: { type: 'array' }, // 高码流文件后缀，用于当入库没有低码的时候，从此挑出高码流视频进行转码，支持多个
+      department: { type: 'object', validation: 'require', default() { return { _id: '', name: '' }; } },
+      highTemplate: { type: 'object', default: { _id: '', name: '' } },
+      lowTemplate: { type: 'object', default: { _id: '', name: '' } },
+      windowsPath: { type: 'string' },
+      linuxPath: { type: 'string' },
+      highBitrateStandard: { type: 'object', default: { fileFomart: 'mxf', videoCode: 'mpeg2video', bitrate: '50000000' } },
+      lowBitrateStandard: { type: 'object', default: { fileFomart: 'mp4', videoCode: 'libx264', bitrate: '1500000' } },
       createdTime: { type: 'date', validation: 'require', allowUpdate: false },
       lastModifyTime: { type: 'date', validation: 'require' },
       details: { type: 'object' },
-      transcodeTemplateDetail: {
-        type: 'object',
-        default() {
-          return {
-            script: '',
-            templatesId: [],
-          };
-        },
-      },
       bucketId: {
         type: 'string',
+        validation: 'require',
       },
     };
   }
 
   getJobVo(info) {
-    return utils.merge({
-      _id: '',
-      source: '',
-      department: '',
-      hdExt: [],
-      bucketId: '',
-      templateId: [], // { file: '', template: '' }
-    }, info);
+    const templateIds = [];
+    const highTemplateId = info.highTemplate ? info.highTemplate._id : '';
+    const lowTemplateId = info.lowTemplate ? info.lowTemplate._id : '';
+    templateIds.push({ high: highTemplateId });
+    templateIds.push({ low: lowTemplateId });
+    info.templateIds = templateIds;
+    delete info.highTemplate;
+    delete info.lowTemplate;
+    return info;
   }
 
 }

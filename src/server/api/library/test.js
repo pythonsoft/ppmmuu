@@ -462,14 +462,29 @@ setTimeout(() => {
         agent
             .post('/library/addTemplate')
             .send({
-              _id: '',
-              source: 'vvvv',
+              source: 'gagas',
               departmentId,
-              hdExt: '.mxf',
-              transcodeScript: '',
-              transcodeTemplates: '[]',
               bucketId: 'testg',
-              t: 1512469715744,
+              highTemplate: {
+                _id: '',
+                name: '',
+              },
+              lowTemplate: {
+                _id: '',
+                name: '',
+              },
+              windowsPath: '',
+              linuxPath: '',
+              highBitrateStandard: {
+                fileFomart: 'mxf',
+                videoCode: 'mpeg2video',
+                bitrate: '50000000',
+              },
+              lowBitrateStandard: {
+                fileFomart: 'mp4',
+                videoCode: 'libx264',
+                bitrate: '1500000',
+              },
             })
             .end((err, res) => {
               expect(res).to.have.status(200);
@@ -524,13 +539,29 @@ setTimeout(() => {
             .post('/library/updateTemplate')
             .send({
               _id: templateId,
-              source: 'vvvv',
-              departmentId: '2c189400-6083-11e7-80d5-61ac588ddf98',
-              hdExt: '.mxf',
-              transcodeScript: '',
-              transcodeTemplates: '[]',
+              source: 'gagas',
+              departmentId,
               bucketId: 'testg',
-              t: 1512469715744,
+              highTemplate: {
+                _id: '',
+                name: '',
+              },
+              lowTemplate: {
+                _id: '',
+                name: '',
+              },
+              windowsPath: '',
+              linuxPath: '',
+              highBitrateStandard: {
+                fileFomart: 'mxf',
+                videoCode: 'mpeg2video',
+                bitrate: '50000000',
+              },
+              lowBitrateStandard: {
+                fileFomart: 'mp4',
+                videoCode: 'libx264',
+                bitrate: '1500000',
+              },
             })
             .end((err, res) => {
               expect(res).to.have.status(200);
