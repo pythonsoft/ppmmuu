@@ -409,92 +409,180 @@ const subscribeConfig = [
   },
 ];
 
+const assistTags = [
+  {
+    key: 'tags',
+    label: '标签',
+    items: [
+      { value: '1', label: '口播' },
+      { value: '2', label: '正文' },
+      { value: '3', label: '同声期' },
+      { value: '4', label: '现场配音' },
+      { value: '5', label: '字幕' },
+      { value: '6', label: '备注' },
+    ],
+    selected: [],
+  },
+];
 
-const subscribeConfigKey = '订阅搜索配置';
-configGroup.collection.findOne({ name: subscribeConfigKey }, (err, doc) => {
-  if (err) {
-    console.log(err);
-  } else if (!doc) {
-    configGroup.insertOne({ name: subscribeConfigKey }, (err) => {
-      if (err) {
-        console.log(err);
-      }
-      configGroup.collection.findOne({ name: subscribeConfigKey }, (err, doc) => {
+const manuscriptTags = [
+  {
+    key: 'tags',
+    label: '标签',
+    type: 'label',
+    items: [
+      { value: '1', label: '口播' },
+      { value: '2', label: '正文' },
+      { value: '3', label: '同声期' },
+      { value: '4', label: '现场配音' },
+      { value: '5', label: '字幕' },
+      { value: '6', label: '备注' },
+    ],
+    selected: [],
+    multiple: true,
+  },
+];
+
+const manuscriptSubmit = [
+  {
+    key: 'type',
+    label: '稿件类别',
+    type: 'label',
+    items: [
+      { value: '1', label: 'SOT' },
+      { value: '2', label: '干稿' },
+    ],
+    selected: '',
+    multiple: false,
+  },
+  {
+    key: 'source',
+    label: '来源',
+    type: 'select',
+    items: [
+      { value: '1', label: 'HK香港' },
+      { value: '2', label: 'BJ北京' },
+      { value: '3', label: 'NY纽约' },
+      { value: '4', label: 'SAN三藩市' },
+      { value: '5', label: 'LA洛杉矶' },
+      { value: '6', label: 'WAS华盛顿' },
+      { value: '7', label: 'PAR巴黎' },
+      { value: '8', label: 'LON伦敦' },
+      { value: '9', label: 'MOS莫斯科' },
+      { value: '10', label: 'TKY东京' },
+      { value: '11', label: 'SYD悉尼' },
+      { value: '12', label: 'TER德黑兰' },
+      { value: '13', label: 'SH上海' },
+      { value: '14', label: 'SZ深圳' },
+      { value: '15', label: 'TW台湾' },
+      { value: '16', label: '特约记者' },
+      { value: '17', label: '娱乐新闻' },
+      { value: '18', label: '其他' },
+    ],
+    selected: '',
+    multiple: false,
+  },
+  {
+    key: 'contentType',
+    label: '类别',
+    type: 'select',
+    items: [
+      { value: '1', label: '正点' },
+      { value: '2', label: '直通车' },
+      { value: '3', label: '全媒体' },
+      { value: '4', label: '早班车' },
+      { value: '5', label: '全球连线' },
+      { value: '6', label: '总编辑时间' },
+      { value: '7', label: '华闻大直播' },
+      { value: '8', label: '垫底片' },
+      { value: '9', label: '罐头' },
+      { value: '10', label: '国际' },
+      { value: '11', label: '港澳' },
+      { value: '12', label: '台湾' },
+      { value: '13', label: '大陆' },
+      { value: '14', label: '财经' },
+      { value: '15', label: '体育' },
+      { value: '16', label: '娱乐' },
+      { value: '17', label: '专题' },
+      { value: '18', label: '其他' },
+      { value: '19', label: '香港台' },
+    ],
+    selected: '',
+    multiple: false,
+  },
+  {
+    key: 'important',
+    label: '重要性',
+    type: 'label',
+    items: [
+      { value: '1', label: '高' },
+      { value: '2', label: '普通' },
+      { value: '3', label: '紧急稿件' },
+    ],
+    selected: '',
+    multiple: false,
+  },
+];
+
+const initConfig = function initConfig(groupName, info) {
+  configGroup.collection.removeOne({ name: groupName }, (err) => {
+    const keys = [];
+    for (let i = 0, len = info.length; i < len; i++) {
+      keys.push(info[i].key);
+    }
+    configInfo.collection.removeMany({ key: { $in: keys } }, (err) => {
+      configGroup.insertOne({ name: groupName }, (err, r) => {
         if (err) {
           console.log(err);
+          throw err;
         }
 
-        if (!doc) {
-          console.log('没有创建订阅搜索配置组');
-        } else {
-          const genre = doc._id;
-          const info = {
-            key: 'subscribeSearchConfig',
-            value: JSON.stringify(subscribeConfig),
-            description: '',
-            genre,
-          };
-          configInfo.insertOne(info, (err) => {
-            if (err) {
-              throw new Error(`创建订阅搜索配置出错:${err.message}`);
-            }
-          });
+        const genre = r.insertedId;
+        for (let i = 0, len = info.length; i < len; i++) {
+          info[i].genre = genre;
         }
-      });
-    });
-  }
-});
-
-configGroup.collection.removeOne({ name: '新版媒体库搜索配置' }, (err) => {
-  configInfo.collection.removeMany({ key: { $in: ['meidaCenterSearchSelects', 'mediaCenterSearchRadios'] } }, (err) => {
-    configGroup.collection.findOne({ name: '新版媒体库搜索配置' }, { fields: { name: 1 } }, (err, doc) => {
-      if (err) {
-        console.log(err);
-        return false;
-      }
-
-      if (doc) {
-        console.log('init config info success!');
-        return false;
-      }
-
-      configGroup.insertOne({ name: '新版媒体库搜索配置' }, (err) => {
-        if (err) {
-          console.log(err);
-        }
-
-        configGroup.collection.findOne({ name: '新版媒体库搜索配置' }, (err, doc) => {
+        configInfo.insertMany(info, (err) => {
           if (err) {
-            console.log(err);
+            throw new Error(`创建${groupName}配置出错:${err.message}`);
           }
-
-          if (!doc) {
-            console.log('没有创建媒体库搜索配置组');
-          } else {
-            const genre = doc._id;
-            const info = [
-              {
-                key: 'meidaCenterSearchSelects',
-                value: JSON.stringify(meidaCenterSearchSelects),
-                description: '',
-                genre,
-              },
-              {
-                key: 'mediaCenterSearchRadios',
-                value: JSON.stringify(mediaCenterSearchRadios),
-                description: '',
-                genre,
-              },
-            ];
-            configInfo.insertMany(info, (err) => {
-              if (err) {
-                throw new Error(`创建媒体库搜索配置出错:${err.message}`);
-              }
-              return true;
-            });
-          }
+          return true;
         });
       });
     });
   });
-});
+};
+
+const mediaInfo = [
+  {
+    key: 'meidaCenterSearchSelects',
+    value: JSON.stringify(meidaCenterSearchSelects),
+    description: '',
+  },
+  {
+    key: 'mediaCenterSearchRadios',
+    value: JSON.stringify(mediaCenterSearchRadios),
+    description: '',
+  },
+];
+initConfig('新版媒体库搜索配置', mediaInfo);
+
+const subInfo = [{
+  key: 'subscribeSearchConfig',
+  value: JSON.stringify(subscribeConfig),
+  description: '',
+}];
+initConfig('订阅搜索配置', subInfo);
+
+const manuscriptInfoTags = [{
+  key: 'manuscriptTags',
+  value: JSON.stringify(manuscriptTags),
+  description: '',
+}];
+initConfig('稿件标签配置', manuscriptInfoTags);
+
+const manuscriptInfo = [{
+  key: 'manuscriptInfoConfig',
+  value: JSON.stringify(manuscriptSubmit),
+  description: '',
+}];
+initConfig('稿件配置', manuscriptInfo);

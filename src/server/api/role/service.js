@@ -587,7 +587,7 @@ service.listPermissionGroup = function listPermissionGroup(page, pageSize, keywo
   const query = {};
 
   if (keyword) {
-    query.$or = [{ groupIndex: { $regex: keyword, $options: 'i' } }, { name: { $regex: keyword, $options: 'i' } }];
+    query.$or = [{ groupIndex: { $regex: keyword, $options: 'i' } }, { name: { $regex: keyword, $options: 'i' } }, { topParentMenu: { $regex: keyword, $options: 'i' } }];
   }
 
   permissionGroup.pagination(query, page, pageSize, (err, docs) => {

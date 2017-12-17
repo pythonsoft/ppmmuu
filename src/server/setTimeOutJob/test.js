@@ -8,6 +8,7 @@ chai.use(chaiHttp);
 
 const expect = chai.expect;
 const agent = chai.request.agent(app);
+const mongodb = require('mongodb');
 
 setTimeout(() => {
   let userId = '';
@@ -33,6 +34,21 @@ setTimeout(() => {
     });
   });
 
+  const objectId = '53D7705C-DB29-4509-9A51-15D0A2298205';
+
+  describe('GET /media/getStream', () => {
+    it('should media getStream', (done) => {
+      agent
+          .get('/media/getStream')
+          .query({ objectid: objectId, fromWhere: 'MAM' })
+          .end((err, res) => {
+            expect(res).to.have.status(200);
+            expect(res.body.status).to.equal('0');
+            done();
+          });
+    });
+  });
+
   describe('cached MediaList', () => {
     describe('/cached MediaList', () => {
       it('should cached MediaList', (done) => {
@@ -44,24 +60,11 @@ setTimeout(() => {
               expect(res.body.status).to.equal('0');
               const rs = res.body.data;
               for (const key in rs) {
-                expect(rs[key].docs).to.have.lengthOf.at.least(1);
-                expect(rs[key].docs).to.have.lengthOf.at.most(4);
+                if (rs[key].category !== '瀏覽歷史') {
+                  expect(rs[key].docs).to.have.lengthOf.at.least(1);
+                  expect(rs[key].docs).to.have.lengthOf.at.most(4);
+                }
               }
-              done();
-            });
-      });
-    });
-
-    const objectId = '53D7705C-DB29-4509-9A51-15D0A2298205';
-
-    describe('GET /media/getStream', () => {
-      it('should media getStream', (done) => {
-        agent
-            .get('/media/getStream')
-            .query({ objectid: objectId, fromWhere: 'MAM' })
-            .end((err, res) => {
-              expect(res).to.have.status(200);
-              expect(res.body.status).to.equal('0');
               done();
             });
       });
@@ -69,32 +72,44 @@ setTimeout(() => {
 
 
     describe('mediaHistoryContent', () => {
-        it('should mediaHistoryContent', (done) => {
-          setTimeout(()=>{
-            userInfo.collection.findOne({ 'name': 'xuyawen'}, (err, doc)=> {
+      it('should mediaHistoryContent', (done) => {
+        setTimeout(() => {
+          userInfo.collection.findOne({ name: 'xuyawen' }, (err, doc) => {
+            if (err) {
+              console.log(err);
+            }
+            userId = doc ? doc._id : '';
+            watchingHistoryInfo.collection.findOne({ videoId: objectId, userId }, (err, doc) => {
               if (err) {
                 console.log(err);
               }
-              userId = doc ? doc._id : '';
-              watchingHistoryInfo.collection.findOne({videoId: objectId, userId: userId}, function (err, doc) {
-                if (err) {
-                  console.log(err);
-                }
-                console.log(doc);
-                const videoContent = doc ? doc.videoContent : {};
-                let updatedTime = doc ? doc.updatedTime : '1990-01-01';
-                updatedTime = new Date(updatedTime);
-                let t = new Date();
-                t.setSeconds(t.getSeconds() - 9);
-                expect(updatedTime).to.be.above(t);
-                expect(videoContent.full_text).to.have.lengthOf.at.least(1);
-                done();
-              })
-            })
-          }, 8000)
-        })
+              const videoContent = doc ? doc.videoContent : {};
+              let updatedTime = doc ? doc.updatedTime : '1990-01-01';
+              updatedTime = new Date(updatedTime);
+              const t = new Date();
+              t.setSeconds(t.getSeconds() - 10);
+              expect(updatedTime).to.be.above(t);
+              expect(videoContent.full_text).to.have.lengthOf.at.least(1);
+              done();
+            });
+          });
+        }, 8000);
       });
     });
+  });
+
+  after((done) => {
+    mongodb.MongoClient.connect('mongodb://10.0.15.62:27017/ump_test', (err, db) => {
+      if (err) {
+        console.log(err);
+        done();
+      }
+      if (db) {
+        db.dropDatabase();
+      }
+      done();
+    });
+  });
 
   run();
 }, 5000);

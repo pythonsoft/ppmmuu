@@ -1,13 +1,21 @@
 const request = require('request');
 const fs = require('fs');
 const path = require('path');
+const utils = require('./server/common/utils');
 
 const api = {};
+
+api.generateBuildVersion = function (version) {
+  const arr = version.split('.');
+  const len = arr.length;
+  arr[len - 1] = utils.formatTime(new Date(), 'YYYYMMDDHHmmss');
+  return arr.join('.');
+};
 
 const composeTemplate = function composeTemplate(version, updateList) {
   return `
 {
-  "version": "${version}",
+  "version": "${api.generateBuildVersion(version)}",
   "updateList": [
     ${updateList.join(',\n    ')}
   ]
@@ -29,9 +37,9 @@ api.create = function (version, generatePath, cb) {
   }
 
   const pageSize = 20;
-  let logs =[];
+  let logs = [];
 
-  const req = function(page, doneFn) {
+  const req = function (page, doneFn) {
     request(`http://gitlab.szdev.cn/dev/UMP-FE/issues?private_token=vKXd3Vzzr_dPwKVkpxF8&scope=all&utf8=%E2%9C%93&state=closed&page=${page}&milestone_title=${version}`, (error, response, data) => {
       if (error) {
         return cb && cb(error);
@@ -52,19 +60,19 @@ api.create = function (version, generatePath, cb) {
 
       const l = rs.length;
 
-      if(l < pageSize) {
+      if (l < pageSize) {
         logs = logs.concat(rs);
         return doneFn && doneFn();
       }
 
-      if(l === pageSize) {
-        if(rs[l - 1] === logs[logs.length - 1]) {
+      if (l === pageSize) {
+        if (rs[l - 1] === logs[logs.length - 1]) {
           doneFn && doneFn();
-        }else {
+        } else {
           logs = logs.concat(rs);
           req(page + 1, doneFn);
         }
-      }else {
+      } else {
         logs = logs.concat(rs);
         req(page + 1, doneFn);
       }
@@ -80,7 +88,6 @@ api.create = function (version, generatePath, cb) {
 
     return cb && cb(null, tpl);
   });
-
 };
 
 module.exports = api;

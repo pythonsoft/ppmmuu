@@ -25,8 +25,12 @@ let service = {};
 
 service = utils.softMerge(service, userService);
 
-service.listGroup = function listGroup(parentId, type, page, pageSize, cb) {
+service.listGroup = function listGroup(parentId, type, page, pageSize, cb, _id) {
   const q = {};
+
+  if (_id) {
+    q._id = _id;
+  }
 
   if (parentId) {
     q.parentId = parentId;
