@@ -11,6 +11,7 @@ const config = require('../../config');
 const path = require('path');
 const fs = require('fs');
 const opencc = require('node-opencc');
+const uuid = require('uuid');
 
 const ManuscriptInfo = require('./manuscriptInfo');
 
@@ -19,6 +20,10 @@ const manuscriptInfo = new ManuscriptInfo();
 const AttachmentInfo = require('./attachmentInfo');
 
 const attachmentInfo = new AttachmentInfo();
+
+const ManuscriptHistoryInfo = require('./manuscriptHistoryInfo');
+
+const manuscriptHistoryInfo = new ManuscriptHistoryInfo();
 
 const GroupInfo = require('../group/groupInfo');
 
@@ -75,6 +80,9 @@ service.listManuscript = function listManuscript(info, cb) {
       } else {
         docs[i].createType = ManuscriptInfo.LIST_TYPE.COLLABORATOR;
       }
+    }
+    if (keyword) {
+      service.saveSearch(keyword, userId, () => {});
     }
     return cb && cb(null, r);
   });
@@ -176,17 +184,19 @@ service.getSummary = function getStatusCount(info, cb) {
       return cb && cb(i18n.t('databaseError'));
     }
     const rs = {
-      total: r.length,
-      summary: [],
+      total: ManuscriptInfo.STATUS_VALS.length,
+      summary: {},
     };
-    for (let j = 0, len1 = r.length; j < len1; j++) {
-      const item = {
-        _id: r[j]._id,
-        status: r[j]._id,
-        name: ManuscriptInfo.STATUS_MAP[r[j]._id],
-        count: r[j].count,
+    for (const key in ManuscriptInfo.STATUS_MAP) {
+      rs.summary[key] = {
+        _id: key,
+        status: key,
+        name: ManuscriptInfo.STATUS_MAP[key],
+        count: 0,
       };
-      rs.summary.push(item);
+    }
+    for (let j = 0, len1 = r.length; j < len1; j++) {
+      rs.summary[r[j]._id].count = r[j].count;
     }
     return cb && cb(null, rs);
   });
@@ -460,6 +470,28 @@ service.listGroup = function listGroup(info, cb) {
 
 service.getGroupUserList = function getGroupUserList(info, cb) {
   groupUserService.getGroupUserList(info, cb);
+};
+
+service.saveSearch = function saveSearch(k, id, cb) {
+  manuscriptHistoryInfo.findOneAndUpdate({ keyword: k, userId: id },
+      { $set: { updatedTime: new Date() }, $inc: { count: 1 }, $setOnInsert: { _id: uuid.v1() } },
+      { returnOriginal: false, upsert: true },
+      (err, r) => cb && cb(err, r));
+};
+
+service.getSearchHistoryForManuscript = (info, cb) => {
+  const userId = info.creator._id;
+  let pageSize = info.pageSize || 10;
+  pageSize *= 1;
+  manuscriptHistoryInfo.collection
+      .find({ userId })
+      .sort({ updatedTime: -1 })
+      .limit(pageSize).project({
+        keyword: 1,
+        updatedTime: 1,
+        count: 1,
+      })
+      .toArray((err, docs) => cb && cb(err, docs));
 };
 
 module.exports = service;

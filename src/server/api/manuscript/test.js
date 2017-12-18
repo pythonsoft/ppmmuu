@@ -204,6 +204,21 @@ setTimeout(() => {
       });
     });
 
+    describe('#getSearchHistory', () => {
+      it('/manuscript/getSearchHistory', (done) => {
+        agent
+            .get('/manuscript/getSearchHistory')
+            .end((err, res) => {
+              if (err) {
+                throw err;
+              }
+              // Should.js fluent syntax applied
+              res.body.status.should.equal('0');
+              done();
+            });
+      });
+    });
+
     describe('#getManuscript', () => {
       it('/manuscript/getManuscript', (done) => {
         agent
