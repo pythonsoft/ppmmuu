@@ -155,6 +155,43 @@ const getAttachmentsByManuscriptInfo = function getAttachmentsByManuscriptInfo(i
   });
 };
 
+service.getSummary = function getStatusCount(info, cb) {
+  manuscriptInfo.collection.aggregate([
+    {
+      $match: {
+        'creator._id': info.creator._id,
+        status: { $in: ManuscriptInfo.STATUS_VALS },
+      },
+    },
+    {
+      $group: {
+        _id: '$status',
+        count: { $sum: 1 },
+      },
+    },
+    { $sort: { _id: 1 } },
+  ], (err, r) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+    const rs = {
+      total: r.length,
+      summary: [],
+    };
+    for (let j = 0, len1 = r.length; j < len1; j++) {
+      const item = {
+        _id: r[j]._id,
+        status: r[j]._id,
+        name: ManuscriptInfo.STATUS_MAP[r[j]._id],
+        count: r[j].count,
+      };
+      rs.summary.push(item);
+    }
+    return cb && cb(null, rs);
+  });
+};
+
 service.getManuscript = function getManuscript(info, cb) {
   const _id = info._id || '';
   if (!_id) {

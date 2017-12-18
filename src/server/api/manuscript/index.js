@@ -195,6 +195,31 @@ router.post('/addOrUpdate', (req, res) => {
   service.addOrUpdateManuscript(info, (err, docs) => res.json(result.json(err, docs)));
 });
 
+
+/**
+ * @apiName: getSummary
+ * @apiFuncType: get
+ * @apiFuncUrl: /manuscript/getSummary
+ * @swagger
+ * /manuscript/getSummary:
+ *   get:
+ *     description: getSummary
+ *     tags:
+ *       - v1
+ *       - ManuscriptInfo
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: ManuscriptInfo
+ */
+router.get('/getSummary', (req, res) => {
+  const info = req.query;
+  const creator = { _id: req.ex.userInfo._id, name: req.ex.userInfo.name };
+  info.creator = creator;
+  service.getSummary(info, (err, docs) => res.json(result.json(err, docs)));
+});
+
 /**
  * @apiName: listManuscript
  * @apiFuncType: get
