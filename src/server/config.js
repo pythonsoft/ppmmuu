@@ -28,6 +28,8 @@ config.cookieExpires = 1000 * 60 * 60 * 24 * 7; // cookie有效期七天
 config.redisExpires = 1 * 60 * 60 * 12; // redis有效期12小时
 config.port = process.env.NODE_ENV === 'development' ? 8080 : 8080;
 
+config.umpAssistQueueName = 'ump-assist-queue';
+
 config.engineCenter = {
   host: '10.0.15.66',
   port: 3000,
@@ -63,6 +65,19 @@ const init = function init() {
   config.redisClient = redisClient;
 };
 
+const initRedisMQ = function initRedisMQ() {
+  const rsmq = new RedisMQ({ client: config.redisClient, ns: 'rsmq' });
+  rsmq.createQueue({ qname: config.umpAssistQueueName }, (err, resp) => {
+    if (err) {
+      console.log('创建消息队列失败===>', err);
+    }
+    if (resp === 1) {
+      console.log('queue created');
+    }
+  });
+  config.rsmq = rsmq;
+};
+
 const readConfig = function readConfig(p) {
   const sandbox = {
     path,
@@ -84,6 +99,7 @@ if (fs.existsSync(configPath)) {
   config.host = `localhost:${config.port}`;
   config.domain = `http://${config.host}`;
   init();
+  initRedisMQ();
 } else {
   throw new Error('******** config_master.js file is not exist ********');
 }
