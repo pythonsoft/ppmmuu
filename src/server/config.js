@@ -8,6 +8,7 @@ const path = require('path');
 const fs = require('fs');
 const vm = require('vm');
 const redis = require('redis');
+const RedisMQ = require('rsmq');
 require('redis-streams')(redis);
 
 const config = {};
@@ -67,14 +68,6 @@ const init = function init() {
 
 const initRedisMQ = function initRedisMQ() {
   const rsmq = new RedisMQ({ client: config.redisClient, ns: 'rsmq' });
-  rsmq.createQueue({ qname: config.umpAssistQueueName }, (err, resp) => {
-    if (err) {
-      console.log('创建消息队列失败===>', err);
-    }
-    if (resp === 1) {
-      console.log('queue created');
-    }
-  });
   config.rsmq = rsmq;
 };
 
@@ -94,6 +87,7 @@ if (fs.existsSync(configPath)) {
   // 读取生产环境config_master.js文件
   readConfig(configPath);
   init();
+  initRedisMQ();
 } else if (process.env.NODE_ENV === 'development') { // 本地开发环境
   readConfig(path.join(__dirname, './config_master.js'));
   config.host = `localhost:${config.port}`;

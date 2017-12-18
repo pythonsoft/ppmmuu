@@ -1,13 +1,19 @@
 const manuscriptService = require('../api/manuscript/service');
 const config = require('../config');
-const RedisMQ = require('rsmq');
 
-const rsmq = new RedisMQ({ host: config.redis_host, port: config.redis_port, options: config.redis_opts, ns: 'rsmq' });
+const rsmq = config.rsmq;
 
-rsmq.receiveMessage({ qname: config.umpAssistQueueName }, (err, resp) => {
-  if (resp) {
-    console.log('Message received.', resp);
-  } else {
-    console.log('No messages for me...');
-  }
-});
+const receiveMessage = function receiveMessage(){
+  rsmq.receiveMessage({ qname: config.umpAssistQueueName }, (err, resp) => {
+    if (resp && resp.id) {
+      rsmq.deleteMessage({qname: config.umpAssistQueueName, id: resp.id}, function (err, resp) {
+        if (resp===1) {
+          console.log("Message deleted.")
+        }
+      });
+      console.log('Message received.', resp);
+    }
+  });
+}
+
+setInterval(receiveMessage, 1000);
