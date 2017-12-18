@@ -470,6 +470,42 @@ router.post('/changeManuscriptStatus', (req, res) => {
 });
 
 /**
+ * @apiName: clearAll
+ * @apiFuncType: post
+ * @apiFuncUrl: /manuscript/clearAll
+ * @swagger
+ * /manuscript/clearAll:
+ *   post:
+ *     description: clear all manuscript
+ *     tags:
+ *       - v1
+ *       - ManuscriptInfo
+ *     consumes:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: ManuscriptInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.post('/clearAll', (req, res) => {
+  const info = req.body;
+  const creator = { _id: req.ex.userInfo._id, name: req.ex.userInfo.name };
+  info.creator = creator;
+  service.clearAll(info, (err, r) => res.json(result.json(err, r)));
+});
+
+/**
  * @apiName: addAttachment
  * @apiFuncType: post
  * @apiFuncUrl: /manuscript/addAttachment

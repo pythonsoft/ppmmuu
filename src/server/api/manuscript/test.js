@@ -287,7 +287,7 @@ setTimeout(() => {
             .post('/manuscript/changeManuscriptStatus')
             .send({
               _ids: _id,
-              status: '2',
+              status: '3',
             })
             .end((err, res) => {
               if (err) {
@@ -351,6 +351,21 @@ setTimeout(() => {
               }
               // Should.js fluent syntax applied
               res.body.status.should.equal('0');
+              done();
+            });
+      });
+    });
+
+    describe('#clearAll', () => {
+      it('/manuscript/clearAll', (done) => {
+        agent
+            .post('/manuscript/clearAll')
+            .end((err, res) => {
+              if (err) {
+                throw err;
+              }
+              // Should.js fluent syntax applied
+              res.body.status.should.equal('-190007');
               done();
             });
       });
