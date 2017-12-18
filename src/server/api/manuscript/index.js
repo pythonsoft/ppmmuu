@@ -223,7 +223,7 @@ router.get('/getSummary', (req, res) => {
 /**
  * @apiName: listManuscript
  * @apiFuncType: get
- * @apiFuncUrl: /manuscript/listManuscript
+ * @apiFuncUrl: /manuscript/list
  * @swagger
  * /manuscript/list:
  *   get:
