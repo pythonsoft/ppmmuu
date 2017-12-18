@@ -113,6 +113,13 @@ ManuscriptInfo.STATUS = {
   DUSTBIN: '3',
 };
 
+ManuscriptInfo.STATUS_VALS = ['1', '2', '3'];
+ManuscriptInfo.STATUS_MAP = {
+  1: '草稿',
+  2: '已提交',
+  3: '垃圾箱',
+};
+
 ManuscriptInfo.TYPE = {  // 稿件类别
   SOT: '1',
   GANGAO: '2',
