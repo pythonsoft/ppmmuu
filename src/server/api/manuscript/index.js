@@ -403,6 +403,38 @@ router.get('/list', (req, res) => {
 });
 
 /**
+ * @apiName: getSearchHistory
+ * @apiFuncType: get
+ * @apiFuncUrl: /manuscript/getSearchHistory
+ * @swagger
+ * /manuscript/getSearchHistory:
+ *   get:
+ *     description: getSearchHistory
+ *     tags:
+ *       - v1
+ *       - ManuscriptInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: pageSize
+ *         description: '条数'
+ *         required: false
+ *         type: number
+ *         default: 10
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: ManuscriptInfo
+ */
+router.get('/getSearchHistory', (req, res) => {
+  const info = req.query;
+  const userInfo = { _id: req.ex.userInfo._id, name: req.ex.userInfo.name };
+  info.creator = userInfo;
+  service.getSearchHistoryForManuscript(info, (err, docs) => res.json(result.json(err, docs)));
+});
+
+/**
  * @apiName: getManuscript
  * @apiFuncType: get
  * @apiFuncUrl: /manuscript/getManuscript
