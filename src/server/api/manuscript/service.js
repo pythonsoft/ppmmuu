@@ -280,6 +280,12 @@ service.changeManuscriptStatus = function changeManuscriptStatus(info, cb) {
         return cb && cb(null, 'ok');
       });
     } else {
+      for (let i = 0, len = docs.length; i < len; i++) {
+        if (docs[i].status !== ManuscriptInfo.STATUS.DUSTBIN) {
+          return cb && cb(i18n.t('existNotDustbin'));
+        }
+      }
+
       manuscriptInfo.collection.removeMany(query, (err, r) => {
         if (err) {
           logger.error(err.message);
@@ -289,6 +295,37 @@ service.changeManuscriptStatus = function changeManuscriptStatus(info, cb) {
         deleteAttachments({ manuscriptId: { $in: _ids } }, (err, r) => cb && cb(err, r));
       });
     }
+  });
+};
+
+service.clearAll = function clearAll(info, cb) {
+  const query = {
+    'creator._id': info.creator._id,
+    status: ManuscriptInfo.STATUS.DUSTBIN,
+  };
+  manuscriptInfo.collection.find(query).toArray((err, docs) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    const _ids = [];
+    if (!docs || docs.length === 0) {
+      return cb && cb(i18n.t('dustbinHasBeenCleared'));
+    }
+
+    docs.forEach((item) => {
+      _ids.push(item._id);
+    });
+
+    manuscriptInfo.collection.removeMany(query, (err, r) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      deleteAttachments({ manuscriptId: { $in: _ids } }, (err, r) => cb && cb(err, r));
+    });
   });
 };
 
