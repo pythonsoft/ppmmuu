@@ -1,19 +1,22 @@
-const manuscriptService = require('../api/manuscript/service');
+'use strict';
+
+const manuscriptService = require('../api/manuscript/extService');
 const config = require('../config');
 
 const rsmq = config.rsmq;
 
 const receiveMessage = function receiveMessage() {
-  rsmq.receiveMessage({ qname: config.umpAssistQueueName }, (err, resp) => {
+  rsmq.popMessage({ qname: config.umpAssistQueueName }, (err, resp) => {
     if (resp && resp.id) {
-      rsmq.deleteMessage({ qname: config.umpAssistQueueName, id: resp.id }, (err, resp) => {
-        if (resp === 1) {
-          console.log('Message deleted.');
-        }
-      });
-      console.log('Message received.', resp);
+      console.log('Message received.');
+      try {
+        const info = JSON.parse(resp.message);
+        manuscriptService.dealAttachment(info);
+      } catch (e) {
+
+      }
     }
   });
 };
 
-setInterval(receiveMessage, 1000);
+setInterval(receiveMessage, 30);

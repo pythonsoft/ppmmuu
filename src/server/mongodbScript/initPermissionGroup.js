@@ -388,6 +388,13 @@ const infos = [
     topParentMenu: '舆情',
   },
   {
+    _id: 'copy',
+    name: '文稿',
+    index: 'copy',
+    parentIndex: '',
+    topParentMenu: '文稿',
+  },
+  {
     _id: 'movieEditor',
     name: '视频编辑',
     index: 'movieEditor',
