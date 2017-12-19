@@ -256,7 +256,7 @@ service.updateManuscript = function updateManuscript(info, cb) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
-      return cb && cb(null, 'ok');
+      return cb && cb(null, _id);
     });
   });
 };
