@@ -41,6 +41,7 @@ service.listManuscript = function listManuscript(info, cb) {
   const status = info.status || '';
   const keyword = info.keyword || '';
   const userId = info.userInfo._id;
+  const fieldsNeed = info.fieldsNeed || '';
   const q = {};
   const query = { $or: [
     { 'creator._id': userId },
@@ -85,7 +86,7 @@ service.listManuscript = function listManuscript(info, cb) {
       service.saveSearch(keyword, userId, () => {});
     }
     return cb && cb(null, r);
-  });
+  }, '-createdTime', fieldsNeed);
 };
 
 const updateAttachments = function updateAttachments(attachments, manuscriptId, cb) {
@@ -426,7 +427,7 @@ service.listAttachments = function listAttachments(info, cb) {
     }
 
     return cb && cb(null, r);
-  });
+  }, '-createdTime');
 };
 
 service.hongKongSimplified = function hongKongSimplified(info, cb) {

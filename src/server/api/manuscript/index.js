@@ -80,7 +80,7 @@ router.get('/getManuscriptConfig', (req, res) => {
  * @swagger
  * /manuscript/getManuscript:
  *   get:
- *     description: get list allChildGroups
+ *     description: getManuscript
  *     tags:
  *       - v1
  *       - ManuscriptInfo
@@ -254,6 +254,13 @@ router.get('/getSummary', (req, res) => {
  *         required: false
  *         type: integer
  *         default: 1
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: fieldsNeed
+ *         description: '需要的字段'
+ *         required: false
+ *         type: string
+ *         default: '_id,title,viceTitle,createdTime,modifyTime,attachments,status,creator'
  *         collectionFormat: csv
  *       - in: query
  *         name: pageSize
