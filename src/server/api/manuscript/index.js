@@ -434,6 +434,31 @@ router.get('/getSearchHistory', (req, res) => {
   service.getSearchHistoryForManuscript(info, (err, docs) => res.json(result.json(err, docs)));
 });
 
+
+/**
+ * @apiName: clearSearchHistory
+ * @apiFuncType: post
+ * @apiFuncUrl: /manuscript/clearSearchHistory
+ * @swagger
+ * /manuscript/clearSearchHistory:
+ *   post:
+ *     description: clearSearchHistory
+ *     tags:
+ *       - v1
+ *       - ManuscriptInfo
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: ManuscriptInfo
+ */
+router.post('/clearSearchHistory', (req, res) => {
+  const info = req.query;
+  const userInfo = { _id: req.ex.userInfo._id, name: req.ex.userInfo.name };
+  info.creator = userInfo;
+  service.clearSearchHistory(info, (err, docs) => res.json(result.json(err, docs)));
+});
+
 /**
  * @apiName: getManuscript
  * @apiFuncType: get
