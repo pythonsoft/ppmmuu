@@ -456,6 +456,18 @@ const manuscriptSubmit = [
     multiple: false,
   },
   {
+    key: 'important',
+    label: '重要性',
+    type: 'label',
+    items: [
+      { value: '1', label: '高' },
+      { value: '2', label: '普通' },
+      { value: '3', label: '紧急稿件' },
+    ],
+    selected: '',
+    multiple: false,
+  },
+  {
     key: 'source',
     label: '来源',
     type: 'select',
@@ -506,18 +518,6 @@ const manuscriptSubmit = [
       { value: '17', label: '专题' },
       { value: '18', label: '其他' },
       { value: '19', label: '香港台' },
-    ],
-    selected: '',
-    multiple: false,
-  },
-  {
-    key: 'important',
-    label: '重要性',
-    type: 'label',
-    items: [
-      { value: '1', label: '高' },
-      { value: '2', label: '普通' },
-      { value: '3', label: '紧急稿件' },
     ],
     selected: '',
     multiple: false,
