@@ -263,6 +263,13 @@ router.get('/getSummary', (req, res) => {
  *         default: '_id,title,viceTitle,createdTime,modifyTime,attachments,status,creator'
  *         collectionFormat: csv
  *       - in: query
+ *         name: sortFields
+ *         description: '排序的字段'
+ *         required: false
+ *         type: string
+ *         default: '-modifyTime'
+ *         collectionFormat: csv
+ *       - in: query
  *         name: pageSize
  *         description: ''
  *         required: false
@@ -310,6 +317,10 @@ router.get('/getSummary', (req, res) => {
  *                        type: string
  *                        description: '副标题'
  *                        example: '副标题'
+ *                      toWhere:
+ *                        type: string
+ *                        description: '提交到什么系统'
+ *                        example: 'DAYANG'
  *                      collaborators:
  *                        type: array
  *                        items:
@@ -523,6 +534,10 @@ router.get('/getManuscript', (req, res) => {
  *             status:
  *               type: string
  *               description: "1: 草稿, 2: 已提交, 3: 垃圾箱, 4:删除"
+ *             toWhere:
+ *               type: string
+ *               description: "提交到什么系统"
+ *               example: 'DAYANG'
  *             type:
  *               type: string
  *               description: "稿件类别  1: SOT, 2: 干稿"
@@ -708,6 +723,20 @@ router.post('/addAttachment', upload.single('file'), (req, res) => {
  *         required: false
  *         type: string
  *         default: ""
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: fieldsNeed
+ *         description: '需要的字段'
+ *         required: false
+ *         type: string
+ *         default: '_id,manuscriptId,name,fileInfo,progress,path,creator,status,createdTime,modifyTime'
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: sortFields
+ *         description: '排序的字段'
+ *         required: false
+ *         type: string
+ *         default: '-modifyTime'
  *         collectionFormat: csv
  *       - in: query
  *         name: page

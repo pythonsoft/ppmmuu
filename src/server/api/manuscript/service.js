@@ -42,6 +42,7 @@ service.listManuscript = function listManuscript(info, cb) {
   const keyword = info.keyword || '';
   const userId = info.userInfo._id;
   const fieldsNeed = info.fieldsNeed || '';
+  const sortFields = info.sortFields || '-modifyTime';
   const q = {};
   const query = { $or: [
     { 'creator._id': userId },
@@ -86,7 +87,7 @@ service.listManuscript = function listManuscript(info, cb) {
       service.saveSearch(keyword, userId, () => {});
     }
     return cb && cb(null, r);
-  }, '-createdTime', fieldsNeed);
+  }, sortFields, fieldsNeed);
 };
 
 const updateAttachments = function updateAttachments(attachments, manuscriptId, cb) {
@@ -412,6 +413,8 @@ service.listAttachments = function listAttachments(info, cb) {
   const page = info.page || 1;
   const keyword = info.keyword || '';
   const manuscriptId = info.manuscriptId || '';
+  const fieldsNeed = info.fieldsNeed || '';
+  const sortFields = info.sortFields || '-modifyTime';
   const q = {};
 
   if (manuscriptId) {
@@ -429,7 +432,7 @@ service.listAttachments = function listAttachments(info, cb) {
     }
 
     return cb && cb(null, r);
-  }, '-createdTime');
+  }, sortFields, fieldsNeed);
 };
 
 service.hongKongSimplified = function hongKongSimplified(info, cb) {

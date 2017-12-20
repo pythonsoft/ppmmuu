@@ -89,6 +89,7 @@ class ManuscriptInfo extends DB {
       creator: { type: 'object', default: { _id: '', name: '' }, allowUpdate: false },
       status: { type: 'string', default: ManuscriptInfo.STATUS.DRAFTS, validation: v => utils.isValueInObject(v, ManuscriptInfo.STATUS) },
       attachments: { type: 'array' },
+      toWhere: { type: 'string', default: ManuscriptInfo.TO_WHERE.DAYANG},
       createdTime: { type: 'date', allowUpdate: false },
       modifyTime: { type: 'date' },
       description: { type: 'string' },
@@ -96,6 +97,10 @@ class ManuscriptInfo extends DB {
     };
   }
 
+}
+
+ManuscriptInfo.TO_WHERE = {
+  DAYANG: 'DAYANG'
 }
 
 ManuscriptInfo.TAGS = {
