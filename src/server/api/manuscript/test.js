@@ -265,8 +265,11 @@ setTimeout(() => {
               }
               // Should.js fluent syntax applied
               res.body.status.should.equal('0');
-              attachId = res.body.data._id;
-              attachments.push(res.body.data);
+              const attachment = res.body.data;
+              attachId = String(attachment._id);
+              attachment.attachmentId = attachId;
+              delete attachment._id;
+              attachments.push(attachment);
               done();
             });
       });
@@ -318,6 +321,25 @@ setTimeout(() => {
             .send({
               _ids: _id,
               status: '3',
+            })
+            .end((err, res) => {
+              if (err) {
+                throw err;
+              }
+              // Should.js fluent syntax applied
+              res.body.status.should.equal('0');
+              done();
+            });
+      });
+    });
+
+    describe('#copy', () => {
+      it('/manuscript/copy', (done) => {
+        agent
+            .post('/manuscript/copy')
+            .send({
+              _id,
+              status: '1',
             })
             .end((err, res) => {
               if (err) {

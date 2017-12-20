@@ -131,6 +131,7 @@ service.addManuscript = function addManuscript(info, cb) {
       modifyTime: new Date(),
     }));
   }
+  info._id = uuid.v1();
   manuscriptInfo.insertOne(info, (err, r) => {
     if (err) {
       logger.error(err.message);
@@ -143,7 +144,7 @@ service.addManuscript = function addManuscript(info, cb) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
-      return cb && cb(null, manuscriptId);
+      return cb && cb(null, info._id);
     });
   });
 };
@@ -384,6 +385,7 @@ service.createAttachment = function createAttachment(info, cb) {
   }
   info.name = file.originalname;
   info.path = `${config.domain}/uploads/${file.filename}`;
+  info._id = uuid.v1();
   attachmentInfo.insertOne(info, (err, r) => {
     if (err) {
       logger.error(err.message);
@@ -502,6 +504,98 @@ service.clearSearchHistory = function clearSearchHistory(info, cb) {
     }
 
     return cb && cb(null, 'ok');
+  });
+};
+
+service.copy = function copy(info, cb) {
+  const status = info.status;
+  const _id = info._id;
+
+  const struct = {
+    _id: { type: 'string', validation: 'require' },
+    status: { type: 'string', validation: v => utils.isValueInObject(v, ManuscriptInfo.TYPE) },
+  };
+  const err = utils.validation(info, struct);
+  if (err) {
+    return cb && cb(err);
+  }
+
+  manuscriptInfo.collection.findOne({ _id, 'creator._id': info.creator._id }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+    if (!doc) {
+      return cb && cb(i18n.t('canNotFindYourManuscript'));
+    }
+
+    const t = new Date();
+    const attachments = doc.attachments;
+    doc.attachments = [];
+    delete doc._id;
+    doc.createdTime = t;
+    doc.modifyTime = t;
+    doc.status = status;
+
+    service.addOrUpdateManuscript(doc, (err, manuscriptId) => {
+      if (err) {
+        return cb && cb(err);
+      }
+
+      if (!attachments || attachments.length === 0) {
+        return cb && cb(null, 'ok');
+      }
+
+      const newAttachments = [];
+
+
+      const copyAttachments = function copyAttachments(index, callback) {
+        if (index >= attachments.length) {
+          return callback && callback(null, newAttachments);
+        }
+
+        const item = attachments[index];
+
+        attachmentInfo.collection.findOne({ _id: item.attachmentId }, (err, doc) => {
+          if (err) {
+            logger.error(err.message);
+            return cb && cb(i18n.t('databaseError'));
+          }
+
+          if (!doc) {
+            copyAttachments(index + 1, callback);
+          } else {
+            delete doc._id;
+            doc._id = uuid.v1();
+            attachmentInfo.collection.insertOne(doc, (err) => {
+              if (err) {
+                logger.error(err.message);
+                return cb && cb(i18n.t('databaseError'));
+              }
+              item.attachmentId = doc._id;
+              newAttachments.push(item);
+              copyAttachments(index + 1, callback);
+            });
+          }
+        });
+      };
+
+      copyAttachments(0, (err, newAttachments) => {
+        if (err) {
+          return cb && cb(err);
+        }
+
+        const updateInfo = { attachments: newAttachments };
+        manuscriptInfo.collection.updateOne({ _id: manuscriptId }, { $set: updateInfo }, (err) => {
+          if (err) {
+            logger.error(err.message);
+            return cb && cb(i18n.t('databaseError'));
+          }
+
+          return cb && cb(null, 'ok');
+        });
+      });
+    });
   });
 };
 

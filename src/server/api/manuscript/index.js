@@ -558,6 +558,60 @@ router.post('/changeManuscriptStatus', (req, res) => {
   service.changeManuscriptStatus(info, (err, r) => res.json(result.json(err, r)));
 });
 
+
+/**
+ * @apiName: copy
+ * @apiFuncType: post
+ * @apiFuncUrl: /manuscript/copy
+ * @swagger
+ * /manuscript/copy:
+ *   post:
+ *     description: 复制一个稿件
+ *     tags:
+ *       - v1
+ *       - ManuscriptInfo
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: 复制一个稿件
+ *         schema:
+ *           type: object
+ *           required:
+ *             - _id
+ *             - status
+ *           properties:
+ *             _id:
+ *               type: string
+ *             status:
+ *               type: string
+ *               description: "复制成什么状态的 1: 草稿, 2: 已提交, 3: 垃圾箱, 4:删除"
+ *               example: '1'
+ *     responses:
+ *       200:
+ *         description: ManuscriptInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.post('/copy', (req, res) => {
+  const info = req.body;
+  const creator = { _id: req.ex.userInfo._id, name: req.ex.userInfo.name };
+  info.creator = creator;
+  service.copy(info, (err, r) => res.json(result.json(err, r)));
+});
+
+
 /**
  * @apiName: clearAll
  * @apiFuncType: post
