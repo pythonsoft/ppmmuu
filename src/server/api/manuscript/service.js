@@ -96,7 +96,7 @@ const updateAttachments = function updateAttachments(attachments, manuscriptId, 
 
   const attachmentIds = [];
   for (let i = 0, len = attachments.length; i < len; i++) {
-    attachmentIds.push(attachments[i]._id);
+    attachmentIds.push(attachments[i].attachmentId);
   }
 
   const updateInfo = {
@@ -138,7 +138,7 @@ service.addManuscript = function addManuscript(info, cb) {
       return cb && cb(i18n.t('databaseError'));
     }
     const attachments = info.attachments || [];
-    const manuscriptId = r.insertedId || '';
+    const manuscriptId = info._id;
     updateAttachments(attachments, manuscriptId, (err) => {
       if (err) {
         logger.error(err.message);
