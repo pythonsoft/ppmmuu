@@ -275,7 +275,9 @@ const deleteAttachments = function deleteAttachments(query, cb) {
     docs.forEach((doc) => {
       if (doc.fileInfo && doc.fileInfo.filename) {
         const attachmentPath = path.join(config.uploadPath, doc.fileInfo.filename);
-        fs.unlinkSync(attachmentPath);
+        if(fs.existsSync(attachmentPath)) {
+          fs.unlinkSync(attachmentPath);
+        }
       }
     });
 
