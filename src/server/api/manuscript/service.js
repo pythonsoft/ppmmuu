@@ -267,7 +267,7 @@ const deleteAttachments = function deleteAttachments(query, cb) {
     docs.forEach((doc) => {
       if (doc.fileInfo && doc.fileInfo.filename) {
         const attachmentPath = path.join(config.uploadPath, doc.fileInfo.filename);
-        if(fs.existsSync(attachmentPath)) {
+        if (fs.existsSync(attachmentPath)) {
           fs.unlinkSync(attachmentPath);
         }
       }
@@ -545,7 +545,6 @@ service.copy = function copy(info, cb) {
 
       const newAttachments = [];
 
-
       const copyAttachments = function copyAttachments(index, callback) {
         if (index >= attachments.length) {
           return callback && callback(null, newAttachments);
@@ -564,6 +563,7 @@ service.copy = function copy(info, cb) {
           } else {
             delete doc._id;
             doc._id = uuid.v1();
+            doc.manuscriptId = manuscriptId;
             attachmentInfo.collection.insertOne(doc, (err) => {
               if (err) {
                 logger.error(err.message);
