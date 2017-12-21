@@ -553,35 +553,6 @@ service.createCatalog = function createCatalog(ownerId, ownerName, info, cb) {
     return cb && cb(i18n.t('libraryCreateCatalogInfoFieldIsNull', { field: 'ownerName' }));
   }
 
-  if (info.fileInfo) {
-    const fInfo = utils.merge({
-      _id: '',
-      name: '',
-      realPath: '',
-      size: '0',
-      type: '',
-    }, info.fileInfo);
-
-    if (!fInfo._id) {
-      return cb && cb(i18n.t('libraryCreateCatalogInfoFieldIsNull', { field: 'fileInfo._id' }));
-    }
-
-    if (!fInfo.name) {
-      return cb && cb(i18n.t('libraryCreateCatalogInfoFieldIsNull', { field: 'fileInfo.name' }));
-    }
-
-    if (!fInfo.realPath) {
-      return cb && cb(i18n.t('libraryCreateCatalogInfoFieldIsNull', { field: 'fileInfo.realPath' }));
-    }
-
-    if (!fInfo.size) {
-      return cb && cb(i18n.t('libraryCreateCatalogInfoFieldIsNull', { field: 'fileInfo.size' }));
-    }
-
-    info.fileInfo = null;
-    info.fileInfo = fInfo;
-  }
-
   info.owner = { _id: ownerId, name: ownerName };
 
   if (!info._id) {
@@ -597,10 +568,6 @@ service.createCatalog = function createCatalog(ownerId, ownerName, info, cb) {
 
       if (!doc) {
         return cb && cb(i18n.t('libraryParentCatalogIsNotExist'));
-      }
-
-      if (!info.fileInfo || utils.isEmptyObject(info.fileInfo)) {
-        info.fileInfo = doc.fileInfo;
       }
 
       if (!info.source) {
@@ -727,20 +694,7 @@ service.updateFile = function updateFile(id, info = {}, cb) {
       return cb && cb(i18n.t('databaseError'));
     }
 
-    const updateInfo = {
-      _id: id,
-      name: info.name || '',
-      realPath: info.realPath || '',
-      size: info.size || 0,
-      type: info.type || FileInfo.TYPE.ORIGINAL,
-    };
-    catalogInfo.updateOne({ 'fileInfo._id': id }, { fileInfo: updateInfo, lastModifyTime: info.lastModifyTime }, (err) => {
-      if (err) {
-        logger.error(err.message);
-        return cb && cb(i18n.t('databaseError'));
-      }
-      return cb && cb(null, r);
-    });
+    return cb && cb(null, r);
   });
 };
 

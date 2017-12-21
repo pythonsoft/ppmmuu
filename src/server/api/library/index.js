@@ -886,7 +886,6 @@ router.get('/listCatalog', (req, res) => {
  *         schema:
  *           type: object
  *           required:
- *             - fileInfo
  *             - objectId
  *             - englishName
  *             - chineseName
@@ -901,10 +900,6 @@ router.get('/listCatalog', (req, res) => {
  *             - available
  *             - materialDate
  *           properties:
- *             fileInfo:
- *               type: object
- *               description: catalog which file's id
- *               example: "{_id: '', name: '', realPath: '', size: '', type: '', duration: '0'}"
  *             objectId:
  *               type: string
  *               description: ''
