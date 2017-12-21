@@ -153,7 +153,7 @@ service.addManuscript = function addManuscript(info, cb) {
 const getAttachmentsByManuscriptInfo = function getAttachmentsByManuscriptInfo(info, cb) {
   const attachments = info.attachments || [];
   if (attachments.length === 0) {
-    return cb && cb(null);
+    return cb && cb(null, attachments);
   }
 
   attachmentInfo.collection.find({ manuscriptId: info._id }).toArray((err, docs) => {
