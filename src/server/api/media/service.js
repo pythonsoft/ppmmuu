@@ -505,7 +505,7 @@ service.getIcon = function getIcon(info, res) {
       res.end(error.message);
     }).pipe(res);
   } else {
-    libraryExtService.getFileInfo({ objectId: info.objectid, type: FileInfo.TYPE.THUMB, fromWhere }, (err, doc) => {
+    libraryExtService.getFileInfo({ catalogId: info.objectid, type: FileInfo.TYPE.THUMB, fromWhere }, (err, doc) => {
       if (err) {
         return res.end(err.message);
       }
@@ -579,7 +579,7 @@ service.xml2srt = (info, cb) => {
       });
     });
   } else {
-    libraryExtService.getFileInfo({ objectId: info.objectid, type: FileInfo.TYPE.SUBTITLE, fromWhere }, (err, doc) => {
+    libraryExtService.getFileInfo({ catalogId: info.objectid, type: FileInfo.TYPE.SUBTITLE, fromWhere }, (err, doc) => {
       if (err) {
         return cb && cb(err);
       }
@@ -729,7 +729,7 @@ service.getStream = function getStream(objectId, fromWhere, res) {
   fromWhere = fromWhere || CatalogInfo.FROM_WHERE.MAM;
 
   if (!isFromWhereHK(fromWhere)) {
-    libraryExtService.getCatalogInfo({ objectId, 'fileInfo.type': FileInfo.TYPE.ORIGINAL, fromWhere }, (err, doc) => {
+    libraryExtService.getCatalogInfo({ catalogId: objectId, type: FileInfo.TYPE.ORIGINAL, fromWhere }, (err, doc) => {
       if (err) {
         return res && res({ status: err.code, result: {}, statusInfo: { message: err.message } });
       }

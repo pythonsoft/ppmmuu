@@ -19,4 +19,4 @@ const receiveMessage = function receiveMessage() {
   });
 };
 
-setInterval(receiveMessage, 10);
+setInterval(receiveMessage, 1);
