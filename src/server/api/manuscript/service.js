@@ -220,15 +220,7 @@ service.getManuscript = function getManuscript(info, cb) {
     if (!doc) {
       return cb && cb(i18n.t('cannotFindManuscript'));
     }
-
-    getAttachmentsByManuscriptInfo(doc, (err, attachments) => {
-      if (err) {
-        return cb && cb(err);
-      }
-
-      doc.attachments = attachments;
-      return cb && cb(null, doc);
-    });
+    return cb && cb(null, doc);
   });
 };
 
@@ -416,7 +408,7 @@ service.listAttachments = function listAttachments(info, cb) {
   const keyword = info.keyword || '';
   const manuscriptId = info.manuscriptId || '';
   const fieldsNeed = info.fieldsNeed || '';
-  const sortFields = info.sortFields || '-modifyTime';
+  const sortFields = info.sortFields || '-createdTime';
   const q = {};
 
   if (manuscriptId) {
