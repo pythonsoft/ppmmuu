@@ -133,7 +133,7 @@ service.addManuscript = function addManuscript(info, cb) {
     }));
   }
   info._id = uuid.v1();
-  manuscriptInfo.insertOne(info, (err, r) => {
+  manuscriptInfo.insertOne(info, (err) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -399,7 +399,66 @@ service.deleteAttachmentInfos = function deleteAttachmentInfos(info, cb) {
   _ids = _ids.split(',');
   const query = { _id: { $in: _ids } };
 
-  deleteAttachments(query, (err, r) => cb && cb(err, r));
+  attachmentInfo.collection.find(query).toArray((err, docs) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    // 删除磁盘上的附件
+    docs.forEach((doc) => {
+      if (doc.fileInfo && doc.fileInfo.filename) {
+        const attachmentPath = path.join(config.uploadPath, doc.fileInfo.filename);
+        if (fs.existsSync(attachmentPath)) {
+          fs.unlinkSync(attachmentPath);
+        }
+      }
+    });
+
+    if (docs && docs.length) {
+      const manuscriptId = docs[0].manuscriptId || '';
+      manuscriptInfo.collection.findOne({ _id: manuscriptId }, (err, ma) => {
+        if (err) {
+          logger.error(err.message);
+          return cb && cb(i18n.t('databaseError'));
+        }
+
+        if (!ma) {
+          attachmentInfo.collection.removeMany(query, (err) => {
+            if (err) {
+              logger.error(err.message);
+              return cb && cb(i18n.t('databaseError'));
+            }
+
+            return cb && cb(null, 'ok');
+          });
+        } else {
+          const attachments = ma.attachments;
+          for (let i = attachments.length - 1; i >= 0; i--) {
+            const _id = attachments[i].attachmentId;
+            if (_ids.indexOf(_id) !== -1) {
+              attachments.splice(i, 1);
+            }
+          }
+          manuscriptInfo.collection.updateOne({ _id: manuscriptId }, { $set: { attachments } }, (err) => {
+            if (err) {
+              logger.error(err.message);
+              return cb && cb(i18n.t('databaseError'));
+            }
+
+            attachmentInfo.collection.removeMany(query, (err) => {
+              if (err) {
+                logger.error(err.message);
+                return cb && cb(i18n.t('databaseError'));
+              }
+
+              return cb && cb(null, 'ok');
+            });
+          });
+        }
+      });
+    }
+  });
 };
 
 service.listAttachments = function listAttachments(info, cb) {
