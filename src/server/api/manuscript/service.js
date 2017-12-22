@@ -11,6 +11,7 @@ const config = require('../../config');
 const path = require('path');
 const fs = require('fs');
 const opencc = require('node-opencc');
+const uuid = require('uuid');
 
 const ManuscriptInfo = require('./manuscriptInfo');
 
@@ -19,6 +20,10 @@ const manuscriptInfo = new ManuscriptInfo();
 const AttachmentInfo = require('./attachmentInfo');
 
 const attachmentInfo = new AttachmentInfo();
+
+const ManuscriptHistoryInfo = require('./manuscriptHistoryInfo');
+
+const manuscriptHistoryInfo = new ManuscriptHistoryInfo();
 
 const GroupInfo = require('../group/groupInfo');
 
@@ -36,6 +41,8 @@ service.listManuscript = function listManuscript(info, cb) {
   const status = info.status || '';
   const keyword = info.keyword || '';
   const userId = info.userInfo._id;
+  const fieldsNeed = info.fieldsNeed || '';
+  const sortFields = info.sortFields || '-modifyTime';
   const q = {};
   const query = { $or: [
     { 'creator._id': userId },
@@ -76,8 +83,11 @@ service.listManuscript = function listManuscript(info, cb) {
         docs[i].createType = ManuscriptInfo.LIST_TYPE.COLLABORATOR;
       }
     }
+    if (keyword) {
+      service.saveSearch(keyword, userId, () => {});
+    }
     return cb && cb(null, r);
-  });
+  }, sortFields, fieldsNeed);
 };
 
 const updateAttachments = function updateAttachments(attachments, manuscriptId, cb) {
@@ -87,7 +97,7 @@ const updateAttachments = function updateAttachments(attachments, manuscriptId, 
 
   const attachmentIds = [];
   for (let i = 0, len = attachments.length; i < len; i++) {
-    attachmentIds.push(attachments[i]._id);
+    attachmentIds.push(attachments[i].attachmentId);
   }
 
   const updateInfo = {
@@ -95,7 +105,7 @@ const updateAttachments = function updateAttachments(attachments, manuscriptId, 
     modifyTime: new Date(),
   };
 
-  attachmentInfo.collection.updateMany({ _id: { $in: attachmentIds } }, { $set: updateInfo }, (err, docs) => {
+  attachmentInfo.collection.updateMany({ _id: { $in: attachmentIds } }, { $set: updateInfo }, (err) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -122,27 +132,28 @@ service.addManuscript = function addManuscript(info, cb) {
       modifyTime: new Date(),
     }));
   }
-  manuscriptInfo.insertOne(info, (err, r) => {
+  info._id = uuid.v1();
+  manuscriptInfo.insertOne(info, (err) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
     const attachments = info.attachments || [];
-    const manuscriptId = r.insertedId || '';
-    updateAttachments(attachments, manuscriptId, (err, r) => {
+    const manuscriptId = info._id;
+    updateAttachments(attachments, manuscriptId, (err) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
-      return cb && cb(null, manuscriptId);
+      return cb && cb(null, info._id);
     });
   });
 };
 
 const getAttachmentsByManuscriptInfo = function getAttachmentsByManuscriptInfo(info, cb) {
   const attachments = info.attachments || [];
-  if (info.attachments.length === 0) {
-    return cb && cb(null);
+  if (attachments.length === 0) {
+    return cb && cb(null, attachments);
   }
 
   attachmentInfo.collection.find({ manuscriptId: info._id }).toArray((err, docs) => {
@@ -152,6 +163,45 @@ const getAttachmentsByManuscriptInfo = function getAttachmentsByManuscriptInfo(i
     }
 
     return cb && cb(null, docs);
+  });
+};
+
+service.getSummary = function getStatusCount(info, cb) {
+  manuscriptInfo.collection.aggregate([
+    {
+      $match: {
+        'creator._id': info.creator._id,
+        status: { $in: ManuscriptInfo.STATUS_VALS },
+      },
+    },
+    {
+      $group: {
+        _id: '$status',
+        count: { $sum: 1 },
+      },
+    },
+    { $sort: { _id: 1 } },
+  ], (err, r) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+    const rs = {
+      total: ManuscriptInfo.STATUS_VALS.length,
+      summary: {},
+    };
+    for (const key in ManuscriptInfo.STATUS_MAP) {
+      rs.summary[key] = {
+        _id: key,
+        status: key,
+        name: ManuscriptInfo.STATUS_MAP[key],
+        count: 0,
+      };
+    }
+    for (let j = 0, len1 = r.length; j < len1; j++) {
+      rs.summary[r[j]._id].count = r[j].count;
+    }
+    return cb && cb(null, rs);
   });
 };
 
@@ -170,21 +220,12 @@ service.getManuscript = function getManuscript(info, cb) {
     if (!doc) {
       return cb && cb(i18n.t('cannotFindManuscript'));
     }
-
-    getAttachmentsByManuscriptInfo(doc, (err, attachments) => {
-      if (err) {
-        return cb && cb(err);
-      }
-
-      doc.attachments = attachments;
-      return cb && cb(null, doc);
-    });
+    return cb && cb(null, doc);
   });
 };
 
 service.updateManuscript = function updateManuscript(info, cb) {
   const _id = info._id || '';
-  const status = info.status || '';
 
   if (!_id) {
     return cb && cb(i18n.t('manuscriptIdIsNull'));
@@ -205,12 +246,12 @@ service.updateManuscript = function updateManuscript(info, cb) {
     }
 
     const attachments = info.attachments || [];
-    updateAttachments(attachments, _id, (err, r) => {
+    updateAttachments(attachments, _id, (err) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
-      return cb && cb(null, 'ok');
+      return cb && cb(null, _id);
     });
   });
 };
@@ -226,11 +267,13 @@ const deleteAttachments = function deleteAttachments(query, cb) {
     docs.forEach((doc) => {
       if (doc.fileInfo && doc.fileInfo.filename) {
         const attachmentPath = path.join(config.uploadPath, doc.fileInfo.filename);
-        fs.unlinkSync(attachmentPath);
+        if (fs.existsSync(attachmentPath)) {
+          fs.unlinkSync(attachmentPath);
+        }
       }
     });
 
-    attachmentInfo.collection.removeMany(query, (err, r) => {
+    attachmentInfo.collection.removeMany(query, (err) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
@@ -260,7 +303,7 @@ service.changeManuscriptStatus = function changeManuscriptStatus(info, cb) {
       return cb && cb(i18n.t('databaseError'));
     }
 
-    if (!docs || docs.length != _ids.length) {
+    if (!docs || docs.length !== _ids.length) {
       return cb && cb(i18n.t('existNotYourManuscript'));
     }
 
@@ -280,7 +323,13 @@ service.changeManuscriptStatus = function changeManuscriptStatus(info, cb) {
         return cb && cb(null, 'ok');
       });
     } else {
-      manuscriptInfo.collection.removeMany(query, (err, r) => {
+      for (let i = 0, len = docs.length; i < len; i++) {
+        if (docs[i].status !== ManuscriptInfo.STATUS.DUSTBIN) {
+          return cb && cb(i18n.t('existNotDustbin'));
+        }
+      }
+
+      manuscriptInfo.collection.removeMany(query, (err) => {
         if (err) {
           logger.error(err.message);
           return cb && cb(i18n.t('databaseError'));
@@ -292,6 +341,37 @@ service.changeManuscriptStatus = function changeManuscriptStatus(info, cb) {
   });
 };
 
+service.clearAll = function clearAll(info, cb) {
+  const query = {
+    'creator._id': info.creator._id,
+    status: ManuscriptInfo.STATUS.DUSTBIN,
+  };
+  manuscriptInfo.collection.find(query).toArray((err, docs) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    const _ids = [];
+    if (!docs || docs.length === 0) {
+      return cb && cb(i18n.t('dustbinHasBeenCleared'));
+    }
+
+    docs.forEach((item) => {
+      _ids.push(item._id);
+    });
+
+    manuscriptInfo.collection.removeMany(query, (err) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      deleteAttachments({ manuscriptId: { $in: _ids } }, (err, r) => cb && cb(err, r));
+    });
+  });
+};
+
 service.createAttachment = function createAttachment(info, cb) {
   const userId = info.creator._id;
   const file = info.fileInfo;
@@ -300,6 +380,7 @@ service.createAttachment = function createAttachment(info, cb) {
   }
   info.name = file.originalname;
   info.path = `${config.domain}/uploads/${file.filename}`;
+  info._id = uuid.v1();
   attachmentInfo.insertOne(info, (err, r) => {
     if (err) {
       logger.error(err.message);
@@ -318,7 +399,66 @@ service.deleteAttachmentInfos = function deleteAttachmentInfos(info, cb) {
   _ids = _ids.split(',');
   const query = { _id: { $in: _ids } };
 
-  deleteAttachments(query, (err, r) => cb && cb(err, r));
+  attachmentInfo.collection.find(query).toArray((err, docs) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    // 删除磁盘上的附件
+    docs.forEach((doc) => {
+      if (doc.fileInfo && doc.fileInfo.filename) {
+        const attachmentPath = path.join(config.uploadPath, doc.fileInfo.filename);
+        if (fs.existsSync(attachmentPath)) {
+          fs.unlinkSync(attachmentPath);
+        }
+      }
+    });
+
+    if (docs && docs.length) {
+      const manuscriptId = docs[0].manuscriptId || '';
+      manuscriptInfo.collection.findOne({ _id: manuscriptId }, (err, ma) => {
+        if (err) {
+          logger.error(err.message);
+          return cb && cb(i18n.t('databaseError'));
+        }
+
+        if (!ma) {
+          attachmentInfo.collection.removeMany(query, (err) => {
+            if (err) {
+              logger.error(err.message);
+              return cb && cb(i18n.t('databaseError'));
+            }
+
+            return cb && cb(null, 'ok');
+          });
+        } else {
+          const attachments = ma.attachments;
+          for (let i = attachments.length - 1; i >= 0; i--) {
+            const _id = attachments[i].attachmentId;
+            if (_ids.indexOf(_id) !== -1) {
+              attachments.splice(i, 1);
+            }
+          }
+          manuscriptInfo.collection.updateOne({ _id: manuscriptId }, { $set: { attachments } }, (err) => {
+            if (err) {
+              logger.error(err.message);
+              return cb && cb(i18n.t('databaseError'));
+            }
+
+            attachmentInfo.collection.removeMany(query, (err) => {
+              if (err) {
+                logger.error(err.message);
+                return cb && cb(i18n.t('databaseError'));
+              }
+
+              return cb && cb(null, 'ok');
+            });
+          });
+        }
+      });
+    }
+  });
 };
 
 service.listAttachments = function listAttachments(info, cb) {
@@ -326,7 +466,8 @@ service.listAttachments = function listAttachments(info, cb) {
   const page = info.page || 1;
   const keyword = info.keyword || '';
   const manuscriptId = info.manuscriptId || '';
-  const userId = info.userInfo._id;
+  const fieldsNeed = info.fieldsNeed || '';
+  const sortFields = info.sortFields || '-createdTime';
   const q = {};
 
   if (manuscriptId) {
@@ -344,7 +485,7 @@ service.listAttachments = function listAttachments(info, cb) {
     }
 
     return cb && cb(null, r);
-  });
+  }, sortFields, fieldsNeed);
 };
 
 service.hongKongSimplified = function hongKongSimplified(info, cb) {
@@ -386,6 +527,132 @@ service.listGroup = function listGroup(info, cb) {
 
 service.getGroupUserList = function getGroupUserList(info, cb) {
   groupUserService.getGroupUserList(info, cb);
+};
+
+service.saveSearch = function saveSearch(k, id, cb) {
+  manuscriptHistoryInfo.findOneAndUpdate({ keyword: k, userId: id },
+      { $set: { updatedTime: new Date() }, $inc: { count: 1 }, $setOnInsert: { _id: uuid.v1() } },
+      { returnOriginal: false, upsert: true },
+      (err, r) => cb && cb(err, r));
+};
+
+service.getSearchHistoryForManuscript = (info, cb) => {
+  const userId = info.creator._id;
+  let pageSize = info.pageSize || 10;
+  pageSize *= 1;
+  manuscriptHistoryInfo.collection
+      .find({ userId })
+      .sort({ updatedTime: -1 })
+      .limit(pageSize).project({
+        keyword: 1,
+        updatedTime: 1,
+        count: 1,
+      })
+      .toArray((err, docs) => cb && cb(err, docs));
+};
+
+service.clearSearchHistory = function clearSearchHistory(info, cb) {
+  const userId = info.creator._id;
+  manuscriptHistoryInfo.collection.removeMany({ userId }, (err) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, 'ok');
+  });
+};
+
+service.copy = function copy(info, cb) {
+  const status = info.status;
+  const _id = info._id;
+
+  const struct = {
+    _id: { type: 'string', validation: 'require' },
+    status: { type: 'string', validation: v => utils.isValueInObject(v, ManuscriptInfo.TYPE) },
+  };
+  const err = utils.validation(info, struct);
+  if (err) {
+    return cb && cb(err);
+  }
+
+  manuscriptInfo.collection.findOne({ _id, 'creator._id': info.creator._id }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+    if (!doc) {
+      return cb && cb(i18n.t('canNotFindYourManuscript'));
+    }
+
+    const t = new Date();
+    const attachments = doc.attachments;
+    doc.attachments = [];
+    delete doc._id;
+    doc.createdTime = t;
+    doc.modifyTime = t;
+    doc.status = status;
+
+    service.addOrUpdateManuscript(doc, (err, manuscriptId) => {
+      if (err) {
+        return cb && cb(err);
+      }
+
+      if (!attachments || attachments.length === 0) {
+        return cb && cb(null, 'ok');
+      }
+
+      const newAttachments = [];
+
+      const copyAttachments = function copyAttachments(index, callback) {
+        if (index >= attachments.length) {
+          return callback && callback(null, newAttachments);
+        }
+
+        const item = attachments[index];
+
+        attachmentInfo.collection.findOne({ _id: item.attachmentId }, (err, doc) => {
+          if (err) {
+            logger.error(err.message);
+            return cb && cb(i18n.t('databaseError'));
+          }
+
+          if (!doc) {
+            copyAttachments(index + 1, callback);
+          } else {
+            delete doc._id;
+            doc._id = uuid.v1();
+            doc.manuscriptId = manuscriptId;
+            attachmentInfo.collection.insertOne(doc, (err) => {
+              if (err) {
+                logger.error(err.message);
+                return cb && cb(i18n.t('databaseError'));
+              }
+              item.attachmentId = doc._id;
+              newAttachments.push(item);
+              copyAttachments(index + 1, callback);
+            });
+          }
+        });
+      };
+
+      copyAttachments(0, (err, newAttachments) => {
+        if (err) {
+          return cb && cb(err);
+        }
+
+        const updateInfo = { attachments: newAttachments };
+        manuscriptInfo.collection.updateOne({ _id: manuscriptId }, { $set: updateInfo }, (err) => {
+          if (err) {
+            logger.error(err.message);
+            return cb && cb(i18n.t('databaseError'));
+          }
+
+          return cb && cb(null, 'ok');
+        });
+      });
+    });
+  });
 };
 
 module.exports = service;

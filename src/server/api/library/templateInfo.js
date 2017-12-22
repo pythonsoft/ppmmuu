@@ -34,11 +34,11 @@ class TemplateInfo extends DB {
   }
 
   getJobVo(info) {
-    const templateIds = [];
+    const templateIds = {};
     const highTemplateId = info.highTemplate ? info.highTemplate._id : '';
     const lowTemplateId = info.lowTemplate ? info.lowTemplate._id : '';
-    templateIds.push({ high: highTemplateId });
-    templateIds.push({ low: lowTemplateId });
+    templateIds.high = highTemplateId;
+    templateIds.low = lowTemplateId;
     info.templateIds = templateIds;
     delete info.highTemplate;
     delete info.lowTemplate;

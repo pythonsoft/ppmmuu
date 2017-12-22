@@ -1033,6 +1033,18 @@ module.exports = {
     code: '-190005',
     message: '不能修改不是自己创建的稿件状态',
   },
+  existNotDustbin: {
+    code: '-190006',
+    message: '存在不是垃圾箱的稿件',
+  },
+  dustbinHasBeenCleared: {
+    code: '-190007',
+    message: '垃圾箱已经被清空过了',
+  },
+  canNotFindYourManuscript: {
+    code: '-190008',
+    message: '找不到稿件或这不是你自己创建的稿件',
+  },
   getConfigError: {
     code: '-200000',
     message: '配置文件出错,请联系管理员',

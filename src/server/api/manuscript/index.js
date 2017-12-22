@@ -80,7 +80,7 @@ router.get('/getManuscriptConfig', (req, res) => {
  * @swagger
  * /manuscript/getManuscript:
  *   get:
- *     description: get list allChildGroups
+ *     description: getManuscript
  *     tags:
  *       - v1
  *       - ManuscriptInfo
@@ -195,10 +195,35 @@ router.post('/addOrUpdate', (req, res) => {
   service.addOrUpdateManuscript(info, (err, docs) => res.json(result.json(err, docs)));
 });
 
+
+/**
+ * @apiName: getSummary
+ * @apiFuncType: get
+ * @apiFuncUrl: /manuscript/getSummary
+ * @swagger
+ * /manuscript/getSummary:
+ *   get:
+ *     description: getSummary
+ *     tags:
+ *       - v1
+ *       - ManuscriptInfo
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: ManuscriptInfo
+ */
+router.get('/getSummary', (req, res) => {
+  const info = req.query;
+  const creator = { _id: req.ex.userInfo._id, name: req.ex.userInfo.name };
+  info.creator = creator;
+  service.getSummary(info, (err, docs) => res.json(result.json(err, docs)));
+});
+
 /**
  * @apiName: listManuscript
  * @apiFuncType: get
- * @apiFuncUrl: /manuscript/listManuscript
+ * @apiFuncUrl: /manuscript/list
  * @swagger
  * /manuscript/list:
  *   get:
@@ -229,6 +254,20 @@ router.post('/addOrUpdate', (req, res) => {
  *         required: false
  *         type: integer
  *         default: 1
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: fieldsNeed
+ *         description: '需要的字段'
+ *         required: false
+ *         type: string
+ *         default: '_id,title,viceTitle,createdTime,modifyTime,attachments,status,creator'
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: sortFields
+ *         description: '排序的字段'
+ *         required: false
+ *         type: string
+ *         default: '-modifyTime'
  *         collectionFormat: csv
  *       - in: query
  *         name: pageSize
@@ -278,6 +317,10 @@ router.post('/addOrUpdate', (req, res) => {
  *                        type: string
  *                        description: '副标题'
  *                        example: '副标题'
+ *                      toWhere:
+ *                        type: string
+ *                        description: '提交到什么系统'
+ *                        example: 'DAYANG'
  *                      collaborators:
  *                        type: array
  *                        items:
@@ -378,6 +421,63 @@ router.get('/list', (req, res) => {
 });
 
 /**
+ * @apiName: getSearchHistory
+ * @apiFuncType: get
+ * @apiFuncUrl: /manuscript/getSearchHistory
+ * @swagger
+ * /manuscript/getSearchHistory:
+ *   get:
+ *     description: getSearchHistory
+ *     tags:
+ *       - v1
+ *       - ManuscriptInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: pageSize
+ *         description: '条数'
+ *         required: false
+ *         type: number
+ *         default: 10
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: ManuscriptInfo
+ */
+router.get('/getSearchHistory', (req, res) => {
+  const info = req.query;
+  const userInfo = { _id: req.ex.userInfo._id, name: req.ex.userInfo.name };
+  info.creator = userInfo;
+  service.getSearchHistoryForManuscript(info, (err, docs) => res.json(result.json(err, docs)));
+});
+
+
+/**
+ * @apiName: clearSearchHistory
+ * @apiFuncType: post
+ * @apiFuncUrl: /manuscript/clearSearchHistory
+ * @swagger
+ * /manuscript/clearSearchHistory:
+ *   post:
+ *     description: clearSearchHistory
+ *     tags:
+ *       - v1
+ *       - ManuscriptInfo
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: ManuscriptInfo
+ */
+router.post('/clearSearchHistory', (req, res) => {
+  const info = req.query;
+  const userInfo = { _id: req.ex.userInfo._id, name: req.ex.userInfo.name };
+  info.creator = userInfo;
+  service.clearSearchHistory(info, (err, docs) => res.json(result.json(err, docs)));
+});
+
+/**
  * @apiName: getManuscript
  * @apiFuncType: get
  * @apiFuncUrl: /manuscript/getManuscript
@@ -434,6 +534,10 @@ router.get('/getManuscript', (req, res) => {
  *             status:
  *               type: string
  *               description: "1: 草稿, 2: 已提交, 3: 垃圾箱, 4:删除"
+ *             toWhere:
+ *               type: string
+ *               description: "提交到什么系统"
+ *               example: 'DAYANG'
  *             type:
  *               type: string
  *               description: "稿件类别  1: SOT, 2: 干稿"
@@ -467,6 +571,96 @@ router.post('/changeManuscriptStatus', (req, res) => {
   const creator = { _id: req.ex.userInfo._id, name: req.ex.userInfo.name };
   info.creator = creator;
   service.changeManuscriptStatus(info, (err, r) => res.json(result.json(err, r)));
+});
+
+
+/**
+ * @apiName: copy
+ * @apiFuncType: post
+ * @apiFuncUrl: /manuscript/copy
+ * @swagger
+ * /manuscript/copy:
+ *   post:
+ *     description: 复制一个稿件
+ *     tags:
+ *       - v1
+ *       - ManuscriptInfo
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: 复制一个稿件
+ *         schema:
+ *           type: object
+ *           required:
+ *             - _id
+ *             - status
+ *           properties:
+ *             _id:
+ *               type: string
+ *             status:
+ *               type: string
+ *               description: "复制成什么状态的 1: 草稿, 2: 已提交, 3: 垃圾箱, 4:删除"
+ *               example: '1'
+ *     responses:
+ *       200:
+ *         description: ManuscriptInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.post('/copy', (req, res) => {
+  const info = req.body;
+  const creator = { _id: req.ex.userInfo._id, name: req.ex.userInfo.name };
+  info.creator = creator;
+  service.copy(info, (err, r) => res.json(result.json(err, r)));
+});
+
+
+/**
+ * @apiName: clearAll
+ * @apiFuncType: post
+ * @apiFuncUrl: /manuscript/clearAll
+ * @swagger
+ * /manuscript/clearAll:
+ *   post:
+ *     description: clear all manuscript
+ *     tags:
+ *       - v1
+ *       - ManuscriptInfo
+ *     consumes:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: ManuscriptInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.post('/clearAll', (req, res) => {
+  const info = req.body;
+  const creator = { _id: req.ex.userInfo._id, name: req.ex.userInfo.name };
+  info.creator = creator;
+  service.clearAll(info, (err, r) => res.json(result.json(err, r)));
 });
 
 /**
@@ -529,6 +723,20 @@ router.post('/addAttachment', upload.single('file'), (req, res) => {
  *         required: false
  *         type: string
  *         default: ""
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: fieldsNeed
+ *         description: '需要的字段'
+ *         required: false
+ *         type: string
+ *         default: '_id,manuscriptId,name,fileInfo,progress,path,creator,status,createdTime,modifyTime'
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: sortFields
+ *         description: '排序的字段'
+ *         required: false
+ *         type: string
+ *         default: '-modifyTime'
  *         collectionFormat: csv
  *       - in: query
  *         name: page

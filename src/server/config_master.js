@@ -5,7 +5,7 @@
 'use strict';
 
 /* eslint-disable no-undef */
-config.host = 'localhost:8080';
+config.host = '10.0.15.152:8080';
 config.domain = `http://${config.host}`;
 
 config.dbName = process.env.NODE_ENV === 'test' ? 'ump_test' : 'ump';
@@ -105,3 +105,6 @@ config.socketURL = 'http://localhost:9000';
 // 视频服务器地址
 config.streamURL = 'http://10.0.15.68:8099';
 config.hkRuku = '/h';
+
+// im上传文件地址
+config.imUploadURL = 'http://10.0.15.152:9000/uploads';

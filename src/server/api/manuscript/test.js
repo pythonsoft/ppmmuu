@@ -204,6 +204,36 @@ setTimeout(() => {
       });
     });
 
+    describe('#getSearchHistory', () => {
+      it('/manuscript/getSearchHistory', (done) => {
+        agent
+            .get('/manuscript/getSearchHistory')
+            .end((err, res) => {
+              if (err) {
+                throw err;
+              }
+              // Should.js fluent syntax applied
+              res.body.status.should.equal('0');
+              done();
+            });
+      });
+    });
+
+    describe('#clearSearchHistory', () => {
+      it('/manuscript/clearSearchHistory', (done) => {
+        agent
+            .post('/manuscript/clearSearchHistory')
+            .end((err, res) => {
+              if (err) {
+                throw err;
+              }
+              // Should.js fluent syntax applied
+              res.body.status.should.equal('0');
+              done();
+            });
+      });
+    });
+
     describe('#getManuscript', () => {
       it('/manuscript/getManuscript', (done) => {
         agent
@@ -235,8 +265,11 @@ setTimeout(() => {
               }
               // Should.js fluent syntax applied
               res.body.status.should.equal('0');
-              attachId = res.body.data._id;
-              attachments.push(res.body.data);
+              const attachment = res.body.data;
+              attachId = String(attachment._id);
+              attachment.attachmentId = attachId;
+              delete attachment._id;
+              attachments.push(attachment);
               done();
             });
       });
@@ -287,7 +320,26 @@ setTimeout(() => {
             .post('/manuscript/changeManuscriptStatus')
             .send({
               _ids: _id,
-              status: '2',
+              status: '3',
+            })
+            .end((err, res) => {
+              if (err) {
+                throw err;
+              }
+              // Should.js fluent syntax applied
+              res.body.status.should.equal('0');
+              done();
+            });
+      });
+    });
+
+    describe('#copy', () => {
+      it('/manuscript/copy', (done) => {
+        agent
+            .post('/manuscript/copy')
+            .send({
+              _id,
+              status: '1',
             })
             .end((err, res) => {
               if (err) {
@@ -351,6 +403,21 @@ setTimeout(() => {
               }
               // Should.js fluent syntax applied
               res.body.status.should.equal('0');
+              done();
+            });
+      });
+    });
+
+    describe('#clearAll', () => {
+      it('/manuscript/clearAll', (done) => {
+        agent
+            .post('/manuscript/clearAll')
+            .end((err, res) => {
+              if (err) {
+                throw err;
+              }
+              // Should.js fluent syntax applied
+              res.body.status.should.equal('-190007');
               done();
             });
       });
