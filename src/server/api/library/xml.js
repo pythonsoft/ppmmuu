@@ -71,7 +71,6 @@ xml.create = function create(objectId, cb) {
           catalogInfo.push([
             '<catalogInfo>',
             `<id>${catalog._id}</id>`,
-            `<fileId>${catalog.fileInfo._id}</fileId>`,
             `<englishName>${catalog.englishName}</englishName>`,
             `<chineseName>${catalog.chineseName}</chineseName>`,
             `<parentId>${catalog.parentId}</parentId>`,
