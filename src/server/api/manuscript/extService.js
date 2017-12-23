@@ -62,7 +62,7 @@ service.createAttachment = function createAttachment(info) {
     },
   };
 
-  attachmentInfo.collection.insertOne(createInfo, () => {
+  attachmentInfo.insertOne(createInfo, () => {
     console.log('insert  One==>', createInfo);
   });
 };
@@ -93,9 +93,10 @@ service.updateAttachment = function updateAttachment(info, status) {
 
   if (status === AttachmentInfo.STATUS.COMPLETED) {
     updateInfo.path = `${config.imUploadURL}/${info.pid}/${info.name}`;
+    updateInfo.speed = info.speed || '';
   }
 
-  attachmentInfo.collection.updateOne({ _id: info.pid }, { $set: updateInfo }, () => {
+  attachmentInfo.updateOne({ _id: info.pid }, updateInfo, () => {
     console.log('updateInfo==>', updateInfo);
   });
 };

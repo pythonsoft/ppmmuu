@@ -28,6 +28,9 @@ class AttachmentInfo extends DB {
       path: {
         type: 'string',
       },
+      speed: {
+        type: 'string',
+      },
       creator: { type: 'object', default: { _id: '', name: '' } },
       status: { type: 'string', default: AttachmentInfo.STATUS.COMPLETED, validation: v => utils.isValueInObject(v, AttachmentInfo.STATUS) },
       createdTime: { type: 'date', allowUpdate: false },
