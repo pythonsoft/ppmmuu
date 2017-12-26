@@ -457,6 +457,8 @@ service.deleteAttachmentInfos = function deleteAttachmentInfos(info, cb) {
           });
         }
       });
+    } else {
+      return cb && cb(null, 'ok');
     }
   });
 };
@@ -653,6 +655,28 @@ service.copy = function copy(info, cb) {
       });
     });
   });
+};
+
+service.createWebSocketTask = function createWebSocketTask(info, cb) {
+  const templateInfo = {
+    progress: '0',
+    status: AttachmentInfo.STATUS.ready,
+    createdTime: new Date(),
+    modifyTime: new Date(),
+  };
+  info = Object.assign({}, templateInfo, info);
+  attachmentInfo.insertOne(info, cb);
+};
+
+service.updateWebSocketTask = function updateWebSocketTask(info, cb) {
+  const struct = {
+    _id: { type: 'string', validation: 'require' },
+  };
+  const err = utils.validation(info, struct);
+  if (err) {
+    return cb && cb(err);
+  }
+  attachmentInfo.updateOne({ _id: info._id }, info, cb);
 };
 
 module.exports = service;

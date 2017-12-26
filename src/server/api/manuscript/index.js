@@ -980,4 +980,98 @@ router.get('/listGroup', (req, res) => {
 router.get('/listUser', (req, res) => {
   service.getGroupUserList(req.query, (err, docs) => res.json(result.json(err, docs)));
 });
+
+/**
+ * @apiName: createWebSocketTask
+ * @apiFuncType: post
+ * @apiFuncUrl: /manuscript/createWebSocketTask
+ * @swagger
+ * /manuscript/createWebSocketTask:
+ *   post:
+ *     description: createWebSocketTask
+ *     tags:
+ *       - v1
+ *       - ManuscriptInfo
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: createWebSocketTask
+ *         schema:
+ *           type: object
+ *           required:
+ *             - _id
+ *           properties:
+ *             _id:
+ *               type: string
+ *     responses:
+ *       200:
+ *         description: ManuscriptInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *             status:
+ *               type: string
+ *             data:
+ *               type: object
+ *             statusInfo:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ */
+router.post('/createWebSocketTask', (req, res) => {
+  const info = req.body;
+  const userInfo = req.ex.userInfo;
+  info.creator = { _id: userInfo._id, name: userInfo.name };
+
+  service.createWebSocketTask(info, (err, r) => res.json(result.json(err, r)));
+});
+
+/**
+ * @apiName: updateWebSocketTask
+ * @apiFuncType: post
+ * @apiFuncUrl: /manuscript/updateWebSocketTask
+ * @swagger
+ * /manuscript/updateWebSocketTask:
+ *   post:
+ *     description: updateWebSocketTask
+ *     tags:
+ *       - v1
+ *       - ManuscriptInfo
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: updateWebSocketTask
+ *         schema:
+ *           type: object
+ *           required:
+ *             - _id
+ *           properties:
+ *             _id:
+ *               type: string
+ *     responses:
+ *       200:
+ *         description: ManuscriptInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *             status:
+ *               type: string
+ *             data:
+ *               type: object
+ *             statusInfo:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ */
+router.post('/updateWebSocketTask', (req, res) => {
+  const info = req.body;
+  service.updateWebSocketTask(info, (err, r) => res.json(result.json(err, r)));
+});
+
 module.exports = router;
