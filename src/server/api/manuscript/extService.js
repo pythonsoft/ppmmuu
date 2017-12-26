@@ -22,16 +22,16 @@ service.dealAttachment = function dealAttachment(info) {
       service.createAttachment(info);
       break;
     case TRANSFER_TYPE.TRANSFER:
-      service.updateAttachment(info, AttachmentInfo.STATUS.UPLOADING);
+      service.updateAttachment(info, AttachmentInfo.STATUS.transfer);
       break;
     case TRANSFER_TYPE.COMPLETE:
-      service.updateAttachment(info, AttachmentInfo.STATUS.COMPLETED);
+      service.updateAttachment(info, AttachmentInfo.STATUS.success);
       break;
     case TRANSFER_TYPE.ERROR:
-      service.updateAttachment(info, AttachmentInfo.STATUS.ERROR);
+      service.updateAttachment(info, AttachmentInfo.STATUS.error);
       break;
     case TRANSFER_TYPE.STOP:
-      service.updateAttachment(info, AttachmentInfo.STATUS.STOPPING);
+      service.updateAttachment(info, AttachmentInfo.STATUS.stop);
       break;
     default:
       break;
@@ -48,7 +48,7 @@ service.createAttachment = function createAttachment(info) {
       _id: info.userId,
       name: info.userName,
     },
-    status: AttachmentInfo.STATUS.PREPARE,
+    status: AttachmentInfo.STATUS.ready,
     createdTime: t,
     modifyTime: t,
     path: '',
@@ -86,12 +86,12 @@ service.updateAttachment = function updateAttachment(info, status) {
     modifyTime: t,
   };
 
-  if (status === AttachmentInfo.STATUS.UPLOADING || status === AttachmentInfo.STATUS.COMPLETED) {
+  if (status === AttachmentInfo.STATUS.transfer || status === AttachmentInfo.STATUS.success) {
     updateInfo['fileInfo.transfered'] = info.end;
     updateInfo.progress = getProgress(info.end, info.total);
   }
 
-  if (status === AttachmentInfo.STATUS.COMPLETED) {
+  if (status === AttachmentInfo.STATUS.success) {
     updateInfo.path = `${config.imUploadURL}/${info.pid}/${info.name}`;
     updateInfo.speed = info.speed || '';
   }

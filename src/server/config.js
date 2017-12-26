@@ -8,8 +8,6 @@ const path = require('path');
 const fs = require('fs');
 const vm = require('vm');
 const redis = require('redis');
-const RedisMQ = require('rsmq');
-require('redis-streams')(redis);
 
 const config = {};
 
@@ -66,11 +64,6 @@ const init = function init() {
   config.redisClient = redisClient;
 };
 
-const initRedisMQ = function initRedisMQ() {
-  const rsmq = new RedisMQ({ client: config.redisClient, ns: 'rsmq' });
-  config.rsmq = rsmq;
-};
-
 const readConfig = function readConfig(p) {
   const sandbox = {
     path,
@@ -87,13 +80,11 @@ if (fs.existsSync(configPath)) {
   // 读取生产环境config_master.js文件
   readConfig(configPath);
   init();
-  initRedisMQ();
 } else if (process.env.NODE_ENV === 'development') { // 本地开发环境
   readConfig(path.join(__dirname, './config_master.js'));
   config.host = `localhost:${config.port}`;
   config.domain = `http://${config.host}`;
   init();
-  initRedisMQ();
 } else {
   throw new Error('******** config_master.js file is not exist ********');
 }
