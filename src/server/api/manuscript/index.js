@@ -697,6 +697,61 @@ router.post('/addAttachment', upload.single('file'), (req, res) => {
 });
 
 /**
+ * @apiName: bindAttachment
+ * @apiFuncType: post
+ * @apiFuncUrl: /manuscript/bindAttachment
+ * @swagger
+ * /manuscript/bindAttachment:
+ *   post:
+ *     description: 附件绑定稿件
+ *     tags:
+ *       - v1
+ *       - ManuscriptInfo
+ *     consumes:
+ *       - application/json
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: bind attachment to a manuscript
+ *         schema:
+ *           type: object
+ *           required:
+ *             - manuscriptId
+ *             - attachmentId
+ *           properties:
+ *             manuscriptId:
+ *               type: string
+ *               description: 稿件_id
+ *             attachmentId:
+ *               type: string
+ *               description: 附件_id
+ *     responses:
+ *       200:
+ *         description: ManuscriptInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *             status:
+ *               type: string
+ *             data:
+ *               type: object
+ *             statusInfo:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ */
+router.post('/bindAttachment', (req, res) => {
+  const info = req.body;
+  const creator = { _id: req.ex.userInfo._id, name: req.ex.userInfo.name };
+  info.creator = creator;
+
+  service.bindAttachment(info, (err, docs) => res.json(result.json(err, docs)));
+});
+
+/**
  * @apiName: listAttachments
  * @apiFuncType: get
  * @apiFuncUrl: /manuscript/listAttachments
