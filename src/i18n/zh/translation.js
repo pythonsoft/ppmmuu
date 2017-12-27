@@ -1045,6 +1045,10 @@ module.exports = {
     code: '-190008',
     message: '找不到稿件或这不是你自己创建的稿件',
   },
+  canNotFindAttachment: {
+    code: '-190009',
+    message: '找不到附件',
+  },
   getConfigError: {
     code: '-200000',
     message: '配置文件出错,请联系管理员',
