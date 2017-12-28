@@ -133,10 +133,10 @@ service.addManuscript = function addManuscript(info, cb) {
     }));
   }
 
-  if(info.attachments && utils.getValueType(info.attachments) === 'array'){
-    for(let i = 0, len = info.attachments.length; i < len; i++){
+  if (info.attachments && utils.getValueType(info.attachments) === 'array') {
+    for (let i = 0, len = info.attachments.length; i < len; i++) {
       const item = info.attachments[i];
-      if(!item.userId || !item.attachmentId || !item.name){
+      if (!item.userId || !item.attachmentId || !item.name) {
         return cb && cb(i18n.t('invalidParameterAttachments'));
       }
     }
@@ -250,10 +250,10 @@ service.updateManuscript = function updateManuscript(info, cb) {
     }));
   }
 
-  if(info.attachments && utils.getValueType(info.attachments) === 'array'){
-    for(let i = 0, len = info.attachments.length; i < len; i++){
+  if (info.attachments && utils.getValueType(info.attachments) === 'array') {
+    for (let i = 0, len = info.attachments.length; i < len; i++) {
       const item = info.attachments[i];
-      if(!item.userId || !item.attachmentId || !item.name){
+      if (!item.userId || !item.attachmentId || !item.name) {
         return cb && cb(i18n.t('invalidParameterAttachments'));
       }
     }
