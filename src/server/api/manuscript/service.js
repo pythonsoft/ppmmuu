@@ -132,6 +132,16 @@ service.addManuscript = function addManuscript(info, cb) {
       modifyTime: new Date(),
     }));
   }
+
+  if (info.attachments && utils.getValueType(info.attachments) === 'array') {
+    for (let i = 0, len = info.attachments.length; i < len; i++) {
+      const item = info.attachments[i];
+      if (!item.userId || !item.attachmentId || !item.name) {
+        return cb && cb(i18n.t('invalidParameterAttachments'));
+      }
+    }
+  }
+
   info._id = uuid.v1();
   manuscriptInfo.insertOne(info, (err) => {
     if (err) {
@@ -238,6 +248,15 @@ service.updateManuscript = function updateManuscript(info, cb) {
       content: item.content,
       modifyTime: new Date(),
     }));
+  }
+
+  if (info.attachments && utils.getValueType(info.attachments) === 'array') {
+    for (let i = 0, len = info.attachments.length; i < len; i++) {
+      const item = info.attachments[i];
+      if (!item.userId || !item.attachmentId || !item.name) {
+        return cb && cb(i18n.t('invalidParameterAttachments'));
+      }
+    }
   }
 
   manuscriptInfo.updateOne({ _id }, info, (err) => {

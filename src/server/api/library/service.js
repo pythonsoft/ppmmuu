@@ -650,7 +650,20 @@ service.listFile = function listCatalog(objectId, cb) {
       return cb && cb(i18n.t('databaseError'));
     }
 
-    return cb && cb(null, docs);
+    catalogInfo.collection.findOne({ objectId }, (err, cata) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+      let duration = 0;
+      if (cata && cata.outpoint) {
+        duration = cata.outpoint - cata.inpoint;
+      }
+      for (let i = 0, len = docs.length; i < len; i++) {
+        docs[i].duration = duration;
+      }
+      return cb && cb(null, docs);
+    });
   });
 };
 
@@ -694,7 +707,20 @@ service.updateFile = function updateFile(id, info = {}, cb) {
       return cb && cb(i18n.t('databaseError'));
     }
 
-    return cb && cb(null, r);
+    const updateInfo = {
+      _id: id,
+      name: info.name || '',
+      realPath: info.realPath || '',
+      size: info.size || 0,
+      type: info.type || FileInfo.TYPE.ORIGINAL,
+    };
+    catalogInfo.updateOne({ 'fileInfo._id': id }, { fileInfo: updateInfo, lastModifyTime: info.lastModifyTime }, (err) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+      return cb && cb(null, r);
+    });
   });
 };
 

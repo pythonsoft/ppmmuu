@@ -729,7 +729,7 @@ service.getStream = function getStream(objectId, fromWhere, res) {
   fromWhere = fromWhere || CatalogInfo.FROM_WHERE.MAM;
 
   if (!isFromWhereHK(fromWhere)) {
-    libraryExtService.getCatalogInfo({ catalogId: objectId, type: FileInfo.TYPE.ORIGINAL, fromWhere }, (err, doc) => {
+    libraryExtService.getCatalogInfo({ catalogId: objectId, type: FileInfo.TYPE.LOW_BIT_VIDEO, fromWhere }, (err, doc) => {
       if (err) {
         return res && res({ status: err.code, result: {}, statusInfo: { message: err.message } });
       }

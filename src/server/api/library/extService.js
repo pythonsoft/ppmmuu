@@ -36,7 +36,9 @@ service.getMapPath = function getMapPath(fromWhere, cb) {
 
 service.getCatalogInfo = function getCatalogInfo(query, cb) {
   const catalogId = query.catalogId || '';
-  catalogInfo.collection.findOne({ _id: catalogId }, (err, doc) => {
+  const newQuery = {};
+  newQuery.$or = [{ _id: catalogId }, { objectId: catalogId, root: '' }];
+  catalogInfo.collection.findOne(newQuery, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -52,7 +54,7 @@ service.getCatalogInfo = function getCatalogInfo(query, cb) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
-      if (!doc) {
+      if (!file) {
         return cb && cb(i18n.t('fileInfoNotFound'));
       }
       doc.fileInfo = file;
@@ -63,7 +65,9 @@ service.getCatalogInfo = function getCatalogInfo(query, cb) {
 
 service.getFileInfo = function getFileInfo(query, cb) {
   const catalogId = query.catalogId || '';
-  catalogInfo.collection.findOne({ _id: catalogId }, (err, doc) => {
+  const newQuery = {};
+  newQuery.$or = [{ _id: catalogId }, { objectId: catalogId, root: '' }];
+  catalogInfo.collection.findOne(newQuery, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -184,7 +188,9 @@ service.getObject = function getObject(_id, cb) {
     return rsFile;
   };
 
-  catalogInfo.collection.findOne({ _id }, (err, doc) => {
+  const query = {};
+  query.$or = [{ _id }, { objectId: _id, root: '' }];
+  catalogInfo.collection.findOne(query, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
