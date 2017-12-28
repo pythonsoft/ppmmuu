@@ -86,3 +86,6 @@ config.subscribeDownloadTemplateId = 'subscribe_autopush';   // 下载模板Id
 // 视频服务器地址
 config.streamURL = 'http://ump-live.phoenixtv.com';
 config.hkRuku = '/moved';
+
+// im上传文件地址
+config.imUploadURL = 'http://10.0.15.152:9000/uploads';

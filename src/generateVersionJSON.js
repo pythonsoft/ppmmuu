@@ -51,6 +51,8 @@ api.create = function (version, generatePath, cb) {
       const rs = [];
       let t = null;
 
+      console.log('mt -->', mt);
+
       for (let i = 0, len = mt.length; i < len; i++) {
         t = mt[i];
         if (mt[i] && mt[i].match(issueReg)) {

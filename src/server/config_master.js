@@ -107,4 +107,4 @@ config.streamURL = 'http://10.0.15.68:8099';
 config.hkRuku = '/h';
 
 // im上传文件地址
-config.imUploadURL = 'http://10.0.15.152:9000/uploads';
+config.imUploadURL = 'http://localhost/uploads';
