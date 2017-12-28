@@ -54,7 +54,7 @@ service.getCatalogInfo = function getCatalogInfo(query, cb) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
-      if (!doc) {
+      if (!file) {
         return cb && cb(i18n.t('fileInfoNotFound'));
       }
       doc.fileInfo = file;

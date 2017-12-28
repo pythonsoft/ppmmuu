@@ -19,7 +19,6 @@ fieldMap.catalogInfoMap = {
   keyman: 'keyman',
   language: 'language',
   available: 'publish_status',
-  materialDate: 'materialDate',
   owner: 'owner',
   createdTime: 'created',
   lastModifyTime: 'last_modify',
