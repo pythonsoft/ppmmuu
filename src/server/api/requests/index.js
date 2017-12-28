@@ -33,21 +33,12 @@ router.use(isLogin.hasAccessMiddleware);
  *         schema:
  *           type: object
  *           properties:
- *             hostname:
- *               type: string
- *               example: "w2.phoenixtv.com"
- *             port:
- *               type: string
- *               example: "80"
  *             path:
  *               type: string
- *               example: "/mamapi/get_report"
+ *               example: "get_report"
  *             params:
  *               type: string
- *               example: '{"reporttype": "1", "params": {"programtype": "1"}}'
- *             method:
- *               type: string
- *               example: "post"
+ *               example: '{"reporttype": "2", "params": {"startdatetime": "2017111101", "enddatetime": "2017111111"}}'
  *     responses:
  *       200:
  *         description: res
@@ -59,8 +50,8 @@ router.post('/', (req, res) => {
   } catch (e) {
     return res.json(result.json(e));
   }
-  const options = { method: 'POST',
-    url: `http://${req.body.hostname || 'w2.phoenixtv.com'}${req.body.path || '/mamapi/get_report'}`,
+  const options = { method: `${req.body.method || 'POST'}`,
+    url: `http://${req.body.hostname || 'w2.phoenixtv.com'}/mamapi/${req.body.path || 'get_report'}`,
     headers:
     { 'Cache-Control': 'no-cache',
       'Content-Type': 'application/x-www-form-urlencoded' },
@@ -73,7 +64,17 @@ router.post('/', (req, res) => {
       return res.json(result.json(error));
     }
 
-    return res.json(result.json(null, body));
+    try {
+      body = JSON.parse(body);
+    } catch (e) {
+      return res.json(result.json(e));
+    }
+
+    if (body.status != 0) {
+      return res.json(result.json({ code: 1, message: body.result.errorMsg }));
+    }
+
+    return res.json(result.json(null, body.result));
   });
 });
 
