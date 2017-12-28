@@ -61,6 +61,7 @@ const init = function init() {
 
   redisClient.on('ready', () => {
     console.log('Redis Connect Success!');
+    initRedisMQ();
   });
 
   config.redisClient = redisClient;
@@ -87,13 +88,11 @@ if (fs.existsSync(configPath)) {
   // 读取生产环境config_master.js文件
   readConfig(configPath);
   init();
-  initRedisMQ();
 } else if (process.env.NODE_ENV === 'development') { // 本地开发环境
   readConfig(path.join(__dirname, './config_master.js'));
   config.host = `localhost:${config.port}`;
   config.domain = `http://${config.host}`;
   init();
-  initRedisMQ();
 } else {
   throw new Error('******** config_master.js file is not exist ********');
 }
