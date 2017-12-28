@@ -275,6 +275,25 @@ setTimeout(() => {
       });
     });
 
+    describe('#bindAttachment', () => {
+      it('/manuscript/bindAttachment', (done) => {
+        agent
+            .post('/manuscript/bindAttachment')
+            .send({
+              attachmentId: attachId,
+              manuscriptId: _id,
+            })
+            .end((err, res) => {
+              if (err) {
+                throw err;
+              }
+              // Should.js fluent syntax applied
+              res.body.status.should.equal('0');
+              done();
+            });
+      });
+    });
+
     describe('#updateManuscript', () => {
       it('/manuscript/addOrUpdate', (done) => {
         agent

@@ -67,7 +67,6 @@ const runServer = function runServer(dbName = config.dbName) {
       require('./apiPath.js')(app); // eslint-disable-line
       require('./mongodbScript/index');
       require('./setTimeOutJob/index');
-      require('./redisMQ/index');
 
       console.log(`Listening on port ${config.port}...`);
     });

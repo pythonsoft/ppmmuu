@@ -391,6 +391,82 @@ service.createAttachment = function createAttachment(info, cb) {
   });
 };
 
+service.bindAttachment = function bindAttachment(info, cb) {
+  const userId = info.creator._id;
+  const manuscriptId = info.manuscriptId || '';
+  const attachmentId = info.attachmentId || '';
+
+  const struct = {
+    manuscriptId: { type: 'string', validation: 'require' },
+    attachmentId: { type: 'string', validation: 'require' },
+  };
+  const err = utils.validation(info, struct);
+  if (err) {
+    return cb && cb(err);
+  }
+
+  manuscriptInfo.collection.findOne({ _id: manuscriptId }, (err, manu) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if (!manu) {
+      return cb && cb(i18n.t('cannotFindManuscript'));
+    }
+    const attachments = manu.attachments || [];
+
+    attachmentInfo.collection.findOne({ _id: attachmentId }, (err, atta) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      if (!atta) {
+        return cb && cb(i18n.t('canNotFindAttachment'));
+      }
+
+      for (let i = 0, len = attachments.length; i < len; i++) {
+        if (attachments[i].attachmentId === attachmentId) {
+          return cb && cb(null, 'ok');
+        }
+      }
+
+      const item = {
+        userId,
+        attachmentId,
+        name: atta.name,
+      };
+      attachments.push(item);
+
+      const updateInfo = {
+        attachments,
+        modifyTime: new Date(),
+      };
+
+      manuscriptInfo.updateOne({ _id: manuscriptId }, updateInfo, (err) => {
+        if (err) {
+          logger.error(err.message);
+          return cb && cb(i18n.t('databaseError'));
+        }
+
+        const updateInfo = {
+          manuscriptId,
+          modifyTime: new Date(),
+        };
+        attachmentInfo.updateOne({ _id: attachmentId }, updateInfo, (err) => {
+          if (err) {
+            logger.error(err.message);
+            return cb && cb(i18n.t('databaseError'));
+          }
+
+          return cb && cb(null, 'ok');
+        });
+      });
+    });
+  });
+};
+
 service.deleteAttachmentInfos = function deleteAttachmentInfos(info, cb) {
   let _ids = info._ids || '';
   if (!_ids) {
@@ -457,6 +533,8 @@ service.deleteAttachmentInfos = function deleteAttachmentInfos(info, cb) {
           });
         }
       });
+    } else {
+      return cb && cb(null, 'ok');
     }
   });
 };
@@ -653,6 +731,28 @@ service.copy = function copy(info, cb) {
       });
     });
   });
+};
+
+service.createWebSocketTask = function createWebSocketTask(info, cb) {
+  const templateInfo = {
+    progress: '0',
+    status: AttachmentInfo.STATUS.ready,
+    createdTime: new Date(),
+    modifyTime: new Date(),
+  };
+  info = Object.assign({}, templateInfo, info);
+  attachmentInfo.insertOne(info, cb);
+};
+
+service.updateWebSocketTask = function updateWebSocketTask(info, cb) {
+  const struct = {
+    _id: { type: 'string', validation: 'require' },
+  };
+  const err = utils.validation(info, struct);
+  if (err) {
+    return cb && cb(err);
+  }
+  attachmentInfo.updateOne({ _id: info._id }, info, cb);
 };
 
 module.exports = service;
