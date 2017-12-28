@@ -32,7 +32,7 @@ class AttachmentInfo extends DB {
         type: 'string',
       },
       creator: { type: 'object', default: { _id: '', name: '' } },
-      status: { type: 'string', default: AttachmentInfo.STATUS.COMPLETED, validation: v => utils.isValueInObject(v, AttachmentInfo.STATUS) },
+      status: { type: 'string', default: AttachmentInfo.STATUS.ready, validation: v => utils.isValueInObject(v, AttachmentInfo.STATUS) },
       createdTime: { type: 'date', allowUpdate: false },
       modifyTime: { type: 'date' },
       description: { type: 'string' },
@@ -42,11 +42,21 @@ class AttachmentInfo extends DB {
 }
 
 AttachmentInfo.STATUS = {
-  PREPARE: '1',   // 准备上传
-  UPLOADING: '2', // 正在上传
-  STOPPING: '3',  // 暂停中
-  COMPLETED: '4', // 完成
-  ERROR: '5',      // 上传出错
+  ready: '1',
+  start: '2',
+  transfer: '3',
+  transferSuccess: '4',
+  composeStart: '5',
+  compose: '6',
+  composeSuccess: '7',
+  composeError: '8',
+  removePackagePartStart: '9',
+  removePackagePart: '10',
+  removePackageSuccess: '11',
+  removePackageError: '12',
+  stop: '13',
+  success: '999',
+  error: '1000',
 };
 
 module.exports = AttachmentInfo;

@@ -8,8 +8,6 @@ const path = require('path');
 const fs = require('fs');
 const vm = require('vm');
 const redis = require('redis');
-const RedisMQ = require('rsmq');
-require('redis-streams')(redis);
 
 const config = {};
 
@@ -65,11 +63,6 @@ const init = function init() {
   });
 
   config.redisClient = redisClient;
-};
-
-const initRedisMQ = function initRedisMQ() {
-  const rsmq = new RedisMQ({ client: config.redisClient, ns: 'rsmq' });
-  config.rsmq = rsmq;
 };
 
 const readConfig = function readConfig(p) {
