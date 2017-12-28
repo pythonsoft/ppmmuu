@@ -1049,6 +1049,10 @@ module.exports = {
     code: '-190009',
     message: '找不到附件',
   },
+  invalidParameterAttachments: {
+    code: '-190010',
+    message: '不合法的参数attachments',
+  },
   getConfigError: {
     code: '-200000',
     message: '配置文件出错,请联系管理员',
