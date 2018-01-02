@@ -103,6 +103,3 @@ config.subscribeDownloadTemplateId = 'subscribe_autopush';   // 下载模板Id
 // 视频服务器地址
 config.streamURL = 'http://10.0.15.68:8099';
 config.hkRuku = '/h';
-
-// im上传文件地址
-config.imUploadURL = 'http://localhost/uploads';

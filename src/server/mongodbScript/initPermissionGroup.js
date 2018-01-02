@@ -401,6 +401,13 @@ const infos = [
     parentIndex: '',
     topParentMenu: '媒体库',
   },
+  {
+    _id: 'report',
+    name: '报表统计',
+    index: 'report',
+    parentIndex: 'management',
+    topParentMenu: '管理',
+  }
 ];
 
 

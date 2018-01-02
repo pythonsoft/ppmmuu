@@ -92,7 +92,6 @@ service.updateAttachment = function updateAttachment(info, status) {
   }
 
   if (status === AttachmentInfo.STATUS.success) {
-    updateInfo.path = `${config.imUploadURL}/${info.pid}/${info.name}`;
     updateInfo.speed = info.speed || '';
   }
 
