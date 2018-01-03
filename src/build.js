@@ -135,8 +135,8 @@ const umpName = 'ump';
 const versionName = 'version.json';
 
 const chaoningCoolie = function (version, cb) {
-  const chaoningDeployPath = '/Users/steven/Desktop/ump';
-  const chaoningFEprojectPath = '/Users/steven/UMP-FE';
+  const chaoningDeployPath = '/Users/chaoningx/Desktop/ump';
+  const chaoningFEprojectPath = '/Users/chaoningx/WebstormProjects/ump-fe';
   const chaoningFEProjectApiPath = path.join(chaoningFEprojectPath, 'src', 'fe', 'api');
   const chaoningFEProjectDistPath = path.join(chaoningFEprojectPath, 'dist');
 
@@ -205,7 +205,6 @@ const chaoningCoolie = function (version, cb) {
 const deployOnline = function deployOnline(cb) {
   if (process.env.NODE_ENV === 'online') {
     writeFile(pm2JSONPath, 'pm2.json');
-    console.log("onlineconfig===>", onlineConfig);
     writeFile(onlineConfig, 'config_master.js');
     writeFile(packageJsonPath, 'package.json');
 
