@@ -532,7 +532,21 @@ service.listCatalog = function listCatalog(objectId, cb) {
       return cb && cb(i18n.t('databaseError'));
     }
 
-    return cb && cb(null, docs);
+    fileInfo.collection.findOne({ objectId, type: FileInfo.TYPE.LOW_BIT_VIDEO }, (err, file) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+      if (!file) {
+        return cb && cb(i18n.t('canNotFindLowVideo'));
+      }
+      if (docs && docs.length) {
+        for (let i = 0, len = docs.length; i < len; i++) {
+          docs[i].fileInfo = file;
+        }
+      }
+      return cb && cb(null, docs);
+    });
   });
 };
 
