@@ -205,6 +205,7 @@ const chaoningCoolie = function (version, cb) {
 const deployOnline = function deployOnline(cb) {
   if (process.env.NODE_ENV === 'online') {
     writeFile(pm2JSONPath, 'pm2.json');
+    console.log("onlineconfig===>", onlineConfig);
     writeFile(onlineConfig, 'config_master.js');
     writeFile(packageJsonPath, 'package.json');
 

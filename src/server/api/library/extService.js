@@ -126,6 +126,7 @@ service.getAsyncCatalogInfoList = function getAsyncCatalogInfoList(info, cb) {
   }
 
 
+  console.log(query);
   catalogInfo.pagination(query, page, pageSize, (err, result) => {
     if (err) {
       logger.error(err.message);
