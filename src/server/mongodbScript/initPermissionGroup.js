@@ -407,7 +407,7 @@ const infos = [
     index: 'report',
     parentIndex: 'management',
     topParentMenu: '管理',
-  }
+  },
 ];
 
 
