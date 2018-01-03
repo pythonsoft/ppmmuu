@@ -769,6 +769,10 @@ module.exports = {
     code: '-100018',
     message: '入库模板信息不存在',
   },
+  canNotFindLowVideo: {
+    code: '-100019',
+    message: '找不到低码流文件',
+  },
   shelfStatusNotCorrect: {
     code: '-110001',
     message: '状态不正确',
