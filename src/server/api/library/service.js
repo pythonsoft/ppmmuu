@@ -115,17 +115,18 @@ const setCatalogInfoAndFileInfoAvailable = function setCatalogInfoAndFileInfoAva
   };
 
   if (available === CatalogInfo.AVAILABLE.NO) {
-    q.flag = CatalogInfo.AVAILABLE.YES;
+    q.available = CatalogInfo.AVAILABLE.YES;
   } else {
-    q.flag = CatalogInfo.AVAILABLE.NO;
+    q.available = CatalogInfo.AVAILABLE.NO;
     updateInfo.publishTime = updateInfo.lastModifyTime;
   }
 
-  let actionName = 'updateOne';
+  const actionName = 'updateMany';
 
   if (objectId.indexOf(',') !== -1) {
     q.objectId = { $in: objectId.split(',') };
-    actionName = 'updateMany';
+  } else if (utils.getValueType(objectId) === 'array') {
+    q.objectId = { $in: objectId };
   } else {
     q.objectId = objectId;
   }
@@ -532,7 +533,21 @@ service.listCatalog = function listCatalog(objectId, cb) {
       return cb && cb(i18n.t('databaseError'));
     }
 
-    return cb && cb(null, docs);
+    fileInfo.collection.findOne({ objectId, type: FileInfo.TYPE.LOW_BIT_VIDEO }, (err, file) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+      if (!file) {
+        return cb && cb(i18n.t('canNotFindLowVideo'));
+      }
+      if (docs && docs.length) {
+        for (let i = 0, len = docs.length; i < len; i++) {
+          docs[i].fileInfo = file;
+        }
+      }
+      return cb && cb(null, docs);
+    });
   });
 };
 
@@ -660,7 +675,7 @@ service.listFile = function listCatalog(objectId, cb) {
         duration = cata.outpoint - cata.inpoint;
       }
       for (let i = 0, len = docs.length; i < len; i++) {
-        docs[i].duration = duration;
+        docs[i].duration = duration * 40;
       }
       return cb && cb(null, docs);
     });

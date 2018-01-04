@@ -125,7 +125,6 @@ service.getAsyncCatalogInfoList = function getAsyncCatalogInfoList(info, cb) {
     return cb && cb(i18n.t('invalidLastModify'));
   }
 
-
   catalogInfo.pagination(query, page, pageSize, (err, result) => {
     if (err) {
       logger.error(err.message);
