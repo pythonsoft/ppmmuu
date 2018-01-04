@@ -474,7 +474,7 @@ service.esSearch = function esSearch(info, cb, userId, videoIds) {
 
 const formatPathToUrl = function formatPathToUrl(path, fileName, mapPath) {
   if (path) {
-    const temp = path.match(/\/[a-z,0-9,-,_]*\/\d{4}\/\d{2}\/\d{2}/g);
+    const temp = path.match(/\/[a-z,0-9,-,_]*\/\d{4}\/\d{2}\/\d{2}.*/g);
     if (!temp) {
       path = path.replace('\\', '\\\\').match(/\\\d{4}\\\d{2}\\\d{2}/g);
     } else {
@@ -486,7 +486,7 @@ const formatPathToUrl = function formatPathToUrl(path, fileName, mapPath) {
     }
 
     if (mapPath && path) {
-      return `${config.streamURL}${mapPath}${path}/${fileName}`;
+      return `${config.streamURL}${mapPath}${path}`;
     }
     return '';
   }
@@ -586,7 +586,7 @@ service.xml2srt = (info, cb) => {
       });
     });
   } else {
-    libraryExtService.getFileInfo({ catalogId: info.objectid, type: FileInfo.TYPE.SUBTITLE, fromWhere }, (err, doc) => {
+    libraryExtService.getFileInfo({ catalogId: info.objectid, type: FileInfo.TYPE.OTHER, fromWhere }, (err, doc) => {
       if (err) {
         return cb && cb(err);
       }
