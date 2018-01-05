@@ -15,6 +15,7 @@ class CatalogInfo extends DB {
     this.struct = {
       _id: { type: 'string', default() { return uuid.v1(); }, allowUpdate: false },
       objectId: { type: 'string', validation: 'require' },
+      name: { type: 'string', validation: 'require' },
       englishName: { type: 'string', validation: 'require' },
       chineseName: { type: 'string', validation: 'require' },
       parentId: { type: 'string' },

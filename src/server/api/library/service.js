@@ -104,7 +104,7 @@ service.createCatalogTask = function createCatalogTask(info, creatorId, creatorN
   });
 };
 
-const setCatalogInfoAndFileInfoAvailable = function setCatalogInfoAndFileInfoAvailable(objectId, available, cb) {
+const setCatalogInfoAndFileInfoAvailable = function setCatalogInfoAndFileInfoAvailable(objectId, available, cb, owner) {
   const q = {
     available: '',
   };
@@ -120,8 +120,9 @@ const setCatalogInfoAndFileInfoAvailable = function setCatalogInfoAndFileInfoAva
     q.available = CatalogInfo.AVAILABLE.NO;
     updateInfo.publishTime = updateInfo.lastModifyTime;
   }
-
-  const actionName = 'updateMany';
+  if (owner) {
+    updateInfo.owner = owner;
+  }
 
   if (objectId.indexOf(',') !== -1) {
     q.objectId = { $in: objectId.split(',') };
@@ -131,18 +132,21 @@ const setCatalogInfoAndFileInfoAvailable = function setCatalogInfoAndFileInfoAva
     q.objectId = objectId;
   }
 
-  catalogInfo.collection[actionName](q, { $set: updateInfo }, (err) => {
+  catalogInfo.collection.updateMany(q, { $set: updateInfo }, (err) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(err);
     }
 
-    fileInfo.collection[actionName](q, updateInfo, (err, r) => {
+    const fileUpdateInfo = {
+      available,
+      lastModifyTime: new Date(),
+    };
+    fileInfo.collection.updateMany(q, { $set: fileUpdateInfo }, (err, r) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(err);
       }
-
       return cb && cb(null, r);
     });
   });
@@ -416,18 +420,18 @@ service.submitCatalogTask = function submitCatalogTask(taskIds, submitterId, sub
     for (let i = 0, len = docs.length; i < len; i++) {
       objectIds.push(docs[i].objectId);
     }
-
+    const submitter = { _id: submitterId, name: submitterName };
     catalogTaskInfo[actionName](query, {
       lastModifyTime: new Date(),
       status: CatalogTaskInfo.STATUS.SUBMITTED,
-      lastSubmitter: { _id: submitterId, name: submitterName },
+      lastSubmitter: submitter,
     }, (err) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(err);
       }
 
-      setCatalogInfoAndFileInfoAvailable(objectIds, CatalogInfo.AVAILABLE.YES, (err, r) => cb && cb(null, r));
+      setCatalogInfoAndFileInfoAvailable(objectIds, CatalogInfo.AVAILABLE.YES, (err, r) => cb && cb(null, r), submitter);
     });
   });
 };
