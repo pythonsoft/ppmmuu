@@ -124,8 +124,6 @@ const setCatalogInfoAndFileInfoAvailable = function setCatalogInfoAndFileInfoAva
     updateInfo.owner = owner;
   }
 
-  const actionName = 'updateMany';
-
   if (objectId.indexOf(',') !== -1) {
     q.objectId = { $in: objectId.split(',') };
   } else if (utils.getValueType(objectId) === 'array') {
@@ -134,18 +132,21 @@ const setCatalogInfoAndFileInfoAvailable = function setCatalogInfoAndFileInfoAva
     q.objectId = objectId;
   }
 
-  catalogInfo.collection[actionName](q, { $set: updateInfo }, (err) => {
+  catalogInfo.collection.updateMany(q, { $set: updateInfo }, (err) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(err);
     }
 
-    fileInfo.collection[actionName](q, updateInfo, (err, r) => {
+    const fileUpdateInfo = {
+      available,
+      lastModifyTime: new Date(),
+    };
+    fileInfo.collection.updateMany(q, { $set: fileUpdateInfo }, (err, r) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(err);
       }
-
       return cb && cb(null, r);
     });
   });
