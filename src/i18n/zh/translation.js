@@ -1061,4 +1061,12 @@ module.exports = {
     code: '-200000',
     message: '配置文件出错,请联系管理员',
   },
+  canNotFindConnectingAnchor: {
+    code: '-210000',
+    message: '配置文件出错,请联系管理员',
+  },
+  canNotFindChannel: {
+    code: '-210001',
+    message: '找不到通道',
+  },
 };

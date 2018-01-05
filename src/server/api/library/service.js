@@ -104,7 +104,7 @@ service.createCatalogTask = function createCatalogTask(info, creatorId, creatorN
   });
 };
 
-const setCatalogInfoAndFileInfoAvailable = function setCatalogInfoAndFileInfoAvailable(objectId, available, cb) {
+const setCatalogInfoAndFileInfoAvailable = function setCatalogInfoAndFileInfoAvailable(objectId, available, cb, owner) {
   const q = {
     available: '',
   };
@@ -119,6 +119,9 @@ const setCatalogInfoAndFileInfoAvailable = function setCatalogInfoAndFileInfoAva
   } else {
     q.available = CatalogInfo.AVAILABLE.NO;
     updateInfo.publishTime = updateInfo.lastModifyTime;
+  }
+  if (owner) {
+    updateInfo.owner = owner;
   }
 
   const actionName = 'updateMany';
@@ -416,18 +419,18 @@ service.submitCatalogTask = function submitCatalogTask(taskIds, submitterId, sub
     for (let i = 0, len = docs.length; i < len; i++) {
       objectIds.push(docs[i].objectId);
     }
-
+    const submitter = { _id: submitterId, name: submitterName };
     catalogTaskInfo[actionName](query, {
       lastModifyTime: new Date(),
       status: CatalogTaskInfo.STATUS.SUBMITTED,
-      lastSubmitter: { _id: submitterId, name: submitterName },
+      lastSubmitter: submitter,
     }, (err) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(err);
       }
 
-      setCatalogInfoAndFileInfoAvailable(objectIds, CatalogInfo.AVAILABLE.YES, (err, r) => cb && cb(null, r));
+      setCatalogInfoAndFileInfoAvailable(objectIds, CatalogInfo.AVAILABLE.YES, (err, r) => cb && cb(null, r), submitter);
     });
   });
 };
