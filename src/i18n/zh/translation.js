@@ -1063,7 +1063,7 @@ module.exports = {
   },
   canNotFindConnectingAnchor: {
     code: '-210000',
-    message: '配置文件出错,请联系管理员',
+    message: '找不到正在连线的请求',
   },
   canNotFindChannel: {
     code: '-210001',
