@@ -136,6 +136,13 @@ const infos = [
     topParentMenu: '媒体库',
   },
   {
+    _id: 'libraryTask',
+    name: '入库任务',
+    index: 'libraryTask',
+    parentIndex: 'taskManagement',
+    topParentMenu: '媒体库',
+  },
+  {
     _id: 'auditManager',
     name: '审核管理',
     index: 'auditManager',
