@@ -104,7 +104,7 @@ service.createCatalogTask = function createCatalogTask(info, creatorId, creatorN
   });
 };
 
-const setCatalogInfoAndFileInfoAvailable = function setCatalogInfoAndFileInfoAvailable(objectId, available, cb) {
+const setCatalogInfoAndFileInfoAvailable = function setCatalogInfoAndFileInfoAvailable(objectId, available, cb, owner) {
   const q = {
     available: '',
   };
@@ -115,33 +115,38 @@ const setCatalogInfoAndFileInfoAvailable = function setCatalogInfoAndFileInfoAva
   };
 
   if (available === CatalogInfo.AVAILABLE.NO) {
-    q.flag = CatalogInfo.AVAILABLE.YES;
+    q.available = CatalogInfo.AVAILABLE.YES;
   } else {
-    q.flag = CatalogInfo.AVAILABLE.NO;
+    q.available = CatalogInfo.AVAILABLE.NO;
     updateInfo.publishTime = updateInfo.lastModifyTime;
   }
-
-  let actionName = 'updateOne';
+  if (owner) {
+    updateInfo.owner = owner;
+  }
 
   if (objectId.indexOf(',') !== -1) {
     q.objectId = { $in: objectId.split(',') };
-    actionName = 'updateMany';
+  } else if (utils.getValueType(objectId) === 'array') {
+    q.objectId = { $in: objectId };
   } else {
     q.objectId = objectId;
   }
 
-  catalogInfo.collection[actionName](q, { $set: updateInfo }, (err) => {
+  catalogInfo.collection.updateMany(q, { $set: updateInfo }, (err) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(err);
     }
 
-    fileInfo.collection[actionName](q, updateInfo, (err, r) => {
+    const fileUpdateInfo = {
+      available,
+      lastModifyTime: new Date(),
+    };
+    fileInfo.collection.updateMany(q, { $set: fileUpdateInfo }, (err, r) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(err);
       }
-
       return cb && cb(null, r);
     });
   });
@@ -415,18 +420,18 @@ service.submitCatalogTask = function submitCatalogTask(taskIds, submitterId, sub
     for (let i = 0, len = docs.length; i < len; i++) {
       objectIds.push(docs[i].objectId);
     }
-
+    const submitter = { _id: submitterId, name: submitterName };
     catalogTaskInfo[actionName](query, {
       lastModifyTime: new Date(),
       status: CatalogTaskInfo.STATUS.SUBMITTED,
-      lastSubmitter: { _id: submitterId, name: submitterName },
+      lastSubmitter: submitter,
     }, (err) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(err);
       }
 
-      setCatalogInfoAndFileInfoAvailable(objectIds, CatalogInfo.AVAILABLE.YES, (err, r) => cb && cb(null, r));
+      setCatalogInfoAndFileInfoAvailable(objectIds, CatalogInfo.AVAILABLE.YES, (err, r) => cb && cb(null, r), submitter);
     });
   });
 };
@@ -532,7 +537,21 @@ service.listCatalog = function listCatalog(objectId, cb) {
       return cb && cb(i18n.t('databaseError'));
     }
 
-    return cb && cb(null, docs);
+    fileInfo.collection.findOne({ objectId, type: FileInfo.TYPE.LOW_BIT_VIDEO }, (err, file) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+      if (!file) {
+        return cb && cb(i18n.t('canNotFindLowVideo'));
+      }
+      if (docs && docs.length) {
+        for (let i = 0, len = docs.length; i < len; i++) {
+          docs[i].fileInfo = file;
+        }
+      }
+      return cb && cb(null, docs);
+    });
   });
 };
 
@@ -650,7 +669,20 @@ service.listFile = function listCatalog(objectId, cb) {
       return cb && cb(i18n.t('databaseError'));
     }
 
-    return cb && cb(null, docs);
+    catalogInfo.collection.findOne({ objectId }, (err, cata) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+      let duration = 0;
+      if (cata && cata.outpoint) {
+        duration = cata.outpoint - cata.inpoint;
+      }
+      for (let i = 0, len = docs.length; i < len; i++) {
+        docs[i].duration = duration * 40;
+      }
+      return cb && cb(null, docs);
+    });
   });
 };
 
@@ -694,7 +726,20 @@ service.updateFile = function updateFile(id, info = {}, cb) {
       return cb && cb(i18n.t('databaseError'));
     }
 
-    return cb && cb(null, r);
+    const updateInfo = {
+      _id: id,
+      name: info.name || '',
+      realPath: info.realPath || '',
+      size: info.size || 0,
+      type: info.type || FileInfo.TYPE.ORIGINAL,
+    };
+    catalogInfo.updateOne({ 'fileInfo._id': id }, { fileInfo: updateInfo, lastModifyTime: info.lastModifyTime }, (err) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+      return cb && cb(null, r);
+    });
   });
 };
 

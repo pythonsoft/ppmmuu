@@ -10,6 +10,7 @@ fieldMap.catalogInfoMap = {
   outpoint: 'outpoint',
   duration: 'duration',
   type: 'program_type',
+  name: 'name',
   englishName: 'program_name_en',
   chineseName: 'program_name_cn',
   keyword: 'keyword',
@@ -19,7 +20,6 @@ fieldMap.catalogInfoMap = {
   keyman: 'keyman',
   language: 'language',
   available: 'publish_status',
-  materialDate: 'materialDate',
   owner: 'owner',
   createdTime: 'created',
   lastModifyTime: 'last_modify',
@@ -58,7 +58,7 @@ fieldMap.translateFields = {
     cn: '版本',
   },
   keyman: {
-    cn: '关键任务',
+    cn: '关键人物',
   },
   language: {
     cn: '语言',
@@ -83,9 +83,6 @@ fieldMap.translateFields = {
   },
   owner: {
     cn: '编目者',
-  },
-  department: {
-    cn: '资源所属部门',
   },
   createdTime: {
     cn: '创建时间',

@@ -9,6 +9,7 @@ const os = require('os');
 const i18n = require('i18next');
 const request = require('request');
 const logger = require('./log')('error');
+const fs = require('fs');
 
 const utils = {};
 
@@ -508,6 +509,17 @@ utils.formatTime = function (date, format = 'YYYY-MM-DD HH:mm:ss') {
   result = result.replace(/mm/, fillupZero(minutes));
   result = result.replace(/ss/, fillupZero(secs));
   return result;
+};
+
+utils.download = function download(url, tempPath, cb) {
+  const file = fs.createWriteStream(tempPath);
+  request.get(url).on('response', (response) => {
+    response.pipe(file);
+    file.on('finish', () => cb && cb(null));
+  }).on('error', (error) => {
+    logger.error(error);
+    return cb && cb(error.message);
+  });
 };
 
 module.exports = utils;

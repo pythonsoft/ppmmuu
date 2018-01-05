@@ -769,6 +769,10 @@ module.exports = {
     code: '-100018',
     message: '入库模板信息不存在',
   },
+  canNotFindLowVideo: {
+    code: '-100019',
+    message: '找不到低码流文件',
+  },
   shelfStatusNotCorrect: {
     code: '-110001',
     message: '状态不正确',
@@ -1049,8 +1053,20 @@ module.exports = {
     code: '-190009',
     message: '找不到附件',
   },
+  invalidParameterAttachments: {
+    code: '-190010',
+    message: '不合法的参数attachments',
+  },
   getConfigError: {
     code: '-200000',
     message: '配置文件出错,请联系管理员',
+  },
+  canNotFindConnectingAnchor: {
+    code: '-210000',
+    message: '找不到正在连线的请求',
+  },
+  canNotFindChannel: {
+    code: '-210001',
+    message: '找不到通道',
   },
 };

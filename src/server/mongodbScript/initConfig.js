@@ -288,7 +288,7 @@ const meidaCenterSearchSelects = [
     items: [
       { value: '節目資料管理部', label: '節目資料管理部' },
       { value: '鏡面宣傳部', label: '鏡面宣傳部' },
-      { value: '頻道編輯部', label: '頻道編輯部' },
+      { value: '頻道編播部', label: '頻道編播部' },
       { value: '共享資源', label: '共享資源' },
       { value: '中文台專題主編組', label: '中文台專題主編組' },
       { value: '中文台專題製作組', label: '中文台專題製作組' },

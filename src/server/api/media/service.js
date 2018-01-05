@@ -18,6 +18,8 @@ const FileInfo = require('../library/fileInfo');
 const uuid = require('uuid');
 const nodecc = require('node-opencc');
 const Xml2Srt = require('../../common/parseXmlSub');
+const fs = require('fs');
+const path = require('path');
 
 const HttpRequest = require('../../common/httpRequest');
 
@@ -472,14 +474,19 @@ service.esSearch = function esSearch(info, cb, userId, videoIds) {
 
 const formatPathToUrl = function formatPathToUrl(path, fileName, mapPath) {
   if (path) {
-    path = path.replace('\\', '\\\\').match(/\\\d{4}\\\d{2}\\\d{2}/g);
+    const temp = path.match(/\/[a-z,0-9,-,_]*\/\d{4}\/\d{2}\/\d{2}.*/g);
+    if (!temp) {
+      path = path.replace('\\', '\\\\').match(/\\\d{4}\\\d{2}\\\d{2}/g);
+    } else {
+      path = temp;
+    }
 
     if (path && path.length === 1) {
       path = path[0].replace(/\\/g, '\/');
     }
 
     if (mapPath && path) {
-      return `${config.streamURL}${mapPath}${path}/${fileName}`;
+      return `${config.streamURL}${mapPath}${path}`;
     }
     return '';
   }
@@ -579,7 +586,7 @@ service.xml2srt = (info, cb) => {
       });
     });
   } else {
-    libraryExtService.getFileInfo({ catalogId: info.objectid, type: FileInfo.TYPE.SUBTITLE, fromWhere }, (err, doc) => {
+    libraryExtService.getFileInfo({ catalogId: info.objectid, type: FileInfo.TYPE.OTHER, fromWhere }, (err, doc) => {
       if (err) {
         return cb && cb(err);
       }
@@ -593,11 +600,20 @@ service.xml2srt = (info, cb) => {
             return cb && cb(null, '');
           }
           // const xmlUrl = `${config.streamURL}${config.hkRuku}/moved/2017/11/24/PMELOOP10_77/catalog.xml`;
-          utils.baseRequestCallApi(xmlUrl, 'GET', '', '', (err, response) => {
-            if (err) {
-              return cb && cb(err);
+          const tempXmlPath = path.join(config.uploadPath, uuid.v1());
+          utils.download(xmlUrl, tempXmlPath, (error) => {
+            if (error) {
+              return cb && cb(i18n.t('getSubtitleFailed'));
             }
-            return cb && cb(null, response.body);
+            const data = fs.readFileSync(tempXmlPath, 'utf-8');
+            const parser = new Xml2Srt(data);
+            parser.getSrtStr((err, r) => {
+              if (err) {
+                logger.error(err);
+                return cb(i18n.t('getSubtitleFailed'));
+              }
+              return cb(null, r);
+            });
           });
         } catch (e) {
           return cb && cb(null, '');
@@ -729,7 +745,7 @@ service.getStream = function getStream(objectId, fromWhere, res) {
   fromWhere = fromWhere || CatalogInfo.FROM_WHERE.MAM;
 
   if (!isFromWhereHK(fromWhere)) {
-    libraryExtService.getCatalogInfo({ catalogId: objectId, type: FileInfo.TYPE.ORIGINAL, fromWhere }, (err, doc) => {
+    libraryExtService.getCatalogInfo({ catalogId: objectId, type: FileInfo.TYPE.LOW_BIT_VIDEO, fromWhere }, (err, doc) => {
       if (err) {
         return res && res({ status: err.code, result: {}, statusInfo: { message: err.message } });
       }

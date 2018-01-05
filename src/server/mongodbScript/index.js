@@ -12,4 +12,5 @@ require('./initPermissionGroup');
 require('./initDownloadTemplate');
 require('./initLibraryTemplate');
 require('./initFromWhere');
+require('./initChannelInfo');
 // require('./syncIMAccount');
