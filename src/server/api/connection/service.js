@@ -16,6 +16,8 @@ const ChannelInfo = require('./channelInfo');
 
 const channelInfo = new ChannelInfo();
 
+const uuid = require('uuid');
+
 const service = {};
 
 service.createAnchorInfo = function createAnchorInfo(info, cb) {
@@ -28,11 +30,21 @@ service.createAnchorInfo = function createAnchorInfo(info, cb) {
   }
   info.creator = info.user;
   const type = info.type || '';
+  const query = {};
   if (type === AnchorInfo.TYPE.mobileToPC) {
-    info._id = info.user._id;
+    const struct = {
+      deviceId: { type: 'string', validation: 'require' },
+    };
+    const err = utils.validation(info, struct);
+    if (err) {
+      return cb && cb(err);
+    }
+    info.userId = info.user._id;
     info.photo = info.user.photo;
     info.userName = info.user.name;
     info.channelId = '';
+    query.userId = info.user._id;
+    query.deviceId = info.deviceId;
   } else {
     const struct = {
       channelId: { type: 'string', validation: 'require' },
@@ -43,11 +55,14 @@ service.createAnchorInfo = function createAnchorInfo(info, cb) {
     if (err) {
       return cb && cb(err);
     }
+    info.userId = info._id;
+    query.userId = info.userId;
+    delete info._id;
     info.photo = info.photo;
     info.userName = info.name;
   }
 
-  anchorInfo.collection.findOne({ _id: info._id }, (err, doc) => {
+  anchorInfo.collection.findOne(query, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -62,7 +77,7 @@ service.createAnchorInfo = function createAnchorInfo(info, cb) {
         channelId: info.channelId,
         type: info.type,
       };
-      anchorInfo.updateOne({ _id: info._id }, updateInfo, (err) => {
+      anchorInfo.updateOne(query, updateInfo, (err) => {
         if (err) {
           logger.error(err.message);
           return cb && cb(i18n.t('databaseError'));
@@ -71,6 +86,7 @@ service.createAnchorInfo = function createAnchorInfo(info, cb) {
         return cb && cb(null, info._id);
       });
     } else {
+      info._id = uuid.v1();
       anchorInfo.insertOne(info, (err) => {
         if (err) {
           logger.error(err.message);
@@ -83,16 +99,17 @@ service.createAnchorInfo = function createAnchorInfo(info, cb) {
   });
 };
 
-service.getAnchorInfo = function getChannelInfo(info, cb) {
+service.getAnchorInfo = function getAnchorInfo(info, cb) {
   const struct = {
     _id: { type: 'string', validation: 'require' },
+    deviceId: { type: 'string', validation: 'require' },
   };
   const err = utils.validation(info, struct);
   if (err) {
     return cb && cb(err);
   }
 
-  anchorInfo.collection.findOne({ _id: info._id }, (err, doc) => {
+  anchorInfo.collection.findOne({ userId: info._id, deviceId: info.deviceId }, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -132,16 +149,43 @@ const checkChannelId = function checkChannelId(channelId, cb) {
 service.assignChannel = function assignChannel(info, cb) {
   const struct = {
     status: { type: 'string', validation: v => utils.isValueInObject(v, AnchorInfo.STATUS) },
+    type: { type: 'string', validation: v => utils.isValueInObject(v, AnchorInfo.TYPE) },
   };
   const err = utils.validation(info, struct);
   if (err) {
     return cb && cb(err);
   }
   const status = info.status || '';
-  const userId = info.anchorId || info.dealUser._id;
   const channelId = info.channelId || '';
   const targetId = info.targetId || '';
-  anchorInfo.collection.findOne({ _id: userId, status: AnchorInfo.STATUS.CONNECTING }, (err, doc) => {
+  const deviceId = info.deviceId;
+  let query = {};
+  let updateInfo = {
+    status,
+  };
+  if (info.type === AnchorInfo.TYPE.mobileToPC) {
+    const _id = info._id;
+    const struct = {
+      _id: { type: 'string', validation: 'require' },
+    };
+    const err = utils.validation(info, struct);
+    if (err) {
+      return cb && cb(err);
+    }
+    query = { _id, status: AnchorInfo.STATUS.CONNECTING };
+  } else {
+    const struct = {
+      deviceId: { type: 'string', validation: 'require' },
+    };
+    const err = utils.validation(info, struct);
+    if (err) {
+      return cb && cb(err);
+    }
+    const userId = info.dealUser._id;
+    query = { userId, status: AnchorInfo.STATUS.CONNECTING, deviceId };
+    updateInfo.deviceId = deviceId;
+  }
+  anchorInfo.collection.findOne(query, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -155,9 +199,6 @@ service.assignChannel = function assignChannel(info, cb) {
       if (err) {
         return cb && cb(err);
       }
-      let updateInfo = {
-        status,
-      };
       if (status === AnchorInfo.STATUS.CONNECTED) {
         updateInfo = {
           status: AnchorInfo.STATUS.CONNECTED,
@@ -168,7 +209,9 @@ service.assignChannel = function assignChannel(info, cb) {
           updateInfo.channelId = channelId;
         }
       }
-      anchorInfo.updateOne({ _id: userId }, updateInfo, (err) => {
+      console.log('query===>', query);
+      console.log('update==>', updateInfo);
+      anchorInfo.updateOne(query, updateInfo, (err) => {
         if (err) {
           logger.error(err.message);
           return cb && cb(i18n.t('databaseError'));
