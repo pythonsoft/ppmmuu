@@ -7,15 +7,18 @@
 const DB = require('../../common/db');
 const config = require('../../config');
 const utils = require('../../common/utils');
+const uuid = require('uuid');
 
 class AnchorInfo extends DB {
   constructor() {
     super(config.dbInstance[`${config.dbName}DB`], 'AnchorInfo');
 
     this.struct = {
-      _id: { type: 'string', validation: 'require' },   // 这里用user _id
+      _id: { type: 'string', validation: 'require', default() { return uuid.v1(); } },
+      deviceId: { type: 'string' },                         // 设备id
+      userId: { type: 'string' },                           // 主播id
       channelId: { type: 'string' },
-      userName: { type: 'string', validation: 'require' },
+      userName: { type: 'string', validation: 'require' },  // 主播名
       creator: { type: 'object', default: { _id: '', name: '', photo: '' } },
       dealUser: { type: 'object', default: { _id: '', name: '' } },
       photo: { type: 'string' },

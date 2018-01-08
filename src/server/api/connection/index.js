@@ -145,6 +145,12 @@ router.get('/getAllChannel', (req, res) => {
  *         example: "bea711c0-67ae-11e7-8b13-c506d97b38b0"
  *         collectionFormat: csv
  *       - in: query
+ *         name: deviceId
+ *         description: "如果是手机端连PC端,那么必填,PC端不用填"
+ *         required: false
+ *         type: string
+ *         collectionFormat: csv
+ *       - in: query
  *         name: name
  *         description: "如果是PC端连手机端,那么必填,手机端不用填"
  *         required: false
@@ -211,11 +217,18 @@ router.get('/askLine', (req, res) => {
  * @swagger
  * /connection/getLine:
  *   get:
- *     description: 查询连线，主要是看连线状态是否是被接受了
+ *     description: 查询连线，主要是看连线状态是否是被接受了,这个是手机端的接口，PC端请用listAnchor查询
  *     tags:
  *       - v1
  *     produces:
  *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: deviceId
+ *         description: "记者设备id,试用手机端连PC端"
+ *         type: string
+ *         example: "bea711c0-67ae-11e7-8b13-c506d97b38b0"
+ *         collectionFormat: csv
  *     responses:
  *       200:
  *         description: ''
@@ -231,6 +244,10 @@ router.get('/askLine', (req, res) => {
  *                _id:
  *                  type: string
  *                  description: '_id'
+ *                  example: '124124'
+ *                deviceId:
+ *                  type: string
+ *                  description: "记者设备id"
  *                  example: '124124'
  *                channelId:
  *                  type: string
@@ -298,14 +315,22 @@ router.get('/getLine', (req, res) => {
  *               type: string
  *               description: "1:等待,2:接受,3:拒绝,4:挂断"
  *               example: '2'
+ *             type:
+ *               type: string
+ *               description: "1: pc端处理请求,2: 手机端处理请求"
+ *               example: '2'
+ *             deviceId:
+ *               type: string
+ *               description: "记者设备Id,如果是手机端处理请求则必填，pc端处理请求不填"
+ *               example: '2'
  *             channelId:
  *               type: string
  *               example: "14214"
  *               description: "通道_id,如果是PC端处理连线，则必填"
- *             anchorId:
+ *             _id:
  *               type: string
  *               example: "14214"
- *               description: "请求连线的user _id, 如果是PC端处理连线，则必填"
+ *               description: "请求连线的_id, 如果是PC端处理连线，则必填"
  *             targetId:
  *               type: string
  *               description: '客户端语音视频sdk生成的uid, 如果是PC端处理连线，则必填'
@@ -448,6 +473,14 @@ router.post('/dealLine', (req, res) => {
  *                      type:
  *                        type: string
  *                        description: '类型.1:手机端主动连PC端,2:PC端主动连手机端'
+ *                        example: '2'
+ *                      userId:
+ *                        type: string
+ *                        description: '记者id'
+ *                        example: '2'
+ *                      deviceId:
+ *                        type: string
+ *                        description: '记者设备id'
  *                        example: '2'
  *                      channelId:
  *                        type: string
