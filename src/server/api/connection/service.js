@@ -146,6 +146,24 @@ const checkChannelId = function checkChannelId(channelId, cb) {
   }
 };
 
+
+service.updateLine = function updateLine(info, cb) {
+  const struct = {
+    _id: { type: 'string', validation: 'require' },
+  };
+  const err = utils.validation(info, struct);
+  if (err) {
+    return cb && cb(err);
+  }
+  anchorInfo.updateOne({ _id: info._id }, info, (err) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+    return cb && cb(null, 'ok');
+  });
+};
+
 service.assignChannel = function assignChannel(info, cb) {
   const struct = {
     status: { type: 'string', validation: v => utils.isValueInObject(v, AnchorInfo.STATUS) },
@@ -157,11 +175,11 @@ service.assignChannel = function assignChannel(info, cb) {
   }
   const status = info.status || '';
   const channelId = info.channelId || '';
-  const targetId = info.targetId || '';
   const deviceId = info.deviceId;
   let query = {};
   let updateInfo = {
     status,
+    targetId: '',
   };
   if (info.type === AnchorInfo.TYPE.mobileToPC) {
     const _id = info._id;
@@ -202,15 +220,13 @@ service.assignChannel = function assignChannel(info, cb) {
       if (status === AnchorInfo.STATUS.CONNECTED) {
         updateInfo = {
           status: AnchorInfo.STATUS.CONNECTED,
-          targetId,
+          targetId: '',
           dealUser: info.dealUser,
         };
         if (channelId) {
           updateInfo.channelId = channelId;
         }
       }
-      console.log('query===>', query);
-      console.log('update==>', updateInfo);
       anchorInfo.updateOne(query, updateInfo, (err) => {
         if (err) {
           logger.error(err.message);
