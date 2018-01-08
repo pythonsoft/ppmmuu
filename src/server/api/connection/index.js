@@ -288,6 +288,67 @@ router.get('/getLine', (req, res) => {
 
 /**
  * @permissionGroup: connection
+ * @permissionName: 更新连线
+ * @permissionPath: /connection/updateLine
+ * @apiName: updateLine
+ * @apiFuncType: post
+ * @apiFuncUrl: /connection/updateLine
+ * @swagger
+ * /connection/updateLine:
+ *   post:
+ *     description: 更新连线
+ *     tags:
+ *       - v1
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: 必须的字段status
+ *         schema:
+ *           type: object
+ *           required:
+ *             - _id
+ *           properties:
+ *             _id:
+ *               type: string
+ *               example: "14214"
+ *               description: "请求连线的_id"
+ *             targetId:
+ *               type: string
+ *               description: '客户端语音视频sdk生成的uid'
+ *               example: "123456"
+ *     responses:
+ *       200:
+ *         description: ''
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *              example: '0'
+ *            data:
+ *              type: object
+ *              properties:
+ *                _id:
+ *                  type: string
+ *                  description: '_id'
+ *                  example: '124124'
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *                  example: 'ok'
+ */
+router.post('/updateLine', (req, res) => {
+  const info = req.body;
+  service.updateLine(info, (err, r) => res.json(result.json(err, r)));
+});
+
+
+/**
+ * @permissionGroup: connection
  * @permissionName: 处理连线，分配通道
  * @permissionPath: /connection/dealLine
  * @apiName: dealLine
@@ -331,10 +392,6 @@ router.get('/getLine', (req, res) => {
  *               type: string
  *               example: "14214"
  *               description: "请求连线的_id, 如果是PC端处理连线，则必填"
- *             targetId:
- *               type: string
- *               description: '客户端语音视频sdk生成的uid, 如果是PC端处理连线，则必填'
- *               example: "123456"
  *     responses:
  *       200:
  *         description: ''
