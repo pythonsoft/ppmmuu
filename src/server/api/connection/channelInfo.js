@@ -8,7 +8,6 @@ const uuid = require('uuid');
 
 const DB = require('../../common/db');
 const config = require('../../config');
-const utils = require('../../common/utils');
 
 class ChannelInfo extends DB {
   constructor() {

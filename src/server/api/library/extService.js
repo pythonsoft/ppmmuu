@@ -136,7 +136,6 @@ service.getAsyncCatalogInfoList = function getAsyncCatalogInfoList(info, cb) {
     for (let i = 0; i < docs.length; i++) {
       const item = {};
       let fullText = '';
-      item.name = docs[i].chineseName;
       for (const key in fieldMap.catalogInfoMap) {
         item[fieldMap.catalogInfoMap[key]] = docs[i][key];
         if (typeof item[fieldMap.catalogInfoMap[key]] === 'string') {
@@ -146,6 +145,9 @@ service.getAsyncCatalogInfoList = function getAsyncCatalogInfoList(info, cb) {
 
       item.duration = item.outpoint - item.inpoint;
       item.full_text = fullText;
+      if (!item.rootid) {
+        item.rootid = item.id;
+      }
       if (!item.news_data) {
         delete item.news_data;
       }
