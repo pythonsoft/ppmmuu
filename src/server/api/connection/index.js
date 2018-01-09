@@ -271,7 +271,7 @@ router.get('/askLine', (req, res) => {
  *                  example: '1'
  *                status:
  *                  type: string
- *                  description: "1: 等待中,2:已进入,3:拒绝,4:挂断,5:出错"
+ *                  description: "1: 等待中,2:已进入,3:拒绝,4:挂断,5:出错,6:播出中"
  *                  example: '1'
  *            statusInfo:
  *              type: object
@@ -318,6 +318,10 @@ router.get('/getLine', (req, res) => {
  *               type: string
  *               description: '客户端语音视频sdk生成的uid'
  *               example: "123456"
+ *             status:
+ *               type: string
+ *               description: '1: 等待中,2:已进入,3:拒绝,4:挂断,5:出错,6:播出中'
+ *               example: "6"
  *     responses:
  *       200:
  *         description: ''
@@ -374,7 +378,7 @@ router.post('/updateLine', (req, res) => {
  *           properties:
  *             status:
  *               type: string
- *               description: "1:等待,2:接受,3:拒绝,4:挂断"
+ *               description: "1:等待,2:接受,3:拒绝,4:挂断,5:出错,6:播出中"
  *               example: '2'
  *             type:
  *               type: string
@@ -443,7 +447,7 @@ router.post('/dealLine', (req, res) => {
  *         collectionFormat: csv
  *       - in: query
  *         name: status
- *         description: "状态.1:等待,2:接受,3:拒绝,4:挂断,多个状态查询用逗号分隔"
+ *         description: "状态.1:等待,2:接受,3:拒绝,4:挂断,5:出错,6:播出中 多个状态查询用逗号分隔"
  *         required: false
  *         type: string
  *         default: ""

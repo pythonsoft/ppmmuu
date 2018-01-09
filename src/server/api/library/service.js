@@ -253,6 +253,35 @@ service.deleteCatalogTask = function deleteCatalogTask(taskIds, lastDeleterId, l
   });
 };
 
+const updateCatalogInfoOwner = function updateCatalogInfoOwner(query, owner, cb) {
+  catalogTaskInfo.collection.find(query).toArray((err, docs) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(err);
+    }
+    const objectIds = [];
+    if (docs && docs.length) {
+      docs.forEach((item) => {
+        objectIds.push(item.objectId);
+      });
+    }
+    if (objectIds.length === 0) {
+      return cb && cb(null);
+    }
+    const updateInfo = {
+      owner,
+      lastModifyTime: new Date(),
+    };
+    catalogInfo.collection.updateMany({ objectId: { $in: objectIds } }, { $set: updateInfo }, (err) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(err);
+      }
+      return cb && cb(null);
+    });
+  });
+};
+
 // 任务派发
 service.assignCatalogTask = function assignCatalogTask(taskIds, ownerId, assigneeId, assigneeName, cb) {
   if (!taskIds || taskIds.length === 0) {
@@ -280,18 +309,24 @@ service.assignCatalogTask = function assignCatalogTask(taskIds, ownerId, assigne
       return cb && cb(err);
     }
 
-    catalogTaskInfo[actionName](query, {
-      owner: { _id: ownerId, name: doc.name },
-      assignee: { _id: assigneeId, name: assigneeName },
-      lastModifyTime: new Date(),
-      status: CatalogTaskInfo.STATUS.DOING,
-    }, (err, r) => {
+    const owner = { _id: ownerId, name: doc.name };
+
+    updateCatalogInfoOwner(query, owner, (err) => {
       if (err) {
-        logger.error(err.message);
         return cb && cb(err);
       }
-
-      return cb && cb(null, r);
+      catalogTaskInfo[actionName](query, {
+        owner,
+        assignee: { _id: assigneeId, name: assigneeName },
+        lastModifyTime: new Date(),
+        status: CatalogTaskInfo.STATUS.DOING,
+      }, (err, r) => {
+        if (err) {
+          logger.error(err.message);
+          return cb && cb(err);
+        }
+        return cb && cb(null, r);
+      });
     });
   });
 };
@@ -321,18 +356,23 @@ service.applyCatalogTask = function applyCatalogTask(taskIds, ownerId, ownerName
   }
 
   query.status = CatalogTaskInfo.STATUS.PREPARE;
+  const owner = { _id: ownerId, name: ownerName };
 
-  catalogTaskInfo[actionName](query, {
-    owner: { _id: ownerId, name: ownerName },
-    lastModifyTime: new Date(),
-    status: CatalogTaskInfo.STATUS.DOING,
-  }, (err, r) => {
+  updateCatalogInfoOwner(query, owner, (err) => {
     if (err) {
-      logger.error(err.message);
       return cb && cb(err);
     }
-
-    return cb && cb(null, r);
+    catalogTaskInfo[actionName](query, {
+      owner,
+      lastModifyTime: new Date(),
+      status: CatalogTaskInfo.STATUS.DOING,
+    }, (err, r) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(err);
+      }
+      return cb && cb(null, r);
+    });
   });
 };
 
@@ -555,6 +595,13 @@ service.listCatalog = function listCatalog(objectId, cb) {
   });
 };
 
+const formatDuration = function formatDuration(info) {
+  if (info.outpoint) {
+    const timeLen = ((info.outpoint - info.inpoint) * 1.0) / 25;
+    info.duration = utils.transformSecondsToStr(timeLen);
+  }
+};
+
 service.createCatalog = function createCatalog(ownerId, ownerName, info, cb) {
   if (!info || utils.isEmptyObject(info)) {
     return cb && cb(i18n.t('libraryCreateCatalogInfoIsNull'));
@@ -577,7 +624,7 @@ service.createCatalog = function createCatalog(ownerId, ownerName, info, cb) {
   if (!info._id) {
     info._id = uuid.v1();
   }
-
+  formatDuration(info);
   if (info.parentId) {
     catalogInfo.collection.findOne({ _id: info.parentId }, (err, doc) => {
       if (err) {
@@ -650,6 +697,7 @@ service.getCatalog = function getCatalog(id, cb) {
       return cb && cb(i18n.t('databaseError'));
     }
 
+    formatDuration(doc);
     return cb && cb(null, doc);
   });
 };

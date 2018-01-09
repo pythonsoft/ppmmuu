@@ -39,6 +39,9 @@ fieldMap.translateFields = {
   objectId: {
     cn: '',
   },
+  name: {
+    cn: '节目名称',
+  },
   englishName: {
     cn: '英文名',
   },
@@ -80,9 +83,25 @@ fieldMap.translateFields = {
   },
   materialDate: {
     cn: '素材日期',
+    format(v) {
+      if (v && v.from && v.to) {
+        return `${v.from}-${v.to}`;
+      } else if (v && v.from) {
+        return v.from;
+      } else if (v && v.to) {
+        return v.to;
+      }
+      return '';
+    },
   },
   owner: {
     cn: '编目者',
+    format(v) {
+      if (v && v.name) {
+        return v.name;
+      }
+      return '';
+    },
   },
   createdTime: {
     cn: '创建时间',

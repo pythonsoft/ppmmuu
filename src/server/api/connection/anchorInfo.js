@@ -37,10 +37,11 @@ class AnchorInfo extends DB {
 
 AnchorInfo.STATUS = {
   CONNECTING: '1', // 等待进入通道
-  CONNECTED: '2', // 已进入通道
-  REJECTED: '3',  // 拒绝
-  CLOSED: '4',    // 挂断
-  ERROR: '5',     // 出错
+  CONNECTED: '2',  // 已进入通道
+  REJECTED: '3',   // 拒绝
+  CLOSED: '4',     // 挂断
+  ERROR: '5',      // 出错
+  ONLIVE: '6',     //播出中
 };
 
 AnchorInfo.TYPE = {
