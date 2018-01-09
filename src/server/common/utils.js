@@ -511,6 +511,26 @@ utils.formatTime = function (date, format = 'YYYY-MM-DD HH:mm:ss') {
   return result;
 };
 
+utils.transformSecondsToStr = function (time = 0, format = 'HH:mm:ss:ff', fps = 25) {
+  if (time < 0) time = 0;
+  const hours = Math.floor(time / (60 * 60));
+  time %= (60 * 60);
+  const minutes = Math.floor(time / 60);
+  time %= 60;
+  const seconds = Math.floor(time);
+  let frame = (time % 1) * fps;
+  frame = frame % 1 > 0.9 ? frame + 1 : frame;
+  frame = Math.floor(frame);
+
+  let result = format;
+  result = result.replace(/HH/, fillupZero(hours));
+  result = result.replace(/mm/, fillupZero(minutes));
+  result = result.replace(/ss/, fillupZero(seconds));
+  result = result.replace(/ff/, fillupZero(frame));
+
+  return result;
+};
+
 utils.download = function download(url, tempPath, cb) {
   const file = fs.createWriteStream(tempPath);
   request.get(url).on('response', (response) => {
