@@ -253,6 +253,10 @@ router.get('/askLine', (req, res) => {
  *                  type: string
  *                  description: '通道Id'
  *                  example: '124124'
+ *                channelName:
+ *                  type: string
+ *                  description: '通道名字'
+ *                  example: '124124'
  *                targetId:
  *                  type: string
  *                  description: '连线对象sdk生成的uid'
