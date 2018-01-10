@@ -115,7 +115,18 @@ service.getAnchorInfo = function getAnchorInfo(info, cb) {
       return cb && cb(i18n.t('databaseError'));
     }
 
-    return cb && cb(null, doc);
+    if (doc && doc.channelId) {
+      channelInfo.collection.findOne({ _id: doc.channelId }, (err, ch) => {
+        if (err) {
+          logger.error(err.message);
+          return cb && cb(i18n.t('databaseError'));
+        }
+        doc.channelName = ch ? ch.name : '';
+        return cb && cb(null, doc);
+      });
+    } else {
+      return cb && cb(null, doc);
+    }
   });
 };
 

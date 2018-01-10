@@ -63,6 +63,7 @@ service.listCatalogTask = function listCatalogTask(status, departmentId, ownerId
   if (objectId) {
     query.objectId = objectId;
   }
+  query.workflowStatus = CatalogTaskInfo.WORKFLOW_STATUS.SUCCESS;   // 只列出入库成功的任务
 
   catalogTaskInfo.pagination(query, page, pageSize, (err, docs) => {
     if (err) {
