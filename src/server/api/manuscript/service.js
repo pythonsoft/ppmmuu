@@ -250,6 +250,8 @@ service.updateManuscript = function updateManuscript(info, cb) {
     }));
   }
 
+  info.modifyTime = new Date();
+
   if (info.attachments && utils.getValueType(info.attachments) === 'array') {
     for (let i = 0, len = info.attachments.length; i < len; i++) {
       const item = info.attachments[i];

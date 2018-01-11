@@ -404,6 +404,8 @@ const getEsOptions = function getEsOptions(info) {
     };
   }
 
+  console.log(JSON.stringify(options));
+
   return options;
 };
 
