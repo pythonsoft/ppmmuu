@@ -27,6 +27,7 @@ const templateInfo = new TemplateInfo();
 
 const userService = require('../user/service');
 const groupService = require('../group/service');
+const fieldMap = require('./fieldMap');
 
 const service = {};
 
@@ -700,6 +701,40 @@ service.getCatalog = function getCatalog(id, cb) {
 
     formatDuration(doc);
     return cb && cb(null, doc);
+  });
+};
+
+service.getCatalogInfosTranslation = function getCatalogInfosTranslation(objectId, cb) {
+  if (!objectId) {
+    return cb && cb(i18n.t('objectIdIsNull'));
+  }
+  catalogInfo.collection.find({ objectId }).toArray((err, docs) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+    const rs = [];
+    if (!docs || docs.length === 0) {
+      return cb && cb(null, rs);
+    }
+    const fields = fieldMap.translateFields;
+    for (let i = 0, len = docs.length; i < len; i++) {
+      const doc = docs[i];
+      const item = {};
+      for (const key in fields) {
+        if (doc[key] !== undefined) {
+          item[key] = {
+            cn: fields[key].cn,
+            value: doc[key],
+          };
+          if (fields[key].format) {
+            item[key].value = fields[key].format(doc[key]);
+          }
+        }
+      }
+      rs.push(item);
+    }
+    return cb && cb(null, rs);
   });
 };
 

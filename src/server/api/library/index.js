@@ -832,6 +832,41 @@ router.get('/getCatalog', (req, res) => {
 
 /**
  * @permissionGroup: library
+ * @permissionName: 获取编目任务的所有编目信息(翻译)
+ * @permissionPath: /library/getCatalogInfoTranslation
+ * @apiName: getCatalogInfoTranslation
+ * @apiFuncType: get
+ * @apiFuncUrl: /library/getCatalogInfoTranslation
+ * @swagger
+ * /library/getCatalogInfoTranslation:
+ *   get:
+ *     description: get catalogInfo translation
+ *     tags:
+ *       - v1
+ *       - library
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: objectId
+ *         description: 'objectId'
+ *         required: true
+ *         type: string
+ *         default: '0'
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description:
+ * */
+router.get('/getCatalogInfoTranslation', (req, res) => {
+  const objectId = req.query.objectId || '';
+  service.getCatalogInfosTranslation(objectId, (err, r) => {
+    res.json(result.json(err, r));
+  });
+});
+
+/**
+ * @permissionGroup: library
  * @permissionName: 列举编目信息
  * @permissionPath: /library/listCatalog
  * @apiName: listCatalog

@@ -241,6 +241,10 @@ module.exports = {
     code: '-8006',
     message: '任务创建者信息不完全，请检查，id，name, type',
   },
+  canNotFindCatalogTask: {
+    code: '-8007',
+    message: '找不到编目任务',
+  },
   bucketIdIsNull: {
     code: '-9001',
     message: '存储区Id不存在',
