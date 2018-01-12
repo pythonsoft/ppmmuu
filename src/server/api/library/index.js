@@ -151,9 +151,9 @@ router.post('/createCatalogTask', (req, res) => {
  *         schema:
  *           type: object
  *           required:
- *             - taskId
+ *             - _id
  *           properties:
- *             taskId:
+ *             _id:
  *               type: string
  *               description: ''
  *               example: "aa"
@@ -192,7 +192,7 @@ router.post('/updateCatalogTask', (req, res) => {
     updateDoc.jobs = req.body.jobs;
   }
 
-  service.updateCatalogTask(req.body.taskId, updateDoc, (err, docs) => res.json(result.json(err, docs)));
+  service.updateCatalogTask(req.body._id, updateDoc, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**

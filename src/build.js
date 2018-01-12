@@ -269,7 +269,7 @@ const generateFeApiFuncFile = function generateFeApiFuncFile() {
       }
 
       if (funcNameArr.length !== funcTypeArr.length || funcNameArr.length !== funcUrlArr.length) {
-        throw new Error('funcNameArr cannot match funcTypeArr length or funcUrlArr length');
+        throw new Error(`${filename}注释有问题 funcNameArr(${funcNameArr.length}) cannot match funcTypeArr(${funcTypeArr.length}) length or funcUrlArr(${funcUrlArr.length}) length`);
       }
 
       if (funcNameArr.length > 0) {
