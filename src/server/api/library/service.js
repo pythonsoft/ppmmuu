@@ -722,7 +722,7 @@ service.getCatalogInfosTranslation = function getCatalogInfosTranslation(objectI
       const doc = docs[i];
       const item = {};
       for (const key in fields) {
-        if (doc[key]) {
+        if (doc[key] !== undefined) {
           item[key] = {
             cn: fields[key].cn,
             value: doc[key],
