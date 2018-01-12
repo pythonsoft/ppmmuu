@@ -415,6 +415,13 @@ const infos = [
     parentIndex: 'management',
     topParentMenu: '管理',
   },
+  {
+    _id: 'connection',
+    name: '记者连线',
+    index: 'connection',
+    parentIndex: 'management',
+    topParentMenu: '管理',
+  },
 ];
 
 
