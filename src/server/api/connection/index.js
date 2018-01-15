@@ -229,6 +229,12 @@ router.get('/askLine', (req, res) => {
  *         type: string
  *         example: "bea711c0-67ae-11e7-8b13-c506d97b38b0"
  *         collectionFormat: csv
+ *       - in: query
+ *         name: sourceId
+ *         description: "记者端sdk生成的uuid"
+ *         type: string
+ *         example: "bea711c0-67ae-11e7-8b13-c506d97b38b0"
+ *         collectionFormat: csv
  *     responses:
  *       200:
  *         description: ''
