@@ -842,6 +842,28 @@ service.getFile = function getFile(id, cb) {
   });
 };
 
+service.getSubtitleFile = function getSubtitleFile(id, cb) {
+  service.getFile(id, (err, doc) => {
+    if (err) {
+      return cb && cb(err);
+    }
+    const objectId = doc.objectId;
+    let path = '';
+    if (objectId) {
+      fileInfo.collection.findOne({ objectId, type: FileInfo.TYPE.SUBTITLE }, (err, doc) => {
+        if (err) {
+          logger.error(err.message);
+          return cb && cb(i18n.t('databaseError'));
+        }
+        path = doc ? doc.realPath : '';
+        return cb && cb(null, path);
+      });
+    } else {
+      return cb && cb(null, path);
+    }
+  });
+};
+
 /* file */
 
 const checkHdExt = function checkHdExt(hdExt) {
