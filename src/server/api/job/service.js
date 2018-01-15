@@ -552,12 +552,13 @@ service.download = function download(info, cb) {
   const outpoint = info.outpoint;
   const filename = info.filename;
   const filetypeid = info.filetypeid;
+  const fileId = info.fileId;
   const templateId = info.templateId; // 下载模板Id
   const receiverId = info.receiverId;
   const receiverType = info.receiverType;
   const transferMode = info.transferMode || 'direct';
   const source = info.fromWhere || CatalogInfo.FROM_WHERE.MAM;
-  const downloadParams = { objectid, inpoint: inpoint * 1, outpoint: outpoint * 1, filename, filetypeid, templateId };
+  const downloadParams = { objectid, inpoint: inpoint * 1, outpoint: outpoint * 1, filename, filetypeid, templateId, fileId };
   if (!downloadParams) {
     return cb && cb(i18n.t('joDownloadParamsIsNull'));
   }
