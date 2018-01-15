@@ -13,8 +13,12 @@ const isLogin = require('../../middleware/login');
 const upload = require('../../common/multer').upload;
 
 router.use(isLogin.middleware);
+router.use(isLogin.hasAccessMiddleware);
 
 /**
+ * @permissionGroup: copy
+ * @permissionName: 获取稿件标签配置
+ * @permissionPath: /manuscript/getTagsConfig
  * @apiName: getTagsConfig
  * @apiFuncType: get
  * @apiFuncUrl: /manuscript/getTagsConfig
@@ -53,6 +57,9 @@ router.get('/getTagsConfig', (req, res) => {
 });
 
 /**
+ * @permissionGroup: copy
+ * @permissionName: 提交稿件时用到的相关配置项
+ * @permissionPath: /manuscript/getManuscriptConfig
  * @apiName: getManuscriptConfig
  * @apiFuncType: get
  * @apiFuncUrl: /manuscript/getManuscriptConfig
@@ -74,6 +81,9 @@ router.get('/getManuscriptConfig', (req, res) => {
 });
 
 /**
+ * @permissionGroup: copy
+ * @permissionName: 获取稿件
+ * @permissionPath: /manuscript/getManuscript
  * @apiName: getManuscript
  * @apiFuncType: get
  * @apiFuncUrl: /manuscript/getManuscript
@@ -103,6 +113,9 @@ router.get('/getManuscript', (req, res) => {
 });
 
 /**
+ * @permissionGroup: copy
+ * @permissionName: 保存稿件
+ * @permissionPath: /manuscript/addOrUpdate
  * @apiName: addOrUpdateManuscript
  * @apiFuncType: post
  * @apiFuncUrl: /manuscript/addOrUpdate
@@ -197,6 +210,9 @@ router.post('/addOrUpdate', (req, res) => {
 
 
 /**
+ * @permissionGroup: copy
+ * @permissionName: 稿件统计
+ * @permissionPath: /manuscript/getSummary
  * @apiName: getSummary
  * @apiFuncType: get
  * @apiFuncUrl: /manuscript/getSummary
@@ -221,6 +237,9 @@ router.get('/getSummary', (req, res) => {
 });
 
 /**
+ * @permissionGroup: copy
+ * @permissionName: 稿件列表
+ * @permissionPath: /manuscript/list
  * @apiName: listManuscript
  * @apiFuncType: get
  * @apiFuncUrl: /manuscript/list
@@ -421,6 +440,9 @@ router.get('/list', (req, res) => {
 });
 
 /**
+ * @permissionGroup: copy
+ * @permissionName: 稿件搜索历史
+ * @permissionPath: /manuscript/getSearchHistory
  * @apiName: getSearchHistory
  * @apiFuncType: get
  * @apiFuncUrl: /manuscript/getSearchHistory
@@ -454,6 +476,9 @@ router.get('/getSearchHistory', (req, res) => {
 
 
 /**
+ * @permissionGroup: copy
+ * @permissionName: 清除稿件搜索历史
+ * @permissionPath: /manuscript/clearSearchHistory
  * @apiName: clearSearchHistory
  * @apiFuncType: post
  * @apiFuncUrl: /manuscript/clearSearchHistory
@@ -478,35 +503,9 @@ router.post('/clearSearchHistory', (req, res) => {
 });
 
 /**
- * @apiName: getManuscript
- * @apiFuncType: get
- * @apiFuncUrl: /manuscript/getManuscript
- * @swagger
- * /manuscript/getManuscript:
- *   get:
- *     description: get list allChildGroups
- *     tags:
- *       - v1
- *       - ManuscriptInfo
- *     produces:
- *       - application/json
- *     parameters:
- *       - in: query
- *         name: _id
- *         description: ''
- *         required: false
- *         type: string
- *         default: "043741f0-5cac-11e7-9a4a-5b43dc9cf567"
- *         collectionFormat: csv
- *     responses:
- *       200:
- *         description: ManuscriptInfo
- */
-router.get('/getManuscript', (req, res) => {
-  service.getManuscript(req.query, (err, docs) => res.json(result.json(err, docs)));
-});
-
-/**
+ * @permissionGroup: copy
+ * @permissionName: 改变稿件状态
+ * @permissionPath: /manuscript/changeManuscriptStatus
  * @apiName: changeManuscriptStatus
  * @apiFuncType: post
  * @apiFuncUrl: /manuscript/changeManuscriptStatus
@@ -575,6 +574,9 @@ router.post('/changeManuscriptStatus', (req, res) => {
 
 
 /**
+ * @permissionGroup: copy
+ * @permissionName: 复制稿件
+ * @permissionPath: /manuscript/copy
  * @apiName: copy
  * @apiFuncType: post
  * @apiFuncUrl: /manuscript/copy
@@ -628,6 +630,9 @@ router.post('/copy', (req, res) => {
 
 
 /**
+ * @permissionGroup: copy
+ * @permissionName: 删除稿件
+ * @permissionPath: /manuscript/clearAll
  * @apiName: clearAll
  * @apiFuncType: post
  * @apiFuncUrl: /manuscript/clearAll
@@ -664,6 +669,9 @@ router.post('/clearAll', (req, res) => {
 });
 
 /**
+ * @permissionGroup: copy
+ * @permissionName: 添加稿件
+ * @permissionPath: /manuscript/addAttachment
  * @apiName: addAttachment
  * @apiFuncType: post
  * @apiFuncUrl: /manuscript/addAttachment
@@ -697,6 +705,9 @@ router.post('/addAttachment', upload.single('file'), (req, res) => {
 });
 
 /**
+ * @permissionGroup: copy
+ * @permissionName: 附件绑定稿件
+ * @permissionPath: /manuscript/bindAttachment
  * @apiName: bindAttachment
  * @apiFuncType: post
  * @apiFuncUrl: /manuscript/bindAttachment
@@ -752,6 +763,9 @@ router.post('/bindAttachment', (req, res) => {
 });
 
 /**
+ * @permissionGroup: copy
+ * @permissionName: 附件列表接口
+ * @permissionPath: /manuscript/listAttachments
  * @apiName: listAttachments
  * @apiFuncType: get
  * @apiFuncUrl: /manuscript/listAttachments
@@ -821,6 +835,9 @@ router.get('/listAttachments', (req, res) => {
 });
 
 /**
+ * @permissionGroup: copy
+ * @permissionName: 稿件删除附件
+ * @permissionPath: /manuscript/deleteAttachments
  * @apiName: deleteAttachments
  * @apiFuncType: post
  * @apiFuncUrl: /manuscript/deleteAttachments
@@ -866,6 +883,9 @@ router.post('/deleteAttachments', (req, res) => {
 });
 
 /**
+ * @permissionGroup: copy
+ * @permissionName: 稿件简繁转换
+ * @permissionPath: /manuscript/hongKongSimplified
  * @apiName: hongKongSimplified
  * @apiFuncType: post
  * @apiFuncUrl: /manuscript/hongKongSimplified
@@ -921,6 +941,9 @@ router.post('/hongKongSimplified', (req, res) => {
 
 
 /**
+ * @permissionGroup: copy
+ * @permissionName: 稿件获取联系人组列表
+ * @permissionPath: /manuscript/listGroup
  * @apiName: getGroupList
  * @apiFuncType: get
  * @apiFuncUrl: /manuscript/listGroup
@@ -976,6 +999,9 @@ router.get('/listGroup', (req, res) => {
 });
 
 /**
+ * @permissionGroup: copy
+ * @permissionName: 稿件获取联系人列表
+ * @permissionPath: /manuscript/listUser
  * @apiName: getGroupUserList
  * @apiFuncType: get
  * @apiFuncUrl: /manuscript/listUser
@@ -1037,6 +1063,9 @@ router.get('/listUser', (req, res) => {
 });
 
 /**
+ * @permissionGroup: copy
+ * @permissionName: 稿件附件创建websocket任务
+ * @permissionPath: /manuscript/createWebSocketTask
  * @apiName: createWebSocketTask
  * @apiFuncType: post
  * @apiFuncUrl: /manuscript/createWebSocketTask
@@ -1085,6 +1114,9 @@ router.post('/createWebSocketTask', (req, res) => {
 });
 
 /**
+ * @permissionGroup: copy
+ * @permissionName: 稿件附件更新websocket任务
+ * @permissionPath: /manuscript/updateWebSocketTask
  * @apiName: updateWebSocketTask
  * @apiFuncType: post
  * @apiFuncUrl: /manuscript/updateWebSocketTask

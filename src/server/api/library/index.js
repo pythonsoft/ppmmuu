@@ -151,9 +151,9 @@ router.post('/createCatalogTask', (req, res) => {
  *         schema:
  *           type: object
  *           required:
- *             - taskId
+ *             - _id
  *           properties:
- *             taskId:
+ *             _id:
  *               type: string
  *               description: ''
  *               example: "aa"
@@ -192,7 +192,7 @@ router.post('/updateCatalogTask', (req, res) => {
     updateDoc.jobs = req.body.jobs;
   }
 
-  service.updateCatalogTask(req.body.taskId, updateDoc, (err, docs) => res.json(result.json(err, docs)));
+  service.updateCatalogTask(req.body._id, updateDoc, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
@@ -828,6 +828,41 @@ router.get('/getCatalog', (req, res) => {
   const id = req.query.id || '';
 
   service.getCatalog(id, (err, docs) => res.json(result.json(err, docs)));
+});
+
+/**
+ * @permissionGroup: library
+ * @permissionName: 获取编目任务的所有编目信息(翻译)
+ * @permissionPath: /library/getCatalogInfoTranslation
+ * @apiName: getCatalogInfoTranslation
+ * @apiFuncType: get
+ * @apiFuncUrl: /library/getCatalogInfoTranslation
+ * @swagger
+ * /library/getCatalogInfoTranslation:
+ *   get:
+ *     description: get catalogInfo translation
+ *     tags:
+ *       - v1
+ *       - library
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: objectId
+ *         description: 'objectId'
+ *         required: true
+ *         type: string
+ *         default: '0'
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description:
+ * */
+router.get('/getCatalogInfoTranslation', (req, res) => {
+  const objectId = req.query.objectId || '';
+  service.getCatalogInfosTranslation(objectId, (err, r) => {
+    res.json(result.json(err, r));
+  });
 });
 
 /**

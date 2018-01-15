@@ -39,6 +39,9 @@ fieldMap.translateFields = {
   objectId: {
     cn: '',
   },
+  name: {
+    cn: '節目名稱',
+  },
   englishName: {
     cn: '英文名',
   },
@@ -46,82 +49,98 @@ fieldMap.translateFields = {
     cn: '中文名',
   },
   keyword: {
-    cn: '关键字',
+    cn: '關鍵字',
   },
   content: {
-    cn: '内容',
+    cn: '內容',
   },
   source: {
-    cn: '来源',
+    cn: '來源',
   },
   version: {
     cn: '版本',
   },
   keyman: {
-    cn: '关键人物',
+    cn: '關鍵人物',
   },
   language: {
-    cn: '语言',
+    cn: '語言',
   },
   root: {
-    cn: '根节点',
+    cn: '根節點',
   },
   type: {
-    cn: '节目类型',
+    cn: '節目類型',
   },
   inpoint: {
-    cn: '入点',
+    cn: '入點',
   },
   outpoint: {
-    cn: '出点',
+    cn: '出點',
   },
   duration: {
-    cn: '时长',
+    cn: '時長',
   },
   materialDate: {
     cn: '素材日期',
+    format(v) {
+      if (v && v.from && v.to) {
+        return `${v.from}-${v.to}`;
+      } else if (v && v.from) {
+        return v.from;
+      } else if (v && v.to) {
+        return v.to;
+      }
+      return '';
+    },
   },
   owner: {
-    cn: '编目者',
+    cn: '編目者',
+    format(v) {
+      if (v && v.name) {
+        return v.name;
+      }
+      return '';
+    },
   },
   createdTime: {
-    cn: '创建时间',
+    cn: '創建時間',
   },
   lastModifyTime: {
-    cn: '修改时间',
+    cn: '修改時間',
   },
   fromWhere: {
-    cn: '入库来源',
+    cn: '入庫來源',
   },
   publishTime: {
-    cn: '发布时间',
+    cn: '發佈時間',
   },
   ccid: {
-    cn: '编目类',
+    cn: '編目類',
   },
   newsTime: {
-    cn: '新闻日期',
+    cn: '新聞日期',
   },
   airTime: {
     cn: '首播日期',
   },
   newsType: {
-    cn: '新闻类型',
+    cn: '新聞類型',
   },
   occurCountry: {
-    cn: '事发国家',
+    cn: '事發國家',
   },
   madeLocation: {
-    cn: '制作地点',
+    cn: '製作地點',
   },
   resourceDepartment: {
-    cn: '资源所属部门',
+    cn: '資源所屬部門',
   },
   hdFlag: {
-    cn: '高标清',
+    cn: '高標清',
   },
   pigeonhole: {
-    cn: '是否归档',
+    cn: '是否歸檔',
   },
 };
 module.exports = fieldMap;

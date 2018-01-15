@@ -108,14 +108,35 @@ service.getAnchorInfo = function getAnchorInfo(info, cb) {
   if (err) {
     return cb && cb(err);
   }
+  let updateInfo = {};
+  let actionName = 'findOne';
+  if (info.sourceId) {
+    actionName = 'findOneAndUpdate';
+    updateInfo = { $set: { sourceId: info.sourceId, modifyTime: new Date() } };
+  }
 
-  anchorInfo.collection.findOne({ userId: info._id, deviceId: info.deviceId }, (err, doc) => {
+  anchorInfo.collection[actionName]({ userId: info._id, deviceId: info.deviceId }, updateInfo, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
 
-    return cb && cb(null, doc);
+    if (actionName === 'findOneAndUpdate') {
+      doc = doc ? doc.value : '';
+    }
+
+    if (doc && doc.channelId) {
+      channelInfo.collection.findOne({ _id: doc.channelId }, (err, ch) => {
+        if (err) {
+          logger.error(err.message);
+          return cb && cb(i18n.t('databaseError'));
+        }
+        doc.channelName = ch ? ch.name : '';
+        return cb && cb(null, doc);
+      });
+    } else {
+      return cb && cb(null, doc);
+    }
   });
 };
 

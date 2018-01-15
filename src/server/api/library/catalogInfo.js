@@ -71,6 +71,7 @@ class CatalogInfo extends DB {
       },
       hdFlag: {             // 高标清
         type: 'number',
+        default: 1,
       },
       pigeonhole: {        // 是否归档
         type: 'string',

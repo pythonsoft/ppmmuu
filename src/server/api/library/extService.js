@@ -216,6 +216,9 @@ service.getObject = function getObject(_id, cb) {
           cn: fieldMap.translateFields[key].cn,
           value: doc[key],
         };
+        if (fieldMap.translateFields[key].format) {
+          item.value = fieldMap.translateFields[key].format(doc[key]);
+        }
         rs.result.detail.program[key] = item;
       }
     }
