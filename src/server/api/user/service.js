@@ -661,9 +661,10 @@ service.registerUserToEaseMob = function registerUserToEaseMob(user, cb) {
     }
 
     const Authorization = `Bearer ${token}`;
+    const t = new Date(user.createdTime).toISOString();
     const info = {
       username: user._id.replace(/-/g, '_'),
-      password: `${user.createdTime}`,
+      password: `${t}`,
     };
     utils.callApi(`${config.easemob_url}users`, 'POST', info, Authorization, (err) => cb && cb(null, 'ok'));
   });
