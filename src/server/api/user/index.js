@@ -262,6 +262,52 @@ router.get('/logout', (req, res) => {
 });
 
 /**
+ * @apiName: getUsers
+ * @apiFuncType: get
+ * @apiFuncUrl: /user/getUsers
+ * @swagger
+ * /user/getUsers/:
+ *   get:
+ *     description: 依据_ids获取用户信息
+ *     tags:
+ *       - v1
+ *       - UserInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: _ids
+ *         description: '带下划线的_id,多个用逗号分隔'
+ *         required: false
+ *         type: integer
+ *         default: '2110e3b0_766c_11e7_b1e5_bfe760890b13'
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: UserInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *              properties:
+ *                token:
+ *                  type: string
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *
+ */
+router.get('/getUsers', (req, res) => {
+  const _ids = req.query._ids || '';
+  service.detailUsers(_ids, (err, data) => res.json(result.json(err, data)));
+});
+
+/**
  * @apiName: getUserAuth
  * @apiFuncType: get
  * @apiFuncUrl: /user/auth

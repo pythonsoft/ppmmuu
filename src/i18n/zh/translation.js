@@ -45,6 +45,10 @@ module.exports = {
     code: '-1011',
     message: '缺少参数infos或者infos类型不是数组',
   },
+  parametersIdsRequired: {
+    code: '-1012',
+    message: '却好啊参数ids',
+  },
   getRoleNoId: {
     code: '-2005',
     message: '获取角色详情需要参数_id',
