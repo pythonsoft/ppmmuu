@@ -99,6 +99,10 @@ class ManuscriptInfo extends DB {
 
 }
 
+ManuscriptInfo.SUBMISSION_TARGET = {
+  DAYANG: 1,
+}
+
 ManuscriptInfo.TO_WHERE = {
   DAYANG: 'DAYANG',
 };
@@ -127,29 +131,41 @@ ManuscriptInfo.STATUS_MAP = {
 
 ManuscriptInfo.TYPE = {  // 稿件类别
   SOT: '1',
-  GANGAO: '2',
+  LVO: '2',
+  T_B: '3',
+  SLOT_CHENG: '4',
+  DIANDIPIAN: '5',
+  GANGAO_YUAN: '6',
+  GANGAO: '7',
+  SB_LVO: '8',
+  SB_ONLY: '9',
+  SLOT_ZHUANTI: '10',
+  LVO_ZHUANTI: '11',
+  ID: '12',
+  RUNDOWN: '13',
 };
 
 ManuscriptInfo.CONTENT_TYPE = {  // 类别
   ZHENGDIAN: '1',
   ZHITONGCHE: '2',
   QUANMEITI: '3',
-  ZAOBANCHE: '4',
-  QUANQIULIANXIAN: '5',
-  EDITORTIME: '6',
-  HUAWEN_ONLINE: '7',
-  DIANDIPIAN: '8',
-  GUANTOU: '9',
-  GUOJI: '10',
-  GANGAO: '11',
-  TAIWAN: '12',
-  DALU: '13',
-  CAIJING: '14',
-  TIYU: '15',
-  YULE: '16',
-  ZHUANTI: '17',
-  OTHERS: '18',
-  HONGKONG_TV: '19',
+  NETWORK: '4',
+  ZAOBANCHE: '5',
+  QUANQIULIANXIAN: '6',
+  EDITORTIME: '7',
+  HUAWEN_ONLINE: '8',
+  HONGKONG_TV: '9',
+  DIANDIPIAN: '10',
+  GUANTOU: '11',
+  GUOJI: '12',
+  GANGAO: '13',
+  TAIWAN: '14',
+  DALU: '15',
+  CAIJING: '16',
+  TIYU: '17',
+  YULE: '18',
+  ZHUANTI: '19',
+  OTHERS: '20',
 };
 
 ManuscriptInfo.SOURCE = {  // 来源

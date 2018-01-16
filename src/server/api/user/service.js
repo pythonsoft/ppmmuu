@@ -118,6 +118,17 @@ function webosLogin(userId, password, cb) {
   });
 }
 
+function saveWebosTicket(userId, ticket, cb) {
+  userInfo.updateOne({ _id: userId }, { webosTicket: ticket }, (err) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null);
+  });
+}
+
 const loginHandle = function loginHandle(username, password, cb) {
   const cipherPassword = utils.cipher(password, config.KEY);
 
@@ -161,11 +172,16 @@ const loginHandle = function loginHandle(username, password, cb) {
       }
       return cb && cb(null, doc);
     } else if (UserInfo.VERIFY_TYPE.WEBOS === doc.verifyType) {
-      webosLogin(username, password, (err) => {
+      webosLogin(username, password, (err, webosTicket) => {
         if (err) {
           return cb && cb(i18n.t('usernameOrPasswordIsWrong'));
         }
-        return cb && cb(null, doc);
+        saveWebosTicket(doc._id, webosTicket, (err) => {
+          if (err) {
+            return cb && cb(err);
+          }
+          return cb && cb(null, doc);
+        });
       });
     } else {
       return cb && cb(i18n.t('notImplementedVerityType'));

@@ -82,6 +82,20 @@ login.getUserInfoRedis = function getUserInfo(userId, cb) {
   });
 };
 
+const PLATFORM_TYPE = {
+  PC: '0',
+  MOBILE: '1',
+};
+
+function getClientPlatform(req) {
+  const deviceAgent = req.headers['user-agent'].toLowerCase();
+  const agentID = deviceAgent.match(/(iphone|ipod|ipad|android|mobile)/);
+  if (agentID) {
+    return PLATFORM_TYPE.MOBILE;
+  }
+  return PLATFORM_TYPE.PC;
+}
+
 login.middleware = function middleware(req, res, next) {
   const decodeTicket = login.isLogin(req);
 
@@ -102,6 +116,7 @@ login.middleware = function middleware(req, res, next) {
         }
 
         req.ex.userInfo = info;
+        req.ex.platform = getClientPlatform(req);
         next();
       });
     } else { // 过期
