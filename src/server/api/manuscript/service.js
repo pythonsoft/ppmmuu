@@ -437,7 +437,11 @@ function submitDaYang(info, cb) {
           if (err) {
             return cb && cb(null, err);
           }
-          return cb && cb(null, 'ok');
+          if (rs.status === 0) {
+            return cb && cb(null, 'ok');
+          }
+
+          return cb && cb(i18n.t('submitScriptToDaYangError', { error: rs.result.errorMsg }));
         });
       });
     });

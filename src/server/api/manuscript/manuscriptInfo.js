@@ -101,7 +101,7 @@ class ManuscriptInfo extends DB {
 
 ManuscriptInfo.SUBMISSION_TARGET = {
   DAYANG: 1,
-}
+};
 
 ManuscriptInfo.TO_WHERE = {
   DAYANG: 'DAYANG',

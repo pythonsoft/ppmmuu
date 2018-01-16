@@ -1081,5 +1081,9 @@ module.exports = {
     code: '-220001',
     message: '没有mappedUserId,请联系webos系统管理员',
   },
+  submitScriptToDaYangError: {
+    code: '-220002',
+    message: '提交稿件到大洋新闻系统失败: {{error}}',
+  },
 };
 

@@ -445,6 +445,18 @@ const manuscriptTags = [
 
 const manuscriptSubmit = [
   {
+    key: 'important',
+    label: '重要性',
+    type: 'label',
+    items: [
+      { value: '1', label: '高' },
+      { value: '2', label: '普通' },
+      { value: '3', label: '紧急稿件' },
+    ],
+    selected: '1',
+    multiple: false,
+  },
+  {
     key: 'type',
     label: '稿件类别',
     type: 'select',
@@ -462,18 +474,6 @@ const manuscriptSubmit = [
       { value: '11', label: 'LVO专题' },
       { value: '12', label: 'ID' },
       { value: '13', label: 'Rundown' },
-    ],
-    selected: '1',
-    multiple: false,
-  },
-  {
-    key: 'important',
-    label: '重要性',
-    type: 'label',
-    items: [
-      { value: '1', label: '高' },
-      { value: '2', label: '普通' },
-      { value: '3', label: '紧急稿件' },
     ],
     selected: '1',
     multiple: false,
