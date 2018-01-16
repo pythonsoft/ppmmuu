@@ -92,6 +92,7 @@ class UserInfo extends DB {
       detail: { type: 'object' },
       mediaExpressUser: { type: 'object', default: { username: '', password: '' } },
       expiredTime: { type: 'date', default() { return new Date('9999 23:59:59'); } },
+      webosTicket: { type: 'string' },
     };
   }
 

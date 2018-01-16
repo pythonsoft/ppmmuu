@@ -567,8 +567,9 @@ router.post('/clearSearchHistory', (req, res) => {
  */
 router.post('/changeManuscriptStatus', (req, res) => {
   const info = req.body;
-  const creator = { _id: req.ex.userInfo._id, name: req.ex.userInfo.name };
+  const creator = { _id: req.ex.userInfo._id, name: req.ex.userInfo.name, webosTicket: req.ex.userInfo.webosTicket || '', email: req.ex.userInfo.email };
   info.creator = creator;
+  info.platform = req.ex.platform;
   service.changeManuscriptStatus(info, (err, r) => res.json(result.json(err, r)));
 });
 

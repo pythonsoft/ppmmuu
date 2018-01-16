@@ -12,6 +12,7 @@ const path = require('path');
 const fs = require('fs');
 const opencc = require('node-opencc');
 const uuid = require('uuid');
+const WebosApi = require('../../common/webosAPI');
 
 const ManuscriptInfo = require('./manuscriptInfo');
 
@@ -32,6 +33,10 @@ const configService = require('../configuration/service');
 const groupService = require('../group/service');
 
 const groupUserService = require('../group/userService');
+
+const UserInfo = require('../user/userInfo');
+
+const userInfo = new UserInfo();
 
 const service = {};
 
@@ -305,6 +310,144 @@ const deleteAttachments = function deleteAttachments(query, cb) {
   });
 };
 
+function getMappedUserId(webosTicket, cb) {
+  const wos = new WebosApi(config.WEBOS_SERVER);
+  wos.getMappedUserId(webosTicket, config.DAYANG_ID, (err, rs) => {
+    if (err) {
+      return cb && cb(i18n.t('getMappedUserIdFailed', { error: err }));
+    }
+    if (rs) {
+      return cb && cb(null, rs.UserId);
+    }
+    return cb && cb(i18n.t('noMappedUserId'));
+  });
+}
+
+
+function submitDaYang(info, cb) {
+  const params = {
+    collaborators: [],
+    scriptDetail: {},
+    attachments: [],
+    submissionTarget: info.submissionTarget,
+    mappedUserId: '',
+    user: {},
+    source: {
+      id: '',
+      client: '',
+    },
+  };
+
+  params.user = {
+    id: info.creator.email,
+    name: info.creator.name,
+  };
+
+  params.source = {
+    id: info._id,
+    client: info.platform,
+  };
+
+  params.scriptDetail = utils.merge({
+    title: '',
+    subtitle: '',
+    source: '',
+    importance: '',
+    type: '',
+  }, info);
+  params.scriptDetail.importance = info.important;
+  params.scriptDetail.remark = info.description;
+  params.scriptDetail.scriptType = info.contentType;
+  if (info.editContent && info.editContent.length) {
+    params.scriptDetail.content = info.editContent[0].content;
+  }
+
+
+  function getCollborators(callback) {
+    const collaborators = [];
+    if (info.collaborators && info.collaborators.length) {
+      const userIds = [];
+      info.collaborators.forEach((item) => {
+        userIds.push(item._id);
+      });
+      userInfo.collection.find({ _id: { $in: userIds } }).toArray((err, users) => {
+        if (err) {
+          logger.error(err.message);
+          return callback && callback(i18n.t('databaseError'));
+        }
+        if (users && users.length) {
+          users.forEach((item) => {
+            collaborators.push({
+              Id: item.email,
+              Name: item.name,
+            });
+          });
+        }
+        return callback(null, collaborators);
+      });
+    } else {
+      return callback(null, collaborators);
+    }
+  }
+
+  function getAttachments(callback) {
+    const attachments = [];
+    if (info.attachments && info.attachments.length) {
+      const attachmentIds = [];
+      info.attachments.forEach((item) => {
+        attachmentIds.push(item.attachmentId);
+      });
+      attachmentInfo.collection.find({ _id: { $in: attachmentIds } }).toArray((err, attachmentInfos) => {
+        if (err) {
+          logger.error(err.message);
+          return callback && callback(i18n.t('databaseError'));
+        }
+        if (attachmentInfos && attachmentInfos.length) {
+          attachmentInfos.forEach((item) => {
+            attachments.push({
+              Id: item._id,
+              Filename: item.name,
+              Path: item.fileInfo.path || item.path,
+            });
+          });
+        }
+        return callback(null, attachments);
+      });
+    } else {
+      return callback(null, attachments);
+    }
+  }
+
+  getCollborators((err, collaborators) => {
+    if (err) {
+      return cb && cb(err);
+    }
+    params.collaborators = collaborators;
+    getAttachments((err, attachments) => {
+      if (err) {
+        return cb && cb(err);
+      }
+      params.attachments = attachments;
+      getMappedUserId(info.creator.webosTicket, (err, mappedUserId) => {
+        if (err) {
+          return cb && cb(err);
+        }
+        params.mappedUserId = mappedUserId;
+        utils.requestCallApi(`${config.hongkongUrl}submit_script`, 'POST', params, '', (err, rs) => {
+          if (err) {
+            return cb && cb(null, err);
+          }
+          if (rs.status === 0) {
+            return cb && cb(null, 'ok');
+          }
+
+          return cb && cb(i18n.t('submitScriptToDaYangError', { error: rs.result.errorMsg }));
+        });
+      });
+    });
+  });
+}
+
 service.changeManuscriptStatus = function changeManuscriptStatus(info, cb) {
   let _ids = info._ids || '';
   const status = info.status || '';
@@ -333,15 +476,27 @@ service.changeManuscriptStatus = function changeManuscriptStatus(info, cb) {
       if (rs.err) {
         return cb && cb(rs.err);
       }
-      info = rs.doc;
-      info.modifyTime = new Date();
+      const updateInfo = rs.doc;
+      updateInfo.modifyTime = new Date();
 
-      manuscriptInfo.collection.updateMany(query, { $set: info }, (err) => {
+      manuscriptInfo.collection.updateMany(query, { $set: updateInfo }, (err) => {
         if (err) {
           return cb && cb(err);
         }
 
-        return cb && cb(null, 'ok');
+        if (status === ManuscriptInfo.STATUS.SUBMITTED) {
+          docs[0].creator = info.creator;
+          docs[0].platform = info.platform;
+          docs[0].submissionTarget = ManuscriptInfo.SUBMISSION_TARGET.DAYANG;
+          submitDaYang(docs[0], (err) => {
+            if (err) {
+              return cb && cb(err);
+            }
+            return cb && cb(null, 'ok');
+          });
+        } else {
+          return cb && cb(null, 'ok');
+        }
       });
     } else {
       for (let i = 0, len = docs.length; i < len; i++) {

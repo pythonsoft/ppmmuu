@@ -105,3 +105,7 @@ config.socketURL = 'http://localhost:9000';
 // 视频服务器地址
 config.streamURL = 'http://10.0.15.68:8099';
 config.hkRuku = '/h';
+
+
+// 大洋新闻系统对应id
+config.DAYANG_ID = '63244331-906c-4aa4-b391-ee249496de62';
