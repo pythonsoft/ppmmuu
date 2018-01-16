@@ -328,6 +328,35 @@ utils.baseRequestCallApi = function baseRequestCallApi(url, method, info, token,
   });
 };
 
+utils.callApi = function callApi(url, method, info, Authorization, cb) {
+  const options = {
+    method: method || 'GET',
+    url,
+  };
+  if (method === 'POST') {
+    options.body = info;
+    options.headers = {
+      'content-type': 'application/json',
+    };
+    options.json = true;
+  } else {
+    options.qs = info;
+  }
+  if (Authorization) {
+    options.headers.Authorization = Authorization;
+  }
+
+  request(options, (error, response) => {
+    if (!error && response.statusCode === 200) {
+      return cb && cb(null, response.body);
+    } else if (error) {
+      return cb && cb(i18n.t('requestCallApiError', { error }));
+    }
+    logger.error(response.body);
+    return cb && cb(i18n.t('requestCallApiFailed'));
+  });
+};
+
 /**
  * @param uri
  * @param method "POST" or "GET"
