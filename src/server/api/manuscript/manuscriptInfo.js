@@ -207,4 +207,11 @@ ManuscriptInfo.LIST_TYPE = {
 
 ManuscriptInfo.DELETED = '4';
 
+ManuscriptInfo.SUBMIT_STATUS = {
+  WAITING: 0, // 待处理
+  DEALING: 1, // 处理中
+  DEALED: 2, // 已处理
+  ERROR: 3, // 发生错误
+};
+
 module.exports = ManuscriptInfo;
