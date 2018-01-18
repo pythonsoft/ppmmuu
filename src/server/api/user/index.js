@@ -292,9 +292,6 @@ router.get('/logout', (req, res) => {
  *              type: string
  *            data:
  *              type: object
- *              properties:
- *                token:
- *                  type: string
  *            statusInfo:
  *              type: object
  *              properties:

@@ -479,25 +479,30 @@ service.changeManuscriptStatus = function changeManuscriptStatus(info, cb) {
       const updateInfo = rs.doc;
       updateInfo.modifyTime = new Date();
 
-      manuscriptInfo.collection.updateMany(query, { $set: updateInfo }, (err) => {
-        if (err) {
-          return cb && cb(err);
-        }
-
-        if (status === ManuscriptInfo.STATUS.SUBMITTED) {
-          docs[0].creator = info.creator;
-          docs[0].platform = info.platform;
-          docs[0].submissionTarget = ManuscriptInfo.SUBMISSION_TARGET.DAYANG;
-          submitDaYang(docs[0], (err) => {
+      if (status === ManuscriptInfo.STATUS.SUBMITTED) {
+        docs[0].creator = info.creator;
+        docs[0].platform = info.platform;
+        docs[0].submissionTarget = ManuscriptInfo.SUBMISSION_TARGET.DAYANG;
+        submitDaYang(docs[0], (err) => {
+          if (err) {
+            return cb && cb(err);
+          }
+          manuscriptInfo.collection.updateMany(query, { $set: updateInfo }, (err) => {
             if (err) {
               return cb && cb(err);
             }
+
             return cb && cb(null, 'ok');
           });
-        } else {
+        });
+      } else {
+        manuscriptInfo.collection.updateMany(query, { $set: updateInfo }, (err) => {
+          if (err) {
+            return cb && cb(err);
+          }
           return cb && cb(null, 'ok');
-        }
-      });
+        });
+      }
     } else {
       for (let i = 0, len = docs.length; i < len; i++) {
         if (docs[i].status !== ManuscriptInfo.STATUS.DUSTBIN) {
@@ -929,6 +934,77 @@ service.updateWebSocketTask = function updateWebSocketTask(info, cb) {
     return cb && cb(err);
   }
   attachmentInfo.updateOne({ _id: info._id }, info, cb);
+};
+
+service.listSubmitScript = function listSubmitScript(info, cb) {
+  let pageSize = info.pageSize || 15;
+  let page = info.page || 1;
+  let status = info.status || '';
+  const keyword = info.keyword || '';
+  const userId = info.userInfo.email;
+  const sort = info.sort || 1;
+  const params = {};
+
+  if (status) {
+    status *= 1;
+    params.status = status;
+  }
+  if (keyword) {
+    params.keyword = keyword;
+  }
+
+  pageSize *= 1;
+  page *= 1;
+  params.by = sort * 1;
+  params.pageSize = pageSize * 1;
+  params.currentPage = page * 1;
+  params.userId = userId;
+
+  const formatDocs = function formatDocs(docs, userId) {
+    const newDocs = [];
+    if (docs && docs.length) {
+      for (let i = 0, len = docs.length; i < len; i++) {
+        const item = {};
+        item._id = docs[i].source.Id;
+        item.title = docs[i].ScriptDetail.Title;
+        item.viceTitle = docs[i].ScriptDetail.Subtitle;
+        item.attachments = docs[i].Attachments;
+        item.status = docs[i].status;
+        item.createdTime = docs[i].CreatedTime;
+        item.modifyTime = docs[i].ModifiedTime || item.createdTime;
+        if (docs[i].User.Id === userId) {
+          item.createType = ManuscriptInfo.LIST_TYPE.OWNER;
+        } else {
+          item.createType = ManuscriptInfo.LIST_TYPE.COLLABORATOR;
+        }
+        newDocs.push(item);
+      }
+    }
+    return newDocs;
+  };
+
+  utils.requestCallApi(`${config.hongkongUrl}list_script`, 'POST', params, '', (err, rs) => {
+    if (keyword) {
+      service.saveSearch(keyword, userId, () => {});
+    }
+    if (err) {
+      return cb && cb(null, err);
+    }
+    if (rs.status === 0) {
+      const docs = formatDocs(rs.result.items);
+      const total = rs.result.total * 1;
+      const list = {
+        page,
+        docs,
+        pageSize,
+        pageCount: Math.ceil(total / pageSize),
+        total,
+      };
+      return cb && cb(null, list);
+    }
+
+    return cb && cb(i18n.t('listSubmitScriptError:', { error: rs.result.errorMsg }));
+  });
 };
 
 module.exports = service;

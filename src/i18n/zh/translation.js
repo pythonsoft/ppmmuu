@@ -1065,6 +1065,10 @@ module.exports = {
     code: '-190010',
     message: '不合法的参数attachments',
   },
+  listSubmitScriptError: {
+    code: '-190011',
+    message: '获取已提交稿件列表失败: {{error}}',
+  },
   getConfigError: {
     code: '-200000',
     message: '配置文件出错,请联系管理员',

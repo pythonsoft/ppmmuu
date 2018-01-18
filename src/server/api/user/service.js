@@ -666,7 +666,7 @@ service.registerUserToEaseMob = function registerUserToEaseMob(user, cb) {
       username: user._id.replace(/-/g, '_'),
       password: `${t}`,
     };
-    utils.callApi(`${config.easemob_url}users`, 'POST', info, Authorization, (err) => cb && cb(null, 'ok'));
+    utils.callApi(`${config.easemob_url}users`, 'POST', info, Authorization, err => cb && cb(null, 'ok'));
   });
 };
 
@@ -683,7 +683,14 @@ service.detailUsers = function detailUsers(ids, cb) {
       return cb && cb(err);
     }
 
-    return cb && cb(null, docs);
+    const rs = {};
+    if (docs && docs.length) {
+      docs.forEach((item) => {
+        rs[item._id] = item;
+      });
+    }
+
+    return cb && cb(null, rs);
   });
 };
 
