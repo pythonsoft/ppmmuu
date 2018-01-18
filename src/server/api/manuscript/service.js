@@ -939,14 +939,13 @@ service.updateWebSocketTask = function updateWebSocketTask(info, cb) {
 service.listSubmitScript = function listSubmitScript(info, cb) {
   let pageSize = info.pageSize || 15;
   let page = info.page || 1;
-  let status = info.status || '';
+  const status = info.status || '';
   const keyword = info.keyword || '';
   const userId = info.userInfo.email;
   const sort = info.sort || 1;
   const params = {};
 
   if (status) {
-    status *= 1;
     params.status = status;
   }
   if (keyword) {
@@ -965,13 +964,18 @@ service.listSubmitScript = function listSubmitScript(info, cb) {
     if (docs && docs.length) {
       for (let i = 0, len = docs.length; i < len; i++) {
         const item = {};
-        item._id = docs[i].source.Id;
+        item._id = docs[i].Source.Id;
+        item.taskId = docs[i]._id;
         item.title = docs[i].ScriptDetail.Title;
         item.viceTitle = docs[i].ScriptDetail.Subtitle;
-        item.attachments = docs[i].Attachments;
-        item.status = docs[i].status;
+        item.attachments = docs[i].Attachments || [];
+        item.status = i % 4;
         item.createdTime = docs[i].CreatedTime;
         item.modifyTime = docs[i].ModifiedTime || item.createdTime;
+        item.editContent = [{
+          tag: '2',
+          content: docs[i].ScriptDetail.Content,
+        }];
         if (docs[i].User.Id === userId) {
           item.createType = ManuscriptInfo.LIST_TYPE.OWNER;
         } else {
@@ -982,7 +986,6 @@ service.listSubmitScript = function listSubmitScript(info, cb) {
     }
     return newDocs;
   };
-
   utils.requestCallApi(`${config.hongkongUrl}list_script`, 'POST', params, '', (err, rs) => {
     if (keyword) {
       service.saveSearch(keyword, userId, () => {});
@@ -1004,6 +1007,23 @@ service.listSubmitScript = function listSubmitScript(info, cb) {
     }
 
     return cb && cb(i18n.t('listSubmitScriptError:', { error: rs.result.errorMsg }));
+  });
+};
+
+service.resubmitScript = function resubmitScript(info, cb) {
+  const _id = info._id;
+  if (!_id) {
+    return cb && cb(i18n.t('manuscriptIdIsNull'));
+  }
+  const params = { id: _id };
+  utils.requestCallApi(`${config.hongkongUrl}restart_script`, 'POST', params, '', (err, rs) => {
+    if (err) {
+      return cb && cb(null, err);
+    }
+    if (rs.status === 0) {
+      return cb && cb(null, 'ok');
+    }
+    return cb && cb(i18n.t('resubmitScriptError:', { error: rs.result.errorMsg }));
   });
 };
 
