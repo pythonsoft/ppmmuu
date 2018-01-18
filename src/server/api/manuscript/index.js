@@ -1359,4 +1359,51 @@ router.post('/updateWebSocketTask', (req, res) => {
   service.updateWebSocketTask(info, (err, r) => res.json(result.json(err, r)));
 });
 
+/**
+ * @permissionGroup: copy
+ * @permissionName: 再次提交稿件到大洋系统
+ * @permissionPath: /manuscript/resubmitScript
+ * @apiName: resubmitScript
+ * @apiFuncType: post
+ * @apiFuncUrl: /manuscript/resubmitScript
+ * @swagger
+ * /manuscript/resubmitScript:
+ *   post:
+ *     description: resubmitScript
+ *     tags:
+ *       - v1
+ *       - ManuscriptInfo
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: resubmitScript
+ *         schema:
+ *           type: object
+ *           required:
+ *             - _id
+ *           properties:
+ *             _id:
+ *               type: string
+ *     responses:
+ *       200:
+ *         description: ManuscriptInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *             status:
+ *               type: string
+ *             data:
+ *               type: object
+ *             statusInfo:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ */
+router.post('/resubmitScript', (req, res) => {
+  const info = req.body;
+  service.resubmitScript(info, (err, r) => res.json(result.json(err, r)));
+});
 module.exports = router;

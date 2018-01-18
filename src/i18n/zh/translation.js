@@ -1093,5 +1093,9 @@ module.exports = {
     code: '-220002',
     message: '提交稿件到大洋新闻系统失败: {{error}}',
   },
+  resubmitScriptError: {
+    code: '-220002',
+    message: '再次提交稿件失败: {{error}}',
+  },
 };
 
