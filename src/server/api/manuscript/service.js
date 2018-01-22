@@ -941,7 +941,7 @@ service.listSubmitScript = function listSubmitScript(info, cb) {
   let page = info.page || 1;
   const status = info.status || '';
   const keyword = info.keyword || '';
-  const userId = info.userInfo.email;
+  const userId = info.userInfo.email || '';
   const sort = info.sort || 1;
   const params = {};
 
@@ -957,9 +957,11 @@ service.listSubmitScript = function listSubmitScript(info, cb) {
   params.by = sort * 1;
   params.pageSize = pageSize * 1;
   params.currentPage = page * 1;
-  params.userId = userId;
+  if (userId) {
+    params.userId = userId;
+  }
 
-  const formatDocs = function formatDocs(docs, userId) {
+  const formatDocs = function formatDocs(docs) {
     const newDocs = [];
     if (docs && docs.length) {
       for (let i = 0, len = docs.length; i < len; i++) {
@@ -967,19 +969,23 @@ service.listSubmitScript = function listSubmitScript(info, cb) {
         item._id = docs[i].Source.Id;
         item.taskId = docs[i]._id;
         item.title = docs[i].ScriptDetail.Title;
+        item.collaborators = docs[i].Collaborators;
+        item.creator = docs[i].User;
         item.viceTitle = docs[i].ScriptDetail.Subtitle;
         item.attachments = docs[i].Attachments || [];
-        item.status = i % 4;
+        item.status = docs[i].Status;
         item.createdTime = docs[i].CreatedTime;
         item.modifyTime = docs[i].ModifiedTime || item.createdTime;
         item.editContent = [{
           tag: '2',
           content: docs[i].ScriptDetail.Content,
         }];
-        if (docs[i].User.Id === userId) {
-          item.createType = ManuscriptInfo.LIST_TYPE.OWNER;
-        } else {
-          item.createType = ManuscriptInfo.LIST_TYPE.COLLABORATOR;
+        if (userId) {
+          if (docs[i].User.Id === userId) {
+            item.createType = ManuscriptInfo.LIST_TYPE.OWNER;
+          } else {
+            item.createType = ManuscriptInfo.LIST_TYPE.COLLABORATOR;
+          }
         }
         newDocs.push(item);
       }
@@ -987,7 +993,7 @@ service.listSubmitScript = function listSubmitScript(info, cb) {
     return newDocs;
   };
   utils.requestCallApi(`${config.hongkongUrl}list_script`, 'POST', params, '', (err, rs) => {
-    if (keyword) {
+    if (keyword && userId) {
       service.saveSearch(keyword, userId, () => {});
     }
     if (err) {
@@ -995,7 +1001,7 @@ service.listSubmitScript = function listSubmitScript(info, cb) {
     }
     if (rs.status === 0) {
       const docs = formatDocs(rs.result.items);
-      const total = rs.result.total * 1;
+      const total = rs.result.totalcount * 1;
       const list = {
         page,
         docs,

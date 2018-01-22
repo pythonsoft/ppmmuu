@@ -206,6 +206,13 @@ const infos = [
     topParentMenu: '管理',
   },
   {
+    _id: 'copyManagement',
+    name: '大洋稿件入库',
+    index: 'copyManagement',
+    parentIndex: 'management',
+    topParentMenu: '管理',
+  },
+  {
     _id: 'configuration',
     name: '设置',
     index: 'configuration',

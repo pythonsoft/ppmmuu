@@ -355,12 +355,14 @@ router.get('/getStream', (req, res) => {
           if (err) {
             logger.error(err);
           }
+          return res.json(doc);
         });
+      } else {
+        return res.json(doc);
       }
-      return res.json(doc);
+    } else {
+      return res.json(err);
     }
-
-    return res.json(err);
   });
 });
 
