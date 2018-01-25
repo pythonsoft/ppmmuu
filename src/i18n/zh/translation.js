@@ -1097,5 +1097,25 @@ module.exports = {
     code: '-220002',
     message: '再次提交稿件失败: {{error}}',
   },
+  qrcodeParamIsNull: {
+    code: '-230001',
+    message: '处理二维码信息时: {{field}}为空',
+  },
+  qrcodeInfoIsNotExist: {
+    code: '-230002',
+    message: '二维码信息不存在',
+  },
+  qrcodeExpired: {
+    code: '-230003',
+    message: '二维码已过期',
+  },
+  qrcodeConfirm: {
+    code: '-230004',
+    message: '二维码已使用过',
+  },
+  qrcodeCreateError: {
+    code: '-230005',
+    message: '二维码生成失败',
+  }
 };
 
