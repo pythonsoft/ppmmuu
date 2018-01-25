@@ -160,6 +160,24 @@ class webosAPI {
   }
 
   /**
+  * @param ticket webos使用的ticket
+  * @param profile
+  * @param callback
+  * @constructor
+  */
+  getMappedUserId(ticket, profile, callback) {
+    this.api('Profile', 'Mapping', { profile }, (chunk) => {
+      const data = JSON.parse(chunk);
+      const rs = data.Result;
+
+      if (data.Status == 0) {
+        return callback && callback(null, rs);
+      }
+      return callback && callback(rs);
+    }, 'POST', '', ticket);
+  }
+
+  /**
    * 用于获取webos token,也可以用于登录验证
    * @param userId
    * @param password

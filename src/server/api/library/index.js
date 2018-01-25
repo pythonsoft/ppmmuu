@@ -1397,6 +1397,41 @@ router.get('/getFile', (req, res) => {
 });
 
 /**
+ * @permissionGroup: library
+ * @permissionName: 获取文件字幕信息
+ * @permissionPath: /library/getSubtitles
+ * @apiName: getSubtitles
+ * @apiFuncType: get
+ * @apiFuncUrl: /library/getSubtitles
+ * @swagger
+ * /library/getSubtitles:
+ *   get:
+ *     description: getSubtitles
+ *     tags:
+ *       - v1
+ *       - library
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: _id
+ *         description: '视频文件_id'
+ *         required: false
+ *         type: string
+ *         default: '0'
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description:
+ * */
+router.get('/getSubtitles', (req, res) => {
+  const _id = req.query._id || '';
+
+  service.getSubtitleFile(_id, (err, docs) => res.json(result.json(err, docs)));
+});
+
+
+/**
  * @permissionGroup: libraryTemplate
  * @permissionName: 生成入库XML文件
  * @permissionPath: /library/generateXML

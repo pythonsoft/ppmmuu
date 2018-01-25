@@ -118,6 +118,17 @@ function webosLogin(userId, password, cb) {
   });
 }
 
+function saveWebosTicket(userId, ticket, cb) {
+  userInfo.updateOne({ _id: userId }, { webosTicket: ticket }, (err) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null);
+  });
+}
+
 const loginHandle = function loginHandle(username, password, cb) {
   const cipherPassword = utils.cipher(password, config.KEY);
 
@@ -140,6 +151,8 @@ const loginHandle = function loginHandle(username, password, cb) {
       verifyType: 1,
       expiredTime: 1,
       company: 1,
+      email: 1,
+      createdTime: 1,
     },
   }, (err, doc) => {
     if (err) {
@@ -151,25 +164,35 @@ const loginHandle = function loginHandle(username, password, cb) {
       return cb && cb(i18n.t('usernameOrPasswordIsWrong'));
     }
 
-    if (UserInfo.VERIFY_TYPE.PASSWORD === doc.verifyType) {
-      if (doc.expiredTime < new Date()) {
-        return cb && cb(i18n.t('userExpiredTime'));
+    service.registerUserToEaseMob(doc, (err) => {
+      if (err) {
+        return cb && cb(err);
       }
+      if (UserInfo.VERIFY_TYPE.PASSWORD === doc.verifyType) {
+        if (doc.expiredTime < new Date()) {
+          return cb && cb(i18n.t('userExpiredTime'));
+        }
 
-      if (cipherPassword !== doc.password) {
-        return cb && cb(i18n.t('usernameOrPasswordIsWrong'));
-      }
-      return cb && cb(null, doc);
-    } else if (UserInfo.VERIFY_TYPE.WEBOS === doc.verifyType) {
-      webosLogin(username, password, (err) => {
-        if (err) {
+        if (cipherPassword !== doc.password) {
           return cb && cb(i18n.t('usernameOrPasswordIsWrong'));
         }
         return cb && cb(null, doc);
-      });
-    } else {
-      return cb && cb(i18n.t('notImplementedVerityType'));
-    }
+      } else if (UserInfo.VERIFY_TYPE.WEBOS === doc.verifyType) {
+        webosLogin(username, password, (err, webosTicket) => {
+          if (err) {
+            return cb && cb(i18n.t('usernameOrPasswordIsWrong'));
+          }
+          saveWebosTicket(doc._id, webosTicket, (err) => {
+            if (err) {
+              return cb && cb(err);
+            }
+            return cb && cb(null, doc);
+          });
+        });
+      } else {
+        return cb && cb(i18n.t('notImplementedVerityType'));
+      }
+    });
   });
 };
 
@@ -600,7 +623,7 @@ service.getUsers = function getUsers(ids, cb) {
   }
 
   let cursor = userInfo.collection.find(q);
-  const fieldsNeed = '_id,photo,name,displayName,email,pone,status';
+  const fieldsNeed = '_id,photo,name,email,phone';
   cursor = cursor.project(utils.formatSortOrFieldsParams(fieldsNeed, false));
 
   cursor.toArray((err, docs) => {
@@ -610,6 +633,64 @@ service.getUsers = function getUsers(ids, cb) {
     }
 
     return cb && cb(null, docs);
+  });
+};
+
+service.getEaseMobToken = function getEaseMobToken(cb) {
+  const info = {
+    grant_type: 'client_credentials',
+    client_id: config.client_id,
+    client_secret: config.client_secret,
+  };
+  utils.callApi(`${config.easemob_url}token`, 'POST', info, '', (err, rs) => {
+    if (err) {
+      return cb && cb(err);
+    }
+    const token = rs ? rs.access_token : '';
+    return cb && cb(null, token);
+  });
+};
+
+service.registerUserToEaseMob = function registerUserToEaseMob(user, cb) {
+  if (user.email.indexOf('@phoenixtv.com') === -1) {
+    return cb && cb(null, 'ok');
+  }
+  service.getEaseMobToken((err, token) => {
+    if (err) {
+      return cb && cb(err);
+    }
+
+    const Authorization = `Bearer ${token}`;
+    const t = new Date(user.createdTime).toISOString();
+    const info = {
+      username: user._id.replace(/-/g, '_'),
+      password: `${t}`,
+    };
+    utils.callApi(`${config.easemob_url}users`, 'POST', info, Authorization, err => cb && cb(null, 'ok'));
+  });
+};
+
+service.detailUsers = function detailUsers(ids, cb) {
+  if (!ids) {
+    return cb && cb(null, i18n.t('parametersIdsRequired'));
+  }
+
+  ids = ids.replace(/_/g, '-');
+  ids = ids.split(',');
+
+  service.getUsers(ids, (err, docs) => {
+    if (err) {
+      return cb && cb(err);
+    }
+
+    const rs = {};
+    if (docs && docs.length) {
+      docs.forEach((item) => {
+        rs[item._id] = item;
+      });
+    }
+
+    return cb && cb(null, rs);
   });
 };
 

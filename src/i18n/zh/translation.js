@@ -45,6 +45,10 @@ module.exports = {
     code: '-1011',
     message: '缺少参数infos或者infos类型不是数组',
   },
+  parametersIdsRequired: {
+    code: '-1012',
+    message: '却好啊参数ids',
+  },
   getRoleNoId: {
     code: '-2005',
     message: '获取角色详情需要参数_id',
@@ -1061,6 +1065,10 @@ module.exports = {
     code: '-190010',
     message: '不合法的参数attachments',
   },
+  listSubmitScriptError: {
+    code: '-190011',
+    message: '获取已提交稿件列表失败: {{error}}',
+  },
   getConfigError: {
     code: '-200000',
     message: '配置文件出错,请联系管理员',
@@ -1073,4 +1081,21 @@ module.exports = {
     code: '-210001',
     message: '找不到通道',
   },
+  getMappedUserIdFailed: {
+    code: '-220000',
+    message: '获取mappedUserId失败: {{error}}',
+  },
+  noMappedUserId: {
+    code: '-220001',
+    message: '没有mappedUserId,请联系webos系统管理员',
+  },
+  submitScriptToDaYangError: {
+    code: '-220002',
+    message: '提交稿件到大洋新闻系统失败: {{error}}',
+  },
+  resubmitScriptError: {
+    code: '-220002',
+    message: '再次提交稿件失败: {{error}}',
+  },
 };
+
