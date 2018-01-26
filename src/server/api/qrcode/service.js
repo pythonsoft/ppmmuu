@@ -113,7 +113,7 @@ service.query = function(res, id, cb) {
       return cb && cb(null, 'waitingScan');
     }
 
-    service.update(id, {
+    service.updateQRCode(id, {
       isConfirm: QRCodeInfo.IS_CONFIRM.YES
     }, (err, r) => {
       if(err) {

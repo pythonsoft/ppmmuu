@@ -231,7 +231,7 @@ const loginHandleByTicket = function loginHandle(ticket, cb) {
     }
 
     if (!doc) {
-      return cb && cb(i18n.t('usernameOrPasswordIsWrong'));
+      return cb && cb(i18n.t('userNotFind'));
     }
 
     if (doc.expiredTime < new Date()) {

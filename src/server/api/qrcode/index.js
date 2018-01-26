@@ -42,7 +42,7 @@ const config = require('../../config');
 router.get('/query', (req, res) => {
   const id = req.query._id || '';
 
-  service.query(id, (err, doc) => res.json(result.json(err, doc)));
+  service.query(res, id, (err, doc) => res.json(result.json(err, doc)));
 });
 
 /**
