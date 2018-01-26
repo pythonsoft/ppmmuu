@@ -52,6 +52,12 @@ const getMenuByPermissions = function getMenuByPermissions(permissions, cb) {
   service.getMenusByIndex(indexes, (err, menu) => cb && cb(err, menu));
 };
 
+/**
+ * 设置登录的token
+ * @param res
+ * @param doc userInfo
+ * @param cb
+ */
 function setCookie2(res, doc, cb) {
   const expires = new Date().getTime() + config.cookieExpires;
   const token = generateToken(doc._id, expires);
@@ -196,9 +202,93 @@ const loginHandle = function loginHandle(username, password, cb) {
   });
 };
 
+const loginHandleByTicket = function loginHandle(ticket, cb) {
+  const decodeTicketResult = service.decodeTicket(ticket);
+
+  if (decodeTicketResult.err) {
+    return cb && cb(decodeTicketResult.err);
+  }
+
+  const decodeTicket = decodeTicketResult.result;
+
+  const query = {
+    _id: decodeTicket[0],
+  };
+
+  userInfo.collection.findOne(query, {
+    fields: {
+      _id: 1,
+      verifyType: 1,
+      expiredTime: 1,
+      company: 1,
+      email: 1,
+      createdTime: 1,
+    },
+  }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if (!doc) {
+      return cb && cb(i18n.t('userNotFind'));
+    }
+
+    if (doc.expiredTime < new Date()) {
+      return cb && cb(i18n.t('userExpiredTime'));
+    }
+
+    service.registerUserToEaseMob(doc, (err) => {
+      if (err) {
+        return cb && cb(err);
+      }
+
+      return cb && cb(null, doc);
+    });
+  });
+};
+
+service.decodeTicket = function decodeTicket(ticket) {
+  const dt = Token.decipher(ticket, config.KEY);
+  const rs = { err: '', result: '' };
+
+  if (!dt) {
+    rs.err = i18n.t('notLogin');
+    return rs;
+  }
+
+  const now = new Date().getTime();
+
+  if (dt[1] < now) { // 过期
+    rs.err = i18n.t('loginExpired');
+    return rs;
+  }
+
+  rs.result = dt;
+
+  return rs;
+};
+
 service.login = function login(res, username, password, cb) {
   loginHandle(username, password, (err, doc) => {
     if (err) {
+      return cb && cb(err);
+    }
+
+    setCookie2(res, doc, (err, doc) => {
+      if (err) {
+        return cb && cb(err);
+      }
+
+      return cb && cb(null, doc);
+    });
+  });
+};
+
+service.loginByTicket = function loginByTicket(res, ticket, cb) {
+  // doc --> userInfo;
+  loginHandleByTicket(ticket, (err, doc) => {
+    if(err) {
       return cb && cb(err);
     }
 

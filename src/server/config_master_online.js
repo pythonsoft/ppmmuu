@@ -63,6 +63,7 @@ config.whitelist = [
   'http://ump.phoenixtv.com',
   'http://ump-api.phoenixtv.com',
   'http://ump-live.phoenixtv.com',
+  'http://ump-im.phoenixtv.com',
 ];
 
 config.normalMenuPermission = ['mediaCenter', 'taskCenter', 'personalCenter', 'library'];

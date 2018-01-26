@@ -70,7 +70,7 @@ const getArrByPattern = function getArrByPattern(codeStr, pattern) {
 };
 
 const writeApiFuncFile = function writeApiFuncFile(filePath, funcName, funcType, funcUrl) {
-  const tpl = `api.${funcName} = function ${funcName}(data, scope) {
+  const tpl = `api.${funcName} = function ${funcName}(data, scope, needOriginResponse) {
   return new Promise((resolve, reject) => {
     if (scope) { scope.$progress.start(); }
     axios.${funcType}('${funcUrl}', data).then((response) => {
@@ -84,7 +84,7 @@ const writeApiFuncFile = function writeApiFuncFile(filePath, funcName, funcType,
         return resolve(res);
       }
       if (scope) { scope.$progress.fail(); }
-      return reject(res.statusInfo.message);
+      return reject(needOriginResponse ? res : res.statusInfo.message);
     }).catch((error) => {
       if (scope) { scope.$progress.fail(); }
       reject(error);
