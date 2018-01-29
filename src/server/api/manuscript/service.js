@@ -326,40 +326,53 @@ function getMappedUserId(webosTicket, cb) {
 
 function submitDaYang(info, cb) {
   const params = {
-    collaborators: [],
-    scriptDetail: {},
-    attachments: [],
-    submissionTarget: info.submissionTarget,
-    mappedUserId: '',
-    user: {},
-    source: {
+    script: {
       id: '',
-      client: '',
+      title: '',
+      collaborators: [],
+      subtitle: '',
+      content: '',
+      source: '',
+      importance: '',
+      level: '',
+      type: '',
+      remark: '',
+      attachments: [],
+      createdTime: '',
+      modifiedTime: '',
     },
+    target: {
+      type: '',
+      targetId: '',
+      targetUser: {},
+    },
+    client: '',
   };
-
-  params.user = {
-    id: info.creator.email,
-    name: info.creator.name,
-  };
-
-  params.source = {
-    id: info._id,
-    client: info.platform,
-  };
-
-  params.scriptDetail = utils.merge({
+  params.script = utils.merge({
     title: '',
     subtitle: '',
     source: '',
-    importance: '',
-    type: '',
   }, info);
-  params.scriptDetail.importance = info.important;
-  params.scriptDetail.remark = info.description;
-  params.scriptDetail.scriptType = info.contentType;
+  params.target.type = info.submissionTarget;
+  params.target.targetUser = {
+    id: info.creator.email,
+    name: info.creator.name,
+  };
+  params.script.id = info._id;
+  params.client = info.platform;
+  params.script.importance = info.important;
+  params.script.remark = info.description;
+  params.script.level = info.type;
+  params.script.type = info.contentType;
+  params.script.createdTime = new Date(info.createdTime).toISOString();
+  params.script.modifiedTime = new Date().toISOString();
+  params.script.content = '';
   if (info.editContent && info.editContent.length) {
-    params.scriptDetail.content = info.editContent[0].content;
+    let content = '';
+    info.editContent.forEach((item) => {
+      content += item.content;
+    });
+    params.script.content = content;
   }
 
 
@@ -378,8 +391,8 @@ function submitDaYang(info, cb) {
         if (users && users.length) {
           users.forEach((item) => {
             collaborators.push({
-              Id: item.email,
-              Name: item.name,
+              id: item.email,
+              name: item.name,
             });
           });
         }
@@ -405,9 +418,9 @@ function submitDaYang(info, cb) {
         if (attachmentInfos && attachmentInfos.length) {
           attachmentInfos.forEach((item) => {
             attachments.push({
-              Id: item._id,
-              Filename: item.name,
-              Path: item.fileInfo.path || item.path,
+              id: item._id,
+              filename: item.name,
+              path: item.fileInfo.path || item.path,
             });
           });
         }
@@ -422,17 +435,17 @@ function submitDaYang(info, cb) {
     if (err) {
       return cb && cb(err);
     }
-    params.collaborators = collaborators;
+    params.script.collaborators = collaborators;
     getAttachments((err, attachments) => {
       if (err) {
         return cb && cb(err);
       }
-      params.attachments = attachments;
+      params.script.attachments = attachments;
       getMappedUserId(info.creator.webosTicket, (err, mappedUserId) => {
         if (err) {
           return cb && cb(err);
         }
-        params.mappedUserId = mappedUserId;
+        params.target.tagertId = mappedUserId;
         utils.requestCallApi(`${config.hongkongUrl}submit_script`, 'POST', params, '', (err, rs) => {
           if (err) {
             return cb && cb(null, err);
@@ -942,7 +955,7 @@ service.listSubmitScript = function listSubmitScript(info, cb) {
   const status = info.status || '';
   const keyword = info.keyword || '';
   const userId = info.userInfo.email || '';
-  const sort = info.sort || 1;
+  const sort = info.sort || 2;
   const params = {};
 
   if (status) {
@@ -966,22 +979,22 @@ service.listSubmitScript = function listSubmitScript(info, cb) {
     if (docs && docs.length) {
       for (let i = 0, len = docs.length; i < len; i++) {
         const item = {};
-        item._id = docs[i].Source.Id;
+        item._id = docs[i].script.id;
         item.taskId = docs[i]._id;
-        item.title = docs[i].ScriptDetail.Title;
-        item.collaborators = docs[i].Collaborators;
-        item.creator = docs[i].User;
-        item.viceTitle = docs[i].ScriptDetail.Subtitle;
-        item.attachments = docs[i].Attachments || [];
-        item.status = docs[i].Status;
-        item.createdTime = docs[i].CreatedTime;
-        item.modifyTime = docs[i].ModifiedTime || item.createdTime;
+        item.title = docs[i].script.title;
+        item.collaborators = docs[i].script.collaborators;
+        item.creator = docs[i].target.targetUser;
+        item.viceTitle = docs[i].script.subtitle;
+        item.attachments = docs[i].script.attachments || [];
+        item.status = docs[i].status;
+        item.createdTime = docs[i].createdTime;
+        item.modifyTime = docs[i].modifyTime || item.createdTime;
         item.editContent = [{
           tag: '2',
-          content: docs[i].ScriptDetail.Content,
+          content: docs[i].script.content,
         }];
         if (userId) {
-          if (docs[i].User.Id === userId) {
+          if (docs[i].target.targetUser.id === userId) {
             item.createType = ManuscriptInfo.LIST_TYPE.OWNER;
           } else {
             item.createType = ManuscriptInfo.LIST_TYPE.COLLABORATOR;

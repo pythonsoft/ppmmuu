@@ -5,7 +5,7 @@
 'use strict';
 
 /* eslint-disable no-undef */
-config.host = 'localhost:8080';
+config.host = '10.0.15.198:8080';
 config.domain = `http://${config.host}`;
 
 config.dbName = process.env.NODE_ENV === 'test' ? 'ump_test' : 'ump';
@@ -99,6 +99,8 @@ config.upgradeSystem = {
 // 订阅自动推送配置
 config.phoenixAdminUserName = 'xuyawen';   // 快传发送方
 config.subscribeDownloadTemplateId = 'subscribe_autopush';   // 下载模板Id
+
+config.socketURL = 'http://localhost:9000';
 
 // 视频服务器地址
 config.streamURL = 'http://10.0.15.68:8099';
