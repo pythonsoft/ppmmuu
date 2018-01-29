@@ -400,7 +400,7 @@ service.createTemplate = function createTemplate(params, cb) {
     description: '',
     groupId: '',
     groupName: '',
-    downloadAudit: '',
+    downloadAudit: false,
     transcodeTemplateDetail: {
       transcodeTemplates: [],
       transcodeTemplateSelector: '',
@@ -476,7 +476,7 @@ service.createDownloadTemplate = function createDownloadTemplate(params, cb) {
     bucketId: '',
     script: '',
     groupId: '',
-    downloadAudit: '',
+    downloadAudit: false,
     groupName: '',
     transcodeTemplates: '',
     transcodeTemplateSelector: '',

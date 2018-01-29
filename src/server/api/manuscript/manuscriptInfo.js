@@ -104,7 +104,7 @@ ManuscriptInfo.SUBMISSION_TARGET = {
 };
 
 ManuscriptInfo.TO_WHERE = {
-  DAYANG: 'DAYANG',
+  DAYANG: '1',
 };
 
 ManuscriptInfo.TAGS = {
@@ -114,6 +114,8 @@ ManuscriptInfo.TAGS = {
   XIANCHANG_PEIYIN: '4', // 现场配音
   ZIMU: '5',        // 字幕
   BEIZHU: '6',       // 备注
+  BLANK: '7',       // 无标签
+  FREESTYLE: '100',    // 自由内容,无标签
 };
 
 ManuscriptInfo.STATUS = {
