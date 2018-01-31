@@ -288,7 +288,7 @@ service.login = function login(res, username, password, cb) {
 service.loginByTicket = function loginByTicket(res, ticket, cb) {
   // doc --> userInfo;
   loginHandleByTicket(ticket, (err, doc) => {
-    if(err) {
+    if (err) {
       return cb && cb(err);
     }
 

@@ -10,6 +10,7 @@ const uuid = require('uuid');
 const qrcode = require('qrcode');
 
 const QRCodeInfo = require('./qrcodeInfo');
+
 const qrcodeInfo = new QRCodeInfo();
 
 const userService = require('../user/service');
@@ -23,7 +24,7 @@ service.getDetail = function getDetail(query, cb) {
       return cb && cb(i18n.t('databaseError'));
     }
 
-    if(!doc) {
+    if (!doc) {
       return cb && cb(i18n.t('qrcodeInfoIsNotExist'));
     }
 
@@ -39,24 +40,24 @@ service.createQRCode = function createQRCode(url, cb) {
   const info = {
     _id: uuid.v1(),
     isConfirm: QRCodeInfo.IS_CONFIRM.NO,
-    expiredTime: expiredTime,
+    expiredTime,
     ticket: '',
-    createdTime: createdTime,
+    createdTime,
     scanTime: null,
     code: '',
     description: '',
     detail: {},
   };
 
-  qrcode.toDataURL(`${url}?id=${info._id}`, function (err, base64Data) {
-    if(err) {
+  qrcode.toDataURL(`${url}?id=${info._id}`, (err, base64Data) => {
+    if (err) {
       logger.error(err);
       return cb && cb(i18n.t('qrcodeCreateError'));
     }
 
     info.code = base64Data;
 
-    qrcodeInfo.insertOne(info, err => {
+    qrcodeInfo.insertOne(info, (err) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
@@ -72,7 +73,7 @@ service.updateQRCode = function updateQRCode(id, info = {}, cb) {
     return cb && cb(i18n.t('qrcodeParamIsNull', { field: 'id' }));
   }
 
-  qrcodeInfo.updateOne({ _id: id,}, info, (err, r) => {
+  qrcodeInfo.updateOne({ _id: id }, info, (err, r) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -89,13 +90,13 @@ service.updateQRCode = function updateQRCode(id, info = {}, cb) {
  * @param cb
  * @returns {*}
  */
-service.query = function(res, id, cb) {
+service.query = function (res, id, cb) {
   if (!id) {
     return cb && cb(i18n.t('qrcodeParamIsNull', { field: 'id' }));
   }
 
   service.getDetail({ _id: id }, (err, doc) => {
-    if(err) {
+    if (err) {
       return cb && cb(err);
     }
 
@@ -109,19 +110,19 @@ service.query = function(res, id, cb) {
       return cb && cb(i18n.t('qrcodeConfirm'));
     }
 
-    if(!doc.ticket) {
+    if (!doc.ticket) {
       return cb && cb(null, 'waitingScan');
     }
 
     service.updateQRCode(id, {
-      isConfirm: QRCodeInfo.IS_CONFIRM.YES
+      isConfirm: QRCodeInfo.IS_CONFIRM.YES,
     }, (err, r) => {
-      if(err) {
+      if (err) {
         return cb && cb(err);
       }
 
       userService.loginByTicket(res, doc.ticket, (err, _userInfo) => {
-        if(err) {
+        if (err) {
           return cb && cb(err);
         }
 
@@ -131,8 +132,8 @@ service.query = function(res, id, cb) {
   });
 };
 
-//客户端扫码调用此接口
-service.scan = function(id, ticket, cb) {
+// 客户端扫码调用此接口
+service.scan = function (id, ticket, cb) {
   if (!id) {
     return cb && cb(i18n.t('qrcodeParamIsNull', { field: 'id' }));
   }
@@ -143,12 +144,12 @@ service.scan = function(id, ticket, cb) {
 
   const ticketResult = userService.decodeTicket(ticket);
 
-  if(ticketResult.err) {
+  if (ticketResult.err) {
     return cb && cb(ticketResult.err);
   }
 
   service.getDetail({ _id: id }, (err, doc) => {
-    if(err) {
+    if (err) {
       return cb && cb(err);
     }
 
@@ -164,9 +165,9 @@ service.scan = function(id, ticket, cb) {
 
     service.update(id, {
       scanTime: new Date(),
-      ticket: ticket
+      ticket,
     }, (err, r) => {
-      if(err) {
+      if (err) {
         return cb && cb(err);
       }
 

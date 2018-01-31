@@ -96,7 +96,7 @@ function getClientPlatform(req) {
   return PLATFORM_TYPE.PC;
 }
 
-const verifyTicket = function(ticket) {
+const verifyTicket = function (ticket) {
   const decodeTicket = token.decipher(ticket, config.KEY);
 
   if (!decodeTicket) {

@@ -38,7 +38,7 @@ class QRCodeInfo extends DB {
 
     this.struct = {
       _id: { type: 'string', default() { return uuid.v1(); }, validation: 'require' },
-      isConfirm: { type: 'string', default: QRCodeInfo.IS_CONFIRM.NO, validation: v => utils.isValueInObject(v, QRCodeInfo.IS_CONFIRM) }, //是否已访问过
+      isConfirm: { type: 'string', default: QRCodeInfo.IS_CONFIRM.NO, validation: v => utils.isValueInObject(v, QRCodeInfo.IS_CONFIRM) }, // 是否已访问过
       expiredTime: { type: 'date', validation: 'require', allowUpdate: false }, // 过期时间
       ticket: { type: 'string' },
       createdTime: { type: 'date', allowUpdate: false },

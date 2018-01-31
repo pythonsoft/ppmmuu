@@ -5,6 +5,7 @@
 'use strict';
 
 const express = require('express');
+
 const router = express.Router();
 const result = require('../../common/result');
 const service = require('./service');
@@ -124,7 +125,7 @@ router.post('/scan', (req, res) => {
   const id = req.body.id;
   const ticket = req.body.ticket;
 
-  service.scan(id, ticket, err=> res.json(result.json(err, 'ok')));
+  service.scan(id, ticket, err => res.json(result.json(err, 'ok')));
 });
 
 module.exports = router;

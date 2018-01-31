@@ -798,6 +798,12 @@ service.listGroup = function listGroup(info, cb) {
 };
 
 service.getGroupUserList = function getGroupUserList(info, cb) {
+  if (!info._id) {
+    info._id = info.userInfo.company ? info.userInfo.company._id : '';
+  }
+  if (!info.type) {
+    info.type = GroupInfo.TYPE.COMPANY;
+  }
   groupUserService.getGroupUserList(info, cb);
 };
 
