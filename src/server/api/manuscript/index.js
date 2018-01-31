@@ -1215,15 +1215,15 @@ router.get('/listGroup', (req, res) => {
  *     parameters:
  *       - in: query
  *         name: _id
- *         description: "组织_id"
- *         required: true
+ *         description: "组织_id,默认公司id"
+ *         required: false
  *         type: string
  *         example: "bea711c0-67ae-11e7-8b13-c506d97b38b0"
  *         collectionFormat: csv
  *       - in: query
  *         name: type
- *         description: "'0'表示公司,'1'表示部门,'2'表示小组"
- *         required: true
+ *         description: "'0'表示公司,'1'表示部门,'2'表示小组  默认'0'"
+ *         required: false
  *         type: string
  *         collectionFormat: csv
  *       - in: query
@@ -1257,6 +1257,7 @@ router.get('/listGroup', (req, res) => {
  *         description: GroupInfo
  */
 router.get('/listUser', (req, res) => {
+  req.query.userInfo = req.ex.userInfo;
   service.getGroupUserList(req.query, (err, docs) => res.json(result.json(err, docs)));
 });
 

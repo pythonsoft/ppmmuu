@@ -17,7 +17,7 @@ class VersionCheckInfo extends DB {
       ip: { type: 'string', validation: 'require' },
       port: { type: 'string' },
       createdTime: { type: 'date', allowUpdate: false },
-      details: { type: 'object', default() { return {}; } }
+      details: { type: 'object', default() { return {}; } },
     };
   }
 }

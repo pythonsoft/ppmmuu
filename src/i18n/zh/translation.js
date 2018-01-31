@@ -1116,6 +1116,6 @@ module.exports = {
   qrcodeCreateError: {
     code: '-230005',
     message: '二维码生成失败',
-  }
+  },
 };
 
