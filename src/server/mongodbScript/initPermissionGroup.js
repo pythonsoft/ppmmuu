@@ -394,13 +394,13 @@ const infos = [
     parentIndex: 'taskCenter',
     topParentMenu: '任务',
   },
-  {
-    _id: 'trends',
-    name: '首页',
-    index: 'trends',
-    parentIndex: '',
-    topParentMenu: '舆情',
-  },
+  // {
+  //   _id: 'trends',
+  //   name: '首页',
+  //   index: 'trends',
+  //   parentIndex: '',
+  //   topParentMenu: '舆情',
+  // },
   {
     _id: 'copy',
     name: '文稿',
