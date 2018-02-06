@@ -125,6 +125,10 @@ router.post('/scan', (req, res) => {
   const id = req.body.id;
   const ticket = req.body.ticket;
 
+  if(!ticket) {
+    return res.redirect(config.journalistCloud);
+  }
+
   service.scan(id, ticket, err => res.json(result.json(err, 'ok')));
 });
 
