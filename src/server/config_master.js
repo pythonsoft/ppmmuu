@@ -5,7 +5,7 @@
 'use strict';
 
 /* eslint-disable no-undef */
-config.host = '10.0.15.198:8080';
+config.host = '10.0.16.132:8080';
 config.domain = `http://${config.host}`;
 
 config.dbName = process.env.NODE_ENV === 'test' ? 'ump_test' : 'ump';
@@ -116,4 +116,4 @@ config.client_secret = 'YXA6LvdT0V-OerbAW7inECGv4l5dzns';
 config.easemob_url = 'https://a1.easemob.com/1119180112178786/assistant/';
 
 //记者云扫码默认页
-config.journalistCloud = 'http://localhost:8000/jornalistCloud/';
+config.journalistCloud = 'http://10.0.16.132:8000/apps/journalistCloud';
