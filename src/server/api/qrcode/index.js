@@ -69,7 +69,7 @@ router.get('/query', (req, res) => {
  *         description: QRCodeInfo
  */
 router.get('/login', (req, res) => {
-  service.createQRCode(`${config.domain}/qrcode/login`, (err, doc) => res.json(result.json(err, doc)));
+  service.createQRCode(`${config.domain}/qrcode/scan`, (err, doc) => res.json(result.json(err, doc)));
 });
 
 /**
@@ -77,53 +77,40 @@ router.get('/login', (req, res) => {
  * @permissionName: 扫二维码
  * @permissionPath: /qrcode/scan
  * @apiName: qrcodeScan
- * @apiFuncType: post
+ * @apiFuncType: get
  * @apiFuncUrl: /qrcode/scan
  * @swagger
- * /qrcode/scan:
- *   post:
- *     description: scan
+ * /qrcode/query:
+ *   get:
+ *     description: qrcodeQuery
  *     version: 1.0.0
  *     tags:
  *       - v1
  *       - QRCodeInfo
- *     consumes:
+ *     produces:
  *       - application/json
  *     parameters:
- *       - in: body
- *         name: body
- *         description: scan
- *         schema:
- *           type: object
- *           required:
- *             - id
- *             - ticket
- *           properties:
- *             id:
- *               type: string
- *               example: ''
- *             ticket:
- *               type: string
- *               example: ''
+ *       - in: query
+ *         name: _id
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ""
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: ticket
+ *         description:
+ *         required: true
+ *         type: string
+ *         default: ""
+ *         collectionFormat: csv
  *     responses:
  *       200:
  *         description: QRCodeInfo
- *         schema:
- *           type: object
- *           properties:
- *            status:
- *              type: string
- *            data:
- *              type: object
- *            statusInfo:
- *              type: object
- *              properties:
- *                message:
- *                  type: string
  */
-router.post('/scan', (req, res) => {
-  const id = req.body.id;
-  const ticket = req.body.ticket;
+router.get('/scan', (req, res) => {
+  const id = req.query.id;
+  const ticket = req.query.ticket;
 
   if(!ticket) {
     return res.redirect(config.journalistCloud);
