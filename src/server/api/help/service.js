@@ -57,7 +57,8 @@ const readConfigJSON = function readConfigJSON(id, configPath, cb) {
       versionInfo.collection.updateOne({ _id: id }, {
         $set: {
           version: obj.version,
-          updateList: obj.updateList,
+          content: obj.content || [],
+          updateList: obj.updateList || [],
         },
       }, (err, r) => {
         if (err) {

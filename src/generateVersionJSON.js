@@ -16,6 +16,7 @@ const composeTemplate = function composeTemplate(version, updateList) {
   return `
 {
   "version": "${api.generateBuildVersion(version)}",
+  "content": [],
   "updateList": [
     ${updateList.join(',\n    ')}
   ]
