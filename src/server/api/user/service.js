@@ -580,13 +580,33 @@ service.adAccountSync = function adAccountSync(info, cb) {
         doc.department._id = dept._id;
         doc.department.name = dept.name;
       }
-      userInfo.collection.findOneAndUpdate({ _id: info._id }, { $set: doc }, { upsert: true }, (err) => {
+      userInfo.collection.findOne({ _id: info._id}, (err, user) => {
         if (err) {
           logger.error(err.message);
           return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
         }
+        if (user) {
+          if (doc.department && !doc.department._id) {
+            delete doc.department;
+          }
+          userInfo.collection.updateOne({ _id: info._id }, { $set: doc }, (err) => {
+            if (err) {
+              logger.error(err.message);
+              return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
+            }
 
-        return cb && cb(null, 'ok');
+            return cb && cb(null, 'ok');
+          });
+        } else {
+          userInfo.collection.insertOne(doc, (err) => {
+            if (err) {
+              logger.error(err.message);
+              return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
+            }
+
+            return cb && cb(null, 'ok');
+          });
+        }
       });
     });
   });
