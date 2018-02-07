@@ -119,7 +119,7 @@ service.upload = function (info, creatorId, creatorName, cb) {
 
 service.install = function install(id, cb) {
   if (!id) {
-    return cb && cb(i18n.t('databaseErrorDetail', { error: 'id is null.' }));
+    return cb && cb(i18n.t('helpError', { error: 'id is null.' }));
   }
 
   versionInfo.collection.findOne({ _id: id }, { fields: { extractPath: 1 } }, (err, doc) => {
@@ -129,12 +129,12 @@ service.install = function install(id, cb) {
     }
 
     if (!doc) {
-      return cb && cb(i18n.t('databaseErrorDetail', { error: 'doc is null.' }));
+      return cb && cb(i18n.t('helpError', { error: 'doc is null.' }));
     }
 
     fs.readdir(doc.extractPath, (err, files) => {
       if (err) {
-        return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
+        return cb && cb(i18n.t('helpError', { error: err.message }));
       }
 
       const loop = function (index) {
@@ -211,11 +211,11 @@ service.update = function (id, status, log, extractPath, cb) {
 
 service.list = function (id, pathName, cb) {
   if (!id) {
-    return cb && cb(i18n.t('databaseErrorDetail', { error: 'id is null.' }));
+    return cb && cb(i18n.t('helpError', { error: 'id is null.' }));
   }
 
   if (pathName.constructor !== String) {
-    return cb && cb(i18n.t('databaseErrorDetail', { error: 'path name is not string.' }));
+    return cb && cb(i18n.t('helpError', { error: 'path name is not string.' }));
   }
 
   versionInfo.collection.findOne({ _id: id }, { fields: { extractPath: 1 } }, (err, doc) => {
@@ -225,14 +225,14 @@ service.list = function (id, pathName, cb) {
     }
 
     if (!doc) {
-      return cb && cb(i18n.t('databaseErrorDetail', { error: 'doc is null.' }));
+      return cb && cb(i18n.t('helpError', { error: 'doc is null.' }));
     }
 
     const t = path.join(doc.extractPath, pathName);
 
     fs.readdir(t, (err, files) => {
       if (err) {
-        return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
+        return cb && cb(i18n.t('helpError', { error: err.message }));
       }
 
       return cb && cb(null, files);
@@ -242,11 +242,11 @@ service.list = function (id, pathName, cb) {
 
 service.readFile = function readFile(id, filePath, cb) {
   if (!id) {
-    return cb && cb(i18n.t('databaseErrorDetail', { error: 'id is null' }));
+    return cb && cb(i18n.t('helpError', { error: 'id is null' }));
   }
 
   if (!filePath || filePath.constructor !== String) {
-    return cb && cb(i18n.t('databaseErrorDetail', { error: 'file path is null or not string' }));
+    return cb && cb(i18n.t('helpError', { error: 'file path is null or not string' }));
   }
 
   versionInfo.collection.findOne({ _id: id }, { fields: { extractPath: 1 } }, (err, doc) => {
@@ -256,14 +256,14 @@ service.readFile = function readFile(id, filePath, cb) {
     }
 
     if (!doc) {
-      return cb && cb(i18n.t('databaseErrorDetail', { error: 'version info is null' }));
+      return cb && cb(i18n.t('helpError', { error: 'version info is null' }));
     }
 
     const t = path.join(doc.extractPath, filePath);
 
     fs.readFile(t, { encoding: 'utf8' }, (err, data) => {
       if (err) {
-        return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
+        return cb && cb(i18n.t('helpError', { error: err.message }));
       }
 
       return cb && cb(null, data);
@@ -288,6 +288,43 @@ service.getDetail = function getDetail(id, cb) {
     }
 
     return cb && cb(null, doc);
+  });
+};
+
+service.ensureVersionInfoByVersion = function updateInfoByVersion(version, info, cb) {
+  if(!version) {
+    return cb && cb(i18n.t('helpError', { error: 'param version is null' }));
+  }
+
+  if(!info) {
+    return cb && cb(i18n.t('helpError', { error: 'param info is null' }));
+  }
+
+  versionInfo.collection.findOne({ version: version }, (err, doc) => {
+    if(err) {
+      return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
+    }
+
+    if(doc) {
+      const updateInfo = {};
+      updateInfo.modifyTime = new Date();
+
+      versionInfo.updateOne({ version: version }, updateInfo, (err, r) => {
+        if(err) {
+          return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
+        }
+
+        return cb && cb(null, r);
+      });
+    }else {
+      versionInfo.insertOne(info, (err, r) => {
+        if(err) {
+          return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
+        }
+
+        return cb && cb(null, r);
+      });
+    }
   });
 };
 
