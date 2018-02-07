@@ -310,6 +310,14 @@ service.ensureVersionInfoByVersion = function updateInfoByVersion(version, info,
       const updateInfo = {};
       updateInfo.modifyTime = new Date();
 
+      if(info.content) {
+        updateInfo.content = info.content;
+      }
+
+      if(info.updateList) {
+        updateInfo.updateList = info.updateList;
+      }
+
       versionInfo.updateOne({ version: version }, updateInfo, (err, r) => {
         if(err) {
           return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
