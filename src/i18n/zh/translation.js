@@ -1013,6 +1013,10 @@ module.exports = {
     code: '-170001',
     message: '没有上传文件',
   },
+  uploadBase64Error: {
+    code: '-170002',
+    message: '视频截图上传出错: {{ error }}',
+  },
   invalidLastModify: {
     code: '-180001',
     message: '非法的lastmodify',
