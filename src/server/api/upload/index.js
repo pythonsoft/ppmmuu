@@ -127,4 +127,46 @@ router.post('/uploadBase64', (req, res) => {
   });
 });
 
+/**
+ * @apiName: remove
+ * @apiFuncType: post
+ * @apiFuncUrl: /upload/remove
+ * @swagger
+ * /upload/remove:
+ *   post:
+ *     description: remove img
+ *     tags:
+ *       - v1
+ *       - Upload
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: remove img
+ *         schema:
+ *           type: object
+ *           required:
+ *             - path
+ *           properties:
+ *             path:
+ *               type: string
+ *               example: ''
+ *     responses:
+ *       200:
+ *         description: UploadResult
+ */
+router.post('/remove', (req, res) => {
+  let filePath = req.body.path || '';
+  filePath = filePath.split('uploads/');
+  if (filePath && filePath.length > 1) {
+    const coverPath = path.join(config.uploadPath, filePath[1]);
+    if (fs.existsSync(coverPath)) {
+      fs.unlinkSync(coverPath);
+    }
+    return res.json(result.success('ok'));
+  }
+  return res.json(result.fail(i18n.t('uploadRemovePathIsInvalid')));
+});
+
 module.exports = router;
