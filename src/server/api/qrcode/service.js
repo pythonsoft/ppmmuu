@@ -49,7 +49,9 @@ service.createQRCode = function createQRCode(url, cb) {
     detail: {},
   };
 
-  qrcode.toDataURL(`${url}?id=${info._id}`, (err, base64Data) => {
+  const dataURL = `${url}?id=${info._id}`;
+
+  qrcode.toDataURL(dataURL, (err, base64Data) => {
     if (err) {
       logger.error(err);
       return cb && cb(i18n.t('qrcodeCreateError'));
@@ -163,12 +165,13 @@ service.scan = function (id, ticket, cb) {
       return cb && cb(i18n.t('qrcodeConfirm'));
     }
 
-    service.update(id, {
+    qrcodeInfo.collection.updateOne({ _id: id }, {
       scanTime: new Date(),
       ticket,
     }, (err, r) => {
       if (err) {
-        return cb && cb(err);
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
       }
 
       return cb && cb(null, r);
