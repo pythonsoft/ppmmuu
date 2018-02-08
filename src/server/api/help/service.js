@@ -156,9 +156,9 @@ service.install = function install(id, cb) {
           copyFile(`${path.join(doc.extractPath, files[index])}/`, targetPath, (err) => {
             if (err) {
               service.update(id, VersionInfo.STATUS.ERROR, err, false, () => cb && cb(err));
+            } else {
+              loop(index + 1);
             }
-
-            loop(index + 1);
           });
         } else if (files[index] === 'version.json') {
           readConfigJSON(id, path.join(doc.extractPath, files[index]), (err) => {
