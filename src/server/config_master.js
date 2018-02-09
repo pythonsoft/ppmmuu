@@ -5,7 +5,7 @@
 'use strict';
 
 /* eslint-disable no-undef */
-config.host = '10.0.15.158:8080';
+config.host = '10.0.16.132:8080';
 config.domain = `http://${config.host}`;
 
 config.dbName = process.env.NODE_ENV === 'test' ? 'ump_test' : 'ump';
@@ -106,5 +106,14 @@ config.socketURL = 'http://localhost:9000';
 config.streamURL = 'http://10.0.15.68:8099';
 config.hkRuku = '/h';
 
-// im上传文件地址
-config.imUploadURL = 'http://10.0.15.152:9000/uploads';
+
+// 大洋新闻系统对应id
+config.DAYANG_ID = '63244331-906c-4aa4-b391-ee249496de62';
+
+// 环信配置
+config.client_id = 'YXA69Z_m4Pm6EeecZrWgZ2F4vA';
+config.client_secret = 'YXA6LvdT0V-OerbAW7inECGv4l5dzns';
+config.easemob_url = 'https://a1.easemob.com/1119180112178786/assistant/';
+
+//记者云扫码默认页
+config.journalistCloud = 'http://10.0.16.132:8000/apps/journalistCloud';

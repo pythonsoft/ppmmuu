@@ -45,6 +45,10 @@ module.exports = {
     code: '-1011',
     message: '缺少参数infos或者infos类型不是数组',
   },
+  parametersIdsRequired: {
+    code: '-1012',
+    message: '却好啊参数ids',
+  },
   getRoleNoId: {
     code: '-2005',
     message: '获取角色详情需要参数_id',
@@ -240,6 +244,10 @@ module.exports = {
   taskCreatorIdNameTypeIsNull: {
     code: '-8006',
     message: '任务创建者信息不完全，请检查，id，name, type',
+  },
+  canNotFindCatalogTask: {
+    code: '-8007',
+    message: '找不到编目任务',
   },
   bucketIdIsNull: {
     code: '-9001',
@@ -769,6 +777,10 @@ module.exports = {
     code: '-100018',
     message: '入库模板信息不存在',
   },
+  canNotFindLowVideo: {
+    code: '-100019',
+    message: '找不到低码流文件',
+  },
   shelfStatusNotCorrect: {
     code: '-110001',
     message: '状态不正确',
@@ -1001,6 +1013,10 @@ module.exports = {
     code: '-170001',
     message: '没有上传文件',
   },
+  uploadBase64Error: {
+    code: '-170002',
+    message: '视频截图上传出错: {{ error }}',
+  },
   invalidLastModify: {
     code: '-180001',
     message: '非法的lastmodify',
@@ -1053,8 +1069,61 @@ module.exports = {
     code: '-190010',
     message: '不合法的参数attachments',
   },
+  listSubmitScriptError: {
+    code: '-190011',
+    message: '获取已提交稿件列表失败: {{error}}',
+  },
   getConfigError: {
     code: '-200000',
     message: '配置文件出错,请联系管理员',
   },
+  canNotFindConnectingAnchor: {
+    code: '-210000',
+    message: '找不到正在连线的请求',
+  },
+  canNotFindChannel: {
+    code: '-210001',
+    message: '找不到通道',
+  },
+  getMappedUserIdFailed: {
+    code: '-220000',
+    message: '获取mappedUserId失败: {{error}}',
+  },
+  noMappedUserId: {
+    code: '-220001',
+    message: '没有mappedUserId,请联系webos系统管理员',
+  },
+  submitScriptToDaYangError: {
+    code: '-220002',
+    message: '提交稿件到大洋新闻系统失败: {{error}}',
+  },
+  resubmitScriptError: {
+    code: '-220002',
+    message: '再次提交稿件失败: {{error}}',
+  },
+  qrcodeParamIsNull: {
+    code: '-230001',
+    message: '处理二维码信息时: {{field}}为空',
+  },
+  qrcodeInfoIsNotExist: {
+    code: '-230002',
+    message: '二维码信息不存在',
+  },
+  qrcodeExpired: {
+    code: '-230003',
+    message: '二维码已过期',
+  },
+  qrcodeConfirm: {
+    code: '-230004',
+    message: '二维码已使用过',
+  },
+  qrcodeCreateError: {
+    code: '-230005',
+    message: '二维码生成失败',
+  },
+  helpError: {
+    code: '-240001',
+    message: '{{error}}',
+  },
 };
+

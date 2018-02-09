@@ -12,6 +12,7 @@ const path = require('path');
 const fs = require('fs');
 const opencc = require('node-opencc');
 const uuid = require('uuid');
+const WebosApi = require('../../common/webosAPI');
 
 const ManuscriptInfo = require('./manuscriptInfo');
 
@@ -32,6 +33,10 @@ const configService = require('../configuration/service');
 const groupService = require('../group/service');
 
 const groupUserService = require('../group/userService');
+
+const UserInfo = require('../user/userInfo');
+
+const userInfo = new UserInfo();
 
 const service = {};
 
@@ -133,10 +138,10 @@ service.addManuscript = function addManuscript(info, cb) {
     }));
   }
 
-  if(info.attachments && utils.getValueType(info.attachments) === 'array'){
-    for(let i = 0, len = info.attachments.length; i < len; i++){
+  if (info.attachments && utils.getValueType(info.attachments) === 'array') {
+    for (let i = 0, len = info.attachments.length; i < len; i++) {
       const item = info.attachments[i];
-      if(!item.userId || !item.attachmentId || !item.name){
+      if (!item.userId || !item.attachmentId || !item.name) {
         return cb && cb(i18n.t('invalidParameterAttachments'));
       }
     }
@@ -250,10 +255,12 @@ service.updateManuscript = function updateManuscript(info, cb) {
     }));
   }
 
-  if(info.attachments && utils.getValueType(info.attachments) === 'array'){
-    for(let i = 0, len = info.attachments.length; i < len; i++){
+  info.modifyTime = new Date();
+
+  if (info.attachments && utils.getValueType(info.attachments) === 'array') {
+    for (let i = 0, len = info.attachments.length; i < len; i++) {
       const item = info.attachments[i];
-      if(!item.userId || !item.attachmentId || !item.name){
+      if (!item.userId || !item.attachmentId || !item.name) {
         return cb && cb(i18n.t('invalidParameterAttachments'));
       }
     }
@@ -303,6 +310,157 @@ const deleteAttachments = function deleteAttachments(query, cb) {
   });
 };
 
+function getMappedUserId(webosTicket, cb) {
+  const wos = new WebosApi(config.WEBOS_SERVER);
+  wos.getMappedUserId(webosTicket, config.DAYANG_ID, (err, rs) => {
+    if (err) {
+      return cb && cb(i18n.t('getMappedUserIdFailed', { error: err }));
+    }
+    if (rs) {
+      return cb && cb(null, rs.UserId);
+    }
+    return cb && cb(i18n.t('noMappedUserId'));
+  });
+}
+
+
+function submitDaYang(info, cb) {
+  const params = {
+    script: {
+      id: '',
+      title: '',
+      collaborators: [],
+      subtitle: '',
+      content: '',
+      source: '',
+      importance: '',
+      level: '',
+      type: '',
+      remark: '',
+      attachments: [],
+      createdTime: '',
+      modifiedTime: '',
+    },
+    target: {
+      type: '',
+      targetId: '',
+      targetUser: {},
+    },
+    client: '',
+  };
+  params.script = utils.merge({
+    title: '',
+    subtitle: '',
+    source: '',
+  }, info);
+  params.target.type = info.submissionTarget;
+  params.target.targetUser = {
+    id: info.creator.email,
+    name: info.creator.name,
+  };
+  params.script.id = info._id;
+  params.client = info.platform;
+  params.script.importance = info.important;
+  params.script.remark = info.description;
+  params.script.level = info.type;
+  params.script.type = info.contentType;
+  params.script.createdTime = new Date(info.createdTime).toISOString();
+  params.script.modifiedTime = new Date().toISOString();
+  params.script.content = '';
+  if (info.editContent && info.editContent.length) {
+    let content = '';
+    info.editContent.forEach((item) => {
+      content += item.content;
+    });
+    params.script.content = content;
+  }
+
+
+  function getCollborators(callback) {
+    const collaborators = [];
+    if (info.collaborators && info.collaborators.length) {
+      const userIds = [];
+      info.collaborators.forEach((item) => {
+        userIds.push(item._id);
+      });
+      userInfo.collection.find({ _id: { $in: userIds } }).toArray((err, users) => {
+        if (err) {
+          logger.error(err.message);
+          return callback && callback(i18n.t('databaseError'));
+        }
+        if (users && users.length) {
+          users.forEach((item) => {
+            collaborators.push({
+              id: item.email,
+              name: item.name,
+            });
+          });
+        }
+        return callback(null, collaborators);
+      });
+    } else {
+      return callback(null, collaborators);
+    }
+  }
+
+  function getAttachments(callback) {
+    const attachments = [];
+    if (info.attachments && info.attachments.length) {
+      const attachmentIds = [];
+      info.attachments.forEach((item) => {
+        attachmentIds.push(item.attachmentId);
+      });
+      attachmentInfo.collection.find({ _id: { $in: attachmentIds } }).toArray((err, attachmentInfos) => {
+        if (err) {
+          logger.error(err.message);
+          return callback && callback(i18n.t('databaseError'));
+        }
+        if (attachmentInfos && attachmentInfos.length) {
+          attachmentInfos.forEach((item) => {
+            attachments.push({
+              id: item._id,
+              filename: item.name,
+              path: item.fileInfo.path || item.path,
+            });
+          });
+        }
+        return callback(null, attachments);
+      });
+    } else {
+      return callback(null, attachments);
+    }
+  }
+
+  getCollborators((err, collaborators) => {
+    if (err) {
+      return cb && cb(err);
+    }
+    params.script.collaborators = collaborators;
+    getAttachments((err, attachments) => {
+      if (err) {
+        return cb && cb(err);
+      }
+      params.script.attachments = attachments;
+      getMappedUserId(info.creator.webosTicket, (err, mappedUserId) => {
+        if (err) {
+          return cb && cb(err);
+        }
+        params.target.tagertId = mappedUserId;
+        utils.requestCallApi(`${config.hongkongUrl}submit_script`, 'POST', params, '', (err, rs) => {
+          if (err) {
+            return cb && cb(null, err);
+          }
+          if (rs.status === 0) {
+            return cb && cb(null, 'ok');
+          }
+
+          return cb && cb(i18n.t('submitScriptToDaYangError', { error: rs.result.errorMsg }));
+        });
+      });
+    });
+  });
+}
+
 service.changeManuscriptStatus = function changeManuscriptStatus(info, cb) {
   let _ids = info._ids || '';
   const status = info.status || '';
@@ -331,16 +489,33 @@ service.changeManuscriptStatus = function changeManuscriptStatus(info, cb) {
       if (rs.err) {
         return cb && cb(rs.err);
       }
-      info = rs.doc;
-      info.modifyTime = new Date();
+      const updateInfo = rs.doc;
+      updateInfo.modifyTime = new Date();
 
-      manuscriptInfo.collection.updateMany(query, { $set: info }, (err) => {
-        if (err) {
-          return cb && cb(err);
-        }
+      if (status === ManuscriptInfo.STATUS.SUBMITTED) {
+        docs[0].creator = info.creator;
+        docs[0].platform = info.platform;
+        docs[0].submissionTarget = ManuscriptInfo.SUBMISSION_TARGET.DAYANG;
+        submitDaYang(docs[0], (err) => {
+          if (err) {
+            return cb && cb(err);
+          }
+          manuscriptInfo.collection.updateMany(query, { $set: updateInfo }, (err) => {
+            if (err) {
+              return cb && cb(err);
+            }
 
-        return cb && cb(null, 'ok');
-      });
+            return cb && cb(null, 'ok');
+          });
+        });
+      } else {
+        manuscriptInfo.collection.updateMany(query, { $set: updateInfo }, (err) => {
+          if (err) {
+            return cb && cb(err);
+          }
+          return cb && cb(null, 'ok');
+        });
+      }
     } else {
       for (let i = 0, len = docs.length; i < len; i++) {
         if (docs[i].status !== ManuscriptInfo.STATUS.DUSTBIN) {
@@ -623,6 +798,12 @@ service.listGroup = function listGroup(info, cb) {
 };
 
 service.getGroupUserList = function getGroupUserList(info, cb) {
+  if (!info._id) {
+    info._id = info.userInfo.company ? info.userInfo.company._id : '';
+  }
+  if (!info.type) {
+    info.type = GroupInfo.TYPE.COMPANY;
+  }
   groupUserService.getGroupUserList(info, cb);
 };
 
@@ -772,6 +953,103 @@ service.updateWebSocketTask = function updateWebSocketTask(info, cb) {
     return cb && cb(err);
   }
   attachmentInfo.updateOne({ _id: info._id }, info, cb);
+};
+
+service.listSubmitScript = function listSubmitScript(info, cb) {
+  let pageSize = info.pageSize || 15;
+  let page = info.page || 1;
+  const status = info.status || '';
+  const keyword = info.keyword || '';
+  const userId = info.userInfo.email || '';
+  const sort = info.sort || 2;
+  const params = {};
+
+  if (status) {
+    params.status = status;
+  }
+  if (keyword) {
+    params.keyword = keyword;
+  }
+
+  pageSize *= 1;
+  page *= 1;
+  params.by = sort * 1;
+  params.pageSize = pageSize * 1;
+  params.currentPage = page * 1;
+  if (userId) {
+    params.userId = userId;
+  }
+
+  const formatDocs = function formatDocs(docs) {
+    const newDocs = [];
+    if (docs && docs.length) {
+      for (let i = 0, len = docs.length; i < len; i++) {
+        const item = {};
+        item._id = docs[i].script.id;
+        item.taskId = docs[i]._id;
+        item.title = docs[i].script.title;
+        item.collaborators = docs[i].script.collaborators;
+        item.creator = docs[i].target.targetUser;
+        item.viceTitle = docs[i].script.subtitle;
+        item.attachments = docs[i].script.attachments || [];
+        item.status = docs[i].status;
+        item.createdTime = docs[i].createdTime;
+        item.modifyTime = docs[i].modifyTime || item.createdTime;
+        item.editContent = [{
+          tag: '2',
+          content: docs[i].script.content,
+        }];
+        if (userId) {
+          if (docs[i].target.targetUser.id === userId) {
+            item.createType = ManuscriptInfo.LIST_TYPE.OWNER;
+          } else {
+            item.createType = ManuscriptInfo.LIST_TYPE.COLLABORATOR;
+          }
+        }
+        newDocs.push(item);
+      }
+    }
+    return newDocs;
+  };
+  utils.requestCallApi(`${config.hongkongUrl}list_script`, 'POST', params, '', (err, rs) => {
+    if (keyword && userId) {
+      service.saveSearch(keyword, userId, () => {});
+    }
+    if (err) {
+      return cb && cb(null, err);
+    }
+    if (rs.status === 0) {
+      const docs = formatDocs(rs.result.items);
+      const total = rs.result.totalcount * 1;
+      const list = {
+        page,
+        docs,
+        pageSize,
+        pageCount: Math.ceil(total / pageSize),
+        total,
+      };
+      return cb && cb(null, list);
+    }
+
+    return cb && cb(i18n.t('listSubmitScriptError:', { error: rs.result.errorMsg }));
+  });
+};
+
+service.resubmitScript = function resubmitScript(info, cb) {
+  const _id = info._id;
+  if (!_id) {
+    return cb && cb(i18n.t('manuscriptIdIsNull'));
+  }
+  const params = { id: _id };
+  utils.requestCallApi(`${config.hongkongUrl}restart_script`, 'POST', params, '', (err, rs) => {
+    if (err) {
+      return cb && cb(null, err);
+    }
+    if (rs.status === 0) {
+      return cb && cb(null, 'ok');
+    }
+    return cb && cb(i18n.t('resubmitScriptError:', { error: rs.result.errorMsg }));
+  });
 };
 
 module.exports = service;

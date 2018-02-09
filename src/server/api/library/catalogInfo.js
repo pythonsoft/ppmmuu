@@ -15,6 +15,7 @@ class CatalogInfo extends DB {
     this.struct = {
       _id: { type: 'string', default() { return uuid.v1(); }, allowUpdate: false },
       objectId: { type: 'string', validation: 'require' },
+      name: { type: 'string' },
       englishName: { type: 'string', validation: 'require' },
       chineseName: { type: 'string', validation: 'require' },
       parentId: { type: 'string' },
@@ -24,7 +25,7 @@ class CatalogInfo extends DB {
       version: { type: 'string', validation: 'require' },
       keyman: { type: 'string', validation: 'require' }, // 人物
       language: { type: 'string' }, // 语言
-      root: { type: 'string' }, // 根结点ID, 用于记录最开始时候的结点ID
+      root: { type: 'string' }, // 根结点ID, 用于记录最开始时候的结点ID, 如果这条记录是根，那么置空
       type: { type: 'string', validation: 'require' }, // 类型：素材，节目，其它
       inpoint: { type: 'number', validation: 'require' },
       outpoint: { type: 'number', validation: 'require' },
@@ -70,6 +71,7 @@ class CatalogInfo extends DB {
       },
       hdFlag: {             // 高标清
         type: 'number',
+        default: 1,
       },
       pigeonhole: {        // 是否归档
         type: 'string',

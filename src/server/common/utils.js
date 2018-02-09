@@ -9,6 +9,7 @@ const os = require('os');
 const i18n = require('i18next');
 const request = require('request');
 const logger = require('./log')('error');
+const fs = require('fs');
 
 const utils = {};
 
@@ -327,6 +328,35 @@ utils.baseRequestCallApi = function baseRequestCallApi(url, method, info, token,
   });
 };
 
+utils.callApi = function callApi(url, method, info, Authorization, cb) {
+  const options = {
+    method: method || 'GET',
+    url,
+  };
+  if (method === 'POST') {
+    options.body = info;
+    options.headers = {
+      'content-type': 'application/json',
+    };
+    options.json = true;
+  } else {
+    options.qs = info;
+  }
+  if (Authorization) {
+    options.headers.Authorization = Authorization;
+  }
+
+  request(options, (error, response) => {
+    if (!error && response.statusCode === 200) {
+      return cb && cb(null, response.body);
+    } else if (error) {
+      return cb && cb(i18n.t('requestCallApiError', { error }));
+    }
+    logger.error(response.body);
+    return cb && cb(i18n.t('requestCallApiFailed'));
+  });
+};
+
 /**
  * @param uri
  * @param method "POST" or "GET"
@@ -508,6 +538,37 @@ utils.formatTime = function (date, format = 'YYYY-MM-DD HH:mm:ss') {
   result = result.replace(/mm/, fillupZero(minutes));
   result = result.replace(/ss/, fillupZero(secs));
   return result;
+};
+
+utils.transformSecondsToStr = function (time = 0, format = 'HH:mm:ss:ff', fps = 25) {
+  if (time < 0) time = 0;
+  const hours = Math.floor(time / (60 * 60));
+  time %= (60 * 60);
+  const minutes = Math.floor(time / 60);
+  time %= 60;
+  const seconds = Math.floor(time);
+  let frame = (time % 1) * fps;
+  frame = frame % 1 > 0.9 ? frame + 1 : frame;
+  frame = Math.floor(frame);
+
+  let result = format;
+  result = result.replace(/HH/, fillupZero(hours));
+  result = result.replace(/mm/, fillupZero(minutes));
+  result = result.replace(/ss/, fillupZero(seconds));
+  result = result.replace(/ff/, fillupZero(frame));
+
+  return result;
+};
+
+utils.download = function download(url, tempPath, cb) {
+  const file = fs.createWriteStream(tempPath);
+  request.get(url).on('response', (response) => {
+    response.pipe(file);
+    file.on('finish', () => cb && cb(null));
+  }).on('error', (error) => {
+    logger.error(error);
+    return cb && cb(error.message);
+  });
 };
 
 module.exports = utils;

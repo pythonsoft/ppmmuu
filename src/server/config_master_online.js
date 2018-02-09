@@ -63,6 +63,7 @@ config.whitelist = [
   'http://ump.phoenixtv.com',
   'http://ump-api.phoenixtv.com',
   'http://ump-live.phoenixtv.com',
+  'http://ump-im.phoenixtv.com',
 ];
 
 config.normalMenuPermission = ['mediaCenter', 'taskCenter', 'personalCenter', 'library'];
@@ -86,3 +87,11 @@ config.subscribeDownloadTemplateId = 'subscribe_autopush';   // 下载模板Id
 // 视频服务器地址
 config.streamURL = 'http://ump-live.phoenixtv.com';
 config.hkRuku = '/moved';
+
+// 大洋新闻系统对应id
+config.DAYANG_ID = '63244331-906c-4aa4-b391-ee249496de62';
+
+// 环信配置
+config.client_id = 'YXA69Z_m4Pm6EeecZrWgZ2F4vA';
+config.client_secret = 'YXA6LvdT0V-OerbAW7inECGv4l5dzns';
+config.easemob_url = 'https://a1.easemob.com/1119180112178786/assistant/';

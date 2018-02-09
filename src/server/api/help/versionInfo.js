@@ -17,7 +17,8 @@ class VersionInfo extends DB {
       name: { type: 'string', validation: 'require' },
       version: { type: 'string' },
       creator: { type: 'object', default: { _id: '', name: '' }, allowUpdate: false },
-      updateList: { type: 'array' }, // 更新列表，記錄更新了什麼東西
+      content: { type: 'array' }, // 这部分是总结出来的，比如说，改进了什么，添加了什么功能，可读性的内容
+      updateList: { type: 'array' }, // 更新列表，記錄更新了什麼東西,这里边的内容与gitlab中的issue是相同的
       status: { type: 'string', default: VersionInfo.STATUS.UPLOAD, validation: v => utils.isValueInObject(v, VersionInfo.STATUS) },
       packagePath: { type: 'string', validation: 'require' },
       extractPath: { type: 'string' },

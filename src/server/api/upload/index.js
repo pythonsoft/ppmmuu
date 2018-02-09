@@ -8,8 +8,10 @@ const result = require('../../common/result');
 const upload = require('../../common/multer').upload;
 const config = require('../../config');
 const fs = require('fs');
+const path = require('path');
 const i18n = require('i18next');
 const utils = require('../../common/utils');
+const uuid = require('uuid');
 
 /**
  * @apiName: upload
@@ -80,6 +82,91 @@ router.post('/uploadWatermark', upload.single('file'), (req, res) => {
   };
   const url = `http://${config.TRANSCODE_API_SERVER.hostname}:${config.TRANSCODE_API_SERVER.port}/TemplateService/uploadFile`;
   utils.baseRequestUploadFile(url, formData, '', (err, rs) => res.end(rs));
+});
+
+/**
+ * @apiName: uploadBase64
+ * @apiFuncType: post
+ * @apiFuncUrl: /upload/uploadBase64
+ * @swagger
+ * /upload/uploadBase64:
+ *   post:
+ *     description: uploadBase64 img
+ *     tags:
+ *       - v1
+ *       - Upload
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: uploadBase64 img
+ *         schema:
+ *           type: object
+ *           required:
+ *             - base64
+ *           properties:
+ *             base64:
+ *               type: string
+ *               example: ''
+ *     responses:
+ *       200:
+ *         description: UploadResult
+ */
+router.post('/uploadBase64', (req, res) => {
+  const base64Data = req.body.base64.replace(/^data:image\/png;base64,/, '');
+  const fileName = uuid.v1();
+  const filePath = path.join(config.uploadPath, fileName);
+
+  fs.writeFile(filePath, base64Data, 'base64', (err) => {
+    if (err) {
+      return res.json(result.fail(i18n.t('uploadBase64Error', { error: err.message })));
+    }
+    const url = `${config.domain}/uploads/${fileName}`;
+    return res.json(result.success(url));
+  });
+});
+
+/**
+ * @apiName: remove
+ * @apiFuncType: post
+ * @apiFuncUrl: /upload/remove
+ * @swagger
+ * /upload/remove:
+ *   post:
+ *     description: remove img
+ *     tags:
+ *       - v1
+ *       - Upload
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: remove img
+ *         schema:
+ *           type: object
+ *           required:
+ *             - path
+ *           properties:
+ *             path:
+ *               type: string
+ *               example: ''
+ *     responses:
+ *       200:
+ *         description: UploadResult
+ */
+router.post('/remove', (req, res) => {
+  let filePath = req.body.path || '';
+  filePath = filePath.split('uploads/');
+  if (filePath && filePath.length > 1) {
+    const coverPath = path.join(config.uploadPath, filePath[1]);
+    if (fs.existsSync(coverPath)) {
+      fs.unlinkSync(coverPath);
+    }
+    return res.json(result.success('ok'));
+  }
+  return res.json(result.fail(i18n.t('uploadRemovePathIsInvalid')));
 });
 
 module.exports = router;

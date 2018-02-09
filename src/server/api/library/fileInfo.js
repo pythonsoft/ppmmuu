@@ -20,7 +20,7 @@ class FileInfo extends DB {
       size: { type: 'number', validation: 'require' },
       realPath: { type: 'string', validation: 'require' },
       path: { type: 'string', validation: 'require' },
-      type: { type: 'string', validation: 'require', default: () => FileInfo.TYPE.ORIGINAL },
+      type: { type: 'string', validation: 'require', default: () => FileInfo.TYPE.HIGH_VIDEO },
       available: { type: 'string', default: () => FileInfo.AVAILABLE.NO },
       status: { type: 'string', validation: 'require', default: () => FileInfo.STATUS.UNKNOW },
       description: { type: 'string' },
@@ -35,19 +35,21 @@ class FileInfo extends DB {
 
 
 FileInfo.TYPE = {
-  ORIGINAL: '0', // 源文件
+  HIGH_VIDEO: '0', // 高码流
   LOW_BIT_VIDEO: '1', // 低码流
   SUBTITLE: '2', // 字幕
   THUMB: '3', // 缩略图
-  OTHER: '4', // 其它
+  DOC: '4',  // 文档
+  OTHER: '5', // 其它
 };
 
 FileInfo.TYPE_MAP = {
-  0: '源文件', // 源文件
+  0: '高码流', // 高码流
   1: '低码流', // 低码流
   2: '字幕', // 字幕
   3: '缩略图', // 缩略图
-  4: '其它', // 其它
+  4: '文档', // 文档
+  5: '其他', // 其他
 };
 
 FileInfo.AVAILABLE = {

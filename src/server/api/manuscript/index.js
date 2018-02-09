@@ -13,8 +13,12 @@ const isLogin = require('../../middleware/login');
 const upload = require('../../common/multer').upload;
 
 router.use(isLogin.middleware);
+router.use(isLogin.hasAccessMiddleware);
 
 /**
+ * @permissionGroup: copy
+ * @permissionName: 获取稿件标签配置
+ * @permissionPath: /manuscript/getTagsConfig
  * @apiName: getTagsConfig
  * @apiFuncType: get
  * @apiFuncUrl: /manuscript/getTagsConfig
@@ -53,6 +57,9 @@ router.get('/getTagsConfig', (req, res) => {
 });
 
 /**
+ * @permissionGroup: copy
+ * @permissionName: 提交稿件时用到的相关配置项
+ * @permissionPath: /manuscript/getManuscriptConfig
  * @apiName: getManuscriptConfig
  * @apiFuncType: get
  * @apiFuncUrl: /manuscript/getManuscriptConfig
@@ -74,6 +81,9 @@ router.get('/getManuscriptConfig', (req, res) => {
 });
 
 /**
+ * @permissionGroup: copy
+ * @permissionName: 获取稿件
+ * @permissionPath: /manuscript/getManuscript
  * @apiName: getManuscript
  * @apiFuncType: get
  * @apiFuncUrl: /manuscript/getManuscript
@@ -103,6 +113,9 @@ router.get('/getManuscript', (req, res) => {
 });
 
 /**
+ * @permissionGroup: copy
+ * @permissionName: 保存稿件
+ * @permissionPath: /manuscript/addOrUpdate
  * @apiName: addOrUpdateManuscript
  * @apiFuncType: post
  * @apiFuncUrl: /manuscript/addOrUpdate
@@ -197,6 +210,9 @@ router.post('/addOrUpdate', (req, res) => {
 
 
 /**
+ * @permissionGroup: copy
+ * @permissionName: 稿件统计
+ * @permissionPath: /manuscript/getSummary
  * @apiName: getSummary
  * @apiFuncType: get
  * @apiFuncUrl: /manuscript/getSummary
@@ -221,6 +237,9 @@ router.get('/getSummary', (req, res) => {
 });
 
 /**
+ * @permissionGroup: copy
+ * @permissionName: 稿件列表
+ * @permissionPath: /manuscript/list
  * @apiName: listManuscript
  * @apiFuncType: get
  * @apiFuncUrl: /manuscript/list
@@ -420,7 +439,207 @@ router.get('/list', (req, res) => {
     res.json(result.json(err, docs)));
 });
 
+
 /**
+ * @permissionGroup: copy
+ * @permissionName: 提交稿件列表
+ * @permissionPath: /manuscript/listSubmitScript
+ * @apiName: listSubmitScript
+ * @apiFuncType: get
+ * @apiFuncUrl: /manuscript/listSubmitScript
+ * @swagger
+ * /manuscript/listSubmitScript:
+ *   get:
+ *     description: get list submitScript
+ *     tags:
+ *       - v1
+ *       - ManuscriptInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: status
+ *         description: "0: 待处理, 1: 处理中, 2: 已处理, 3: 错误"
+ *         required: false
+ *         type: number
+ *         default: 0
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: keyword
+ *         description: 关键字模糊搜素
+ *         required: false
+ *         type: string
+ *         default: ""
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: page
+ *         description: ''
+ *         required: false
+ *         type: integer
+ *         default: 1
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: sort
+ *         description: '排序的字段,0:_id,1:createdTime,2:modifiedTime,3:proceededTime,4:completedTime'
+ *         required: false
+ *         type: number
+ *         default: 1
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: pageSize
+ *         description: ''
+ *         required: false
+ *         type: integer
+ *         default: 15
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: ManuscriptInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *              example: '0'
+ *            data:
+ *              type: object
+ *              properties:
+ *                page:
+ *                  type: number
+ *                  description: '页码'
+ *                  example: 1
+ *                pageSize:
+ *                  type: number
+ *                  description: '每页个数'
+ *                  example: 15
+ *                pageCount:
+ *                  type: number
+ *                  description: '页码总数'
+ *                  example: 1
+ *                total:
+ *                  type: number
+ *                  description: '总共个数'
+ *                  example: 1
+ *                docs:
+ *                  type: array
+ *                  items:
+ *                    type: object
+ *                    properties:
+ *                      title:
+ *                        type: string
+ *                        description: '标题'
+ *                        example: '标题'
+ *                      viceTitle:
+ *                        type: string
+ *                        description: '副标题'
+ *                        example: '副标题'
+ *                      toWhere:
+ *                        type: string
+ *                        description: '提交到什么系统'
+ *                        example: 'DAYANG'
+ *                      collaborators:
+ *                        type: array
+ *                        items:
+ *                          type: object
+ *                          properties:
+ *                            _id:
+ *                              type: string
+ *                              description: ''
+ *                            name:
+ *                              type: string
+ *                              description: ''
+ *                          example: {_id: '', name: ''}
+ *                        description: '协作者'
+ *                      editContent:
+ *                        type: array
+ *                        items:
+ *                          type: object
+ *                          properties:
+ *                            tag:
+ *                              type: string
+ *                              description: '当前默认为2'
+ *                              example: '2'
+ *                            content:
+ *                              type: string
+ *                              description: '内容'
+ *                              example: '内容'
+ *                            modifyTime:
+ *                              type: string
+ *                              description: '修改时间'
+ *                              example: "2017-12-15T07:56:32.174Z"
+ *                      type:
+ *                        type: string
+ *                        description: '稿件类别'
+ *                        example: '1'
+ *                      contentType:
+ *                        type: string
+ *                        description: '类别'
+ *                        example: '1'
+ *                      source:
+ *                        type: string
+ *                        description: '来源'
+ *                        example: '1'
+ *                      important:
+ *                        type: string
+ *                        description: '重要性'
+ *                        example: '1'
+ *                      creator:
+ *                        type: object
+ *                        description: '创建者'
+ *                        example: { _id: '', name: ''}
+ *                      status:
+ *                        type: string
+ *                        description: '稿件状态'
+ *                        example: '1'
+ *                      createType:
+ *                        type: string
+ *                        description: '创建类型, 1:自己创建的,2:协作者'
+ *                        example: '1'
+ *                      attachments:
+ *                        type: array
+ *                        items:
+ *                          type: object
+ *                          properties:
+ *                            userId:
+ *                              type: string
+ *                              description: '创建附件的人的_id'
+ *                              example: ''
+ *                            attachmentId:
+ *                              type: string
+ *                              description: '附件_id'
+ *                              example: ''
+ *                            name:
+ *                              type: string
+ *                              description: '附件名'
+ *                              example: 'test.mp4'
+ *                      createdTime:
+ *                        type: string
+ *                        description: '创建时间'
+ *                        example: "2017-12-15T07:56:32.174Z"
+ *                      modifyTime:
+ *                        type: string
+ *                        description: '修改时间'
+ *                        example: "2017-12-15T07:56:32.174Z"
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *                  example: 'ok'
+ */
+router.get('/listSubmitScript', (req, res) => {
+  const info = req.query;
+  const userInfo = { _id: req.ex.userInfo._id, name: req.ex.userInfo.name, email: req.ex.userInfo.email };
+  info.userInfo = userInfo;
+
+  service.listSubmitScript(info, (err, docs) =>
+      res.json(result.json(err, docs)));
+});
+
+/**
+ * @permissionGroup: copy
+ * @permissionName: 稿件搜索历史
+ * @permissionPath: /manuscript/getSearchHistory
  * @apiName: getSearchHistory
  * @apiFuncType: get
  * @apiFuncUrl: /manuscript/getSearchHistory
@@ -454,6 +673,9 @@ router.get('/getSearchHistory', (req, res) => {
 
 
 /**
+ * @permissionGroup: copy
+ * @permissionName: 清除稿件搜索历史
+ * @permissionPath: /manuscript/clearSearchHistory
  * @apiName: clearSearchHistory
  * @apiFuncType: post
  * @apiFuncUrl: /manuscript/clearSearchHistory
@@ -478,35 +700,9 @@ router.post('/clearSearchHistory', (req, res) => {
 });
 
 /**
- * @apiName: getManuscript
- * @apiFuncType: get
- * @apiFuncUrl: /manuscript/getManuscript
- * @swagger
- * /manuscript/getManuscript:
- *   get:
- *     description: get list allChildGroups
- *     tags:
- *       - v1
- *       - ManuscriptInfo
- *     produces:
- *       - application/json
- *     parameters:
- *       - in: query
- *         name: _id
- *         description: ''
- *         required: false
- *         type: string
- *         default: "043741f0-5cac-11e7-9a4a-5b43dc9cf567"
- *         collectionFormat: csv
- *     responses:
- *       200:
- *         description: ManuscriptInfo
- */
-router.get('/getManuscript', (req, res) => {
-  service.getManuscript(req.query, (err, docs) => res.json(result.json(err, docs)));
-});
-
-/**
+ * @permissionGroup: copy
+ * @permissionName: 改变稿件状态
+ * @permissionPath: /manuscript/changeManuscriptStatus
  * @apiName: changeManuscriptStatus
  * @apiFuncType: post
  * @apiFuncUrl: /manuscript/changeManuscriptStatus
@@ -568,13 +764,17 @@ router.get('/getManuscript', (req, res) => {
  */
 router.post('/changeManuscriptStatus', (req, res) => {
   const info = req.body;
-  const creator = { _id: req.ex.userInfo._id, name: req.ex.userInfo.name };
+  const creator = { _id: req.ex.userInfo._id, name: req.ex.userInfo.name, webosTicket: req.ex.userInfo.webosTicket || '', email: req.ex.userInfo.email };
   info.creator = creator;
+  info.platform = req.ex.platform;
   service.changeManuscriptStatus(info, (err, r) => res.json(result.json(err, r)));
 });
 
 
 /**
+ * @permissionGroup: copy
+ * @permissionName: 复制稿件
+ * @permissionPath: /manuscript/copy
  * @apiName: copy
  * @apiFuncType: post
  * @apiFuncUrl: /manuscript/copy
@@ -628,6 +828,9 @@ router.post('/copy', (req, res) => {
 
 
 /**
+ * @permissionGroup: copy
+ * @permissionName: 删除稿件
+ * @permissionPath: /manuscript/clearAll
  * @apiName: clearAll
  * @apiFuncType: post
  * @apiFuncUrl: /manuscript/clearAll
@@ -664,6 +867,9 @@ router.post('/clearAll', (req, res) => {
 });
 
 /**
+ * @permissionGroup: copy
+ * @permissionName: 添加稿件
+ * @permissionPath: /manuscript/addAttachment
  * @apiName: addAttachment
  * @apiFuncType: post
  * @apiFuncUrl: /manuscript/addAttachment
@@ -697,6 +903,9 @@ router.post('/addAttachment', upload.single('file'), (req, res) => {
 });
 
 /**
+ * @permissionGroup: copy
+ * @permissionName: 附件绑定稿件
+ * @permissionPath: /manuscript/bindAttachment
  * @apiName: bindAttachment
  * @apiFuncType: post
  * @apiFuncUrl: /manuscript/bindAttachment
@@ -752,6 +961,9 @@ router.post('/bindAttachment', (req, res) => {
 });
 
 /**
+ * @permissionGroup: copy
+ * @permissionName: 附件列表接口
+ * @permissionPath: /manuscript/listAttachments
  * @apiName: listAttachments
  * @apiFuncType: get
  * @apiFuncUrl: /manuscript/listAttachments
@@ -821,6 +1033,9 @@ router.get('/listAttachments', (req, res) => {
 });
 
 /**
+ * @permissionGroup: copy
+ * @permissionName: 稿件删除附件
+ * @permissionPath: /manuscript/deleteAttachments
  * @apiName: deleteAttachments
  * @apiFuncType: post
  * @apiFuncUrl: /manuscript/deleteAttachments
@@ -866,6 +1081,9 @@ router.post('/deleteAttachments', (req, res) => {
 });
 
 /**
+ * @permissionGroup: copy
+ * @permissionName: 稿件简繁转换
+ * @permissionPath: /manuscript/hongKongSimplified
  * @apiName: hongKongSimplified
  * @apiFuncType: post
  * @apiFuncUrl: /manuscript/hongKongSimplified
@@ -921,6 +1139,9 @@ router.post('/hongKongSimplified', (req, res) => {
 
 
 /**
+ * @permissionGroup: copy
+ * @permissionName: 稿件获取联系人组列表
+ * @permissionPath: /manuscript/listGroup
  * @apiName: getGroupList
  * @apiFuncType: get
  * @apiFuncUrl: /manuscript/listGroup
@@ -976,6 +1197,9 @@ router.get('/listGroup', (req, res) => {
 });
 
 /**
+ * @permissionGroup: copy
+ * @permissionName: 稿件获取联系人列表
+ * @permissionPath: /manuscript/listUser
  * @apiName: getGroupUserList
  * @apiFuncType: get
  * @apiFuncUrl: /manuscript/listUser
@@ -991,15 +1215,15 @@ router.get('/listGroup', (req, res) => {
  *     parameters:
  *       - in: query
  *         name: _id
- *         description: "组织_id"
- *         required: true
+ *         description: "组织_id,默认公司id"
+ *         required: false
  *         type: string
  *         example: "bea711c0-67ae-11e7-8b13-c506d97b38b0"
  *         collectionFormat: csv
  *       - in: query
  *         name: type
- *         description: "'0'表示公司,'1'表示部门,'2'表示小组"
- *         required: true
+ *         description: "'0'表示公司,'1'表示部门,'2'表示小组  默认'0'"
+ *         required: false
  *         type: string
  *         collectionFormat: csv
  *       - in: query
@@ -1033,10 +1257,14 @@ router.get('/listGroup', (req, res) => {
  *         description: GroupInfo
  */
 router.get('/listUser', (req, res) => {
+  req.query.userInfo = req.ex.userInfo;
   service.getGroupUserList(req.query, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
+ * @permissionGroup: copy
+ * @permissionName: 稿件附件创建websocket任务
+ * @permissionPath: /manuscript/createWebSocketTask
  * @apiName: createWebSocketTask
  * @apiFuncType: post
  * @apiFuncUrl: /manuscript/createWebSocketTask
@@ -1085,6 +1313,9 @@ router.post('/createWebSocketTask', (req, res) => {
 });
 
 /**
+ * @permissionGroup: copy
+ * @permissionName: 稿件附件更新websocket任务
+ * @permissionPath: /manuscript/updateWebSocketTask
  * @apiName: updateWebSocketTask
  * @apiFuncType: post
  * @apiFuncUrl: /manuscript/updateWebSocketTask
@@ -1129,4 +1360,294 @@ router.post('/updateWebSocketTask', (req, res) => {
   service.updateWebSocketTask(info, (err, r) => res.json(result.json(err, r)));
 });
 
+/**
+ * @permissionGroup: copy
+ * @permissionName: 再次提交稿件到大洋系统
+ * @permissionPath: /manuscript/resubmitScript
+ * @apiName: resubmitScript
+ * @apiFuncType: post
+ * @apiFuncUrl: /manuscript/resubmitScript
+ * @swagger
+ * /manuscript/resubmitScript:
+ *   post:
+ *     description: resubmitScript
+ *     tags:
+ *       - v1
+ *       - ManuscriptInfo
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: resubmitScript
+ *         schema:
+ *           type: object
+ *           required:
+ *             - _id
+ *           properties:
+ *             _id:
+ *               type: string
+ *     responses:
+ *       200:
+ *         description: ManuscriptInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *             status:
+ *               type: string
+ *             data:
+ *               type: object
+ *             statusInfo:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ */
+router.post('/resubmitScript', (req, res) => {
+  const info = req.body;
+  service.resubmitScript(info, (err, r) => res.json(result.json(err, r)));
+});
+
+/**
+ * @permissionGroup: copyManagement
+ * @permissionName: 大洋稿件入库管理
+ * @permissionPath: /manuscript/listManageSubmitScript
+ * @apiName: listManageSubmitScript
+ * @apiFuncType: get
+ * @apiFuncUrl: /manuscript/listManageSubmitScript
+ * @swagger
+ * /manuscript/listManageSubmitScript:
+ *   get:
+ *     description: get list manage submit script
+ *       - v1
+ *       - ManuscriptInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: status
+ *         description: "0: 待处理, 1: 处理中, 2: 已处理, 3: 错误"
+ *         required: false
+ *         type: number
+ *         default: 0
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: keyword
+ *         description: 关键字模糊搜素
+ *         required: false
+ *         type: string
+ *         default: ""
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: page
+ *         description: ''
+ *         required: false
+ *         type: integer
+ *         default: 1
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: sort
+ *         description: '排序的字段,0:_id,1:createdTime,2:modifiedTime,3:proceededTime,4:completedTime'
+ *         required: false
+ *         type: number
+ *         default: 1
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: pageSize
+ *         description: ''
+ *         required: false
+ *         type: integer
+ *         default: 15
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description: ManuscriptInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *              example: '0'
+ *            data:
+ *              type: object
+ *              properties:
+ *                page:
+ *                  type: number
+ *                  description: '页码'
+ *                  example: 1
+ *                pageSize:
+ *                  type: number
+ *                  description: '每页个数'
+ *                  example: 15
+ *                pageCount:
+ *                  type: number
+ *                  description: '页码总数'
+ *                  example: 1
+ *                total:
+ *                  type: number
+ *                  description: '总共个数'
+ *                  example: 1
+ *                docs:
+ *                  type: array
+ *                  items:
+ *                    type: object
+ *                    properties:
+ *                      title:
+ *                        type: string
+ *                        description: '标题'
+ *                        example: '标题'
+ *                      viceTitle:
+ *                        type: string
+ *                        description: '副标题'
+ *                        example: '副标题'
+ *                      toWhere:
+ *                        type: string
+ *                        description: '提交到什么系统'
+ *                        example: 'DAYANG'
+ *                      collaborators:
+ *                        type: array
+ *                        items:
+ *                          type: object
+ *                          properties:
+ *                            _id:
+ *                              type: string
+ *                              description: ''
+ *                            name:
+ *                              type: string
+ *                              description: ''
+ *                          example: {_id: '', name: ''}
+ *                        description: '协作者'
+ *                      editContent:
+ *                        type: array
+ *                        items:
+ *                          type: object
+ *                          properties:
+ *                            tag:
+ *                              type: string
+ *                              description: '当前默认为2'
+ *                              example: '2'
+ *                            content:
+ *                              type: string
+ *                              description: '内容'
+ *                              example: '内容'
+ *                            modifyTime:
+ *                              type: string
+ *                              description: '修改时间'
+ *                              example: "2017-12-15T07:56:32.174Z"
+ *                      type:
+ *                        type: string
+ *                        description: '稿件类别'
+ *                        example: '1'
+ *                      contentType:
+ *                        type: string
+ *                        description: '类别'
+ *                        example: '1'
+ *                      source:
+ *                        type: string
+ *                        description: '来源'
+ *                        example: '1'
+ *                      important:
+ *                        type: string
+ *                        description: '重要性'
+ *                        example: '1'
+ *                      creator:
+ *                        type: object
+ *                        description: '创建者'
+ *                        example: { _id: '', name: ''}
+ *                      status:
+ *                        type: string
+ *                        description: '稿件状态'
+ *                        example: '1'
+ *                      createType:
+ *                        type: string
+ *                        description: '创建类型, 1:自己创建的,2:协作者'
+ *                        example: '1'
+ *                      attachments:
+ *                        type: array
+ *                        items:
+ *                          type: object
+ *                          properties:
+ *                            userId:
+ *                              type: string
+ *                              description: '创建附件的人的_id'
+ *                              example: ''
+ *                            attachmentId:
+ *                              type: string
+ *                              description: '附件_id'
+ *                              example: ''
+ *                            name:
+ *                              type: string
+ *                              description: '附件名'
+ *                              example: 'test.mp4'
+ *                      createdTime:
+ *                        type: string
+ *                        description: '创建时间'
+ *                        example: "2017-12-15T07:56:32.174Z"
+ *                      modifyTime:
+ *                        type: string
+ *                        description: '修改时间'
+ *                        example: "2017-12-15T07:56:32.174Z"
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *                  example: 'ok'
+ */
+router.get('/listManageSubmitScript', (req, res) => {
+  const info = req.query;
+  const userInfo = { _id: req.ex.userInfo._id, name: req.ex.userInfo.name };
+  info.userInfo = userInfo;
+
+  service.listSubmitScript(info, (err, docs) =>
+      res.json(result.json(err, docs)));
+});
+
+/**
+ * @permissionGroup: copyManagement
+ * @permissionName: 管理员再次提交
+ * @permissionPath: /manuscript/manageResubmitScript
+ * @apiName: manageResubmitScript
+ * @apiFuncType: post
+ * @apiFuncUrl: /manuscript/manageResubmitScript
+ * @swagger
+ * /manuscript/manageResubmitScript:
+ *   post:
+ *     description: manageResubmitScript
+ *     tags:
+ *       - v1
+ *       - ManuscriptInfo
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: manageResubmitScript
+ *         schema:
+ *           type: object
+ *           required:
+ *             - _id
+ *           properties:
+ *             _id:
+ *               type: string
+ *     responses:
+ *       200:
+ *         description: ManuscriptInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *             status:
+ *               type: string
+ *             data:
+ *               type: object
+ *             statusInfo:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ */
+router.post('/manageResubmitScript', (req, res) => {
+  const info = req.body;
+  service.resubmitScript(info, (err, r) => res.json(result.json(err, r)));
+});
 module.exports = router;

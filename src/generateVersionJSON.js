@@ -16,6 +16,7 @@ const composeTemplate = function composeTemplate(version, updateList) {
   return `
 {
   "version": "${api.generateBuildVersion(version)}",
+  "content": [],
   "updateList": [
     ${updateList.join(',\n    ')}
   ]
@@ -50,6 +51,8 @@ api.create = function (version, generatePath, cb) {
       const mt = data.match(issueReg);
       const rs = [];
       let t = null;
+
+      console.log('mt -->', mt);
 
       for (let i = 0, len = mt.length; i < len; i++) {
         t = mt[i];

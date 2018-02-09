@@ -12,8 +12,8 @@ router.use(isLogin.middleware);
 router.use(isLogin.hasAccessMiddleware);
 
 /**
- * @permissionGroup: requests
- * @permissionName: 发送请求
+ * @permissionGroup: report
+ * @permissionName: 报表统计
  * @permissionPath: /requests
  * @apiName: sendRequests
  * @apiFuncType: post

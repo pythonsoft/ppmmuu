@@ -27,6 +27,7 @@ const templateInfo = new TemplateInfo();
 
 const userService = require('../user/service');
 const groupService = require('../group/service');
+const fieldMap = require('./fieldMap');
 
 const service = {};
 
@@ -63,6 +64,7 @@ service.listCatalogTask = function listCatalogTask(status, departmentId, ownerId
   if (objectId) {
     query.objectId = objectId;
   }
+  query.workflowStatus = CatalogTaskInfo.WORKFLOW_STATUS.SUCCESS;   // 只列出入库成功的任务
 
   catalogTaskInfo.pagination(query, page, pageSize, (err, docs) => {
     if (err) {
@@ -104,7 +106,7 @@ service.createCatalogTask = function createCatalogTask(info, creatorId, creatorN
   });
 };
 
-const setCatalogInfoAndFileInfoAvailable = function setCatalogInfoAndFileInfoAvailable(objectId, available, cb) {
+const setCatalogInfoAndFileInfoAvailable = function setCatalogInfoAndFileInfoAvailable(objectId, available, cb, owner) {
   const q = {
     available: '',
   };
@@ -115,33 +117,38 @@ const setCatalogInfoAndFileInfoAvailable = function setCatalogInfoAndFileInfoAva
   };
 
   if (available === CatalogInfo.AVAILABLE.NO) {
-    q.flag = CatalogInfo.AVAILABLE.YES;
+    q.available = CatalogInfo.AVAILABLE.YES;
   } else {
-    q.flag = CatalogInfo.AVAILABLE.NO;
+    q.available = CatalogInfo.AVAILABLE.NO;
     updateInfo.publishTime = updateInfo.lastModifyTime;
   }
-
-  let actionName = 'updateOne';
+  if (owner) {
+    updateInfo.owner = owner;
+  }
 
   if (objectId.indexOf(',') !== -1) {
     q.objectId = { $in: objectId.split(',') };
-    actionName = 'updateMany';
+  } else if (utils.getValueType(objectId) === 'array') {
+    q.objectId = { $in: objectId };
   } else {
     q.objectId = objectId;
   }
 
-  catalogInfo.collection[actionName](q, { $set: updateInfo }, (err) => {
+  catalogInfo.collection.updateMany(q, { $set: updateInfo }, (err) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(err);
     }
 
-    fileInfo.collection[actionName](q, updateInfo, (err, r) => {
+    const fileUpdateInfo = {
+      available,
+      lastModifyTime: new Date(),
+    };
+    fileInfo.collection.updateMany(q, { $set: fileUpdateInfo }, (err, r) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(err);
       }
-
       return cb && cb(null, r);
     });
   });
@@ -248,6 +255,35 @@ service.deleteCatalogTask = function deleteCatalogTask(taskIds, lastDeleterId, l
   });
 };
 
+const updateCatalogInfoOwner = function updateCatalogInfoOwner(query, owner, cb) {
+  catalogTaskInfo.collection.find(query).toArray((err, docs) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(err);
+    }
+    const objectIds = [];
+    if (docs && docs.length) {
+      docs.forEach((item) => {
+        objectIds.push(item.objectId);
+      });
+    }
+    if (objectIds.length === 0) {
+      return cb && cb(null);
+    }
+    const updateInfo = {
+      owner,
+      lastModifyTime: new Date(),
+    };
+    catalogInfo.collection.updateMany({ objectId: { $in: objectIds } }, { $set: updateInfo }, (err) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(err);
+      }
+      return cb && cb(null);
+    });
+  });
+};
+
 // 任务派发
 service.assignCatalogTask = function assignCatalogTask(taskIds, ownerId, assigneeId, assigneeName, cb) {
   if (!taskIds || taskIds.length === 0) {
@@ -275,18 +311,24 @@ service.assignCatalogTask = function assignCatalogTask(taskIds, ownerId, assigne
       return cb && cb(err);
     }
 
-    catalogTaskInfo[actionName](query, {
-      owner: { _id: ownerId, name: doc.name },
-      assignee: { _id: assigneeId, name: assigneeName },
-      lastModifyTime: new Date(),
-      status: CatalogTaskInfo.STATUS.DOING,
-    }, (err, r) => {
+    const owner = { _id: ownerId, name: doc.name };
+
+    updateCatalogInfoOwner(query, owner, (err) => {
       if (err) {
-        logger.error(err.message);
         return cb && cb(err);
       }
-
-      return cb && cb(null, r);
+      catalogTaskInfo[actionName](query, {
+        owner,
+        assignee: { _id: assigneeId, name: assigneeName },
+        lastModifyTime: new Date(),
+        status: CatalogTaskInfo.STATUS.DOING,
+      }, (err, r) => {
+        if (err) {
+          logger.error(err.message);
+          return cb && cb(err);
+        }
+        return cb && cb(null, r);
+      });
     });
   });
 };
@@ -316,18 +358,23 @@ service.applyCatalogTask = function applyCatalogTask(taskIds, ownerId, ownerName
   }
 
   query.status = CatalogTaskInfo.STATUS.PREPARE;
+  const owner = { _id: ownerId, name: ownerName };
 
-  catalogTaskInfo[actionName](query, {
-    owner: { _id: ownerId, name: ownerName },
-    lastModifyTime: new Date(),
-    status: CatalogTaskInfo.STATUS.DOING,
-  }, (err, r) => {
+  updateCatalogInfoOwner(query, owner, (err) => {
     if (err) {
-      logger.error(err.message);
       return cb && cb(err);
     }
-
-    return cb && cb(null, r);
+    catalogTaskInfo[actionName](query, {
+      owner,
+      lastModifyTime: new Date(),
+      status: CatalogTaskInfo.STATUS.DOING,
+    }, (err, r) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(err);
+      }
+      return cb && cb(null, r);
+    });
   });
 };
 
@@ -415,18 +462,18 @@ service.submitCatalogTask = function submitCatalogTask(taskIds, submitterId, sub
     for (let i = 0, len = docs.length; i < len; i++) {
       objectIds.push(docs[i].objectId);
     }
-
+    const submitter = { _id: submitterId, name: submitterName };
     catalogTaskInfo[actionName](query, {
       lastModifyTime: new Date(),
       status: CatalogTaskInfo.STATUS.SUBMITTED,
-      lastSubmitter: { _id: submitterId, name: submitterName },
+      lastSubmitter: submitter,
     }, (err) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(err);
       }
 
-      setCatalogInfoAndFileInfoAvailable(objectIds, CatalogInfo.AVAILABLE.YES, (err, r) => cb && cb(null, r));
+      setCatalogInfoAndFileInfoAvailable(objectIds, CatalogInfo.AVAILABLE.YES, (err, r) => cb && cb(null, r), submitter);
     });
   });
 };
@@ -532,8 +579,29 @@ service.listCatalog = function listCatalog(objectId, cb) {
       return cb && cb(i18n.t('databaseError'));
     }
 
-    return cb && cb(null, docs);
+    fileInfo.collection.findOne({ objectId, type: FileInfo.TYPE.LOW_BIT_VIDEO }, (err, file) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+      if (!file) {
+        return cb && cb(i18n.t('canNotFindLowVideo'));
+      }
+      if (docs && docs.length) {
+        for (let i = 0, len = docs.length; i < len; i++) {
+          docs[i].fileInfo = file;
+        }
+      }
+      return cb && cb(null, docs);
+    });
   });
+};
+
+const formatDuration = function formatDuration(info) {
+  if (info.outpoint) {
+    const timeLen = ((info.outpoint - info.inpoint) * 1.0) / 25;
+    info.duration = utils.transformSecondsToStr(timeLen);
+  }
 };
 
 service.createCatalog = function createCatalog(ownerId, ownerName, info, cb) {
@@ -558,7 +626,7 @@ service.createCatalog = function createCatalog(ownerId, ownerName, info, cb) {
   if (!info._id) {
     info._id = uuid.v1();
   }
-
+  formatDuration(info);
   if (info.parentId) {
     catalogInfo.collection.findOne({ _id: info.parentId }, (err, doc) => {
       if (err) {
@@ -631,7 +699,42 @@ service.getCatalog = function getCatalog(id, cb) {
       return cb && cb(i18n.t('databaseError'));
     }
 
+    formatDuration(doc);
     return cb && cb(null, doc);
+  });
+};
+
+service.getCatalogInfosTranslation = function getCatalogInfosTranslation(objectId, cb) {
+  if (!objectId) {
+    return cb && cb(i18n.t('objectIdIsNull'));
+  }
+  catalogInfo.collection.find({ objectId }).toArray((err, docs) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+    const rs = [];
+    if (!docs || docs.length === 0) {
+      return cb && cb(null, rs);
+    }
+    const fields = fieldMap.translateFields;
+    for (let i = 0, len = docs.length; i < len; i++) {
+      const doc = docs[i];
+      const item = {};
+      for (const key in fields) {
+        if (doc[key] !== undefined) {
+          item[key] = {
+            cn: fields[key].cn,
+            value: doc[key],
+          };
+          if (fields[key].format) {
+            item[key].value = fields[key].format(doc[key]);
+          }
+        }
+      }
+      rs.push(item);
+    }
+    return cb && cb(null, rs);
   });
 };
 
@@ -650,7 +753,20 @@ service.listFile = function listCatalog(objectId, cb) {
       return cb && cb(i18n.t('databaseError'));
     }
 
-    return cb && cb(null, docs);
+    catalogInfo.collection.findOne({ objectId }, (err, cata) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+      let duration = 0;
+      if (cata && cata.outpoint) {
+        duration = cata.outpoint - cata.inpoint;
+      }
+      for (let i = 0, len = docs.length; i < len; i++) {
+        docs[i].duration = duration * 40;
+      }
+      return cb && cb(null, docs);
+    });
   });
 };
 
@@ -694,7 +810,20 @@ service.updateFile = function updateFile(id, info = {}, cb) {
       return cb && cb(i18n.t('databaseError'));
     }
 
-    return cb && cb(null, r);
+    const updateInfo = {
+      _id: id,
+      name: info.name || '',
+      realPath: info.realPath || '',
+      size: info.size || 0,
+      type: info.type || FileInfo.TYPE.ORIGINAL,
+    };
+    catalogInfo.updateOne({ 'fileInfo._id': id }, { fileInfo: updateInfo, lastModifyTime: info.lastModifyTime }, (err) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+      return cb && cb(null, r);
+    });
   });
 };
 
@@ -710,6 +839,28 @@ service.getFile = function getFile(id, cb) {
     }
 
     return cb && cb(null, doc);
+  });
+};
+
+service.getSubtitleFile = function getSubtitleFile(id, cb) {
+  service.getFile(id, (err, doc) => {
+    if (err) {
+      return cb && cb(err);
+    }
+    const objectId = doc.objectId;
+    let path = '';
+    if (objectId) {
+      fileInfo.collection.findOne({ objectId, type: FileInfo.TYPE.SUBTITLE }, (err, doc) => {
+        if (err) {
+          logger.error(err.message);
+          return cb && cb(i18n.t('databaseError'));
+        }
+        path = doc ? doc.realPath : '';
+        return cb && cb(null, path);
+      });
+    } else {
+      return cb && cb(null, path);
+    }
   });
 };
 

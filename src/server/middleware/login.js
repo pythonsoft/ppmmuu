@@ -82,6 +82,52 @@ login.getUserInfoRedis = function getUserInfo(userId, cb) {
   });
 };
 
+const PLATFORM_TYPE = {
+  PC: '0',
+  MOBILE: '1',
+};
+
+function getClientPlatform(req) {
+  const deviceAgent = req.headers['user-agent'].toLowerCase();
+  const agentID = deviceAgent.match(/(iphone|ipod|ipad|android|mobile)/);
+  if (agentID) {
+    return PLATFORM_TYPE.MOBILE;
+  }
+  return PLATFORM_TYPE.PC;
+}
+
+const verifyTicket = function (ticket) {
+  const decodeTicket = token.decipher(ticket, config.KEY);
+
+  if (!decodeTicket) {
+    return false;
+  }
+
+  const now = new Date().getTime();
+  if (decodeTicket[1] > now) { // token有效期内
+    req.ex = { userId: decodeTicket[0] };
+    req.query = utils.trim(req.query);
+
+    if (!(req.headers['content-type'] && req.headers['content-type'].indexOf('multipart/form-data') !== -1)) {
+      req.body = utils.trim(req.body);
+    }
+
+    login.getUserInfoRedis(req.ex.userId, (err, info) => {
+      if (err) {
+        res.clearCookie(TICKET_COOKIE_NAME);
+        return res.json(result.fail(err));
+      }
+
+      req.ex.userInfo = info;
+      req.ex.platform = getClientPlatform(req);
+      next();
+    });
+  } else { // 过期
+    res.clearCookie(TICKET_COOKIE_NAME);
+    return res.json(result.fail(req.t('loginExpired')));
+  }
+};
+
 login.middleware = function middleware(req, res, next) {
   const decodeTicket = login.isLogin(req);
 
@@ -102,6 +148,7 @@ login.middleware = function middleware(req, res, next) {
         }
 
         req.ex.userInfo = info;
+        req.ex.platform = getClientPlatform(req);
         next();
       });
     } else { // 过期

@@ -7,6 +7,8 @@
 const logger = require('../../common/log')('error');
 const utils = require('../../common/utils');
 const config = require('../../config');
+const path = require('path');
+const fs = require('fs');
 const uuid = require('uuid');
 const i18n = require('i18next');
 const roleService = require('../role/service');
@@ -165,6 +167,30 @@ service.assignShelfTask = function assignShelfTask(req, cb) {
   });
 };
 
+const clearCover = function clearCover(_ids, cb) {
+  shelfTaskInfo.collection.find({ _id: { $in: _ids } }).toArray((err, docs) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+    if (docs && docs.length) {
+      docs.forEach((item) => {
+        const cover = item.editorInfo.cover;
+        if (cover) {
+          const coverArr = cover.split('uploads/');
+          if (coverArr.length > 1) {
+            const coverPath = path.join(config.uploadPath, coverArr[1]);
+            if (fs.existsSync(coverPath)) {
+              fs.unlinkSync(coverPath);
+            }
+          }
+        }
+      });
+    }
+    return cb && cb(null);
+  });
+}
+
 // 删除
 service.deleteShelfTask = function deleteShelfTask(req, cb) {
   const userInfo = req.ex.userInfo;
@@ -197,7 +223,8 @@ service.deleteShelfTask = function deleteShelfTask(req, cb) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
-
+      // 删除磁盘上封面
+      clearCover(_ids, () => {});
       return cb && cb(null, 'ok');
     });
   });
