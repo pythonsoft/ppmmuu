@@ -170,8 +170,8 @@ service.getObject = function getObject(_id, cb) {
     result: {
       basic: {},
       detail: {
-        program: {},
-        sequence: {},
+        program: [],
+        sequence: [],
       },
       files: [],
     },
@@ -213,17 +213,19 @@ service.getObject = function getObject(_id, cb) {
     for (const key in fieldMap.translateFields) {
       if (doc[key]) {
         const item = {
+          key,
           cn: fieldMap.translateFields[key].cn,
           value: doc[key],
         };
+        if (key === 'objectId') {
+          item.key = 'OBJECTID';
+        }
         if (fieldMap.translateFields[key].format) {
           item.value = fieldMap.translateFields[key].format(doc[key]);
         }
-        rs.result.detail.program[key] = item;
+        rs.result.detail.program.push(item);
       }
     }
-    rs.result.detail.program.OBJECTID = rs.result.detail.program.objectId;
-    delete rs.result.detail.program.objectId;
 
     fileInfo.collection.find({ objectId }).toArray((err, files) => {
       if (err) {

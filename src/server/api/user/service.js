@@ -580,7 +580,7 @@ service.adAccountSync = function adAccountSync(info, cb) {
         doc.department._id = dept._id;
         doc.department.name = dept.name;
       }
-      userInfo.collection.findOne({ _id: info._id}, (err, user) => {
+      userInfo.collection.findOne({ _id: info._id }, (err, user) => {
         if (err) {
           logger.error(err.message);
           return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));

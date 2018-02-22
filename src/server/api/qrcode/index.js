@@ -80,7 +80,7 @@ router.get('/login', (req, res) => {
  * @apiFuncType: get
  * @apiFuncUrl: /qrcode/scan
  * @swagger
- * /qrcode/query:
+ * /qrcode/scan:
  *   get:
  *     description: qrcodeQuery
  *     version: 1.0.0
@@ -112,7 +112,7 @@ router.get('/scan', (req, res) => {
   const id = req.query.id;
   const ticket = req.query.ticket;
 
-  if(!ticket) {
+  if (!ticket) {
     return res.redirect(config.journalistCloud);
   }
 
