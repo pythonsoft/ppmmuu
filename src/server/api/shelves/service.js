@@ -189,7 +189,7 @@ const clearCover = function clearCover(_ids, cb) {
     }
     return cb && cb(null);
   });
-}
+};
 
 // 删除
 service.deleteShelfTask = function deleteShelfTask(req, cb) {
@@ -266,8 +266,9 @@ service.createShelfTask = function createShelfTask(req, cb) {
     if (info.details.OUTPOINT) {
       info.details.duration = info.details.OUTPOINT - info.details.INPOINT;
     }
-    for (const key in program) {
-      info.details[key] = program[key].value;
+    for (let i = 0, len = program.length; i < len; i++) {
+      const item = program[i];
+      info.details[item.key] = item.value;
     }
 
 

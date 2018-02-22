@@ -293,41 +293,41 @@ service.getDetail = function getDetail(id, cb) {
 };
 
 service.ensureVersionInfoByVersion = function updateInfoByVersion(version, info, cb) {
-  if(!version) {
+  if (!version) {
     return cb && cb(i18n.t('helpError', { error: 'param version is null' }));
   }
 
-  if(!info) {
+  if (!info) {
     return cb && cb(i18n.t('helpError', { error: 'param info is null' }));
   }
 
-  versionInfo.collection.findOne({ version: version }, (err, doc) => {
-    if(err) {
+  versionInfo.collection.findOne({ version }, (err, doc) => {
+    if (err) {
       return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
     }
 
-    if(doc) {
+    if (doc) {
       const updateInfo = {};
       updateInfo.modifyTime = new Date();
 
-      if(info.content) {
+      if (info.content) {
         updateInfo.content = info.content;
       }
 
-      if(info.updateList) {
+      if (info.updateList) {
         updateInfo.updateList = info.updateList;
       }
 
-      versionInfo.updateOne({ version: version }, updateInfo, (err, r) => {
-        if(err) {
+      versionInfo.updateOne({ version }, updateInfo, (err, r) => {
+        if (err) {
           return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
         }
 
         return cb && cb(null, r);
       });
-    }else {
+    } else {
       versionInfo.insertOne(info, (err, r) => {
-        if(err) {
+        if (err) {
           return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));
         }
 

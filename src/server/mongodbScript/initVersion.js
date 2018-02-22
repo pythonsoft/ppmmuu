@@ -10,7 +10,7 @@ const VersionInfo = require('../api/help/versionInfo');
 const versionFilePath = path.join(__dirname, 'version.json');
 
 const initVersion = function () {
-  if(fs.existsSync(versionFilePath)) {
+  if (fs.existsSync(versionFilePath)) {
     const content = fs.readFileSync(versionFilePath);
     const json = JSON.parse(content);
     const t = new Date();
@@ -28,7 +28,7 @@ const initVersion = function () {
     };
 
     service.ensureVersionInfoByVersion(info.version, info, (err, r) => {
-      if(err) {
+      if (err) {
         console.log('版本信息更新失败 --->', err);
         return false;
       }

@@ -623,6 +623,54 @@ service.xml2srt = (info, cb) => {
   }
 };
 
+const formatProgramOrSequence = function formatProgramOrSequence(source, cb) {
+  const program = source.program || {};
+  const sequence = source.sequence || {};
+  const sortField = function sortField(key, fieldKey) {
+    configurationInfo.collection.findOne({ key }, { fields: { key: 1, value: 1 } }, (err, doc) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      if (!doc) {
+        return cb && cb(null);
+      }
+
+      try {
+        const sortArr = JSON.parse(doc.value);
+        const needSortArr = source[fieldKey];
+        const newArr = [];
+        for (let i = 0, len = sortArr.length; i < len; i++) {
+          const field = sortArr[i];
+          if (needSortArr[field]) {
+            if (typeof needSortArr[field] === 'string' && needSortArr[field].match('\\d{4}-\\d{2}-\\d{2}')) {
+              if (new Date(needSortArr[field] < new Date('1900-01-01'))) {
+                needSortArr[field] = 'N/A';
+              }
+            }
+            const item = {
+              key: field,
+              value: needSortArr[field],
+              cn: fieldConfig[field] ? fieldConfig[field].cn : '',
+            };
+            newArr.push(item);
+          }
+        }
+        source[fieldKey] = newArr;
+        return cb && cb(null);
+      } catch (e) {
+        return cb && cb(i18n.t('getMeidaCenterSearchConfigsJSONError'));
+      }
+    });
+  };
+  if (!utils.isEmptyObject(program)) {
+    sortField('entryFieldSortInfoConfig', 'program');
+  } else if (!utils.isEmptyObject(sequence)) {
+    sortField('fragmentFieldSortInfoConfig', 'sequence');
+  }
+};
+
 const getObjectFromHK = function getObjectFromHK(info, cb) {
   const options = {
     uri: `${config.hongkongUrl}get_object`,
@@ -645,23 +693,8 @@ const getObjectFromHK = function getObjectFromHK(info, cb) {
     const rs = JSON.parse(response.body);
     rs.status = '0';
 
-    if (rs.result.detail && rs.result.detail.program) {
-      const program = rs.result.detail.program;
+    if (rs.result.files) {
       const files = rs.result.files;
-
-      for (const key in program) {
-        if (program[key] === '' || program[key] === null) {
-          delete program[key];
-        } else {
-          if (typeof program[key] === 'string' && program[key].match('\\d{4}-\\d{2}-\\d{2}')) {
-            if (new Date(program[key]) < new Date('1900-01-01')) {
-              program[key] = 'N/A';
-            }
-          }
-          program[key] = { value: program[key], cn: fieldConfig[key] ? fieldConfig[key].cn : '' };
-        }
-      }
-
       for (let i = 0, len = files.length; i < len; i++) {
         const file = files[i];
         for (const k in file) {
@@ -672,24 +705,17 @@ const getObjectFromHK = function getObjectFromHK(info, cb) {
       }
     }
 
-    if (rs.result.detail && rs.result.detail.sequence) {
-      const sequence = rs.result.detail.sequence;
-
-      for (const key in sequence) {
-        if (sequence[key] === '' || sequence[key] === null) {
-          delete sequence[key];
-        } else {
-          if (typeof sequence[key] === 'string' && sequence[key].match('\\d{4}-\\d{2}-\\d{2}')) {
-            if (new Date(sequence[key]) < new Date('1900-01-01')) {
-              sequence[key] = 'N/A';
-            }
-          }
-          sequence[key] = { value: sequence[key], cn: fieldConfig[key] ? fieldConfig[key].cn : '' };
+    if (rs.result.detail) {
+      console.log(JSON.stringify(rs.result.detail));
+      formatProgramOrSequence(rs.result.detail, (err) => {
+        if (err) {
+          return cb && cb(err);
         }
-      }
+        return cb(null, rs, 'mam');
+      });
+    } else {
+      return cb(null, rs, 'mam');
     }
-
-    return cb(null, rs, 'mam');
   });
 };
 

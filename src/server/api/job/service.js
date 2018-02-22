@@ -325,8 +325,14 @@ service.jugeTemplateAuditAndCreateAudit = function jugeTemplateAuditAndCreateAud
       let ownerName = '';
 
       if (fromWhere === 'mam') {
-        if (rs.result && rs.result.detail && rs.result.detail.program && rs.result.detail.program.FIELD314 && rs.result.detail.program.FIELD314.value) {
-          ownerName = rs.result.detail.program.FIELD314.value;
+        if (rs.result && rs.result.detail && rs.result.detail.program) {
+          const program = rs.result.detail.program;
+          for (let i = 0, len = program.length; i < len; i++) {
+            if (program[i].key === 'FIELD314' && program[i].value) {
+              ownerName = program[i].value;
+              break;
+            }
+          }
         }
       }
 
