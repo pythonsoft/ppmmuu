@@ -464,6 +464,10 @@ service.esSearch = function esSearch(req, cb) {
       }
     }
 
+    if (isRelated && !info.subscribeType) {
+      info.subscribeType = doc.subscribeType.join(' ');
+    }
+
     const options = getEsOptions(info);
     let keyword = info.keyword || '';
     keyword = keyword.trim();
