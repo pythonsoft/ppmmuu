@@ -1125,5 +1125,9 @@ module.exports = {
     code: '-240001',
     message: '{{error}}',
   },
+  faqInfoIsNotExist: {
+    code: '-250001',
+    message: '反馈信息不存在',
+  },
 };
 
