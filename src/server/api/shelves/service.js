@@ -268,7 +268,11 @@ service.createShelfTask = function createShelfTask(req, cb) {
     }
     for (let i = 0, len = program.length; i < len; i++) {
       const item = program[i];
-      info.details[item.key] = item.value;
+      if (item.value === 'N/A') {
+        info.details[item.key] = new Date('1900-01-01').toISOString();
+      } else {
+        info.details[item.key] = item.value;
+      }
     }
 
 
