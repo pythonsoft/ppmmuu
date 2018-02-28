@@ -170,10 +170,7 @@ const loginHandle = function loginHandle(username, password, cb) {
       return cb && cb(i18n.t('usernameOrPasswordIsWrong'));
     }
 
-    service.registerUserToEaseMob(doc, (err) => {
-      if (err) {
-        return cb && cb(err);
-      }
+    service.registerUserToEaseMob(doc, () => {
       if (UserInfo.VERIFY_TYPE.PASSWORD === doc.verifyType) {
         if (doc.expiredTime < new Date()) {
           return cb && cb(i18n.t('userExpiredTime'));

@@ -645,7 +645,7 @@ const formatProgramOrSequence = function formatProgramOrSequence(source, cb) {
           const field = sortArr[i];
           if (needSortArr[field]) {
             if (typeof needSortArr[field] === 'string' && needSortArr[field].match('\\d{4}-\\d{2}-\\d{2}')) {
-              if (new Date(needSortArr[field] < new Date('1900-01-01'))) {
+              if (new Date(needSortArr[field]) < new Date('1900-01-01')) {
                 needSortArr[field] = 'N/A';
               }
             }
