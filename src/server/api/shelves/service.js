@@ -399,10 +399,26 @@ service.getShelfDetail = function getShelfDetail(info, cb) {
     if (!doc) {
       return cb && cb(i18n.t('shelfNotFind'));
     }
-    if (doc.editorInfo && doc.editorInfo.subscribeType && doc.editorInfo.subscribeType.constructor.name === 'Array') {
-      doc.editorInfo.subscribeType = doc.editorInfo.subscribeType.join(',');
+    if (!doc.editorInfo.subscribeType || doc.editorInfo.subscribeType === []) {
+      doc.editorInfo.subscribeType = '';
+      return cb && cb(null, doc);
     }
-    return cb && cb(null, doc);
+    if (doc.editorInfo && doc.editorInfo.subscribeType && doc.editorInfo.subscribeType.constructor.name === 'String') {
+      doc.editorInfo.subscribeType = doc.editorInfo.subscribeType.split(',');
+    }
+    subscribeManagementService.getSubscribeTypeByQuery({ _id: { $in: doc.editorInfo.subscribeType } }, (err, docs) => {
+      if (err) {
+        return cb && cb(err);
+      }
+      const subscribeText = [];
+      if (docs && docs.length) {
+        docs.forEach((item) => {
+          subscribeText.push(`${item.name}(${item._id})`);
+        });
+      }
+      doc.editorInfo.subscribeType = subscribeText.join(',');
+      return cb && cb(null, doc);
+    });
   });
 };
 
