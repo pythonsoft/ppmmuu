@@ -177,8 +177,16 @@ service.getSubscribeTypesSummary = function getSubscribeTypesSummary(req, cb) {
           const subscribeType = docs[i];
           subscribeType.count = 0;
           for (let j = 0, len1 = r.length; j < len1; j++) {
-            if (r[j]._id === subscribeType._id) {
-              subscribeType.count = r[j].count;
+            const temp = r[j]._id;
+            if (temp.constructor.name === 'String') {
+              if (temp === subscribeType._id) {
+                subscribeType.count += r[j].count;
+              }
+            }
+            if (temp.constructor.name === 'Array') {
+              if (temp.indexOf(subscribeType._id) !== -1) {
+                subscribeType.count += r[j].count;
+              }
             }
           }
           rs.subscribeTypes.push(subscribeType);
@@ -456,7 +464,7 @@ service.esSearch = function esSearch(req, cb) {
     }
 
     if (subscribeType) {
-      subscribeType = subscribeType.split(' ');
+      subscribeType = subscribeType.split(',');
       for (let i = 0, len = subscribeType.length; i < len; i++) {
         if (doc.subscribeType.indexOf(subscribeType[i]) === -1) {
           return cb && cb(i18n.t('invalidSubscribeType'));

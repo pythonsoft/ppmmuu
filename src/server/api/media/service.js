@@ -706,7 +706,6 @@ const getObjectFromHK = function getObjectFromHK(info, cb) {
     }
 
     if (rs.result.detail) {
-      console.log(JSON.stringify(rs.result.detail));
       formatProgramOrSequence(rs.result.detail, (err) => {
         if (err) {
           return cb && cb(err);

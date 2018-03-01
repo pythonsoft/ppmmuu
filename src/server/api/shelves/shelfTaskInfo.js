@@ -48,7 +48,7 @@ class ShelfTaskInfo extends DB {
       editorInfo: { type: 'object',
         default: {
           name: '',
-          subscribeType: '',
+          subscribeType: [],
           source: '',
           limit: '',
           cover: '',
