@@ -139,7 +139,6 @@ service.getSubscribeInfo = function getSubscribeInfo(info, cb) {
     return cb & cb(i18n.t('subscribeInfoShortId'));
   }
 
-  console.log('_id====>', _id);
   subscribeInfo.collection.findOne({ _id }, (err, doc) => {
     if (err) {
       logger.error(err.message);
@@ -339,6 +338,19 @@ service.getSubscribeType = function getSubscribeType(info, cb) {
   }
 
   subscribeType.collection.findOne({ _id: info._id }, (err, doc) => {
+    if (err) {
+      return cb && cb(err);
+    }
+    if (!doc) {
+      return cb && cb(i18n.t('subscribeTypeNotFind'));
+    }
+
+    return cb && cb(null, doc);
+  });
+};
+
+service.getSubscribeTypeByQuery = function getSubscribeTypeByQuery(query, cb) {
+  subscribeType.collection.find(query).toArray((err, doc) => {
     if (err) {
       return cb && cb(err);
     }
