@@ -29,9 +29,20 @@ const listShelfTask = function listShelfTask(query, page, pageSize, cb) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
+    const items = docs.docs;
+    if (items && items.length) {
+      for (let i = 0, len = items.length; i < len; i++) {
+        items[i].outpoint = items[i].details.OUTPOINT || 0;
+        items[i].inpoint = items[i].details.INPOINT || 0;
+        if (items[i].editorInfo && items[i].editorInfo.subscribeType && items[i].editorInfo.subscribeType.constructor.name === 'Array') {
+          items[i].editorInfo.subscribeType = items[i].editorInfo.subscribeType.join(',');
+        }
+        delete items[i].details;
+      }
+    }
 
     return cb && cb(null, docs);
-  }, '-createdTime', '-files,-details,-full_text');
+  }, '-createdTime', '-files,-full_text');
 };
 
 const listDepartmentShelfTask = function listDepartmentShelfTask(req, cb) {
@@ -373,20 +384,6 @@ service.getShelfDetail = function getShelfDetail(info, cb) {
     query.status = status;
   }
 
-  const getSubscribeTypeById = function getSubscribeTypeById(id, callback) {
-    if (!id) {
-      return callback && callback(null, '');
-    }
-
-    subscribeManagementService.getSubscribeType(query, (err, doc) => {
-      if (err) {
-        return callback && callback(null, '');
-      }
-
-      return callback && callback(null, doc.name);
-    });
-  };
-
   if (fields) {
     fields = utils.formatSortOrFieldsParams(fields);
   } else {
@@ -402,14 +399,10 @@ service.getShelfDetail = function getShelfDetail(info, cb) {
     if (!doc) {
       return cb && cb(i18n.t('shelfNotFind'));
     }
-
-    getSubscribeTypeById(doc.editorInfo.subscribeType, (err, name) => {
-      if (err) {
-        return cb && cb(err);
-      }
-      doc.editorInfo.subscribeType = name || doc.editorInfo.subscribeType;
-      return cb && cb(null, doc);
-    });
+    if (doc.editorInfo && doc.editorInfo.subscribeType && doc.editorInfo.subscribeType.constructor.name === 'Array') {
+      doc.editorInfo.subscribeType = doc.editorInfo.subscribeType.join(',');
+    }
+    return cb && cb(null, doc);
   });
 };
 
@@ -433,7 +426,7 @@ service.saveShelf = function saveShelf(info, cb) {
     if (!doc) {
       return cb && cb(i18n.t('shelfCanNotSave'));
     }
-    shelfTaskInfo.collection.update({ _id }, { $set: { editorInfo, name: editorInfo.name } }, (err) => {
+    shelfTaskInfo.collection.update({ _id }, { $set: { editorInfo, name: editorInfo.name, lastModifyTime: new Date() } }, (err) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
@@ -444,10 +437,49 @@ service.saveShelf = function saveShelf(info, cb) {
   });
 };
 
+// 保存
+service.batchSaveShelf = function batchSaveShelf(info, cb) {
+  let _ids = info._ids;
+  const firstId = info.firstId;
+  const editorInfo = info.editorInfo || '';
+  const name = editorInfo.name || '';
+  delete editorInfo.name;
+  const struct = {
+    _ids: { type: 'string', validation: 'require' },
+    editorInfo: { type: 'object', validation: 'require' },
+    firstId: { type: 'string', validation: 'require' },
+  };
+  const err = utils.validation(info, struct);
+  _ids = _ids.split(',');
+  if (err) {
+    return cb && cb(err);
+  }
+
+  const updateInfo = {
+    lastModifyTime: new Date(),
+    'editorInfo.subscribeType': editorInfo.subscribeType,
+    'editorInfo.limit': editorInfo.limit,
+    'editorInfo.source': editorInfo.source,
+    'editorInfo.cover': editorInfo.cover,
+  };
+  shelfTaskInfo.collection.updateMany({ _id: { $in: _ids }, status: ShelfTaskInfo.STATUS.DOING }, { $set: updateInfo }, (err) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+    shelfTaskInfo.collection.update({ _id: firstId, status: ShelfTaskInfo.STATUS.DOING }, { $set: { name, 'editorInfo.name': name } }, (err) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+      return cb && cb(null, 'ok');
+    });
+  });
+};
+
 // 提交
-service.submitShelf = function submitShelf(req, cb) {
-  const userInfo = req.ex.userInfo;
-  const info = req.body;
+service.submitShelf = function submitShelf(info, cb) {
+  const userInfo = info.userInfo;
   const _id = info._id;
   const editorInfo = info.editorInfo || '';
   const struct = {
@@ -475,8 +507,11 @@ service.submitShelf = function submitShelf(req, cb) {
       editorInfo,
       status: ShelfTaskInfo.STATUS.SUBMITTED,
       full_text: '',
-      name: editorInfo.name,
+      lastModifyTime: new Date(),
     };
+    if (editorInfo.name) {
+      updateInfo.name = editorInfo.name;
+    }
     for (const key in doc.editorInfo) {
       if (typeof doc.editorInfo[key] === 'string') {
         updateInfo.full_text += `${doc.editorInfo[key]} `;
@@ -496,6 +531,49 @@ service.submitShelf = function submitShelf(req, cb) {
       return cb && cb(null, 'ok');
     });
   });
+};
+
+// 批量提交
+service.batchSubmitShelf = function batchSubmitShelf(info, cb) {
+  let _ids = info._ids;
+  const firstId = info.firstId;
+  const editorInfo = info.editorInfo || '';
+  const name = editorInfo.name || '';
+  delete editorInfo.name;
+  const struct = {
+    _ids: { type: 'string', validation: 'require' },
+    editorInfo: { type: 'object', validation: 'require' },
+    firstId: { type: 'string', validation: 'require' },
+  };
+  _ids = _ids.split(',');
+  const err = utils.validation(info, struct);
+  if (err) {
+    return cb && cb(err);
+  }
+
+  const loopSubmitSelf = function loopSubmitSelf(index) {
+    if (index >= _ids.length) {
+      info._id = firstId;
+      info.editorInfo = editorInfo;
+      info.editorInfo.name = name;   // 第一个的名字要保存
+      service.submitShelf(info, (err) => {
+        if (err) {
+          return cb && cb(err);
+        }
+        return cb && cb(null, 'ok');
+      });
+    } else {
+      info._id = _ids[index];
+      info.editorInfo = editorInfo;
+      service.submitShelf(info, (err) => {
+        if (err) {
+          return cb && cb(err);
+        }
+        loopSubmitSelf(index + 1);
+      });
+    }
+  };
+  loopSubmitSelf(0);
 };
 
 service.sendBackShelf = function sendBackShelf(req, cb) {
@@ -709,8 +787,8 @@ service.searchUser = function searchUser(req, cb) {
   roleService.searchUserOrGroup(info, cb);
 };
 
-service.listSubscribeType = function listSubscribeType(cb) {
-  const info = { pageSize: 999 };
+service.listSubscribeType = function listSubscribeType(info, cb) {
+  info.pageSize = 999;
   subscribeManagementService.listSubscribeType(info, (err, rs) => {
     if (err) {
       return cb && cb(err);
