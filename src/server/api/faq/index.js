@@ -92,7 +92,7 @@ router.get('/getDetail', isLogin.hasAccessMiddleware, (req, res) => {
  */
 router.post('/create', (req, res) => {
   const info = req.body;
-  const creator = { _id: req.ex.userInfo._id, name: req.ex.userInfo.name };
+  const creator = { _id: req.ex.userInfo._id, name: req.ex.userInfo.name, company: req.ex.userInfo.company, department: req.ex.userInfo.department };
   info.creator = creator;
 
   service.createFaqInfo(info, (err, docs) => res.json(result.json(err, docs)));
