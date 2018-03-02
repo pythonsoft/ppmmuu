@@ -339,6 +339,7 @@ service.listMyselfShelfTask = function listMyselfShelfTask(req, cb) {
   const status = info.status || '';
   const page = info.page || 1;
   const pageSize = info.pageSize || 20;
+  let _ids = info._ids || '';
   const query = {};
 
   if (status) {
@@ -364,6 +365,10 @@ service.listMyselfShelfTask = function listMyselfShelfTask(req, cb) {
 
   query['department._id'] = userInfo.department._id;
   query['dealer._id'] = userInfo._id;
+  if (_ids) {
+    _ids = _ids.split(',');
+    query._id = { $in: _ids };
+  }
 
   listShelfTask(query, page, pageSize, cb);
 };
@@ -454,6 +459,37 @@ service.saveShelf = function saveShelf(info, cb) {
   });
 };
 
+const loopUpdateCover = function loopUpdateCover(cover, _ids, index, cb) {
+  if (!cover) {
+    return cb && cb(null);
+  }
+
+  if (!_ids.length) {
+    return cb && cb(null);
+  }
+
+  if (index >= _ids.length) {
+    return cb && cb(null);
+  }
+
+  const _id = _ids[index];
+  let srcPath = cover.split('/');
+  const srcPathLen = srcPath.length;
+  if (srcPathLen < 2) {
+    return cb && cb(null);
+  }
+  srcPath = path.join(config.uploadPath, srcPath[srcPathLen - 1]);
+  const fileName = uuid.v1();
+  const destPath = path.join(config.uploadPath, fileName);
+  fs.copyFileSync(srcPath, destPath);
+  const url = `${config.domain}/uploads/${fileName}`;
+  shelfTaskInfo.collection.update({ _id }, { $set: { 'editorInfo.cover': url } }, (err) => {
+    if (err) {
+      logger.error(err.message);
+    }
+    loopUpdateCover(cover, _ids, index + 1, cb);
+  });
+};
 // 保存
 service.batchSaveShelf = function batchSaveShelf(info, cb) {
   let _ids = info._ids;
@@ -489,7 +525,9 @@ service.batchSaveShelf = function batchSaveShelf(info, cb) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
-      return cb && cb(null, 'ok');
+      const index = _ids.indexOf(firstId);
+      _ids.splice(index, 1);
+      loopUpdateCover(editorInfo.cover, _ids, 0, () => cb && cb(null, 'ok'));
     });
   });
 };
@@ -570,18 +608,17 @@ service.batchSubmitShelf = function batchSubmitShelf(info, cb) {
 
   const loopSubmitSelf = function loopSubmitSelf(index) {
     if (index >= _ids.length) {
-      info._id = firstId;
-      info.editorInfo = editorInfo;
-      info.editorInfo.name = name;   // 第一个的名字要保存
-      service.submitShelf(info, (err) => {
-        if (err) {
-          return cb && cb(err);
-        }
-        return cb && cb(null, 'ok');
-      });
+      const index = _ids.indexOf(firstId);
+      _ids.splice(index, 1);
+      loopUpdateCover(editorInfo.cover, _ids, 0, () => cb && cb(null, 'ok'));
     } else {
       info._id = _ids[index];
       info.editorInfo = editorInfo;
+      if (firstId === info._id) {
+        info.editorInfo.name = name;   // 第一个的名字要保存
+      } else {
+        delete info.editorInfo.name;
+      }
       service.submitShelf(info, (err) => {
         if (err) {
           return cb && cb(err);

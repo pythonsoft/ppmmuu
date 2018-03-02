@@ -399,6 +399,13 @@ router.get('/listDepartmentShelfTask', (req, res) => {
  *         default: '20'
  *         collectionFormat: csv
  *       - in: query
+ *         name: _ids
+ *         description: ''
+ *         required: false
+ *         type: string
+ *         default: '20,123,12312'
+ *         collectionFormat: csv
+ *       - in: query
  *         name: keyword
  *         description: ''
  *         required: false
