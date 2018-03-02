@@ -416,7 +416,8 @@ service.getShelfDetail = function getShelfDetail(info, cb) {
           subscribeText.push(`${item.name}(${item._id})`);
         });
       }
-      doc.editorInfo.subscribeType = subscribeText.join(',');
+      doc.editorInfo.subscribeTypeText = subscribeText.join(',');
+      doc.editorInfo.subscribeType = doc.editorInfo.subscribeType.join(',');
       return cb && cb(null, doc);
     });
   });
