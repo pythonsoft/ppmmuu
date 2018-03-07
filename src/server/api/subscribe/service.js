@@ -46,6 +46,7 @@ const filterDoc = function filterDoc(_source) {
   doc.programNO = _source.programNO;
   doc.newsTime = _source.details.FIELD162 || null;
   doc.playTime = _source.details.FIELD36 || null;
+  doc.viceTitle = _source.details.FIELD197 || null;
   doc.storageTime = _source.lastModifyTime;
   doc.source = _source.editorInfo.source;
   doc.limit = _source.editorInfo.limit;
