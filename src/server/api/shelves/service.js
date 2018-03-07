@@ -284,7 +284,14 @@ service.createShelfTask = function createShelfTask(req, cb) {
       } else {
         info.details[item.key] = item.value;
       }
+      if (item.key === 'FIELD195') {
+        info.editorInfo.name = item.value;
+      }
+      if (item.key === 'FIELD276') {
+        info.editorInfo.source = item.value;
+      }
     }
+    info.editorInfo.cover = config.domain + '/media/getIcon?objectid=' + objectId + '&fromWhere=' + info.fromWhere;
 
 
     // 为了订阅搜索统一一下搜索字段和香港接口一样
@@ -481,6 +488,9 @@ const loopUpdateCover = function loopUpdateCover(cover, _ids, index, cb) {
   srcPath = path.join(config.uploadPath, srcPath[srcPathLen - 1]);
   const fileName = uuid.v1();
   const destPath = path.join(config.uploadPath, fileName);
+  if (!fs.existsSync(srcPath)) {
+    return cb && cb(null);
+  }
   fs.copyFileSync(srcPath, destPath);
   const url = `${config.domain}/uploads/${fileName}`;
   shelfTaskInfo.collection.update({ _id }, { $set: { 'editorInfo.cover': url } }, (err) => {
@@ -512,22 +522,30 @@ service.batchSaveShelf = function batchSaveShelf(info, cb) {
     lastModifyTime: new Date(),
     'editorInfo.subscribeType': editorInfo.subscribeType,
     'editorInfo.limit': editorInfo.limit,
-    'editorInfo.source': editorInfo.source,
-    'editorInfo.cover': editorInfo.cover,
   };
   shelfTaskInfo.collection.updateMany({ _id: { $in: _ids }, status: ShelfTaskInfo.STATUS.DOING }, { $set: updateInfo }, (err) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
-    shelfTaskInfo.collection.update({ _id: firstId, status: ShelfTaskInfo.STATUS.DOING }, { $set: { name, 'editorInfo.name': name } }, (err) => {
+    const firstUpdateInfo = {
+      lastModifyTime: new Date(),
+      'editorInfo.subscribeType': editorInfo.subscribeType,
+      'editorInfo.limit': editorInfo.limit,
+      'editorInfo.source': editorInfo.source,
+      'editorInfo.cover': editorInfo.cover,
+      'editorInfo.name': name,
+      name,
+    };
+    shelfTaskInfo.collection.update({ _id: firstId, status: ShelfTaskInfo.STATUS.DOING }, { $set: firstUpdateInfo }, (err) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
       const index = _ids.indexOf(firstId);
       _ids.splice(index, 1);
-      loopUpdateCover(editorInfo.cover, _ids, 0, () => cb && cb(null, 'ok'));
+      return cb && cb(null, 'ok');
+      // loopUpdateCover(editorInfo.cover, _ids, 0, () => cb && cb(null, 'ok'));
     });
   });
 };
@@ -559,13 +577,21 @@ service.submitShelf = function submitShelf(info, cb) {
         _id: userInfo._id,
         name: userInfo.name,
       },
-      editorInfo,
+      'editorInfo.limit': editorInfo.limit,
+      'editorInfo.subscribeType': editorInfo.subscribeType,
       status: ShelfTaskInfo.STATUS.SUBMITTED,
       full_text: '',
       lastModifyTime: new Date(),
     };
     if (editorInfo.name) {
       updateInfo.name = editorInfo.name;
+      updateInfo['editorInfo.name'] = editorInfo.name;
+    }
+    if (editorInfo.source) {
+      updateInfo['editorInfo.source'] = editorInfo.source;
+    }
+    if (editorInfo.cover) {
+      updateInfo['editorInfo.cover'] = editorInfo.cover;
     }
     for (const key in doc.editorInfo) {
       if (typeof doc.editorInfo[key] === 'string') {
@@ -594,8 +620,9 @@ service.batchSubmitShelf = function batchSubmitShelf(info, cb) {
   const firstId = info.firstId;
   const editorInfo = info.editorInfo || '';
   const name = editorInfo.name || '';
-  delete editorInfo.name;
-  const struct = {
+  const cover = editorInfo.cover || '';
+  const source = editorInfo.source || '';
+  const struct = {s
     _ids: { type: 'string', validation: 'require' },
     editorInfo: { type: 'object', validation: 'require' },
     firstId: { type: 'string', validation: 'require' },
@@ -608,16 +635,21 @@ service.batchSubmitShelf = function batchSubmitShelf(info, cb) {
 
   const loopSubmitSelf = function loopSubmitSelf(index) {
     if (index >= _ids.length) {
-      const index = _ids.indexOf(firstId);
-      _ids.splice(index, 1);
-      loopUpdateCover(editorInfo.cover, _ids, 0, () => cb && cb(null, 'ok'));
+      return cb && cb(null, 'ok');
+      // const index = _ids.indexOf(firstId);
+      // _ids.splice(index, 1);
+      // loopUpdateCover(editorInfo.cover, _ids, 0, () => cb && cb(null, 'ok'));
     } else {
       info._id = _ids[index];
       info.editorInfo = editorInfo;
       if (firstId === info._id) {
         info.editorInfo.name = name;   // 第一个的名字要保存
+        info.editorInfo.cover = cover;
+        info.editorInfo.source = source;
       } else {
         delete info.editorInfo.name;
+        delete info.editorInfo.cover;
+        delete info.editorInfo.source;
       }
       service.submitShelf(info, (err) => {
         if (err) {
