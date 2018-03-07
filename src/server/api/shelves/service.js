@@ -291,7 +291,7 @@ service.createShelfTask = function createShelfTask(req, cb) {
         info.editorInfo.source = item.value;
       }
     }
-    info.editorInfo.cover = config.domain + '/media/getIcon?objectid=' + objectId + '&fromWhere=' + info.fromWhere;
+    info.editorInfo.cover = `${config.domain}/media/getIcon?objectid=${objectId}&fromWhere=${info.fromWhere}`;
 
 
     // 为了订阅搜索统一一下搜索字段和香港接口一样
@@ -622,7 +622,7 @@ service.batchSubmitShelf = function batchSubmitShelf(info, cb) {
   const name = editorInfo.name || '';
   const cover = editorInfo.cover || '';
   const source = editorInfo.source || '';
-  const struct = {s
+  const struct = {
     _ids: { type: 'string', validation: 'require' },
     editorInfo: { type: 'object', validation: 'require' },
     firstId: { type: 'string', validation: 'require' },
@@ -639,25 +639,24 @@ service.batchSubmitShelf = function batchSubmitShelf(info, cb) {
       // const index = _ids.indexOf(firstId);
       // _ids.splice(index, 1);
       // loopUpdateCover(editorInfo.cover, _ids, 0, () => cb && cb(null, 'ok'));
-    } else {
-      info._id = _ids[index];
-      info.editorInfo = editorInfo;
-      if (firstId === info._id) {
-        info.editorInfo.name = name;   // 第一个的名字要保存
-        info.editorInfo.cover = cover;
-        info.editorInfo.source = source;
-      } else {
-        delete info.editorInfo.name;
-        delete info.editorInfo.cover;
-        delete info.editorInfo.source;
-      }
-      service.submitShelf(info, (err) => {
-        if (err) {
-          return cb && cb(err);
-        }
-        loopSubmitSelf(index + 1);
-      });
     }
+    info._id = _ids[index];
+    info.editorInfo = editorInfo;
+    if (firstId === info._id) {
+      info.editorInfo.name = name;   // 第一个的名字要保存
+      info.editorInfo.cover = cover;
+      info.editorInfo.source = source;
+    } else {
+      delete info.editorInfo.name;
+      delete info.editorInfo.cover;
+      delete info.editorInfo.source;
+    }
+    service.submitShelf(info, (err) => {
+      if (err) {
+        return cb && cb(err);
+      }
+      loopSubmitSelf(index + 1);
+    });
   };
   loopSubmitSelf(0);
 };
