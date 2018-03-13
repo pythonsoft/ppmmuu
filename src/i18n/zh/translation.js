@@ -510,8 +510,28 @@ module.exports = {
     message: '默认目录不能删除',
   },
   ivideoDefaultDirectoryIsNull: {
-    code: '-40013',
+    code: '-40014',
     message: '默认目录不存在',
+  },
+  ivideoProjectOwnerTypeIsInvalid: {
+    code: '-40015',
+    message: '参数ownerType不正确',
+  },
+  ivideoProjectCopyDestinationNotFound: {
+    code: '-40016',
+    message: '复制找不到目标文件',
+  },
+  ivideoProjectCopySourceNotFound: {
+    code: '-40017',
+    message: '复制找不到源文件',
+  },
+  ivideoProjectSrcIdsIsNull: {
+    code: '-40018',
+    message: '复制参数srcIds为空',
+  },
+  ivideoProjectDestIdIsNull: {
+    code: '-40019',
+    message: '复制参数destId为空',
   },
   joDownloadParamsIsNull: {
     code: '-50001',

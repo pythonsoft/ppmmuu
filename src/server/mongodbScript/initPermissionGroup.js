@@ -115,6 +115,27 @@ const infos = [
     topParentMenu: '管理',
   },
   {
+    _id: 'shelfManager',
+    name: '上架管理',
+    index: 'shelfManager',
+    parentIndex: 'management',
+    topParentMenu: '管理',
+  },
+  {
+    _id: 'shelfList',
+    name: '上架列表',
+    index: 'shelfList',
+    parentIndex: 'shelfManager',
+    topParentMenu: '管理',
+  },
+  {
+    _id: 'shelfTemplate',
+    name: '上架模板',
+    index: 'shelfTemplate',
+    parentIndex: 'shelfManager',
+    topParentMenu: '管理',
+  },
+  {
     _id: 'taskManagement',
     name: '任务管理',
     index: 'taskManagement',

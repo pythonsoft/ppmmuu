@@ -18,7 +18,7 @@ const ItemInfo = require('./itemInfo');
 const itemInfo = new ItemInfo();
 
 const service = {};
-const createSnippetOrDirItem = function createSnippetOrDirItem(creatorId, name, parentId, type = ItemInfo.TYPE.DIRECTORY, canRemove = ItemInfo.CAN_REVMOE.YES, snippet = {}, details = {}, cb) {
+const createSnippetOrDirItem = function createSnippetOrDirItem(creatorId, ownerType, name, parentId, type = ItemInfo.TYPE.DIRECTORY, canRemove = ItemInfo.CAN_REVMOE.YES, snippet = {}, details = {}, cb, creator) {
   if (!creatorId) {
     return cb && cb(i18n.t('ivideoProjectCreatorIdIsNull'));
   }
@@ -31,7 +31,10 @@ const createSnippetOrDirItem = function createSnippetOrDirItem(creatorId, name, 
     return cb && cb(i18n.t('ivideoParentIdIsNull'));
   }
 
-  const info = { _id: uuid.v1(), name, creatorId, parentId, type, snippet, details, canRemove };
+  const info = { _id: uuid.v1(), name, creatorId, parentId, type, snippet, details, canRemove, ownerType };
+  if (creator) {
+    info.creator = creator;
+  }
 
   itemInfo.insertOne(info, (err, r, doc) => {
     if (err) {
@@ -74,7 +77,7 @@ service.ensureAccountInit = function ensureMyResource(creatorId, cb) {
         return cb && cb(i18n.t('databaseError'));
       }
 
-      createSnippetOrDirItem(creatorId, i18n.t('ivideoItemDefaultName').message, doc._id, ItemInfo.TYPE.DEFAULT_DIRECTORY, ItemInfo.CAN_REVMOE.NO, {}, {}, err => cb && cb(err, doc, isNew));
+      createSnippetOrDirItem(creatorId, ItemInfo.OWNER_TYPE.MINE, i18n.t('ivideoItemDefaultName').message, doc._id, ItemInfo.TYPE.DEFAULT_DIRECTORY, ItemInfo.CAN_REVMOE.NO, {}, {}, err => cb && cb(err, doc, isNew));
       // service.createProject(creatorId, i18n.t('ivideoProjectDefaultNameNull').message, ProjectInfo.TYPE.PROJECT_RESOURCE, '0', (err, projectDoc) => cb && cb(err, { myResource: doc, defaultProject: projectDoc }));
     });
   });
@@ -101,16 +104,24 @@ service.createProject = function createProject(creatorId, name, type = ProjectIn
   });
 };
 
-service.listItem = function listItem(creatorId, parentId, type, cb, sortFields = 'createdTime', fieldsNeed) {
+service.listItem = function listItem(creatorId, parentId, ownerType, type, cb, sortFields = 'createdTime', fieldsNeed) {
   if (!creatorId) {
     return cb && cb(i18n.t('ivideoProjectCreatorIdIsNull'));
   }
 
-  if (!parentId) {
-    return cb && cb(i18n.t('ivideoParentIdIsNull'));
-  }
+  const query = {};
 
-  const query = { creatorId, parentId };
+  if (!parentId) {
+    query.parentId = '';
+  } else {
+    if (!utils.isValueInObject(ownerType, ItemInfo.OWNER_TYPE)) {
+      return cb && cb(i18n.t('ivideoProjectOwnerTypeIsInvalid'));
+    }
+    query.parentId = parentId;
+    if (ownerType === ItemInfo.OWNER_TYPE.MINE) {
+      query.creatorId = creatorId;
+    }
+  }
 
   if (type) {
     if (type.indexOf(',') !== -1) {
@@ -120,31 +131,42 @@ service.listItem = function listItem(creatorId, parentId, type, cb, sortFields =
     }
   }
 
-  const cursor = itemInfo.collection.find(query);
+  if (!parentId || ownerType === ItemInfo.OWNER_TYPE.MINE || ownerType === ItemInfo.OWNER_TYPE.SHARE) {
+    const cursor = itemInfo.collection.find(query);
 
-  if (fieldsNeed) {
-    cursor.project(utils.formatSortOrFieldsParams(fieldsNeed, false));
-  }
-
-  cursor.sort = utils.formatSortOrFieldsParams(sortFields, true);
-
-  cursor.toArray((err, docs) => {
-    if (err) {
-      logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
+    if (fieldsNeed) {
+      cursor.project(utils.formatSortOrFieldsParams(fieldsNeed, false));
     }
 
-    return cb && cb(null, docs);
-  });
+    cursor.sort = utils.formatSortOrFieldsParams(sortFields, true);
+
+    cursor.toArray((err, docs) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      return cb && cb(null, docs);
+    });
+  } else if (ownerType === ItemInfo.OWNER_TYPE.SHOULU) {
+    return cb && cb(null, {});
+  } else if (ownerType === ItemInfo.OWNER_TYPE.NEWS) {
+    return cb && cb(null, {});
+  }
 };
 
-service.createDirectory = function createDirectory(creatorId, name, parentId, details, cb) {
-  createSnippetOrDirItem(creatorId, name, parentId, ItemInfo.TYPE.DIRECTORY, ItemInfo.CAN_REVMOE.YES, {}, {}, (err, r) => cb && cb(err, r));
+service.createDirectory = function createDirectory(creatorId, ownerType, name, parentId, details, cb) {
+  if (ItemInfo.OWNER_TYPE.SHARE !== ownerType && ItemInfo.OWNER_TYPE.MINE !== ownerType) {
+    return cb && cb(i18n.t('ivideoProjectOwnerTypeIsInvalid'));
+  }
+  createSnippetOrDirItem(creatorId, ownerType, name, parentId, ItemInfo.TYPE.DIRECTORY, ItemInfo.CAN_REVMOE.YES, {}, {}, (err, r) => cb && cb(err, r));
 };
 
-service.createItem = function createItem(creatorId, name, parentId, snippet, details, cb) {
+service.createItem = function createItem(creatorId, ownerType, name, parentId, snippet, details, cb) {
   let snippetInfo = {};
-
+  if (ItemInfo.OWNER_TYPE.SHARE !== ownerType && ItemInfo.OWNER_TYPE.MINE !== ownerType) {
+    return cb && cb(i18n.t('ivideoProjectOwnerTypeIsInvalid'));
+  }
   if (snippet) {
     if (typeof snippet === 'string') {
       let info = {};
@@ -170,7 +192,7 @@ service.createItem = function createItem(creatorId, name, parentId, snippet, det
   }
 
   const callback = function callback(pid) {
-    createSnippetOrDirItem(creatorId, name, pid, ItemInfo.TYPE.SNIPPET, ItemInfo.CAN_REVMOE.YES, snippetInfo, details, (err, r) => cb && cb(err, r));
+    createSnippetOrDirItem(creatorId, ownerType, name, pid, ItemInfo.TYPE.SNIPPET, ItemInfo.CAN_REVMOE.YES, snippetInfo, details, (err, r) => cb && cb(err, r));
   };
 
   if (!parentId) {
@@ -324,6 +346,94 @@ service.getMyResource = function getMyResource(userId, cb) {
     }
 
     return cb && cb(null, doc);
+  });
+};
+
+service.copy = function copy(info, needDelete = false, cb) {
+  let srcIds = info.srcIds || '';
+  const destId = info.destId || '';
+  const creatorId = info.creatorId || '';
+  const creator = info.creator || '';
+
+  if (!srcIds) {
+    return cb && cb(i18n.t('ivideoProjectSrcIdsIsNull'));
+  }
+
+  if (!destId) {
+    return cb && cb(i18n.t('ivideoProjectDestIdIsNull'));
+  }
+
+  srcIds = srcIds.split(',');
+  itemInfo.collection.findOne({ _id: destId }, (err, dest) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if (!dest) {
+      return cb && cb(i18n.t('ivideoProjectCopyDestinationNotFound'));
+    }
+
+    const copyInfos = [];
+    const newIds = {};
+    const allIds = [];
+    itemInfo.collection.find({ _id: { $in: srcIds } }).toArray((err, docs) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+      if (!docs || !docs.length) {
+        return cb && cb(i18n.t('ivideoProjectCopySourceNotFound'));
+      }
+      for (let i = 0, len = docs.length; i < len; i++) {
+        newIds[docs[i].parentId] = dest._id;
+      }
+      const loopGetChildren = function loopGetChildren(docs) {
+        if (!docs || !docs.length) {
+          itemInfo.collection.insertMany(copyInfos, (err) => {
+            if (err) {
+              logger.error(err.message);
+              return cb && cb(i18n.t('databaseError'));
+            }
+            if (!needDelete) {
+              return cb && cb(null, 'ok');
+            }
+            itemInfo.collection.removeMany({ _id: { $in: allIds } }, (err) => {
+              if (err) {
+                logger.error(err.message);
+                return cb && cb(i18n.t('databaseError'));
+              }
+              return cb && cb(null, 'ok');
+            });
+          });
+        } else {
+          const ids = [];
+          const cloneDocs = JSON.parse(JSON.stringify(docs));
+          for (let i = 0, len = docs.length; i < len; i++) {
+            allIds.push(docs[i]._id);
+            ids.push(docs[i]._id);
+            const newId = uuid.v1();
+            cloneDocs[i]._id = newId;
+            cloneDocs[i].parentId = newIds[cloneDocs[i].parentId];
+            cloneDocs[i].ownerType = dest.ownerType;
+            newIds[docs[i]._id] = newId;
+            cloneDocs[i].createdTime = new Date();
+            cloneDocs[i].modifyTime = new Date();
+            cloneDocs[i].creatorId = creatorId;
+            cloneDocs[i].creator = creator;
+            copyInfos.push(cloneDocs[i]);
+          }
+          itemInfo.collection.find({ parentId: { $in: ids } }).toArray((err, docs) => {
+            if (err) {
+              logger.error(err.message);
+              return cb && cb(i18n.t('databaseError'));
+            }
+            loopGetChildren(docs);
+          });
+        }
+      };
+      loopGetChildren(docs);
+    });
   });
 };
 

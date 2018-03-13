@@ -45,6 +45,8 @@ const listShelfTask = function listShelfTask(query, page, pageSize, cb) {
   }, '-createdTime', '-files,-full_text');
 };
 
+service.listShelfTask = listShelfTask;
+
 const listDepartmentShelfTask = function listDepartmentShelfTask(req, cb) {
   const userInfo = req.ex.userInfo;
   const info = req.query;
@@ -263,7 +265,6 @@ service.createShelfTask = function createShelfTask(req, cb) {
     return cb && cb(result.err);
   }
   info = result.doc;
-  info.editorInfo.name = info.name;
   mediaService.getObject({ objectid: objectId, fromWhere: info.fromWhere }, (err, rs) => {
     if (err) {
       return cb && cb(err);
@@ -287,9 +288,15 @@ service.createShelfTask = function createShelfTask(req, cb) {
       if (item.key === 'FIELD195') {
         info.editorInfo.name = item.value;
       }
+      if (item.key === 'FIELD196' && !info.editorInfo.name) {
+        info.editorInfo.name = item.value;
+      }
       if (item.key === 'FIELD276') {
         info.editorInfo.source = item.value;
       }
+    }
+    if (!info.editorInfo.name) {
+      info.editorInfo.name = info.name;
     }
     info.editorInfo.cover = `${config.domain}/media/getIcon?objectid=${objectId}&fromWhere=${info.fromWhere}`;
 
