@@ -159,6 +159,7 @@ router.get('/listItem', (req, res) => {
  *          required:
  *            - parentId
  *            - name
+ *            - ownerType
  *          properties:
  *            parentId:
  *              type: string
@@ -166,6 +167,10 @@ router.get('/listItem', (req, res) => {
  *            name:
  *              type: string
  *              example: ''
+ *            ownerType:
+ *              type: string
+ *              description: '共享素材: 3 我的素材: 4'
+ *              example: '4'
  *     responses:
  *       200:
  *         description: IVideo
@@ -173,7 +178,7 @@ router.get('/listItem', (req, res) => {
 router.post('/createDirectory', (req, res) => {
   const userId = req.ex.userInfo._id;
   const ownerType = req.body.ownerType;
-  service.createDirectory(userId, ownerType, req.body.name, req.body.parentId, {}, (err, r) => res.json(result.json(err, r)));
+  service.createDirectory(userId, ownerType, req.body.name, req.body.parentId, {}, err => res.json(result.json(err, 'ok')));
 });
 
 /**
@@ -201,6 +206,7 @@ router.post('/createDirectory', (req, res) => {
  *          required:
  *            - parentId
  *            - name
+ *            - ownerType
  *          properties:
  *            parentId:
  *              type: string
@@ -210,7 +216,11 @@ router.post('/createDirectory', (req, res) => {
  *              example: ''
  *            snippet:
  *              type: object
- *              example: '{ thumb:"base64/image...", input: 0, output: 1, duration: 1, objectId: "", fileTypeId: "" }'
+ *              example: '{"objectId":"9FD41F4A-F42A-4118-9AC3-4A2791582799","thumb":"http://localhost:8080/media/getIcon?objectid=9FD41F4A-F42A-4118-9AC3-4A2791582799","input":0,"output":1875,"duration":1875,"fileTypeId":"040130E8-9C84-4D0B-B181-AC5B9D523EF0"}'
+ *            ownerType:
+ *              type: string
+ *              description: '共享素材: 3 我的素材: 4'
+ *              example: '4'
  *     responses:
  *       200:
  *         description: IVideo
@@ -218,7 +228,7 @@ router.post('/createDirectory', (req, res) => {
 router.post('/createItem', (req, res) => {
   const userId = req.ex.userInfo._id;
   const ownerType = req.body.ownerType;
-  service.createItem(userId, ownerType, req.body.name, req.body.parentId, req.body.snippet, {}, (err, r) => res.json(result.json(err, r)));
+  service.createItem(userId, ownerType, req.body.name, req.body.parentId, req.body.snippet, {}, err => res.json(result.json(err, 'ok')));
 });
 
 /**

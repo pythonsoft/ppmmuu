@@ -104,7 +104,7 @@ service.createProject = function createProject(creatorId, name, type = ProjectIn
   });
 };
 
-service.listItem = function listItem(creatorId, parentId, type, ownerType, cb, sortFields = 'createdTime', fieldsNeed) {
+service.listItem = function listItem(creatorId, parentId, ownerType, type, cb, sortFields = 'createdTime', fieldsNeed) {
   if (!creatorId) {
     return cb && cb(i18n.t('ivideoProjectCreatorIdIsNull'));
   }
@@ -156,7 +156,7 @@ service.listItem = function listItem(creatorId, parentId, type, ownerType, cb, s
 };
 
 service.createDirectory = function createDirectory(creatorId, ownerType, name, parentId, details, cb) {
-  if (ItemInfo.OWNER_TYPE.SHARE !== ownerType || ItemInfo.OWNER_TYPE.MINE !== ownerType) {
+  if (ItemInfo.OWNER_TYPE.SHARE !== ownerType && ItemInfo.OWNER_TYPE.MINE !== ownerType) {
     return cb && cb(i18n.t('ivideoProjectOwnerTypeIsInvalid'));
   }
   createSnippetOrDirItem(creatorId, ownerType, name, parentId, ItemInfo.TYPE.DIRECTORY, ItemInfo.CAN_REVMOE.YES, {}, {}, (err, r) => cb && cb(err, r));
@@ -164,7 +164,7 @@ service.createDirectory = function createDirectory(creatorId, ownerType, name, p
 
 service.createItem = function createItem(creatorId, ownerType, name, parentId, snippet, details, cb) {
   let snippetInfo = {};
-  if (ItemInfo.OWNER_TYPE.SHARE !== ownerType || ItemInfo.OWNER_TYPE.MINE !== ownerType) {
+  if (ItemInfo.OWNER_TYPE.SHARE !== ownerType && ItemInfo.OWNER_TYPE.MINE !== ownerType) {
     return cb && cb(i18n.t('ivideoProjectOwnerTypeIsInvalid'));
   }
   if (snippet) {
@@ -377,12 +377,11 @@ service.copy = function copy(info, needDelete = false, cb) {
     const copyInfos = [];
     const newIds = {};
     const allIds = [];
-    itemInfo.collection.find({ _id: { $in: srcIds } }, (err, docs) => {
+    itemInfo.collection.find({ _id: { $in: srcIds } }).toArray((err, docs) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
-
       if (!docs || !docs.length) {
         return cb && cb(i18n.t('ivideoProjectCopySourceNotFound'));
       }
