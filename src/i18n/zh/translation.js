@@ -519,19 +519,27 @@ module.exports = {
   },
   ivideoProjectCopyDestinationNotFound: {
     code: '-40016',
-    message: '复制找不到目标文件',
+    message: '找不到目标文件',
   },
   ivideoProjectCopySourceNotFound: {
     code: '-40017',
-    message: '复制找不到源文件',
+    message: '找不到源文件',
+  },
+  ivideoProjectSrcOwnerTypeIsInvalid: {
+    code: '-40018',
+    message: '参数srcOwnerType非法',
+  },
+  ivideoProjectDestOwnerTypeIsInvalid: {
+    code: '-40019',
+    message: '参数destOwnerType非法',
   },
   ivideoProjectSrcIdsIsNull: {
-    code: '-40018',
-    message: '复制参数srcIds为空',
+    code: '-40020',
+    message: '参数srcIds为空',
   },
   ivideoProjectDestIdIsNull: {
-    code: '-40019',
-    message: '复制参数destId为空',
+    code: '-40021',
+    message: '参数destId为空',
   },
   joDownloadParamsIsNull: {
     code: '-50001',

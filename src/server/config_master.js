@@ -5,7 +5,7 @@
 'use strict';
 
 /* eslint-disable no-undef */
-config.host = '10.0.16.132:8080';
+config.host = '10.0.15.198:8080';
 config.domain = `http://${config.host}`;
 
 config.dbName = process.env.NODE_ENV === 'test' ? 'ump_test' : 'ump';
@@ -92,8 +92,8 @@ config.upgradePackage = config.uploadPath;
 config.upgradeSystem = {
   // ump: '/Users/chaoningx/Desktop/temp/ump',
   // fe: '/Users/chaoningx/Desktop/temp/fe',
-  ump: '',
-  fe: '',
+  ump: '/Users/steven/Desktop/temp/ump',
+  fe: '/Users/steven/Desktop/temp/ump-fe',
 };
 
 // 订阅自动推送配置
@@ -115,5 +115,5 @@ config.client_id = 'YXA69Z_m4Pm6EeecZrWgZ2F4vA';
 config.client_secret = 'YXA6LvdT0V-OerbAW7inECGv4l5dzns';
 config.easemob_url = 'https://a1.easemob.com/1119180112178786/assistant/';
 
-//记者云扫码默认页
+// 记者云扫码默认页
 config.journalistCloud = 'http://10.0.16.132:8000/apps/journalistCloud';

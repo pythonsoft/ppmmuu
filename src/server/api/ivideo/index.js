@@ -255,8 +255,12 @@ router.post('/createItem', (req, res) => {
  *           type: object
  *           required:
  *             - id
+ *             - ownerType
  *           properties:
  *             id:
+ *               type: string
+ *               example: ''
+ *             ownerType:
  *               type: string
  *               example: ''
  *     responses:
@@ -264,7 +268,7 @@ router.post('/createItem', (req, res) => {
  *         description: ''
  * */
 router.post('/removeItem', (req, res) => {
-  service.removeItem(req.body.id, (err, r) => res.json(result.json(err, r)));
+  service.removeItem(req.body.id, req.body.ownerType, (err, r) => res.json(result.json(err, r)));
 });
 
 /**
@@ -290,8 +294,12 @@ router.post('/removeItem', (req, res) => {
  *          type: object
  *          required:
  *            - id
+ *            - ownerType
  *          parameters:
  *            id:
+ *              type: string
+ *              example: ''
+ *            ownerType:
  *              type: string
  *              example: ''
  *            name:
@@ -302,7 +310,7 @@ router.post('/removeItem', (req, res) => {
  *         description: ''
  * */
 router.post('/updateItem', (req, res) => {
-  service.updateItem(req.body.id, req.body.name, req.body.details, (err, r) => res.json(result.json(err, r)));
+  service.updateItem(req.body.id, req.body.name, req.body.details, req.body.ownerType, (err, r) => res.json(result.json(err, r)));
 });
 
 /**
@@ -447,15 +455,23 @@ router.get('/listProject', (req, res) => {
  *          type: object
  *          required:
  *            - srcIds
+ *            - srcOwnerType
  *            - destId
+ *            - destOwnerType
  *          properties:
  *            srcIds:
  *              type: string
  *              description: '多个用逗号隔开'
  *              example: '123,13,123'
+ *            srcOwnerType:
+ *              type: string
+ *              example: '3'
  *            destId:
  *              type: string
  *              example: ''
+ *            destOwnerType:
+ *              type: string
+ *              example: '4'
  *     responses:
  *       200:
  *         description: IVideo
@@ -496,15 +512,23 @@ router.post('/copy', (req, res) => {
  *          type: object
  *          required:
  *            - srcIds
+ *            - srcOwnerType
  *            - destId
+ *            - destOwnerType
  *          properties:
  *            srcIds:
  *              type: string
  *              description: '多个用逗号隔开'
  *              example: '123,13,123'
+ *            srcOwnerType:
+ *              type: string
+ *              example: '3'
  *            destId:
  *              type: string
  *              example: ''
+ *            destOwnerType:
+ *              type: string
+ *              example: '4'
  *     responses:
  *       200:
  *         description: IVideo
