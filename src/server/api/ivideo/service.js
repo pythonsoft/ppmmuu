@@ -213,11 +213,13 @@ service.createItem = function createItem(creatorId, ownerType, name, parentId, s
   }
 };
 
-service.removeItem = function removeItem(id, cb) {
+service.removeItem = function removeItem(id, ownerType, cb) {
   if (!id) {
     return cb && cb(i18n.t('ivideoRemoveItemIdIsNull'));
   }
-
+  if (ItemInfo.OWNER_TYPE.SHARE !== ownerType && ItemInfo.OWNER_TYPE.MINE !== ownerType) {
+    return cb && cb(i18n.t('ivideoProjectOwnerTypeIsInvalid'));
+  }
   itemInfo.collection.findOne({ _id: id }, { fields: { canRemove: 1 } }, (err, doc) => {
     if (err) {
       logger.error(err.message);
@@ -243,7 +245,7 @@ service.removeItem = function removeItem(id, cb) {
   });
 };
 
-service.updateItem = function updateItem(id, name, details, cb) {
+service.updateItem = function updateItem(id, name, details, ownerType, cb) {
   if (!id) {
     return cb && cb(i18n.t('ivideoRemoveItemIdIsNull'));
   }
@@ -251,6 +253,10 @@ service.updateItem = function updateItem(id, name, details, cb) {
   const update = {};
 
   update.modifyTime = new Date();
+
+  if (ItemInfo.OWNER_TYPE.SHARE !== ownerType && ItemInfo.OWNER_TYPE.MINE !== ownerType) {
+    return cb && cb(i18n.t('ivideoProjectOwnerTypeIsInvalid'));
+  }
 
   if (name) {
     update.name = name;
@@ -354,7 +360,14 @@ service.copy = function copy(info, needDelete = false, cb) {
   const destId = info.destId || '';
   const creatorId = info.creatorId || '';
   const creator = info.creator || '';
-
+  const srcOwnerType = info.srcOwnerType || '';
+  const destOwnerType = info.destOwnerType || '';
+  if (ItemInfo.OWNER_TYPE.SHARE !== srcOwnerType && ItemInfo.OWNER_TYPE.MINE !== srcOwnerType) {
+    return cb && cb(i18n.t('ivideoProjectSrcOwnerTypeIsInvalid'));
+  }
+  if (ItemInfo.OWNER_TYPE.SHARE !== destOwnerType && ItemInfo.OWNER_TYPE.MINE !== destOwnerType) {
+    return cb && cb(i18n.t('ivideoProjectDestOwnerTypeIsInvalid'));
+  }
   if (!srcIds) {
     return cb && cb(i18n.t('ivideoProjectSrcIdsIsNull'));
   }
