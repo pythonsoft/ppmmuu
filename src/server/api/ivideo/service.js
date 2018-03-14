@@ -479,6 +479,9 @@ service.copy = function copy(info, needDelete = false, cb) {
         return cb && cb(i18n.t('ivideoProjectCopySourceNotFound'));
       }
       for (let i = 0, len = docs.length; i < len; i++) {
+        if (docs[i].type === ItemInfo.TYPE.DEFAULT_DIRECTORY || docs[i].canRemove === ItemInfo.CAN_REVMOE.NO) {
+          return cb && cb(null, i18n.t('ivideoProjectCannotCopyOrMove'));
+        }
         newIds[docs[i].parentId] = dest._id;
       }
       const loopGetChildren = function loopGetChildren(docs) {

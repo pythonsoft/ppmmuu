@@ -553,6 +553,10 @@ module.exports = {
     code: '-40024',
     message: '不能修改此目录或文件',
   },
+  ivideoProjectCannotCopyOrMove: {
+    code: '-40024',
+    message: '存在不能移动此目录或文件',
+  },
   joDownloadParamsIsNull: {
     code: '-50001',
     message: '下载参数为空，请正确传入参数',
