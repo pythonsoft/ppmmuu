@@ -128,7 +128,7 @@ router.get('/listItem', (req, res) => {
   const parentId = req.query.parentId;
   const ownerType = req.query.ownerType;
   const type = req.query.type || '';
-  const sortFields = req.query.sortFields || '';
+  const sortFields = req.query.sortFields || '-createdTime';
   const fieldsNeed = req.query.fieldsNeed || '';
 
   service.listItem(userId, parentId, ownerType, type, (err, docs) => res.json(result.json(err, docs)), sortFields, fieldsNeed);
@@ -178,7 +178,11 @@ router.get('/listItem', (req, res) => {
 router.post('/createDirectory', (req, res) => {
   const userId = req.ex.userInfo._id;
   const ownerType = req.body.ownerType;
-  service.createDirectory(userId, ownerType, req.body.name, req.body.parentId, {}, err => res.json(result.json(err, 'ok')));
+  const name = req.ex.userInfo.name;
+  const company = req.ex.userInfo.company;
+  const department = req.ex.userInfo.department;
+  const creator = { _id: userId, name, company, department };
+  service.createDirectory(userId, ownerType, req.body.name, req.body.parentId, {}, creator, err => res.json(result.json(err, 'ok')));
 });
 
 /**
@@ -228,7 +232,11 @@ router.post('/createDirectory', (req, res) => {
 router.post('/createItem', (req, res) => {
   const userId = req.ex.userInfo._id;
   const ownerType = req.body.ownerType;
-  service.createItem(userId, ownerType, req.body.name, req.body.parentId, req.body.snippet, {}, err => res.json(result.json(err, 'ok')));
+  const name = req.ex.userInfo.name;
+  const company = req.ex.userInfo.company;
+  const department = req.ex.userInfo.department;
+  const creator = { _id: userId, name, company, department };
+  service.createItem(userId, ownerType, req.body.name, req.body.parentId, req.body.snippet, {}, creator, err => res.json(result.json(err, 'ok')));
 });
 
 /**

@@ -541,6 +541,10 @@ module.exports = {
     code: '-40021',
     message: '参数destId为空',
   },
+  ivideoProjectCannotFindMyMaterial: {
+    code: '-40022',
+    message: '找不到默认目录(我的素材)',
+  },
   joDownloadParamsIsNull: {
     code: '-50001',
     message: '下载参数为空，请正确传入参数',
