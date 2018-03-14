@@ -104,7 +104,7 @@ service.createProject = function createProject(creatorId, name, type = ProjectIn
   });
 };
 
-service.listItem = function listItem(creatorId, parentId, ownerType, type, cb, sortFields = 'createdTime', fieldsNeed) {
+service.listItem = function listItem(creatorId, parentId, ownerType, type, cb, sortFields, fieldsNeed) {
   if (!creatorId) {
     return cb && cb(i18n.t('ivideoProjectCreatorIdIsNull'));
   }
@@ -132,13 +132,13 @@ service.listItem = function listItem(creatorId, parentId, ownerType, type, cb, s
   }
 
   if (!parentId || ownerType === ItemInfo.OWNER_TYPE.MINE || ownerType === ItemInfo.OWNER_TYPE.SHARE) {
-    const cursor = itemInfo.collection.find(query);
+    let cursor = itemInfo.collection.find(query);
+
+    cursor.sort(utils.formatSortOrFieldsParams(sortFields, true));
 
     if (fieldsNeed) {
-      cursor.project(utils.formatSortOrFieldsParams(fieldsNeed, false));
+      cursor = cursor.project(utils.formatSortOrFieldsParams(fieldsNeed, false));
     }
-
-    cursor.sort = utils.formatSortOrFieldsParams(sortFields, true);
 
     cursor.toArray((err, docs) => {
       if (err) {
@@ -155,14 +155,62 @@ service.listItem = function listItem(creatorId, parentId, ownerType, type, cb, s
   }
 };
 
-service.createDirectory = function createDirectory(creatorId, ownerType, name, parentId, details, cb) {
-  if (ItemInfo.OWNER_TYPE.SHARE !== ownerType && ItemInfo.OWNER_TYPE.MINE !== ownerType) {
-    return cb && cb(i18n.t('ivideoProjectOwnerTypeIsInvalid'));
+service.createDirectory = function createDirectory(creatorId, ownerType, name, parentId, details, creator, cb) {
+  if (!creatorId) {
+    return cb && cb(i18n.t('ivideoProjectCreatorIdIsNull'));
   }
-  createSnippetOrDirItem(creatorId, ownerType, name, parentId, ItemInfo.TYPE.DIRECTORY, ItemInfo.CAN_REVMOE.YES, {}, {}, (err, r) => cb && cb(err, r));
+
+  if (!name) {
+    return cb && cb(i18n.t('ivideoItemNameIsNull'));
+  }
+
+  const type = ItemInfo.TYPE.DIRECTORY;
+  const snippet = {};
+  const canRemove = ItemInfo.CAN_REVMOE.YES;
+  const getParentIdAndOwnerType = function getParentIdAndOwnerType(callback) {
+    if (!parentId && !ownerType) {
+      itemInfo.collection.findOne({ name: '我的素材', parentId: '' }, (err, doc) => {
+        if (err) {
+          logger.error(err.message);
+          return cb && cb(i18n.t('databaseError'));
+        }
+
+        if (!doc) {
+          return cb && cb(i18n.t('ivideoProjectCannotFindMyMaterial'));
+        }
+
+        parentId = doc._id;
+        ownerType = ItemInfo.OWNER_TYPE.MINE;
+        return callback && callback(null);
+      });
+    } else {
+      if (!parentId) {
+        return cb && cb(i18n.t('ivideoParentIdIsNull'));
+      }
+      if (ItemInfo.OWNER_TYPE.SHARE !== ownerType && ItemInfo.OWNER_TYPE.MINE !== ownerType) {
+        return cb && cb(i18n.t('ivideoProjectOwnerTypeIsInvalid'));
+      }
+      return callback && callback(null);
+    }
+  }
+
+  getParentIdAndOwnerType(() => {
+    const info = { _id: uuid.v1(), name, creatorId, creator, parentId, type, snippet, details, canRemove, ownerType };
+    if (creator) {
+      info.creator = creator;
+    }
+    itemInfo.insertOne(info, (err, r, doc) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      return cb && cb(null, r, doc._id);
+    });
+  });
 };
 
-service.createItem = function createItem(creatorId, ownerType, name, parentId, snippet, details, cb) {
+service.createItem = function createItem(creatorId, ownerType, name, parentId, snippet, details, creator, cb) {
   let snippetInfo = {};
   if (ItemInfo.OWNER_TYPE.SHARE !== ownerType && ItemInfo.OWNER_TYPE.MINE !== ownerType) {
     return cb && cb(i18n.t('ivideoProjectOwnerTypeIsInvalid'));
@@ -192,7 +240,7 @@ service.createItem = function createItem(creatorId, ownerType, name, parentId, s
   }
 
   const callback = function callback(pid) {
-    createSnippetOrDirItem(creatorId, ownerType, name, pid, ItemInfo.TYPE.SNIPPET, ItemInfo.CAN_REVMOE.YES, snippetInfo, details, (err, r) => cb && cb(err, r));
+    createSnippetOrDirItem(creatorId, ownerType, name, pid, ItemInfo.TYPE.SNIPPET, ItemInfo.CAN_REVMOE.YES, snippetInfo, details, (err, r) => cb && cb(err, r), creator);
   };
 
   if (!parentId) {
