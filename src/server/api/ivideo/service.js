@@ -212,9 +212,6 @@ service.createDirectory = function createDirectory(creatorId, ownerType, name, p
 
 service.createItem = function createItem(creatorId, ownerType, name, parentId, snippet, details, creator, cb) {
   let snippetInfo = {};
-  if (ItemInfo.OWNER_TYPE.SHARE !== ownerType && ItemInfo.OWNER_TYPE.MINE !== ownerType) {
-    return cb && cb(i18n.t('ivideoProjectOwnerTypeIsInvalid'));
-  }
   if (snippet) {
     if (typeof snippet === 'string') {
       let info = {};
@@ -239,26 +236,49 @@ service.createItem = function createItem(creatorId, ownerType, name, parentId, s
     }
   }
 
-  const callback = function callback(pid) {
-    createSnippetOrDirItem(creatorId, ownerType, name, pid, ItemInfo.TYPE.SNIPPET, ItemInfo.CAN_REVMOE.YES, snippetInfo, details, (err, r) => cb && cb(err, r), creator);
-  };
+  const getParentIdAndOwnerType = function getParentIdAndOwnerType(callback) {
+    if (!parentId && !ownerType) {
+      itemInfo.collection.findOne({ name: '我的素材', parentId: '' }, (err, doc) => {
+        if (err) {
+          logger.error(err.message);
+          return cb && cb(i18n.t('databaseError'));
+        }
 
-  if (!parentId) {
-    itemInfo.collection.findOne({ creatorId, type: ItemInfo.TYPE.DEFAULT_DIRECTORY }, { fields: { _id: 1 } }, (err, doc) => {
+        if (!doc) {
+          return cb && cb(i18n.t('ivideoProjectCannotFindMyMaterial'));
+        }
+
+        parentId = doc._id;
+        ownerType = ItemInfo.OWNER_TYPE.MINE;
+        return callback && callback(null);
+      });
+    } else {
+      if (!parentId) {
+        return cb && cb(i18n.t('ivideoParentIdIsNull'));
+      }
+      if (ItemInfo.OWNER_TYPE.SHARE !== ownerType && ItemInfo.OWNER_TYPE.MINE !== ownerType) {
+        return cb && cb(i18n.t('ivideoProjectOwnerTypeIsInvalid'));
+      }
+      return callback && callback(null);
+    }
+  }
+
+  getParentIdAndOwnerType(() => {
+    const type = ItemInfo.TYPE.SNIPPET;
+    const canRemove = ItemInfo.CAN_REVMOE.YES;
+    const info = { _id: uuid.v1(), name, creatorId, creator, parentId, type, snippet: snippetInfo, details, canRemove, ownerType };
+    if (creator) {
+      info.creator = creator;
+    }
+    itemInfo.insertOne(info, (err, r, doc) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
 
-      if (!doc) {
-        return cb && cb(i18n.t('ivideoDefaultDirectoryIsNull'));
-      }
-
-      callback(doc._id);
+      return cb && cb(null, r, doc._id);
     });
-  } else {
-    callback(parentId);
-  }
+  });
 };
 
 service.removeItem = function removeItem(id, ownerType, cb) {
@@ -317,15 +337,27 @@ service.updateItem = function updateItem(id, name, details, ownerType, cb) {
   if (utils.isEmptyObject(update)) {
     return cb && cb(null, 'ok');
   }
-
-  itemInfo.updateOne({ _id: id }, update, (err, r) => {
+  itemInfo.collection.findOne({ _id: id }, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
+    if (!doc) {
+      return cb && cb(i18n.t('ivideoProjectCannotFindItem'));
+    }
+    if (!doc.parentId) {
+      return cb && cb(i18n.t('ivideoProjectCannotUpdateItem'));
+    }
 
-    return cb && cb(null, r);
-  });
+    itemInfo.updateOne({ _id: id }, update, (err, r) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      return cb && cb(null, r);
+    });
+  })
 };
 
 service.removeProject = function removeProject(id, cb) {
