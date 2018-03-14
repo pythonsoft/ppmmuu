@@ -545,6 +545,14 @@ module.exports = {
     code: '-40022',
     message: '找不到默认目录(我的素材)',
   },
+  ivideoProjectCannotFindItem: {
+    code: '-40023',
+    message: '找不到目录或文件',
+  },
+  ivideoProjectCannotUpdateItem: {
+    code: '-40024',
+    message: '不能修改此目录或文件',
+  },
   joDownloadParamsIsNull: {
     code: '-50001',
     message: '下载参数为空，请正确传入参数',
