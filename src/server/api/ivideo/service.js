@@ -149,9 +149,9 @@ service.listItem = function listItem(creatorId, parentId, ownerType, type, cb, s
       return cb && cb(null, docs);
     });
   } else if (ownerType === ItemInfo.OWNER_TYPE.SHOULU) {
-    return cb && cb(null, {});
+    return cb && cb(null, []);
   } else if (ownerType === ItemInfo.OWNER_TYPE.NEWS) {
-    return cb && cb(null, {});
+    return cb && cb(null, []);
   }
 };
 
