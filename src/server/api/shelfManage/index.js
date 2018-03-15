@@ -12,6 +12,11 @@ const service = require('./service');
 const shelfService = require('../shelves/service');
 const isLogin = require('../../middleware/login');
 
+router.get('/fastEditTemplate/:id', (req, res) => {
+  const _id = req.params.id || '';
+  service.getFastEditTemplateInfo(_id, (err, doc) => res.json(result.json(err, doc)));
+});
+
 router.use(isLogin.middleware);
 router.use(isLogin.hasAccessMiddleware);
 
@@ -172,89 +177,47 @@ router.post('/deleteShelfTask', (req, res) => {
  *         name: body
  *         description: 添加上架模板
  *         schema:
- *           type: object
- *           required:
- *             - source
- *             - department
- *           properties:
- *             source:
- *               type: string
- *               description: ''
- *               example: ""
- *             departmentId:
- *               type: string
- *               description: ''
- *               example: ""
- *             bucketId:
- *               type: string
- *               description: '存储区_id'
- *               example: ""
- *             highTemplate:
- *               type: object
- *               description: '高码流模板'
- *               properties:
- *                 _id:
- *                   type: 'string'
- *                 name:
- *                   type: 'string'
- *               example: { _id: '', name: '' }
- *             lowTemplate:
- *               type: object
- *               description: '低码流模板'
- *               properties:
- *                 _id:
- *                   type: 'string'
- *                 name:
- *                   type: 'string'
- *               example: { _id: '', name: '' }
- *             windowsPath:
- *               type: string
- *               description: ''
- *               example: ''
- *             linuxPath:
- *               type: string
- *               description: ''
- *               example: ''
- *             highBitrateStandard:
- *               type: object
- *               description: '高码流配置'
- *               properties:
- *                 fileFomart:
- *                   type: 'string'
- *                 videoCode:
- *                   type: 'string'
- *                 bitrate:
- *                   type: 'string'
- *               example: { fileFomart: 'mxf', videoCode: 'mpeg2video', bitrate: '50000000' }
- *             lowBitrateStandard:
- *               type: object
- *               description: '低码流配置'
- *               properties:
- *                 fileFomart:
- *                   type: 'string'
- *                 videoCode:
- *                   type: 'string'
- *                 bitrate:
- *                   type: 'string'
- *               example: { fileFomart: 'mp4', videoCode: 'libx264', bitrate: '1500000' }
+ *          type: object
+ *          required:
+ *            - name
+ *            - bucketId
+ *          properties:
+ *            name:
+ *              type: string
+ *              example: ''
+ *            description:
+ *              type: string
+ *              example: ''
+ *            bucketId:
+ *              type: string
+ *              example: ''
+ *            editorTemplate:
+ *              type: object
+ *              description: '快编模板'
+ *              example: { _id: 'dd', name: 'dd' }
+ *            libraryTemplate:
+ *              type: object
+ *              description: '入库模板'
+ *              example: { _id: 'dd', name: 'dd' }
+ *            transcodeTemplates:
+ *              type: array
+ *              example: [{ _id: "", name: "" }]
+ *            transcodeTemplateSelector:
+ *              type: string
+ *              description: '转码脚本'
+ *              example: ''
+ *            script:
+ *              type: string
+ *              description: '路径脚本'
+ *              example: ''
  *     responses:
  *       200:
- *         description: FileInfo
- *         schema:
- *           type: object
- *           properties:
- *            status:
- *              type: string
- *            data:
- *              type: object
- *            statusInfo:
- *              type: object
- *              properties:
- *                message:
- *                  type: string
+ *         description: template
  */
 router.post('/addTemplate', (req, res) => {
-  service.addTemplate(req.body, req.ex.userInfo._id, req.ex.userInfo.name, (err, r) => res.json(result.json(err, r)));
+  const info = req.body;
+  info.creator = { _id: req.ex.userInfo._id, name: req.ex.userInfo.name };
+  service.addTemplate(info, (err, r) => res.json(result.json(err, r)));
 });
 
 /**
@@ -362,8 +325,7 @@ router.get('/listTemplate', (req, res) => {
  *         schema:
  *           type: object
  *           required:
- *             - source
- *             - departmentId
+ *             - _id
  *           properties:
  *             _id:
  *               type: string
@@ -392,12 +354,12 @@ router.post('/removeTemplate', (req, res) => {
 /**
  * @permissionGroup: shelfTemplate
  * @permissionName: 更新上架模板
- * @permissionPath: /shelfMange/updateTemplate
+ * @permissionPath: /shelfManage/updateTemplate
  * @apiName: updateTemplate
  * @apiFuncType: post
- * @apiFuncUrl: /shelfMange/updateTemplate
+ * @apiFuncUrl: /shelfManage/updateTemplate
  * @swagger
- * /shelfMange/updateTemplate:
+ * /shelfManage/updateTemplate:
  *   post:
  *     description: 更新上架模板
  *     tags:
@@ -418,66 +380,34 @@ router.post('/removeTemplate', (req, res) => {
  *               type: string
  *               description: ''
  *               example: ''
- *             source:
+ *             name:
  *               type: string
- *               description: ''
- *               example: ""
- *             departmentId:
+ *               example: ''
+ *             description:
  *               type: string
- *               description: ''
- *               example: ""
+ *               example: ''
  *             bucketId:
  *               type: string
- *               description: '存储区_id'
- *               example: ""
- *             highTemplate:
- *               type: object
- *               description: '高码流模板'
- *               properties:
- *                 _id:
- *                   type: 'string'
- *                 name:
- *                   type: 'string'
- *               example: { _id: '', name: '' }
- *             lowTemplate:
- *               type: object
- *               description: '低码流模板'
- *               properties:
- *                 _id:
- *                   type: 'string'
- *                 name:
- *                   type: 'string'
- *               example: { _id: '', name: '' }
- *             windowsPath:
- *               type: string
- *               description: ''
  *               example: ''
- *             linuxPath:
+ *             editorTemplate:
+ *               type: object
+ *               description: '快编模板'
+ *               example: { _id: 'dd', name: 'dd' }
+ *             libraryTemplate:
+ *               type: object
+ *               description: '入库模板'
+ *               example: { _id: 'dd', name: 'dd' }
+ *             transcodeTemplates:
+ *               type: array
+ *               example: [{ _id: "", name: "" }]
+ *             transcodeTemplateSelector:
  *               type: string
- *               description: ''
+ *               description: '转码脚本'
  *               example: ''
- *             highBitrateStandard:
- *               type: object
- *               description: '高码流配置'
- *               properties:
- *                 fileFomart:
- *                   type: 'string'
- *                 videoCode:
- *                   type: 'string'
- *                 bitrate:
- *                   type: 'string'
- *               example: { fileFomart: 'mxf', videoCode: 'mpeg2video', bitrate: '50000000' }
- *             lowBitrateStandard:
- *               type: object
- *               description: '低码流配置'
- *               properties:
- *                 fileFomart:
- *                   type: 'string'
- *                 videoCode:
- *                   type: 'string'
- *                 bitrate:
- *                   type: 'string'
- *               example: { fileFomart: 'mp4', videoCode: 'libx264', bitrate: '1500000' }
+ *             script:
+ *               type: string
+ *               description: '路径脚本'
+ *               example: ''
  *     responses:
  *       200:
  *         description: TemplateInfo
@@ -497,5 +427,273 @@ router.post('/removeTemplate', (req, res) => {
 router.post('/updateTemplate', (req, res) => {
   service.updateTemplate(req.body._id, req.body, (err, r) => res.json(result.json(err, r)));
 });
+
+/**
+ * @permissionGroup: fastEditTemplate
+ * @permissionName: 添加快编模板
+ * @permissionPath: /shelfManage/addFastEditTemplate
+ * @apiName: addFastEditTemplate
+ * @apiFuncType: post
+ * @apiFuncUrl: /shelfManage/addFastEditTemplate
+ * @swagger
+ * /shelfManage/addFastEditTemplate:
+ *   post:
+ *     description: 添加快编模板
+ *     tags:
+ *       - v1
+ *       - library
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: 添加快编模板
+ *         schema:
+ *          type: object
+ *          required:
+ *            - name
+ *            - downloadWorkPath
+ *            - transcodeWorkPath
+ *            - storagePath
+ *            - transcodeTemplateId
+ *            - transcodeTemplateName
+ *          properties:
+ *            name:
+ *              type: string
+ *              example: ''
+ *            description:
+ *              type: string
+ *              example: ''
+ *            downloadWorkPath:
+ *              type: string
+ *              description: '下载路径'
+ *              example: ''
+ *            transcodeWorkPath:
+ *              type: string
+ *              description: '转码路径'
+ *              example: ''
+ *            storagePath:
+ *              type: string
+ *              description: '转存储路径'
+ *              example: ''
+ *            transcodeTemplateId:
+ *              type: string
+ *              description: '转码模板id'
+ *              example: ''
+ *            transcodeTemplateName:
+ *              type: string
+ *              description: '转码模板名字'
+ *              example: ''
+ *     responses:
+ *       200:
+ *         description: template
+ */
+router.post('/addFastEditTemplate', (req, res) => {
+  const info = req.body;
+  info.creator = { _id: req.ex.userInfo._id, name: req.ex.userInfo.name };
+  service.addFastEditTemplate(info, (err, r) => res.json(result.json(err, r)));
+});
+
+/**
+ * @permissionGroup: fastEditTemplate
+ * @permissionName: 获取快编模板详细信息
+ * @permissionPath: /shelfManage/getFastEditTemplateInfo
+ * @apiName: getFastEditTemplateInfo
+ * @apiFuncType: get
+ * @apiFuncUrl: /shelfManage/getFastEditTemplateInfo
+ * @swagger
+ * /shelfManage/getFastEditTemplateInfo:
+ *   get:
+ *     description: 获取快编模板详细信息
+ *     tags:
+ *       - v1
+ *       - library
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: _id
+ *         description: ''
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description:
+ * */
+router.get('/getFastEditTemplateInfo', (req, res) => {
+  service.getFastEditTemplateInfo(req.query._id, (err, doc) => res.json(result.json(err, doc)));
+});
+
+/**
+ * @permissionGroup: fastEditTemplate
+ * @permissionName: 列举快编模板列表
+ * @permissionPath: /shelfManage/listFastEditTemplate
+ * @apiName: listFastEditTemplate
+ * @apiFuncType: get
+ * @apiFuncUrl: /shelfManage/listFastEditTemplate
+ * @swagger
+ * /shelfManage/listFastEditTemplate:
+ *   get:
+ *     description: 列举快编模板列表
+ *     tags:
+ *       - v1
+ *       - library
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: fieldsNeed
+ *         description: request only you need fields
+ *         required: false
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: page
+ *         description:
+ *         required: false
+ *         type: string
+ *         default: '1'
+ *         collectionFormat: csv
+ *       - in: query
+ *         name: pageSize
+ *         description: ''
+ *         required: false
+ *         type: string
+ *         default: '20'
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description:
+ * */
+router.get('/listFastEditTemplate', (req, res) => {
+  service.listFastEditTemplate(req.query, (err, docs) => res.json(result.json(err, docs)));
+});
+
+/**
+ * @permissionGroup: fastEditTemplate
+ * @permissionName: 删除快编模板
+ * @permissionPath: /shelfManage/removeFastEditTemplate
+ * @apiName: removeFastEditTemplate
+ * @apiFuncType: post
+ * @apiFuncUrl: /shelfManage/removeFastEditTemplate
+ * @swagger
+ * /shelfManage/removeFastEditTemplate:
+ *   post:
+ *     description: 删除快编模板
+ *     tags:
+ *       - v1
+ *       - library
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: 删除快编模板
+ *         schema:
+ *           type: object
+ *           required:
+ *             - _id
+ *           properties:
+ *             _id:
+ *               type: string
+ *               description: ''
+ *               example: ""
+ *     responses:
+ *       200:
+ *         description: FileInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.post('/removeFastEditTemplate', (req, res) => {
+  service.removeFastEditTemplate(req.body._id, (err, r) => res.json(result.json(err, r)));
+});
+
+/**
+ * @permissionGroup: shelfTemplate
+ * @permissionName: 更新快编模板
+ * @permissionPath: /shelfManage/updateFastEditTemplate
+ * @apiName: updateFastEditTemplate
+ * @apiFuncType: post
+ * @apiFuncUrl: /shelfManage/updateFastEditTemplate
+ * @swagger
+ * /shelfManage/updateFastEditTemplate:
+ *   post:
+ *     description: 更新快编模板
+ *     tags:
+ *       - v1
+ *       - library
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: 更新快编模板
+ *         schema:
+ *          type: object
+ *          required:
+ *            - _id
+ *          properties:
+ *            _id:
+ *              type: string
+ *              example: ''
+ *            name:
+ *              type: string
+ *              example: ''
+ *            description:
+ *              type: string
+ *              example: ''
+ *            downloadWorkPath:
+ *              type: string
+ *              description: '下载路径'
+ *              example: ''
+ *            transcodeWorkPath:
+ *              type: string
+ *              description: '转码路径'
+ *              example: ''
+ *            storagePath:
+ *              type: string
+ *              description: '转存储路径'
+ *              example: ''
+ *            transcodeTemplateId:
+ *              type: string
+ *              description: '转码模板id'
+ *              example: ''
+ *            transcodeTemplateName:
+ *              type: string
+ *              description: '转码模板名字'
+ *              example: ''
+ *     responses:
+ *       200:
+ *         description: TemplateInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.post('/updateFastEditTemplate', (req, res) => {
+  service.updateFastEditTemplate(req.body, (err, r) => res.json(result.json(err, r)));
+});
+
 
 module.exports = router;
