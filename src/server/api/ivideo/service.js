@@ -192,7 +192,7 @@ service.createDirectory = function createDirectory(creatorId, ownerType, name, p
       }
       return callback && callback(null);
     }
-  }
+  };
 
   getParentIdAndOwnerType(() => {
     const info = { _id: uuid.v1(), name, creatorId, creator, parentId, type, snippet, details, canRemove, ownerType };
@@ -261,7 +261,7 @@ service.createItem = function createItem(creatorId, ownerType, name, parentId, s
       }
       return callback && callback(null);
     }
-  }
+  };
 
   getParentIdAndOwnerType(() => {
     const type = ItemInfo.TYPE.SNIPPET;
@@ -357,7 +357,7 @@ service.updateItem = function updateItem(id, name, details, ownerType, cb) {
 
       return cb && cb(null, r);
     });
-  })
+  });
 };
 
 service.removeProject = function removeProject(id, cb) {
@@ -442,8 +442,10 @@ service.copy = function copy(info, needDelete = false, cb) {
   const creator = info.creator || '';
   const srcOwnerType = info.srcOwnerType || '';
   const destOwnerType = info.destOwnerType || '';
-  if (ItemInfo.OWNER_TYPE.SHARE !== srcOwnerType && ItemInfo.OWNER_TYPE.MINE !== srcOwnerType) {
-    return cb && cb(i18n.t('ivideoProjectSrcOwnerTypeIsInvalid'));
+  if (needDelete) {
+    if (ItemInfo.OWNER_TYPE.SHARE !== srcOwnerType && ItemInfo.OWNER_TYPE.MINE !== srcOwnerType) {
+      return cb && cb(i18n.t('ivideoProjectSrcOwnerTypeIsInvalid'));
+    }
   }
   if (ItemInfo.OWNER_TYPE.SHARE !== destOwnerType && ItemInfo.OWNER_TYPE.MINE !== destOwnerType) {
     return cb && cb(i18n.t('ivideoProjectDestOwnerTypeIsInvalid'));
@@ -480,7 +482,7 @@ service.copy = function copy(info, needDelete = false, cb) {
       }
       for (let i = 0, len = docs.length; i < len; i++) {
         if (docs[i].type === ItemInfo.TYPE.DEFAULT_DIRECTORY || docs[i].canRemove === ItemInfo.CAN_REVMOE.NO) {
-          return cb && cb(null, i18n.t('ivideoProjectCannotCopyOrMove'));
+          return cb && cb(i18n.t('ivideoProjectCannotCopyOrMove'));
         }
         newIds[docs[i].parentId] = dest._id;
       }

@@ -129,6 +129,13 @@ const infos = [
     topParentMenu: '管理',
   },
   {
+    _id: 'fastEditTemplate',
+    name: '快编模板',
+    index: 'fastEditTemplate',
+    parentIndex: 'shelfManager',
+    topParentMenu: '管理',
+  },
+  {
     _id: 'shelfTemplate',
     name: '上架模板',
     index: 'shelfTemplate',

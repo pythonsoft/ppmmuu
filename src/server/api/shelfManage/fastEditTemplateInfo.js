@@ -8,9 +8,9 @@ const DB = require('../../common/db');
 const config = require('../../config');
 const uuid = require('uuid');
 
-class TemplateInfo extends DB {
+class FastEditTemplateInfo extends DB {
   constructor() {
-    super(config.dbInstance[`${config.dbName}DB`], 'Shelf_TemplateInfo');
+    super(config.dbInstance[`${config.dbName}DB`], 'FastEdit_TemplateInfo');
 
     this.struct = {
       _id: { type: 'string', default() { return uuid.v1(); }, allowUpdate: false },
@@ -19,26 +19,15 @@ class TemplateInfo extends DB {
       createdTime: { type: 'date', validation: 'require', allowUpdate: false },
       lastModifyTime: { type: 'date', validation: 'require' },
       details: { type: 'object' },
-      bucketId: {
-        type: 'string',
-        validation: 'require',
-      },
-      editorTemplate: { type: 'object', default: { _id: '', name: '' } },  // 用于快编的转码模板
-      libraryTemplate: { type: 'object', default: { _id: '', name: '' } },                    // 入库模板
-      transcodeTemplateDetail: {
-        type: 'object',
-        default() {
-          return {
-            transcodeTemplateSelector: '',
-            transcodeTemplates: [],
-          };
-        },
-      },
-      script: { type: 'string' },     // 路径脚本
+      downloadWorkPath: { type: 'string', validation: 'require' },
+      transcodeWorkPath: { type: 'string', validation: 'require' },
+      transcodeTemplateId: { type: 'string', validation: 'require' },
+      transcodeTemplateName: { type: 'string', validation: 'require' },
+      storagePath: { type: 'string', validation: 'require' },
       description: { type: 'string' },
       subtitleType: { type: 'array' },
     };
   }
 }
 
-module.exports = TemplateInfo;
+module.exports = FastEditTemplateInfo;

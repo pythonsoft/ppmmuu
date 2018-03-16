@@ -555,7 +555,7 @@ module.exports = {
   },
   ivideoProjectCannotCopyOrMove: {
     code: '-40024',
-    message: '存在不能移动此目录或文件',
+    message: '存在不能移动的目录或文件',
   },
   joDownloadParamsIsNull: {
     code: '-50001',
@@ -1172,6 +1172,18 @@ module.exports = {
   faqInfoIsNotExist: {
     code: '-250001',
     message: '反馈信息不存在',
+  },
+  shelfTemplateInfoFieldIsNull: {
+    code: '-260001',
+    message: '上架模板：{{field}}为空',
+  },
+  canAddOnlyOneShelfTemplate: {
+    code: '-260002',
+    message: '只能存在一个上架模板',
+  },
+  fastEditTemplateInfoFieldIsNull: {
+    code: '-260003',
+    message: '快编模板：{{field}}为空',
   },
 };
 

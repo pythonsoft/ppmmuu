@@ -265,6 +265,9 @@ service.createShelfTask = function createShelfTask(req, cb) {
     return cb && cb(result.err);
   }
   info = result.doc;
+  if (!info._id) {
+    info._id = uuid.v1();
+  }
   mediaService.getObject({ objectid: objectId, fromWhere: info.fromWhere }, (err, rs) => {
     if (err) {
       return cb && cb(err);

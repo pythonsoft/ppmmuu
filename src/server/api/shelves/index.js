@@ -11,6 +11,10 @@ const result = require('../../common/result');
 const service = require('./service');
 const isLogin = require('../../middleware/login');
 
+router.post('/createShelfTask', (req, res) => {
+  service.createShelfTask(req, (err, r) => res.json(result.json(err, r)));
+});
+
 router.use(isLogin.middleware);
 router.use(isLogin.hasAccessMiddleware);
 

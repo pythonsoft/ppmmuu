@@ -46,6 +46,16 @@ router.get('/getAsyncCatalogInfoList', (req, res) => {
   extService.getAsyncCatalogInfoList(req.query, (err, doc) => res.json(result.json(err, doc)));
 });
 
+router.get('/template/:id', (req, res) => {
+  const _id = req.params.id || '';
+  service.getTemplateInfo(_id, (err, doc) => res.json(result.json(err, doc)));
+});
+
+router.get('/file/:objectId', (req, res) => {
+  const objectId = req.params.objectId || '';
+  service.getSourceFileAndSubtitleFile(objectId, (err, doc) => res.json(result.json(err, doc)));
+});
+
 router.use(isLogin.middleware);
 router.use(isLogin.hasAccessMiddleware);
 
