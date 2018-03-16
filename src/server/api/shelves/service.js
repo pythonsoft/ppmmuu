@@ -244,14 +244,9 @@ service.deleteShelfTask = function deleteShelfTask(req, cb) {
 };
 
 // 创建上架任务
-service.createShelfTask = function createShelfTask(req, cb) {
-  const userInfo = req.ex.userInfo;
-  let info = req.body;
+service.createShelfTask = function createShelfTask(info, cb) {
   const force = info.force || false;
   const objectId = info.objectId || '';
-
-  info.creator = { _id: userInfo._id, name: userInfo.name };
-  info.department = userInfo.department;
   info.fromWhere = info.fromWhere || CatalogInfo.FROM_WHERE.MAM;
   const t = new Date();
   info.createdTime = t;
@@ -289,9 +284,11 @@ service.createShelfTask = function createShelfTask(req, cb) {
         info.details[item.key] = item.value;
       }
       if (item.key === 'FIELD195') {
+        info.name = item.value;
         info.editorInfo.name = item.value;
       }
       if (item.key === 'FIELD196' && !info.editorInfo.name) {
+        info.name = item.value;
         info.editorInfo.name = item.value;
       }
       if (item.key === 'FIELD276') {
@@ -574,7 +571,7 @@ service.submitShelf = function submitShelf(info, cb) {
     return cb && cb(err);
   }
 
-  shelfTaskInfo.collection.findOne({ _id, 'dealer._id': userInfo._id, status: ShelfTaskInfo.STATUS.DOING }, (err, doc) => {
+  shelfTaskInfo.collection.findOne({ _id, 'dealer._id': userInfo._id, status: ShelfTaskInfo.STATUS.DOING, packageStatus: ShelfTaskInfo.PACKAGE_STATUS.COMPLETED }, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -1011,6 +1008,22 @@ service.distribute = function distribute(userInfo, templateId, shelfTaskId, cb) 
         return cb && cb(i18n.t('jobDistributeError', { error: rs.statusInfo.message }));
       });
     });
+  });
+};
+
+
+service.updatePackageStatus = function updatePackageStatus(id, packageStatus, cb) {
+  const updateInfo = {
+    lastModifyTime: new Date(),
+    packageStatus,
+  };
+  shelfTaskInfo.collection.update({ _id: id }, { $set: updateInfo }, (err) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+    return cb && cb(null, 'ok');
+    // loopUpdateCover(editorInfo.cover, _ids, 0, () => cb && cb(null, 'ok'));
   });
 };
 
