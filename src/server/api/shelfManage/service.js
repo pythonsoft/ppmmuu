@@ -8,12 +8,15 @@ const logger = require('../../common/log')('error');
 const ShelfTaskInfo = require('../shelves/shelfTaskInfo');
 const TemplateInfo = require('./templateInfo');
 const FastEditTemplateInfo = require('./fastEditTemplateInfo');
+const UserInfo = require('../user/userInfo');
+const CatalogInfo = require('../library/catalogInfo');
 const shelfService = require('../shelves/service');
 const jobService = require('../job/service');
 const storageService = require('../storage/service');
 
 const templateInfo = new TemplateInfo();
 const fastEditTemplateInfo = new FastEditTemplateInfo();
+const userInfo = new UserInfo();
 
 const service = {};
 
@@ -239,47 +242,6 @@ service.updateTemplate = function updateTemplate(_id, info, cb) {
   });
 };
 
-service.getDownloadPath = function getDownloadPath(userInfo, id, cb) {
-  if (!id) {
-    return cb && cb(i18n.t('templateIdIsNotExist'));
-  }
-
-  service.getTemplateInfo(id, (err, doc) => {
-    if (err) {
-      return cb && cb(err);
-    }
-
-    if (!doc) {
-      return cb && cb(i18n.t('templateIsNotExist'));
-    }
-
-    if (!doc.bucketId) {
-      return cb && cb(i18n.t('templateBucketIdIsNotExist'));
-    }
-
-    storageService.getBucketDetail(doc.details.bucketId, (err, bucketInfo) => {
-      if (err) {
-        return cb && cb(err);
-      }
-
-      if (!bucketInfo) {
-        return cb && cb(i18n.t('templateBucketIsNotExist'));
-      }
-
-      const user = Object.assign({}, userInfo);
-      user.password = '';
-
-      runDownloadScript(user, bucketInfo, doc.details.script, (err, downloadPath) => {
-        if (err) {
-          return cb && cb(err);
-        }
-
-        return cb && cb(null, { downloadPath, bucketInfo, templateInfo: doc });
-      });
-    });
-  });
-};
-
 function runTemplateSelector(info, code) {
   try {
     let sandbox = {
@@ -365,10 +327,16 @@ function filterTranscodeTemplates(doc = {}, filePath = '', cb, isResultReturnWit
   });
 }
 
-service.getTranscodeTemplate = function getTranscodeTemplate(id, filePath, cb) {
+service.getShelfTemplateResult = function getShelfTemplateResult(id, filePath, cb) {
   if (!id) {
     return cb && cb(i18n.t('templateIdIsNotExist'));
   }
+
+  const rs = {
+    downloadWorkPath: '',
+    transcodeWorkPath: '',
+    transcodeTemplates: [],
+  };
 
   service.getTemplateInfo(id, (err, doc) => {
     if (err) {
@@ -378,8 +346,55 @@ service.getTranscodeTemplate = function getTranscodeTemplate(id, filePath, cb) {
     if (!doc) {
       return cb && cb(i18n.t('templateIsNotExist'));
     }
+    rs.downloadWorkPath = doc.downloadWorkPath;
+    rs.transcodeWorkPath = doc.transcodeWorkPath;
+    rs.transcodeTemplates = [];
 
-    service.getTranscodeTemplateByDetail(doc, filePath, (err, r) => cb && cb(err, r), false);
+    service.getTranscodeTemplateByDetail(doc, filePath, (err, arr) => {
+      if (err) {
+        return cb && cb(err);
+      }
+      delete doc.transcodeTemplateDetail;
+      if (!arr || arr.constructor.name !== 'Array') {
+        return cb && cb(i18n.t('shelfTemplateTranscodeTemplateIsInvalid'));
+      }
+      storageService.getBucketDetail(doc.bucketId, (err, bucketInfo) => {
+        if (err) {
+          return cb && cb(err);
+        }
+
+        if (!bucketInfo) {
+          return cb && cb(i18n.t('templateBucketIsNotExist'));
+        }
+
+        const user = { name: '' };
+        user.password = '';
+
+        runDownloadScript(user, bucketInfo, doc.script, (err, downloadPath) => {
+          if (err) {
+            return cb && cb(err);
+          }
+          if (!downloadPath || downloadPath.constructor.name !== 'Array') {
+            return cb && cb(i18n.t('shelfTemplateScriptIsInvalid'));
+          }
+          const tLen = arr.length;
+          const pLen = downloadPath.length;
+
+          if (tLen !== pLen) {
+            return cb && cb(i18n.t('shelfTemplateScriptIsInvalid'));
+          }
+
+          for (let i = 0; i < tLen; i++) {
+            const temp = {
+              id: arr[i],
+              storagePath: downloadPath[i],
+            };
+            rs.transcodeTemplates.push(temp);
+          }
+          return cb && cb(null, rs);
+        });
+      });
+    }, false);
   });
 };
 
@@ -462,6 +477,31 @@ service.getFastEditTemplateInfo = function getFastEditTemplateInfo(_id, cb) {
     }
 
     return cb && cb(null, doc);
+  });
+};
+
+service.updatePackageStatus = shelfService.updatePackageStatus;
+
+service.createShelfTask = function createShelfTask(info, cb) {
+  const creator = info.creator || '';
+  if (!creator || !creator._id) {
+    return cb && cb(i18n.t('createShelfTaskCreatorIsInvalid'));
+  }
+  info.force = true;
+  info.isDirect = ShelfTaskInfo.IS_DIRECT.NO;
+  info.packageStatus = info.packageStatus || ShelfTaskInfo.PACKAGE_STATUS.PREPARE;
+  info.fromWhere = info.fromWhere || CatalogInfo.FROM_WHERE.HK_RUKU;
+
+  userInfo.collection.findOne({ _id: creator._id }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+    if (!doc) {
+      return cb && cb(i18n.t('userNotFind'));
+    }
+    info.department = doc.department;
+    shelfService.createShelfTask(info, cb);
   });
 };
 

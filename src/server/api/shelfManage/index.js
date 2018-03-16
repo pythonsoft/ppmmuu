@@ -20,7 +20,17 @@ router.get('/fastEditTemplate/:id', (req, res) => {
 router.get('/shelfTemplate/:id/', (req, res) => {
   const _id = req.params.id || '';
   const filePath = req.query.filePath || '';
-  service.getTranscodeTemplate(_id, filePath, (err, doc) => res.json(result.json(err, doc)));
+  service.getShelfTemplateResult(_id, filePath, (err, doc) => res.json(result.json(err, doc)));
+});
+
+router.patch('/shelves/:id/:packageStatus', (req, res) => {
+  const id = req.params.id;
+  const packageStatus = req.params.packageStatus;
+  service.updatePackageStatus(id, packageStatus, (err, r) => res.json(result.json(err, r)));
+});
+
+router.post('/shelves', (req, res) => {
+  service.createShelfTask(req.body, (err, r) => res.json(result.json(err, r)));
 });
 
 router.use(isLogin.middleware);

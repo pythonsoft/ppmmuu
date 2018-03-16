@@ -535,4 +535,16 @@ service.copy = function copy(info, needDelete = false, cb) {
   });
 };
 
+
+// 入库
+service.warehouse = function warehouse(info, cb) {
+  return cb && cb(null, 'ok');
+};
+
+
+// 入库并上架
+service.warehouseAndShelf = function warehouseAndShelf(info, cb) {
+  return cb && cb(null, 'ok');
+};
+
 module.exports = service;

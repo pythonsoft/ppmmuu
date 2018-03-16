@@ -57,9 +57,13 @@ class ShelfTaskInfo extends DB {
         type: 'string',
         default: 'MAM',
       },
+      isDirect: {                // 直接上架还是通过java的上架流程上架的
+        type: 'string',
+        default: ShelfTaskInfo.IS_DIRECT.YES,
+      },
       packageStatus: {
         type: 'string',
-        default: ShelfTaskInfo.PACKAGE_STATUS.PREPARE,
+        default: ShelfTaskInfo.PACKAGE_STATUS.COMPLETED,
       },
     };
   }
@@ -106,5 +110,10 @@ ShelfTaskInfo.PACKAGE_STATUS = {
   DEALING: '1',   // 处理中
   COMPLETED: '2', // 已完成
   ERROR: '3',     // 出错
+};
+
+ShelfTaskInfo.IS_DIRECT = {
+  YES: '1',
+  NO: '0',
 };
 module.exports = ShelfTaskInfo;
