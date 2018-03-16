@@ -25,6 +25,7 @@ class FastEditTemplateInfo extends DB {
       transcodeTemplateName: { type: 'string', validation: 'require' },
       storagePath: { type: 'string', validation: 'require' },
       description: { type: 'string' },
+      subtitleType: { type: 'array' },
     };
   }
 }

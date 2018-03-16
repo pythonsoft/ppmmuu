@@ -57,6 +57,10 @@ class ShelfTaskInfo extends DB {
         type: 'string',
         default: 'MAM',
       },
+      packageStatus: {
+        type: 'string',
+        default: ShelfTaskInfo.PACKAGE_STATUS.PREPARE,
+      },
     };
   }
 }
@@ -97,4 +101,10 @@ ShelfTaskInfo.FILE_TYPE = {
   HEAD_PHOTO: 10,     // 肖像
 };
 
+ShelfTaskInfo.PACKAGE_STATUS = {
+  PREPARE: '0',   // 待处理
+  DEALING: '1',   // 处理中
+  COMPLETED: '2', // 已完成
+  ERROR: '3',     // 出错
+};
 module.exports = ShelfTaskInfo;

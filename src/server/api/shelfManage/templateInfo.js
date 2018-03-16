@@ -36,6 +36,7 @@ class TemplateInfo extends DB {
       },
       script: { type: 'string' },     // 路径脚本
       description: { type: 'string' },
+      subtitleType: { type: 'array' },
     };
   }
 }

@@ -17,6 +17,12 @@ router.get('/fastEditTemplate/:id', (req, res) => {
   service.getFastEditTemplateInfo(_id, (err, doc) => res.json(result.json(err, doc)));
 });
 
+router.get('/shelfTemplate/:id/', (req, res) => {
+  const _id = req.params.id || '';
+  const filePath = req.query.filePath || '';
+  service.getTranscodeTemplate(_id, filePath, (err, doc) => res.json(result.json(err, doc)));
+});
+
 router.use(isLogin.middleware);
 router.use(isLogin.hasAccessMiddleware);
 
