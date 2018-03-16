@@ -48,7 +48,7 @@ router.get('/getAsyncCatalogInfoList', (req, res) => {
 
 router.get('/template/:id', (req, res) => {
   const _id = req.params.id || '';
-  service.getTemplateInfo(_id, (err, doc) => res.json(result.json(err, doc)));
+  service.getTemplateResult(_id, '', (err, doc) => res.json(result.json(err, doc)));
 });
 
 router.get('/file/:objectId', (req, res) => {
@@ -1404,6 +1404,40 @@ router.get('/getFile', (req, res) => {
   const id = req.query.id || '';
 
   service.getFile(id, (err, docs) => res.json(result.json(err, docs)));
+});
+
+/**
+ * @permissionGroup: library
+ * @permissionName: 获取视频所有文件
+ * @permissionPath: /library/getVideoFiles
+ * @apiName: getVideoFiles
+ * @apiFuncType: get
+ * @apiFuncUrl: /library/getVideoFiles
+ * @swagger
+ * /library/getVideoFiles:
+ *   get:
+ *     description: getVideoFiles
+ *     tags:
+ *       - v1
+ *       - library
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: objectId
+ *         description: '视频objectId'
+ *         required: true
+ *         type: string
+ *         default: '327ffc3d-f14a-421d-b428-7a968573d4a5'
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description:
+ * */
+router.get('/getVideoFiles', (req, res) => {
+  const objectId = req.query.objectId || '';
+
+  service.getFilesByObjectId(objectId, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
