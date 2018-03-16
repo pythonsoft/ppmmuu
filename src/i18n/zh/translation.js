@@ -1197,5 +1197,29 @@ module.exports = {
     code: '-260006',
     message: '创建上架任务参数creator不正确',
   },
+  canAddOnlyOneFastEditTemplate: {
+    code: '-260007',
+    message: '只能存在一个快编模板',
+  },
+  noFastEditTemplateFound: {
+    code: '-260008',
+    message: '没有找到快编模板，请先创建快编模板',
+  },
+  warehouseParamsFileInfosIsInvalid: {
+    code: '-260009',
+    message: '入库参数fileInfos不正确',
+  },
+  warehouseParamsCatalogInfoIsInvalid: {
+    code: '-260010',
+    message: '入库参数catalogInfo不正确',
+  },
+  noShelfTemplateFound: {
+    code: '-260011',
+    message: '没有找到上架模板，请先创建上架模板',
+  },
+  warehouseParamsWarehouseTypeIsInvalid: {
+    code: '-260012',
+    message: '参数warehouseType不正确',
+  },
 };
 

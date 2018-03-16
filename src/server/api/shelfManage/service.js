@@ -423,12 +423,21 @@ service.addFastEditTemplate = function addFastEditTemplate(info, cb) {
   info._id = uuid.v1();
   info.createdTime = t;
   info.lastModifyTime = t;
-  fastEditTemplateInfo.insertOne(info, (err) => {
+  fastEditTemplateInfo.collection.findOne({}, (err, doc) => {
     if (err) {
-      return cb && cb(err);
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
     }
+    if (doc) {
+      return cb && cb(i18n.t('canAddOnlyOneFastEditTemplate'));
+    }
+    fastEditTemplateInfo.insertOne(info, (err) => {
+      if (err) {
+        return cb && cb(err);
+      }
 
-    return cb && cb(null, 'ok');
+      return cb && cb(null, 'ok');
+    });
   });
 };
 
@@ -476,6 +485,32 @@ service.getFastEditTemplateInfo = function getFastEditTemplateInfo(_id, cb) {
       return cb && cb(i18n.t('databaseError'));
     }
 
+    return cb && cb(null, doc);
+  });
+};
+
+service.getDefaultFastEditTemplateInfo = function getDefaultFastEditTemplateInfo(cb) {
+  fastEditTemplateInfo.collection.findOne({}, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+    if (!doc) {
+      return cb && cb(i18n.t('noFastEditTemplateFound'));
+    }
+    return cb && cb(null, doc);
+  });
+};
+
+service.getDefaultTemplateInfo = function getDefaultTemplateInfo(cb) {
+  fastEditTemplateInfo.collection.findOne({}, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+    if (!doc) {
+      return cb && cb(i18n.t('noShelfTemplateFound'));
+    }
     return cb && cb(null, doc);
   });
 };

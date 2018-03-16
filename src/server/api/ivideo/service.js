@@ -8,6 +8,7 @@ const logger = require('../../common/log')('error');
 const utils = require('../../common/utils');
 const i18n = require('i18next');
 const uuid = require('uuid');
+const config = require('../../config');
 
 const ProjectInfo = require('./projectInfo');
 
@@ -18,6 +19,8 @@ const ItemInfo = require('./itemInfo');
 const itemInfo = new ItemInfo();
 
 const service = {};
+const shelfManageService = require('../shelfManage/service');
+
 const createSnippetOrDirItem = function createSnippetOrDirItem(creatorId, ownerType, name, parentId, type = ItemInfo.TYPE.DIRECTORY, canRemove = ItemInfo.CAN_REVMOE.YES, snippet = {}, details = {}, cb, creator) {
   if (!creatorId) {
     return cb && cb(i18n.t('ivideoProjectCreatorIdIsNull'));
@@ -535,16 +538,91 @@ service.copy = function copy(info, needDelete = false, cb) {
   });
 };
 
-
-// 入库
-service.warehouse = function warehouse(info, cb) {
-  return cb && cb(null, 'ok');
+const WAREHOUSE_TYPE = {
+  WAREHOUSE: '1',
+  WAREHOUSE_SHELF: '2',
 };
 
 
-// 入库并上架
-service.warehouseAndShelf = function warehouseAndShelf(info, cb) {
-  return cb && cb(null, 'ok');
+// 入库
+service.warehouse = function warehouse(info, cb) {
+  if (info.warehouseType === WAREHOUSE_TYPE.WAREHOUSE) {
+    const params = {
+      fastEditorId: '',
+      fastEditorTemplateId: '',
+      createParams: [],
+      userId: info.creator._id,
+      userName: info.creator.name,
+      catalogInfo: {},
+    };
+    if (!info.fileInfos || info.fileInfos.constructor.name !== 'Array') {
+      return cb && cb(i18n.t('warehouseParamsFileInfosIsInvalid'));
+    }
+
+    shelfManageService.getDefaultFastEditTemplateInfo((err, doc) => {
+      if (err) {
+        return cb && cb(err);
+      }
+      params.fastEditorTemplateId = doc._id;
+      params.createParams = info.fileInfos;
+      params.catalogInfo = info.catalogInfo;
+      return cb && cb(null, 'ok');
+      // const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/JobService/createWarehouse`;
+      // utils.requestCallApi(url, 'POST', param, '', (err, rs) => {
+      //   if (err) {
+      //     return cb && cb(err); // res.json(result.fail(err));
+      //   }
+      //
+      //   if (rs.status === '0') {
+      //     return cb && cb(null, 'ok');
+      //   } else {
+      //     return cb && cb(i18n.t('joDownloadError', { error: rs.statusInfo.message }));
+      //   }
+      // });
+    });
+  } else if (info.warehouseType === WAREHOUSE_TYPE.WAREHOUSE_SHELF) {
+    const params = {
+      fastEditorId: '',
+      fastEditorTemplateId: '',
+      createParams: [],
+      userId: info.creator._id,
+      userName: info.creator.name,
+      catalogInfo: {},
+      shelveTemplateId: '',
+    };
+    if (!info.fileInfos || info.fileInfos.constructor.name !== 'Array') {
+      return cb && cb(i18n.t('warehouseParamsFileInfosIsInvalid'));
+    }
+    params.createParams = info.fileInfos;
+    params.catalogInfo = info.catalogInfo;
+    shelfManageService.getDefaultFastEditTemplateInfo((err, doc) => {
+      if (err) {
+        return cb && cb(err);
+      }
+      params.fastEditorTemplateId = doc._id;
+      shelfManageService.getDefaultTemplateInfo((err, doc) => {
+        if (err) {
+          return cb && cb(err);
+        }
+        params.shelveTemplateId = doc._id;
+        return cb && cb(null, 'ok');
+        // const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/JobService/createWarehouse`;
+        // utils.requestCallApi(url, 'POST', param, '', (err, rs) => {
+        //   if (err) {
+        //     return cb && cb(err); // res.json(result.fail(err));
+        //   }
+        //
+        //   if (rs.status === '0') {
+        //     return cb && cb(null, 'ok');
+        //   } else {
+        //     return cb && cb(i18n.t('joDownloadError', { error: rs.statusInfo.message }));
+        //   }
+        // });
+      });
+    });
+  } else {
+    return cb && cb(i18n.t('warehouseParamsWarehouseTypeIsInvalid'));
+  }
 };
 
 module.exports = service;

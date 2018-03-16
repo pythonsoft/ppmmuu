@@ -1016,7 +1016,7 @@ service.updatePackageStatus = function updatePackageStatus(id, packageStatus, cb
   const updateInfo = {
     lastModifyTime: new Date(),
     packageStatus,
-  }
+  };
   shelfTaskInfo.collection.update({ _id: id }, { $set: updateInfo }, (err) => {
     if (err) {
       logger.error(err.message);

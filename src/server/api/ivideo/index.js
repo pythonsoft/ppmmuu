@@ -552,4 +552,134 @@ router.post('/move', (req, res) => {
   info.creator = creator;
   service.copy(info, true, (err, r) => res.json(result.json(err, r)));
 });
+
+
+/**
+ * @permissionGroup: movieEditor
+ * @permissionName: 视频入库或入库并上架
+ * @permissionPath: /ivideo/warehouse
+ * @apiName: warehouse
+ * @apiFuncType: post
+ * @apiFuncUrl: /ivideo/warehouse
+ * @swagger
+ * /ivideo/warehouse:
+ *   post:
+ *     description:  视频入库或入库并上架
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - IVideo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         schema:
+ *          type: object
+ *          required:
+ *            - warehouseType
+ *            - fileInfos
+ *            - catalogInfo
+ *          properties:
+ *            warehouseType:
+ *              type: string
+ *              description: '1:入库,2:入库并上架'
+ *              example: '1'
+ *            fileInfos:
+ *              type: array
+ *              items: object
+ *              description: '视频文件信息,相同视频的多个片段要合并在一个对象里，所以inpoint和outpoint是数组'
+ *              example: [{'objectId': '13', fromWhere: '', fileName: '', inpoint: ['1.123','2.456'], outpoint:['1.456','2.789']}]
+ *            catalogInfo:
+ *              type: object
+ *              description: '编目信息'
+ *              properties:
+ *                type:
+ *                  type: string
+ *                  description: '节目类型'
+ *                  example: '宣传'
+ *                chineseName:
+ *                  type: string
+ *                  description: '名称(中文)'
+ *                  example: '鲁豫有约'
+ *                englishName:
+ *                  type: string
+ *                  description: '名称(英文)'
+ *                  example: 'luyu youyue'
+ *                keyword:
+ *                  type: string
+ *                  description: '关键字'
+ *                  example: '鲁豫'
+ *                content:
+ *                  type: string
+ *                  description: '内容'
+ *                  example: '鲁豫采访了'
+ *                name:
+ *                  type: string
+ *                  description: '名称'
+ *                  example: '鲁豫有约'
+ *                ccid:
+ *                  type: string
+ *                  description: '编目类'
+ *                  example: '片段子類'
+ *                owner:
+ *                  type: object
+ *                  description: '编目人，可以从localStorage里去取'
+ *                  example: {_id: '', name: ''}
+ *                newsType:
+ *                  type: string
+ *                  description: '新聞類型'
+ *                  example: '鳳凰新聞'
+ *                keyman:
+ *                  type: string
+ *                  description: '任务'
+ *                  example: '鲁豫'
+ *                occurCountry:
+ *                  type: string
+ *                  description: '事发国家'
+ *                  example: '安哥拉 Angola AO'
+ *                duration:
+ *                  type: string
+ *                  description: '净长,所有视频片段时长的总和'
+ *                  example: '09:11:12:34'
+ *                version:
+ *                  type: string
+ *                  description: '版本'
+ *                  example: '播出版'
+ *                language:
+ *                  type: string
+ *                  description: '语言'
+ *                  example: '普通话'
+ *                madeLocation:
+ *                  type: string
+ *                  description: '制作地点'
+ *                  example: '深圳'
+ *                pigeonhole:
+ *                  type: string
+ *                  description: '是否归档'
+ *                  example: '是'
+ *                hdFlag:
+ *                  type: number
+ *                  description: '高标清'
+ *                  example: 1
+ *                newsTime:
+ *                  type: string
+ *                  description: '新闻日期'
+ *                  example: '2018-03-16T08:05:01.946Z'
+ *                airTime:
+ *                  type: string
+ *                  description: '首播日期'
+ *                  example: '2018-03-16T08:05:01.946Z'
+ *     responses:
+ *       200:
+ *         description: IVideo
+ */
+router.post('/warehouse', (req, res) => {
+  const creatorId = req.ex.userInfo._id;
+  const name = req.ex.userInfo.name;
+  const creator = { _id: creatorId, name };
+  const info = req.body;
+  info.creator = creator;
+  service.warehouse(info, (err, r) => res.json(result.json(err, r)));
+});
 module.exports = router;
