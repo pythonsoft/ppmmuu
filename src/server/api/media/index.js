@@ -40,7 +40,7 @@ router.use(isLogin.middleware);
  *           properties:
  *             isAccurate:
  *               type: boolean
- *               description: '是否是精准搜素, true false',
+ *               description: '是否是精准搜索'
  *               example: false
  *             match:
  *               type: array
