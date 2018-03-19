@@ -205,17 +205,18 @@ service.getCacheEsMediaList = function getCacheEsMediaList(info, cb) {
 
 const getEsOptions = function getEsOptions(info) {
   let match = info.match || [];
-  let should = info.should || [];
+  // let should = info.should || [];
   const range = info.range || [];
   const hl = info.hl || '';
   const sort = info.sort || [];
   const start = info.start || 0;
   const pageSize = info.pageSize || 24;
   const source = info.source || ES_FILTER_FIELDS;
+  const isAccurate = info.isAccurate;
 
   // convert simplified to tranditional
   match = JSON.parse(nodecc.simplifiedToTraditional(JSON.stringify(match)));
-  should = JSON.parse(nodecc.simplifiedToTraditional(JSON.stringify(should)));
+  // should = JSON.parse(nodecc.simplifiedToTraditional(JSON.stringify(should)));
   const getHighLightFields = function getHighLightFields(fields) {
     const obj = {};
     fields = fields.split(',');
@@ -231,27 +232,25 @@ const getEsOptions = function getEsOptions(info) {
       const temp = arr[i];
       if (temp.value) {
         if (temp.key === key) {
-          const fullText = temp.value.trim().split(' ');
           const matchPhrase = {};
           matchPhrase[key] = temp.value.trim();
           rs.push({
             match_phrase: matchPhrase,
           });
-          for (let j = 0, len1 = fullText.length; j < len1; j++) {
-            if (fullText[j]) {
-              const item = {
-                match: {},
-              };
-              item.match[key] = fullText[j];
-              rs.push(item);
-            }
+        } else if (!(temp.value.constructor.name === 'Array' && temp.value.length === 0)) {
+          if (temp.value.constructor.name === 'Array') {
+            const item = {
+              terms: {},
+            };
+            item.terms[temp.key] = temp.value;
+            rs.push(item);
+          } else {
+            const item = {
+              match: {},
+            };
+            item.match[temp.key] = temp.value;
+            rs.push(item);
           }
-        } else {
-          const item = {
-            match: {},
-          };
-          item.match[temp.key] = temp.value;
-          rs.push(item);
         }
       }
     }
@@ -332,78 +331,72 @@ const getEsOptions = function getEsOptions(info) {
     }
   };
 
-  const must = formatMustMust(match, 'full_text');
-  const mustShould = formatMustShould(match, 'full_text');
-  const shoulds = formatShould(should, 'full_name');
-  const sorts = formatSort(sort);
-  const highlight = getHighLightFields(hl);
-  formatRange(range, must);
-
   const options = {
     _source: source.split(','),
     from: start * 1,
     size: pageSize * 1,
   };
+  const sorts = formatSort(sort);
+  const highlight = getHighLightFields(hl);
 
-  if (must.length && mustShould.length) {
-    const percent = mustShould.length > 1 ? '75%' : '100%';
+  if (isAccurate) {
+    const must = formatShould(match, 'full_text');
+    formatRange(range, must);
     options.query = {
       bool: {
-        must: {
-          bool: {
-            should: mustShould,
-            minimum_should_match: percent,
-            must,
-          },
-        },
+        must,
       },
     };
-  } else if (must.length) {
-    options.query = {
-      bool: {
-        must: {
-          bool: {
-            must,
-          },
-        },
-      },
-    };
-  } else if (mustShould.length) {
-    options.query = {
-      bool: {
-        must: {
-          bool: {
-            should: mustShould,
-            minimum_should_match: '75%',
-          },
-        },
-      },
-    };
-  }
-
-  if (shoulds.length) {
-    if (options.query) {
-      options.query.bool.should = shoulds;
-    } else {
+  } else {
+    const must = formatMustMust(match, 'full_text');
+    const mustShould = formatMustShould(match, 'full_text');
+    // const shoulds = formatShould(should, 'full_name');
+    formatRange(range, must);
+    if (must.length && mustShould.length) {
+      const percent = mustShould.length > 1 ? '75%' : '100%';
       options.query = {
         bool: {
-          should: shoulds,
+          must: {
+            bool: {
+              should: mustShould,
+              minimum_should_match: percent,
+              must,
+            },
+          },
+        },
+      };
+    } else if (must.length) {
+      options.query = {
+        bool: {
+          must: {
+            bool: {
+              must,
+            },
+          },
+        },
+      };
+    } else if (mustShould.length) {
+      options.query = {
+        bool: {
+          must: {
+            bool: {
+              should: mustShould,
+              minimum_should_match: '75%',
+            },
+          },
         },
       };
     }
   }
-
   if (sorts.length) {
     options.sort = sorts;
   }
-
   if (!utils.isEmptyObject(highlight)) {
     options.highlight = {
       require_field_match: false,
       fields: highlight,
     };
   }
-
   return options;
 };
 
