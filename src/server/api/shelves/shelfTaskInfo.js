@@ -47,7 +47,8 @@ class ShelfTaskInfo extends DB {
       full_text: { type: 'string' },
       editorInfo: { type: 'object',
         default: {
-          name: '',
+          name: '',              // 节目名称
+          fileName: '',          // 文件名
           subscribeType: [],
           source: '',
           limit: '',

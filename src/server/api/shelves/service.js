@@ -75,6 +75,7 @@ const listDepartmentShelfTask = function listDepartmentShelfTask(req, cb) {
       { programNO: { $regex: keyword, $options: 'i' } },
       { 'assignee.name': { $regex: keyword, $options: 'i' } },
       { 'dealer.name': { $regex: keyword, $options: 'i' } },
+      { 'editorInfo.fileName': { $regex: keyword, $options: 'i' } },
     ];
   }
 
@@ -273,6 +274,7 @@ service.createShelfTask = function createShelfTask(info, cb) {
     for (const key in basic) {
       info.details[key] = basic[key];
     }
+    info.editorInfo.fileName = basic.NAME;
     if (info.details.OUTPOINT) {
       info.details.duration = info.details.OUTPOINT - info.details.INPOINT;
     }
@@ -374,6 +376,7 @@ service.listMyselfShelfTask = function listMyselfShelfTask(req, cb) {
       { name: { $regex: keyword, $options: 'i' } },
       { programNO: { $regex: keyword, $options: 'i' } },
       { 'assignee.name': { $regex: keyword, $options: 'i' } },
+      { 'editorInfo.fileName': { $regex: keyword, $options: 'i' } },
     ];
   }
 
@@ -735,6 +738,7 @@ service.listLineShelfTask = function listLineShelfTask(req, cb) {
       { name: { $regex: keyword, $options: 'i' } },
       { programNO: { $regex: keyword, $options: 'i' } },
       { 'dealer.name': { $regex: keyword, $options: 'i' } },
+      { 'editorInfo.fileName': { $regex: keyword, $options: 'i' } },
     ];
   }
 
