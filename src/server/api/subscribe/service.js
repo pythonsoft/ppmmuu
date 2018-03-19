@@ -598,10 +598,8 @@ service.getShelfInfo = function getShelfInfo(req, cb) {
       }
       rs.name.value = doc.editorInfo.name;
       rs.subscribeType.value = doc.editorInfo.subscribeType;
-      rs.source.value = doc.editorInfo.source;
       rs.limit.value = doc.editorInfo.limit;
       rs.lastModifyTime.value = doc.lastModifyTime;
-      rs.programNO.value = doc.programNO;
       doc.details = rs;
       return cb && cb(null, doc);
     }
