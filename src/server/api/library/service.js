@@ -1029,5 +1029,18 @@ service.updateTemplate = function updateTemplate(_id, info, cb) {
   }
 };
 
+service.getDefaultLibraryTemplateInfo = function getDefaultLibraryTemplateInfo(departmentId, cb) {
+  templateInfo.collection.findOne({ 'department._id': departmentId }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+    if (!doc) {
+      return cb && cb(i18n.t('defaultLibraryTemplateNotFound'));
+    }
+    return cb && cb(null, doc);
+  });
+};
+
 module.exports = service;
 

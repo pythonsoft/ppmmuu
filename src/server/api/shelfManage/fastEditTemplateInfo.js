@@ -18,12 +18,14 @@ class FastEditTemplateInfo extends DB {
       creator: { type: 'object', default() { return { _id: '', name: '' }; } },
       createdTime: { type: 'date', validation: 'require', allowUpdate: false },
       lastModifyTime: { type: 'date', validation: 'require' },
+      bucketId: {
+        type: 'string',
+        validation: 'require',
+      },
       details: { type: 'object' },
-      downloadWorkPath: { type: 'string', validation: 'require' },
-      transcodeWorkPath: { type: 'string', validation: 'require' },
       transcodeTemplateId: { type: 'string', validation: 'require' },
       transcodeTemplateName: { type: 'string', validation: 'require' },
-      storagePath: { type: 'string', validation: 'require' },
+      script: { type: 'string', validation: 'require' },
       description: { type: 'string' },
       subtitleType: { type: 'array' },
     };
