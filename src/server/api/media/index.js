@@ -38,6 +38,10 @@ router.use(isLogin.middleware);
  *         schema:
  *           type: object
  *           properties:
+ *             isAccurate:
+ *               type: boolean
+ *               description: '是否是精准搜素, true false',
+ *               example: false
  *             match:
  *               type: array
  *               description: '条件, key:字段, value：值'
