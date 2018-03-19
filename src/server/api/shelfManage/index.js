@@ -14,7 +14,7 @@ const isLogin = require('../../middleware/login');
 
 router.get('/fastEditTemplate/:id', (req, res) => {
   const _id = req.params.id || '';
-  service.getFastEditTemplateInfo(_id, (err, doc) => res.json(result.json(err, doc)));
+  service.getFastEditTemplateInfoResult(_id, (err, doc) => res.json(result.json(err, doc)));
 });
 
 router.get('/shelfTemplate/:id/', (req, res) => {

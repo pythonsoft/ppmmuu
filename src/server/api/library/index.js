@@ -1408,40 +1408,6 @@ router.get('/getFile', (req, res) => {
 
 /**
  * @permissionGroup: library
- * @permissionName: 获取视频所有文件
- * @permissionPath: /library/getVideoFiles
- * @apiName: getVideoFiles
- * @apiFuncType: get
- * @apiFuncUrl: /library/getVideoFiles
- * @swagger
- * /library/getVideoFiles:
- *   get:
- *     description: getVideoFiles
- *     tags:
- *       - v1
- *       - library
- *     produces:
- *       - application/json
- *     parameters:
- *       - in: query
- *         name: objectId
- *         description: '视频objectId'
- *         required: true
- *         type: string
- *         default: '327ffc3d-f14a-421d-b428-7a968573d4a5'
- *         collectionFormat: csv
- *     responses:
- *       200:
- *         description:
- * */
-router.get('/getVideoFiles', (req, res) => {
-  const objectId = req.query.objectId || '';
-
-  service.getFilesByObjectId(objectId, (err, docs) => res.json(result.json(err, docs)));
-});
-
-/**
- * @permissionGroup: library
  * @permissionName: 获取文件字幕信息
  * @permissionPath: /library/getSubtitles
  * @apiName: getSubtitles

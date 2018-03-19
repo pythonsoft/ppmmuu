@@ -1027,4 +1027,19 @@ service.updatePackageStatus = function updatePackageStatus(id, packageStatus, cb
   });
 };
 
+service.getFilesById = function getFilesById(_id, cb) {
+  if (!_id) {
+    return cb && cb(i18n.t('libraryFileInfoFieldIsNull', { field: '_id' }));
+  }
+
+  shelfTaskInfo.collection.find({ _id }, { fields: { files: 1, fromWhere: 1 } }).toArray((err, docs) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, docs);
+  });
+};
+
 module.exports = service;

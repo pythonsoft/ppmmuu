@@ -27,7 +27,6 @@ const templateInfo = new TemplateInfo();
 
 const userService = require('../user/service');
 const groupService = require('../group/service');
-const libraryService = require('../library/service');
 const fieldMap = require('./fieldMap');
 
 const service = {};
@@ -842,22 +841,6 @@ service.getFile = function getFile(id, cb) {
     return cb && cb(null, doc);
   });
 };
-
-service.getFilesByObjectId = function getFilesByObjectId(objectId, cb) {
-  if (!objectId) {
-    return cb && cb(i18n.t('libraryFileInfoFieldIsNull', { field: 'objectId' }));
-  }
-
-  fileInfo.collection.find({ objectId }, { fields: { _id: 1, type: 1 } }).toArray((err, docs) => {
-    if (err) {
-      logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
-    }
-
-    return cb && cb(null, docs);
-  });
-};
-
 
 service.getSourceFileAndSubtitleFile = function getSourceFileAndSubtitleFile(objectId, cb) {
   if (!objectId) {

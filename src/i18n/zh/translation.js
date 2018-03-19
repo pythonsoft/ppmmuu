@@ -1221,5 +1221,9 @@ module.exports = {
     code: '-260012',
     message: '参数warehouseType不正确',
   },
+  defaultLibraryTemplateNotFound: {
+    code: '-260013',
+    message: '找不到当前用户所在部门的默认入库模板，请先创建',
+  },
 };
 
