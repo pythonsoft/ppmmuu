@@ -7,7 +7,7 @@ module.exports = {
   name: {
     cn: '節目名稱(中文)',
   },
-  fileName: {
+  NAME: {
     cn: '文件名',
   },
   FIELD196: {
