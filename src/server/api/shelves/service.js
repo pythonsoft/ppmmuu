@@ -15,6 +15,7 @@ const roleService = require('../role/service');
 const subscribeManagementService = require('../subscribeManagement/service');
 const mediaService = require('../media/service');
 const templateService = require('../template/service');
+const fieldConfig = require('../subscribe/fieldConfig');
 
 const ShelfTaskInfo = require('./shelfTaskInfo');
 const CatalogInfo = require('../library/catalogInfo');
@@ -37,6 +38,7 @@ const listShelfTask = function listShelfTask(query, page, pageSize, cb) {
         if (items[i].editorInfo && items[i].editorInfo.subscribeType && items[i].editorInfo.subscribeType.constructor.name === 'Array') {
           items[i].editorInfo.subscribeType = items[i].editorInfo.subscribeType.join(',');
         }
+        items[i].editorInfo.fileName = items[i].details.NAME;
         delete items[i].details;
       }
     }
@@ -442,6 +444,57 @@ service.getShelfDetail = function getShelfDetail(info, cb) {
       doc.editorInfo.subscribeType = doc.editorInfo.subscribeType.join(',');
       return cb && cb(null, doc);
     });
+  });
+};
+
+service.getShelfAndSubscription = function getShelfAndSubscription(info, cb) {
+  service.getShelfDetail(info, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+    const result = {};
+    const rs = [];
+    result.fromWhere = doc.fromWhere || CatalogInfo.FROM_WHERE.MAM;
+    rs.push({
+      key: 'name',
+      cn: '节目名称(中文)',
+      value: doc.editorInfo.fileName,
+    });
+    rs.push({
+      key: 'subscribeType',
+      cn: '订阅类型',
+      value: doc.editorInfo.subscribeTypeText,
+    });
+    rs.push({
+      key: 'limit',
+      cn: '限制',
+      value: doc.editorInfo.limit,
+    });
+    rs.push({
+      key: 'fileName',
+      cn: '文件名',
+      value: doc.details.NAME,
+    });
+    rs.push({
+      key: 'cover',
+      cn: '封面',
+      value: doc.editorInfo.cover,
+    });
+    if (doc.details) {
+      const program = doc.details;
+      for (const key in fieldConfig) {
+        if (key !== 'NAME') {
+          rs.push({
+            key,
+            cn: fieldConfig[key].cn,
+            value: program[key] || '',
+          });
+        }
+      }
+    }
+    result.details = rs;
+    return cb && cb(null, result);
   });
 };
 
