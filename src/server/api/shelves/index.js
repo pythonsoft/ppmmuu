@@ -73,7 +73,12 @@ router.use(isLogin.hasAccessMiddleware);
  *                  type: string
  */
 router.post('/createShelfTask', (req, res) => {
-  service.createShelfTask(req, (err, r) => res.json(result.json(err, r)));
+  const creator = { _id: req.ex.userInfo._id, name: req.ex.userInfo.name };
+  const department = req.ex.userInfo.department;
+  const info = req.body;
+  info.creator = creator;
+  info.department = department;
+  service.createShelfTask(info, (err, r) => res.json(result.json(err, r)));
 });
 
 /**

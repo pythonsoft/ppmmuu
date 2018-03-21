@@ -842,6 +842,21 @@ service.getFile = function getFile(id, cb) {
   });
 };
 
+service.getSourceFileAndSubtitleFile = function getSourceFileAndSubtitleFile(objectId, cb) {
+  if (!objectId) {
+    return cb && cb(i18n.t('libraryFileInfoFieldIsNull', { field: 'objectId' }));
+  }
+
+  fileInfo.collection.find({ objectId, type: { $in: [FileInfo.TYPE.HIGH_VIDEO, FileInfo.TYPE.SUBTITLE] } }).toArray((err, docs) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, docs);
+  });
+};
+
 service.getSubtitleFile = function getSubtitleFile(id, cb) {
   service.getFile(id, (err, doc) => {
     if (err) {
