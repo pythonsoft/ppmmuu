@@ -589,19 +589,47 @@ service.getShelfInfo = function getShelfInfo(req, cb) {
     if (err) {
       return cb && cb(err);
     }
-    const rs = JSON.parse(JSON.stringify(fieldConfig));
+    const rs = [];
     doc.fromWhere = doc.fromWhere || CatalogInfo.FROM_WHERE.MAM;
     if (doc.details) {
-      const program = doc.details;
-      for (const key in rs) {
-        rs[key].value = program[key] || '';
+      rs.push({
+        key: 'name',
+        cn: '节目名称(中文)',
+        value: doc.editorInfo.fileName,
+      });
+      rs.push({
+        key: 'subscribeType',
+        cn: '订阅类型',
+        value: doc.editorInfo.subscribeTypeText,
+      });
+      rs.push({
+        key: 'limit',
+        cn: '限制',
+        value: doc.editorInfo.limit,
+      });
+      rs.push({
+        key: 'fileName',
+        cn: '文件名',
+        value: doc.details.NAME,
+      });
+      if (doc.details) {
+        const program = doc.details;
+        for (const key in fieldConfig) {
+          if (key === 'lastModifyTime') {
+            rs.push({
+              key,
+              cn: fieldConfig[key].cn,
+              value: doc.lastModifyTime,
+            });
+          } else if (key !== 'NAME') {
+            rs.push({
+              key,
+              cn: fieldConfig[key].cn,
+              value: program[key] || '',
+            });
+          }
+        }
       }
-      rs.name.value = doc.editorInfo.name;
-      rs.subscribeType.value = doc.editorInfo.subscribeType;
-      rs.source.value = doc.editorInfo.source;
-      rs.limit.value = doc.editorInfo.limit;
-      rs.lastModifyTime.value = doc.lastModifyTime;
-      rs.programNO.value = doc.programNO;
       doc.details = rs;
       return cb && cb(null, doc);
     }

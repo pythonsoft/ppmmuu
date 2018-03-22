@@ -162,7 +162,9 @@ const runDownloadScript = function runDownloadScript(userInfo, bucketInfo, scrip
 
 service.addTemplate = function addTemplate(info, cb) {
   const t = new Date();
-  info._id = uuid.v1();
+  if (!info._id) {
+    info._id = uuid.v1();
+  }
   info.createdTime = t;
   info.lastModifyTime = t;
   templateInfo.collection.findOne({}, (err, doc) => {
@@ -333,8 +335,7 @@ service.getShelfTemplateResult = function getShelfTemplateResult(id, filePath, c
   }
 
   const rs = {
-    downloadWorkPath: '',
-    transcodeWorkPath: '',
+    bucketId: '',
     transcodeTemplates: [],
   };
 
@@ -346,8 +347,7 @@ service.getShelfTemplateResult = function getShelfTemplateResult(id, filePath, c
     if (!doc) {
       return cb && cb(i18n.t('templateIsNotExist'));
     }
-    rs.downloadWorkPath = doc.downloadWorkPath;
-    rs.transcodeWorkPath = doc.transcodeWorkPath;
+    rs.bucketId = doc.bucketId;
     rs.transcodeTemplates = [];
 
     service.getTranscodeTemplateByDetail(doc, filePath, (err, arr) => {
@@ -420,7 +420,9 @@ service.listFastEditTemplate = function listFastEditTemplate(info, cb) {
 
 service.addFastEditTemplate = function addFastEditTemplate(info, cb) {
   const t = new Date();
-  info._id = uuid.v1();
+  if (!info._id) {
+    info._id = uuid.v1();
+  }
   info.createdTime = t;
   info.lastModifyTime = t;
   fastEditTemplateInfo.collection.findOne({}, (err, doc) => {
@@ -486,6 +488,43 @@ service.getFastEditTemplateInfo = function getFastEditTemplateInfo(_id, cb) {
     }
 
     return cb && cb(null, doc);
+  });
+};
+
+service.getFastEditTemplateInfoResult = function getFastEditTemplateInfoResult(_id, cb) {
+  if (!_id) {
+    return cb && cb(i18n.t('fastEditTemplateInfoFieldIsNull', { field: '_id' }));
+  }
+
+  fastEditTemplateInfo.collection.findOne({ _id }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+    storageService.getBucketDetail(doc.bucketId, (err, bucketInfo) => {
+      if (err) {
+        return cb && cb(err);
+      }
+
+      if (!bucketInfo) {
+        return cb && cb(i18n.t('fastTemplateBucketIsNotExist'));
+      }
+
+      const user = { name: '' };
+      user.password = '';
+
+      runDownloadScript(user, bucketInfo, doc.script, (err, downloadPath) => {
+        if (err) {
+          return cb && cb(err);
+        }
+        if (!downloadPath) {
+          return cb && cb(i18n.t('fastTemplateScriptIsInvalid'));
+        }
+        delete doc.script;
+        doc.storagePath = downloadPath;
+        return cb && cb(null, doc);
+      });
+    });
   });
 };
 

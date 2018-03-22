@@ -4,14 +4,11 @@ module.exports = {
   FIELD330: {
     cn: 'Slug',
   },
-  programNO: {
-    cn: '節目編號',
-  },
   name: {
-    cn: '節目名稱',
-  },
-  FIELD195: {
     cn: '節目名稱(中文)',
+  },
+  NAME: {
+    cn: '文件名',
   },
   FIELD196: {
     cn: '節目名稱(英文)',
@@ -21,9 +18,6 @@ module.exports = {
   },
   FIELD198: {
     cn: '節目副題(英文)',
-  },
-  source: {
-    cn: '來源',
   },
   limit: {
     cn: '限制',
@@ -53,7 +47,7 @@ module.exports = {
     cn: '故事大纲',
   },
   FIELD247: {
-    cn: 'REMARK(内容介绍)',
+    cn: '内容介绍',
   },
 };
 

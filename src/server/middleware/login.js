@@ -14,7 +14,7 @@ const UserInfo = require('../api/user/userInfo');
 const PermissionInfo = require('../api/role/permissionInfo');
 const PermissionAssignmentInfo = require('../api/role/permissionAssignmentInfo');
 const SubscribeInfo = require('../api/subscribeManagement/subscribeInfo');
-const groupService = require('../api/group/service');
+const groupService = require('../api/group/userService');
 
 const userInfo = new UserInfo();
 const subscribeInfo = new SubscribeInfo();

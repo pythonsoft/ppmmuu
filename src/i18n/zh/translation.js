@@ -1221,5 +1221,17 @@ module.exports = {
     code: '-260012',
     message: '参数warehouseType不正确',
   },
+  defaultLibraryTemplateNotFound: {
+    code: '-260013',
+    message: '找不到当前用户所在部门的默认入库模板，请先创建',
+  },
+  fastTemplateBucketIsNotExist: {
+    code: '-260014',
+    message: '快编模板没有配置存储区',
+  },
+  fastTemplateScriptIsInvalid: {
+    code: '-260015',
+    message: '快编模板路径脚本配置不正确',
+  },
 };
 

@@ -48,7 +48,7 @@ router.get('/getAsyncCatalogInfoList', (req, res) => {
 
 router.get('/template/:id', (req, res) => {
   const _id = req.params.id || '';
-  service.getTemplateInfo(_id, (err, doc) => res.json(result.json(err, doc)));
+  service.getTemplateResult(_id, '', (err, doc) => res.json(result.json(err, doc)));
 });
 
 router.get('/file/:objectId', (req, res) => {

@@ -15,6 +15,7 @@ const roleService = require('../role/service');
 const subscribeManagementService = require('../subscribeManagement/service');
 const mediaService = require('../media/service');
 const templateService = require('../template/service');
+const fieldConfig = require('../subscribe/fieldConfig');
 
 const ShelfTaskInfo = require('./shelfTaskInfo');
 const CatalogInfo = require('../library/catalogInfo');
@@ -37,6 +38,7 @@ const listShelfTask = function listShelfTask(query, page, pageSize, cb) {
         if (items[i].editorInfo && items[i].editorInfo.subscribeType && items[i].editorInfo.subscribeType.constructor.name === 'Array') {
           items[i].editorInfo.subscribeType = items[i].editorInfo.subscribeType.join(',');
         }
+        items[i].editorInfo.fileName = items[i].details.NAME;
         delete items[i].details;
       }
     }
@@ -75,6 +77,7 @@ const listDepartmentShelfTask = function listDepartmentShelfTask(req, cb) {
       { programNO: { $regex: keyword, $options: 'i' } },
       { 'assignee.name': { $regex: keyword, $options: 'i' } },
       { 'dealer.name': { $regex: keyword, $options: 'i' } },
+      { 'editorInfo.fileName': { $regex: keyword, $options: 'i' } },
     ];
   }
 
@@ -273,6 +276,7 @@ service.createShelfTask = function createShelfTask(info, cb) {
     for (const key in basic) {
       info.details[key] = basic[key];
     }
+    info.editorInfo.fileName = basic.NAME;
     if (info.details.OUTPOINT) {
       info.details.duration = info.details.OUTPOINT - info.details.INPOINT;
     }
@@ -374,6 +378,7 @@ service.listMyselfShelfTask = function listMyselfShelfTask(req, cb) {
       { name: { $regex: keyword, $options: 'i' } },
       { programNO: { $regex: keyword, $options: 'i' } },
       { 'assignee.name': { $regex: keyword, $options: 'i' } },
+      { 'editorInfo.fileName': { $regex: keyword, $options: 'i' } },
     ];
   }
 
@@ -439,6 +444,57 @@ service.getShelfDetail = function getShelfDetail(info, cb) {
       doc.editorInfo.subscribeType = doc.editorInfo.subscribeType.join(',');
       return cb && cb(null, doc);
     });
+  });
+};
+
+service.getShelfAndSubscription = function getShelfAndSubscription(info, cb) {
+  service.getShelfDetail(info, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+    const result = {};
+    const rs = [];
+    result.fromWhere = doc.fromWhere || CatalogInfo.FROM_WHERE.MAM;
+    rs.push({
+      key: 'name',
+      cn: '节目名称(中文)',
+      value: doc.editorInfo.fileName,
+    });
+    rs.push({
+      key: 'subscribeType',
+      cn: '订阅类型',
+      value: doc.editorInfo.subscribeTypeText,
+    });
+    rs.push({
+      key: 'limit',
+      cn: '限制',
+      value: doc.editorInfo.limit,
+    });
+    rs.push({
+      key: 'fileName',
+      cn: '文件名',
+      value: doc.details.NAME,
+    });
+    rs.push({
+      key: 'cover',
+      cn: '封面',
+      value: doc.editorInfo.cover,
+    });
+    if (doc.details) {
+      const program = doc.details;
+      for (const key in fieldConfig) {
+        if (key !== 'NAME') {
+          rs.push({
+            key,
+            cn: fieldConfig[key].cn,
+            value: program[key] || '',
+          });
+        }
+      }
+    }
+    result.details = rs;
+    return cb && cb(null, result);
   });
 };
 
@@ -735,6 +791,7 @@ service.listLineShelfTask = function listLineShelfTask(req, cb) {
       { name: { $regex: keyword, $options: 'i' } },
       { programNO: { $regex: keyword, $options: 'i' } },
       { 'dealer.name': { $regex: keyword, $options: 'i' } },
+      { 'editorInfo.fileName': { $regex: keyword, $options: 'i' } },
     ];
   }
 
@@ -1024,6 +1081,21 @@ service.updatePackageStatus = function updatePackageStatus(id, packageStatus, cb
     }
     return cb && cb(null, 'ok');
     // loopUpdateCover(editorInfo.cover, _ids, 0, () => cb && cb(null, 'ok'));
+  });
+};
+
+service.getFilesById = function getFilesById(_id, cb) {
+  if (!_id) {
+    return cb && cb(i18n.t('libraryFileInfoFieldIsNull', { field: '_id' }));
+  }
+
+  shelfTaskInfo.collection.find({ _id }, { fields: { files: 1, fromWhere: 1 } }).toArray((err, docs) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, docs);
   });
 };
 

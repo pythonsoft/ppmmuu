@@ -33,8 +33,6 @@ const config = require('../../config');
 
 const roleService = require('../role/service');
 
-const ivideoService = require('../ivideo/service');
-
 const service = {};
 
 service.getUserGroups = function getUserGroups(doc, cb) {
@@ -203,7 +201,7 @@ service.addGroupUser = function addGroupUser(info, cb) {
           return cb && cb(err);
         }
 
-        ivideoService.ensureAccountInit(info._id, err => cb && cb(err, 'ok'));
+        return cb && cb(err, 'ok');
       });
     });
   });

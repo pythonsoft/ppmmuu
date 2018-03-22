@@ -118,7 +118,7 @@ router.post('/createShelfTask', (req, res) => {
  * */
 router.get('/getShelfDetail', (req, res) => {
   req.query.fields = req.query.fields || 'name,objectId,programNO,details,editorInfo';
-  service.getShelfDetail(req.query, (err, docs) => res.json(result.json(err, docs)));
+  service.getShelfAndSubscription(req.query, (err, docs) => res.json(result.json(err, docs)));
 });
 
 
