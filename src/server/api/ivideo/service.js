@@ -547,91 +547,47 @@ const WAREHOUSE_TYPE = {
 
 // 入库
 service.warehouse = function warehouse(info, cb) {
-  if (info.warehouseType === WAREHOUSE_TYPE.WAREHOUSE) {
-    const params = {
-      fastEditorId: '',
-      fastEditorTemplateId: '',
-      createParams: [],
-      userId: info.creator._id,
-      userName: info.creator.name,
-      catalogInfo: {},
-      libraryTemplateId: '',
-    };
-    if (!info.fileInfos || info.fileInfos.constructor.name !== 'Array') {
-      return cb && cb(i18n.t('warehouseParamsFileInfosIsInvalid'));
-    }
-    params.createParams = info.fileInfos;
-    params.catalogInfo = info.catalogInfo;
-
-    shelfManageService.getDefaultFastEditTemplateInfo((err, doc) => {
-      if (err) {
-        return cb && cb(err);
-      }
-      libraryService.getDefaultLibraryTemplateInfo(info.department._id, (err, doc) => {
-        if (err) {
-          return cb && cb(err);
-        }
-        params.libraryTemplateId = doc._id;
-        return cb && cb(null, 'ok');
-        // const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/JobService/createWarehouse`;
-        // utils.requestCallApi(url, 'POST', param, '', (err, rs) => {
-        //   if (err) {
-        //     return cb && cb(err); // res.json(result.fail(err));
-        //   }
-        //
-        //   if (rs.status === '0') {
-        //     return cb && cb(null, 'ok');
-        //   } else {
-        //     return cb && cb(i18n.t('joDownloadError', { error: rs.statusInfo.message }));
-        //   }
-        // });
-      });
-    });
-  } else if (info.warehouseType === WAREHOUSE_TYPE.WAREHOUSE_SHELF) {
-    const params = {
-      fastEditorId: '',
-      fastEditorTemplateId: '',
-      createParams: [],
-      userId: info.creator._id,
-      userName: info.creator.name,
-      catalogInfo: {},
-      shelveTemplateId: '',
-      libraryTemplateId: '',
-    };
-    if (!info.fileInfos || info.fileInfos.constructor.name !== 'Array') {
-      return cb && cb(i18n.t('warehouseParamsFileInfosIsInvalid'));
-    }
-    params.createParams = info.fileInfos;
-    params.catalogInfo = info.catalogInfo;
-    shelfManageService.getDefaultFastEditTemplateInfo((err, doc) => {
-      if (err) {
-        return cb && cb(err);
-      }
-      params.fastEditorTemplateId = doc._id;
-      shelfManageService.getDefaultTemplateInfo((err, doc) => {
-        if (err) {
-          return cb && cb(err);
-        }
-        params.shelveTemplateId = doc._id;
-        params.libraryTemplateId = doc.libraryTemplate._id;
-        return cb && cb(null, 'ok');
-        // const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/JobService/createWarehouse`;
-        // utils.requestCallApi(url, 'POST', param, '', (err, rs) => {
-        //   if (err) {
-        //     return cb && cb(err); // res.json(result.fail(err));
-        //   }
-        //
-        //   if (rs.status === '0') {
-        //     return cb && cb(null, 'ok');
-        //   } else {
-        //     return cb && cb(i18n.t('joDownloadError', { error: rs.statusInfo.message }));
-        //   }
-        // });
-      });
-    });
-  } else {
-    return cb && cb(i18n.t('warehouseParamsWarehouseTypeIsInvalid'));
+  const processes = info.processes || '';
+  const fileInfos = info.fileInfos || '';
+  const catalogInfo = info.catalogInfo || '';
+  const struct = {
+    processes: { type: 'array', validation: 'require' },
+    fileInfos: { type: 'array', validation: 'require' },
+    catalogInfo: { type: 'object', validation: 'require' },
+  };
+  const err = utils.validation(info, struct);
+  if (err) {
+    return cb && cb(err);
   }
+  const params = {
+    processes,
+    createParams: {
+      userId: info.creator._id,
+      userName: info.creator.name,
+      catalogInfo,
+      fileInfos,
+    },
+  };
+  if (!info.fileInfos || info.fileInfos.constructor.name !== 'Array') {
+    return cb && cb(i18n.t('warehouseParamsFileInfosIsInvalid'));
+  }
+  params.createParams = info.fileInfos;
+  params.catalogInfo = info.catalogInfo;
+
+  console.log(JSON.stringify(params));
+  return cb && cb(null, 'ok');
+  // const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/JobService/createWarehouse`;
+  // utils.requestCallApi(url, 'POST', param, '', (err, rs) => {
+  //   if (err) {
+  //     return cb && cb(err); // res.json(result.fail(err));
+  //   }
+  //
+  //   if (rs.status === '0') {
+  //     return cb && cb(null, 'ok');
+  //   } else {
+  //     return cb && cb(i18n.t('joDownloadError', { error: rs.statusInfo.message }));
+  //   }
+  // });
 };
 
 module.exports = service;
