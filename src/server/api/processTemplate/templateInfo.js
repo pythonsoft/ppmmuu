@@ -16,16 +16,12 @@ class TemplateInfo extends DB {
       name: { type: 'string', validation: 'require' },
       creatorId: { type: 'string', validation: 'require', allowUpdate: false },
       createdTime: { type: 'date', validation: 'require', allowUpdate: false },
-      type: { type: 'string', validation: 'require' },
       modifyTime: { type: 'date', validation: 'require' },
       description: { type: 'string' },
       details: { type: 'object' },
       groupId: { type: 'string' },
       groupName: { type: 'string' },
-      templateId: { type: 'string' },
-      templateName: { type: 'string' },
-      processId: { type: 'string', validation: 'require' },
-      apiTemplateUrl: { type: 'string' },
+      params: { type: 'array' },
     };
   }
 }

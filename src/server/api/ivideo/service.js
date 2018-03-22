@@ -19,8 +19,6 @@ const ItemInfo = require('./itemInfo');
 const itemInfo = new ItemInfo();
 
 const service = {};
-const shelfManageService = require('../shelfManage/service');
-const libraryService = require('../library/service');
 
 const createSnippetOrDirItem = function createSnippetOrDirItem(creatorId, ownerType, name, parentId, type = ItemInfo.TYPE.DIRECTORY, canRemove = ItemInfo.CAN_REVMOE.YES, snippet = {}, details = {}, cb, creator) {
   if (!creatorId) {
@@ -539,20 +537,15 @@ service.copy = function copy(info, needDelete = false, cb) {
   });
 };
 
-const WAREHOUSE_TYPE = {
-  WAREHOUSE: '1',
-  WAREHOUSE_SHELF: '2',
-};
-
 
 // 入库
 service.warehouse = function warehouse(info, cb) {
-  const processes = info.processes || '';
-  const fileInfos = info.fileInfos || '';
+  const processParams = info.processParams || '';
+  const originalFileInfo = info.originalFileInfo || '';
   const catalogInfo = info.catalogInfo || '';
   const struct = {
-    processes: { type: 'array', validation: 'require' },
-    fileInfos: { type: 'array', validation: 'require' },
+    processParams: { type: 'array', validation: 'require' },
+    originalFileInfo: { type: 'array', validation: 'require' },
     catalogInfo: { type: 'object', validation: 'require' },
   };
   const err = utils.validation(info, struct);
@@ -560,34 +553,30 @@ service.warehouse = function warehouse(info, cb) {
     return cb && cb(err);
   }
   const params = {
-    processes,
-    createParams: {
-      userId: info.creator._id,
-      userName: info.creator.name,
-      catalogInfo,
-      fileInfos,
-    },
+    userId: info.creator._id,
+    userName: info.creator.name,
+    originalFileInfo,
+    catalogInfo,
+    catalogName: catalogInfo.chineseName || '',
   };
-  if (!info.fileInfos || info.fileInfos.constructor.name !== 'Array') {
-    return cb && cb(i18n.t('warehouseParamsFileInfosIsInvalid'));
-  }
-  params.createParams = info.fileInfos;
-  params.catalogInfo = info.catalogInfo;
+
+  processParams.forEach((item) => {
+    params[item.key] = item.value;
+  });
 
   console.log(JSON.stringify(params));
-  return cb && cb(null, 'ok');
-  // const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/JobService/createWarehouse`;
-  // utils.requestCallApi(url, 'POST', param, '', (err, rs) => {
-  //   if (err) {
-  //     return cb && cb(err); // res.json(result.fail(err));
-  //   }
-  //
-  //   if (rs.status === '0') {
-  //     return cb && cb(null, 'ok');
-  //   } else {
-  //     return cb && cb(i18n.t('joDownloadError', { error: rs.statusInfo.message }));
-  //   }
-  // });
+  const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/ProcessInstanceService/create`;
+  utils.requestCallApi(url, 'POST', params, '', (err, rs) => {
+    if (err) {
+      return cb && cb(err); // res.json(result.fail(err));
+    }
+
+    if (rs.status === '0') {
+      return cb && cb(null, 'ok');
+    } else {
+      return cb && cb(i18n.t('joDownloadError', { error: rs.statusInfo.message }));
+    }
+  });
 };
 
 module.exports = service;

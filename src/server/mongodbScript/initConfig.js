@@ -23,7 +23,8 @@ const meidaCenterSearchSelects = [
       { value: '墊播', label: '墊播' },
       { value: '素材', label: '素材' },
     ],
-    selected: [],
+    selected: ['廣告'],
+    show: true,
   },
   {
     key: 'ccid',
@@ -36,6 +37,26 @@ const meidaCenterSearchSelects = [
       { value: 'segment', label: 'segment' },
     ],
     selected: [],
+    show: true,
+  },
+  {
+    key: 'resource_location',
+    label: '資源所屬部門',
+    items: [
+      { value: '節目資料管理部', label: '節目資料管理部' },
+      { value: '鏡面宣傳部', label: '鏡面宣傳部' },
+      { value: '頻道編播部', label: '頻道編播部' },
+      { value: '共享資源', label: '共享資源' },
+      { value: '中文台專題主編組', label: '中文台專題主編組' },
+      { value: '中文台專題製作組', label: '中文台專題製作組' },
+      { value: '中文台娛樂製作組', label: '中文台娛樂製作組' },
+      { value: '中文台時尚製作組', label: '中文台時尚製作組' },
+      { value: '中文台時尚主編組', label: '中文台時尚主編組' },
+      { value: '節目購銷部', label: '節目購銷部' },
+      { value: '影帶管理部', label: '影帶管理部' },
+    ],
+    selected: [],
+    show: true,
   },
   {
     key: 'news_type',
@@ -61,6 +82,7 @@ const meidaCenterSearchSelects = [
       { value: 'NowTV', label: 'NowTV' },
     ],
     selected: [],
+    show: false,
   },
   {
     key: 'occur_country',
@@ -249,6 +271,7 @@ const meidaCenterSearchSelects = [
       { value: '贊比亞 Zambia ZM', label: 'Zambia ZM贊比亞' },
     ],
     selected: [],
+    show: false,
   },
   {
     key: 'versions',
@@ -268,6 +291,7 @@ const meidaCenterSearchSelects = [
       { value: '參展版', label: '參展版' },
     ],
     selected: [],
+    show: false,
   },
   {
     key: 'production_site',
@@ -281,24 +305,7 @@ const meidaCenterSearchSelects = [
       { value: 'NIL', label: 'NIL' },
     ],
     selected: [],
-  },
-  {
-    key: 'resource_location',
-    label: '資源所屬部門',
-    items: [
-      { value: '節目資料管理部', label: '節目資料管理部' },
-      { value: '鏡面宣傳部', label: '鏡面宣傳部' },
-      { value: '頻道編播部', label: '頻道編播部' },
-      { value: '共享資源', label: '共享資源' },
-      { value: '中文台專題主編組', label: '中文台專題主編組' },
-      { value: '中文台專題製作組', label: '中文台專題製作組' },
-      { value: '中文台娛樂製作組', label: '中文台娛樂製作組' },
-      { value: '中文台時尚製作組', label: '中文台時尚製作組' },
-      { value: '中文台時尚主編組', label: '中文台時尚主編組' },
-      { value: '節目購銷部', label: '節目購銷部' },
-      { value: '影帶管理部', label: '影帶管理部' },
-    ],
-    selected: [],
+    show: false,
   },
 ];
 
@@ -311,7 +318,8 @@ const mediaCenterSearchRadios = [
       { value: 1, label: '高清' },
       { value: 0, label: '標清' },
     ],
-    selected: 'all',
+    selected: 1,
+    show: true,
   },
   {
     key: 'pigeonhole',
@@ -321,7 +329,8 @@ const mediaCenterSearchRadios = [
       { value: '是', label: '是' },
       { value: '否', label: '否' },
     ],
-    selected: 'all',
+    selected: '是',
+    show: true,
   },
 ];
 

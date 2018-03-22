@@ -286,20 +286,14 @@ service.createTemplate = function createTemplate(info, cb) {
 
   info.createdTime = t;
   info.modifyTime = t;
-  if (!utils.isValueInObject(info.type, TemplateInfo.TYPE)) {
-    return cb && cb(i18n.t('templateTypeIsInvalid'));
-  }
-  if (info.templateId) {
-    info.apiTemplateUrl = utils.tpl(TYPE_CONFIG[info.type].apiTemplateUrl, { id: info.templateId });
-  }
 
-  templateInfo.insertOne(info, (err, rs) => {
+  templateInfo.insertOne(info, (err) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
 
-    return cb && cb(null, rs);
+    return cb && cb(null, 'ok');
   });
 
   return false;
@@ -324,9 +318,6 @@ service.update = function update(id, info, cb) {
   if (!id) {
     return cb && cb(i18n.t('templateIdIsNotExist'));
   }
-  if (!utils.isValueInObject(info.type, TemplateInfo.TYPE)) {
-    return cb && cb(i18n.t('templateTypeIsInvalid'));
-  }
   info.modifyTime = new Date();
 
   if (info._id) {
@@ -336,17 +327,13 @@ service.update = function update(id, info, cb) {
   if (info.id) {
     delete info.id;
   }
-
-  if (info.templateId) {
-    info.apiTemplateUrl = utils.tpl(TYPE_CONFIG[info.type].apiTemplateUrl, { id: info.templateId });
-  }
-  templateInfo.updateOne({ _id: id }, info, (err, r) => {
+  templateInfo.updateOne({ _id: id }, info, (err) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
 
-    return cb && cb(null, r);
+    return cb && cb(null, 'ok');
   });
 };
 
