@@ -145,6 +145,7 @@ service.getAsyncCatalogInfoList = function getAsyncCatalogInfoList(info, cb) {
 
       item.duration = item.outpoint - item.inpoint;
       item.full_text = fullText;
+      item.full_time = item.last_modify;
       if (!item.rootid) {
         item.rootid = item.id;
       }

@@ -577,14 +577,15 @@ router.post('/move', (req, res) => {
  *         schema:
  *          type: object
  *          required:
- *            - warehouseType
+ *            - processes
  *            - fileInfos
  *            - catalogInfo
  *          properties:
- *            warehouseType:
- *              type: string
- *              description: '1:入库,2:入库并上架'
- *              example: '1'
+ *            processes:
+ *              type: array
+ *              items: object
+ *              description: '流程数组'
+ *              example: [{'processId': '123',apiTemplateUrl: '/shelfMange/fastEditTemplate/123123'}]
  *            fileInfos:
  *              type: array
  *              items: object
