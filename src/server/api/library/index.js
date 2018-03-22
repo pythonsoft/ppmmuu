@@ -1030,7 +1030,10 @@ router.get('/listCatalog', (req, res) => {
  *                  type: string
  */
 router.post('/createCatalog', (req, res) => {
-  service.createCatalog(req.ex.userInfo._id, req.ex.userInfo.name, req.body, (err, id) => res.json(result.json(err, id)));
+  const userInfo = req.ex.userInfo;
+  const ownerId = req.body.ownerId || userInfo._id;
+  const ownerName = req.body.ownerName || userInfo.name;
+  service.createCatalog(ownerId, ownerName, req.body, (err, id) => res.json(result.json(err, id)));
 });
 
 /**

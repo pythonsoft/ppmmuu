@@ -2,6 +2,7 @@
 
 const i18n = require('i18next');
 const path = require('path');
+const utils = require('../../common/utils');
 const vm = require('vm');
 const uuid = require('uuid');
 const logger = require('../../common/log')('error');
@@ -577,6 +578,30 @@ service.createShelfTask = function createShelfTask(info, cb) {
     info.department = doc.department;
     shelfService.createShelfTask(info, cb);
   });
+};
+
+service.getShelfTaskProcess = function getShelfTaskProcess(info, cb) {
+  const struct = {
+    _id: { type: 'string', validation: 'require' },
+  };
+  const err = utils.validation(info, struct);
+  if (err) {
+    return cb && cb(err);
+  }
+
+  return cb && cb(null, 'ok');
+  // const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/JobService/shelfTask/${info._id}`;
+  // utils.requestCallApi(url, 'GET', param, '', (err, rs) => {
+  //   if (err) {
+  //     return cb && cb(err); // res.json(result.fail(err));
+  //   }
+  //
+  //   if (rs.status === '0') {
+  //     return cb && cb(null, rs.result);
+  //   } else {
+  //     return cb && cb(i18n.t('joDownloadError', { error: rs.statusInfo.message }));
+  //   }
+  // });
 };
 
 module.exports = service;

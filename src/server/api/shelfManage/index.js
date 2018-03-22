@@ -712,4 +712,36 @@ router.post('/updateFastEditTemplate', (req, res) => {
 });
 
 
+/**
+ * @permissionGroup: shelfList
+ * @permissionName: 查看上架任务流程详情
+ * @permissionPath: /shelfManage/getShelfTaskProcess
+ * @apiName: getShelfTaskProcess
+ * @apiFuncType: get
+ * @apiFuncUrl: /shelfManage/getShelfTaskProcess
+ * @swagger
+ * /shelfManage/getShelfTaskProcess:
+ *   get:
+ *     description: 查看上架任务流程详情
+ *     tags:
+ *       - v1
+ *       - library
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: _id
+ *         description: ''
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description:
+ * */
+router.get('/getShelfTaskProcess', (req, res) => {
+  service.getShelfTaskProcess(req.query, (err, doc) => res.json(result.json(err, doc)));
+});
+
 module.exports = router;
