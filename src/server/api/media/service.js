@@ -148,9 +148,6 @@ service.getEsMediaList = function getEsMediaList(info, cb) {
       match: [{
         key: 'program_type',
         value: category,
-      }, {
-        key: 'publish_status',
-        value: 1,
       }],
       source: ES_FILTER_FIELDS,
       sort: [{
@@ -213,6 +210,10 @@ const getEsOptions = function getEsOptions(info) {
   const pageSize = info.pageSize || 24;
   const source = info.source || ES_FILTER_FIELDS;
   const isAccurate = info.isAccurate;
+  match.push({
+    key: 'publish_status',
+    value: 1,
+  });
 
   // convert simplified to tranditional
   match = JSON.parse(nodecc.simplifiedToTraditional(JSON.stringify(match)));
@@ -232,11 +233,14 @@ const getEsOptions = function getEsOptions(info) {
       const temp = arr[i];
       if (temp.value) {
         if (temp.key === key) {
-          const matchPhrase = {};
-          matchPhrase[key] = temp.value.trim();
-          rs.push({
-            match_phrase: matchPhrase,
-          });
+          const value = temp.value.trim().split(' ');
+          for (let i = 0, len = value.length; i < len; i++) {
+            const matchPhrase = {};
+            matchPhrase[key] = value[i];
+            rs.push({
+              match_phrase: matchPhrase,
+            });
+          }
         } else if (!(temp.value.constructor.name === 'Array' && temp.value.length === 0)) {
           if (temp.value.constructor.name === 'Array') {
             const item = {
@@ -418,7 +422,6 @@ service.esSearch = function esSearch(info, cb, userId, videoIds) {
     body,
     json: true,
   };
-  // console.log(JSON.stringify(body));
 
   utils.commonRequestCallApi(options, (err, rs) => {
     if (err) {

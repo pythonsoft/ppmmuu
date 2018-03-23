@@ -168,21 +168,13 @@ service.addTemplate = function addTemplate(info, cb) {
   }
   info.createdTime = t;
   info.lastModifyTime = t;
-  templateInfo.collection.findOne({}, (err, doc) => {
-    if (err) {
-      logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
-    }
-    if (doc) {
-      return cb && cb(i18n.t('canAddOnlyOneShelfTemplate'));
-    }
-    templateInfo.insertOne(info, (err) => {
-      if (err) {
-        return cb && cb(err);
-      }
 
-      return cb && cb(null, 'ok');
-    });
+  templateInfo.insertOne(info, (err) => {
+    if (err) {
+      return cb && cb(err);
+    }
+
+    return cb && cb(null, 'ok');
   });
 };
 
@@ -426,21 +418,13 @@ service.addFastEditTemplate = function addFastEditTemplate(info, cb) {
   }
   info.createdTime = t;
   info.lastModifyTime = t;
-  fastEditTemplateInfo.collection.findOne({}, (err, doc) => {
-    if (err) {
-      logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
-    }
-    if (doc) {
-      return cb && cb(i18n.t('canAddOnlyOneFastEditTemplate'));
-    }
-    fastEditTemplateInfo.insertOne(info, (err) => {
-      if (err) {
-        return cb && cb(err);
-      }
 
-      return cb && cb(null, 'ok');
-    });
+  fastEditTemplateInfo.insertOne(info, (err) => {
+    if (err) {
+      return cb && cb(err);
+    }
+
+    return cb && cb(null, 'ok');
   });
 };
 

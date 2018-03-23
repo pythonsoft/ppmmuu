@@ -30,6 +30,7 @@ router.patch('/shelves/:id/:packageStatus', (req, res) => {
 });
 
 router.post('/shelves', (req, res) => {
+  req.body.creator = { _id: req.body.userId, name: req.body.userName };
   service.createShelfTask(req.body, (err, r) => res.json(result.json(err, r)));
 });
 
