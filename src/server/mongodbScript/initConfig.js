@@ -615,3 +615,25 @@ const fragmentFieldSortInfo = [{
   description: '片段信息字段显示排序',
 }];
 initConfig('片段信息字段显示', fragmentFieldSortInfo);
+
+// 订阅下载格式，下载支持如下格式
+const subscribeDownloadType = [
+  {
+    key: '1080P',
+    value: '1080P',
+    description: '订阅下载1080P资源',
+  },
+  {
+    key: '360P',
+    value: '360P',
+    description: '订阅下载360P资源',
+  },
+  {
+    key: '音频WAV',
+    value: '音频WAV',
+    description: '订阅下载音频WAV资源',
+  },
+];
+
+initConfig('subscribe_download_type', subscribeDownloadType);
+
