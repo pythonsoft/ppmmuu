@@ -19,6 +19,7 @@ const fieldConfig = require('../subscribe/fieldConfig');
 
 const ShelfTaskInfo = require('./shelfTaskInfo');
 const CatalogInfo = require('../library/catalogInfo');
+const FileInfo = require('../library/fileInfo');
 
 const shelfTaskInfo = new ShelfTaskInfo();
 
@@ -1108,6 +1109,69 @@ service.getFilesById = function getFilesById(_id, cb) {
     }
 
     return cb && cb(null, docs);
+  });
+};
+
+service.addFilesToTask = function addFilesToTask(info, cb) {
+  const struct = {
+    _id: { type: 'string', validation: 'require' },
+    files: { type: 'string', validation: 'require' },
+  };
+  const err = utils.validation(info, struct);
+  if (err) {
+    return cb && cb(err);
+  }
+  let newFiles = info.files;
+  try {
+    newFiles = JSON.parse(newFiles);
+    if (newFiles.constructor.name !== 'Array') {
+      return cb && cb(i18n.t('shelfTaskFilesIsInValid'));
+    }
+  } catch (e) {
+    return cb && cb(i18n.t('shelfTaskFilesIsInValid'));
+  }
+  shelfTaskInfo.collection.findOne({ _id: info._id }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if (!doc) {
+      return cb && cb(i18n.t(i18n.t('shelfNotFind')));
+    }
+
+    let files = doc.files || [];
+    for (let k = 0, len = newFiles.length; k < len; k++) {
+      if (!utils.isValueInObject(newFiles[k].type, FileInfo.TYPE)) {
+        return cb && cb(i18n.t('shelfTaskFileTypeIsInValid'));
+      }
+    }
+    if (files && files.length > 0) {
+      for (let i = 0, len1 = newFiles.length; i < len1; i++) {
+        const newFile = newFiles[i];
+        let flag = true;
+        for (let j = 0, len2 = files.length; j < len2; j++) {
+          const file = files[j];
+          if (newFile.type === file.type) {
+            files[j] = newFile;
+            flag = false;
+            break;
+          }
+        }
+        if (flag) {
+          files.push(newFile);
+        }
+      }
+    } else {
+      files = newFiles;
+    }
+    shelfTaskInfo.collection.updateOne({ _id: info._id }, { $set: { files } }, (err) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+      return cb && cb(null, 'ok');
+    });
   });
 };
 

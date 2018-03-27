@@ -553,6 +553,10 @@ service.warehouse = function warehouse(info, cb) {
     return cb && cb(err);
   }
   const params = {
+    processId: '',
+    paramJson: {},
+  }
+  params.paramJson = {
     userId: info.creator._id,
     userName: info.creator.name,
     originalFileInfo,
@@ -561,10 +565,16 @@ service.warehouse = function warehouse(info, cb) {
   };
 
   processParams.forEach((item) => {
-    params[item.key] = item.value;
+    if (item.key === 'processId') {
+      params.processId = item.value;
+    } else {
+      params.paramJson[item.key] = item.value;
+    }
   });
 
-  console.log(JSON.stringify(params));
+  params.paramJson = JSON.stringify(params.paramJson);
+
+  console.log(params.paramJson);
   const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/ProcessInstanceService/create`;
   utils.requestCallApi(url, 'POST', params, '', (err, rs) => {
     if (err) {
