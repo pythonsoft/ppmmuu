@@ -40,7 +40,7 @@ const service = {};
 
 const redisClient = config.redisClient;
 
-const ES_FILTER_FIELDS = 'id,duration,name,ccid,program_type,program_name_en,hd_flag,program_name_cn,last_modify,content_introduction,content,news_data,airdata,program_name,from_where,full_text,publish_time,rootid';
+const ES_FILTER_FIELDS = 'id,duration,name,ccid,program_type,program_name_en,hd_flag,program_name_cn,last_modify,content_introduction,content,full_time,program_name,from_where,full_text,publish_time,rootid';
 
 service.ES_FILTER_FIELDS = ES_FILTER_FIELDS;
 

@@ -34,6 +34,10 @@ router.post('/shelves', (req, res) => {
   service.createShelfTask(req.body, (err, r) => res.json(result.json(err, r)));
 });
 
+router.post('/shelves/addFiles', (req, res) => {
+  shelfService.addFilesToTask(req.body, (err, r) => res.json(result.json(err, r)));
+});
+
 router.use(isLogin.middleware);
 router.use(isLogin.hasAccessMiddleware);
 

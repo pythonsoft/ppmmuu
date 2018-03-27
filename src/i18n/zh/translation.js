@@ -1233,5 +1233,13 @@ module.exports = {
     code: '-260015',
     message: '快编模板路径脚本配置不正确',
   },
+  shelfTaskFileTypeIsInValid: {
+    code: '-260016',
+    message: '上架流程的文件type不正确',
+  },
+  shelfTaskFilesIsInValid: {
+    code: '-260017',
+    message: '上架流程的文件files格式不正确',
+  },
 };
 
