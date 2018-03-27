@@ -122,6 +122,7 @@ service.listConfig = function listConfig(page, pageSize, groupId, keyword, cb) {
       { value: { $regex: keyword, $options: 'i' } },
     ];
   }
+
   configurationInfo.pagination(query, page, pageSize, (err, docs) => {
     if (err) {
       logger.error(err.message);
