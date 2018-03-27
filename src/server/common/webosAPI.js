@@ -199,7 +199,7 @@ class webosAPI {
       const data = JSON.parse(chunk);
       const rs = data.Result;
 
-      if (data.Status == 0) {
+      if (data.Status === 0) {
         callback && callback(null, rs);
       } else {
         callback && callback(rs);
