@@ -19,7 +19,8 @@ const renewHistoryList = function renewHistoryList() {
       }
       const options = {
         source: mediaService.ES_FILTER_FIELDS,
-        should: [{ key: '_id', value: r.value.videoId }],
+        isAccurate: true,
+        match: [{ key: '_id', value: r.value.videoId }],
         start: 0,
         pageSize: 1,
       };
@@ -53,8 +54,8 @@ const renewHistoryList = function renewHistoryList() {
               }
             });
         }
-      }, null, r.value.videoId);
+      });
     });
 };
 
-setInterval(renewHistoryList, 1000 * 6);
+setInterval(renewHistoryList, 100 * 1);

@@ -16,6 +16,7 @@ const SubscribeType = require('../subscribeManagement/subscribeType');
 const ShelfInfo = require('../shelves/shelfTaskInfo');
 const ConfigurationInfo = require('../configuration/configurationInfo');
 const CatalogInfo = require('../library/catalogInfo');
+const FileInfo = require('../library/fileInfo');
 
 const subscribeInfo = new SubscribeInfo();
 const subscribeType = new SubscribeType();
@@ -38,6 +39,25 @@ const DOWNLOAD_TYPE_MAP = {
   2: '手动下载',
 };
 
+const getValidFiles = function getValidFiles(files) {
+  const validFiles = [];
+  for (let i = 0, len = files.length; i < len; i++) {
+    const file = files[i];
+    const validTypes = [FileInfo.TYPE.P1080, FileInfo.TYPE.P360, FileInfo.TYPE.AUDIO];
+    if (file.type && validTypes.indexOf(file.type) !== -1) {
+      if (file.type === FileInfo.TYPE.P1080) {
+        file.typeName = '全高清';
+      } else if (file.type === FileInfo.TYPE.P360) {
+        file.typeName = '标清';
+      } else {
+        file.typeName = '音频';
+      }
+      validFiles.push(file);
+    }
+  }
+  return validFiles;
+};
+
 const filterDoc = function filterDoc(_source) {
   const doc = {};
   doc._id = _source._id;
@@ -54,8 +74,10 @@ const filterDoc = function filterDoc(_source) {
   doc.inpoint = _source.details.INPOINT;
   doc.outpoint = _source.details.OUTPOINT;
   doc.duration = _source.details.OUTPOINT - _source.details.INPOINT;
-  doc.files = _source.files;
+  const files = _source.files || [];
+  doc.files = getValidFiles(files);
   doc.fromWhere = _source.fromWhere || CatalogInfo.FROM_WHERE.MAM;
+  doc.content = _source.details.FIELD03 || _source.details.FIELD321 || _source.details.FIELD247;
   return doc;
 };
 
@@ -583,48 +605,48 @@ service.getShelfInfo = function getShelfInfo(req, cb) {
     }
     const rs = [];
     doc.fromWhere = doc.fromWhere || CatalogInfo.FROM_WHERE.MAM;
+    rs.push({
+      key: 'name',
+      cn: '节目名称(中文)',
+      value: doc.editorInfo.fileName,
+    });
+    rs.push({
+      key: 'subscribeType',
+      cn: '订阅类型',
+      value: doc.editorInfo.subscribeTypeText,
+    });
+    rs.push({
+      key: 'limit',
+      cn: '限制',
+      value: doc.editorInfo.limit,
+    });
     if (doc.details) {
-      rs.push({
-        key: 'name',
-        cn: '节目名称(中文)',
-        value: doc.editorInfo.fileName,
-      });
-      rs.push({
-        key: 'subscribeType',
-        cn: '订阅类型',
-        value: doc.editorInfo.subscribeTypeText,
-      });
-      rs.push({
-        key: 'limit',
-        cn: '限制',
-        value: doc.editorInfo.limit,
-      });
       rs.push({
         key: 'fileName',
         cn: '文件名',
         value: doc.details.NAME,
       });
-      if (doc.details) {
-        const program = doc.details;
-        for (const key in fieldConfig) {
-          if (key === 'lastModifyTime') {
-            rs.push({
-              key,
-              cn: fieldConfig[key].cn,
-              value: doc.lastModifyTime,
-            });
-          } else if (key !== 'NAME') {
-            rs.push({
-              key,
-              cn: fieldConfig[key].cn,
-              value: program[key] || '',
-            });
-          }
+      const program = doc.details;
+      for (const key in fieldConfig) {
+        if (key === 'lastModifyTime') {
+          rs.push({
+            key,
+            cn: fieldConfig[key].cn,
+            value: doc.lastModifyTime,
+          });
+        } else if (key !== 'NAME') {
+          rs.push({
+            key,
+            cn: fieldConfig[key].cn,
+            value: program[key] || '',
+          });
         }
       }
-      doc.details = rs;
-      return cb && cb(null, doc);
     }
+    const files = doc.files || [];
+    doc.details = rs;
+    doc.files = getValidFiles(files);
+    return cb && cb(null, doc);
   });
 };
 module.exports = service;
