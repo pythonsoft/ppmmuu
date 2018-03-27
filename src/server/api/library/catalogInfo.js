@@ -20,15 +20,15 @@ class CatalogInfo extends DB {
       chineseName: { type: 'string', validation: 'require' },
       parentId: { type: 'string' },
       keyword: { type: 'string' },
-      content: { type: 'string', validation: 'require' },
+      content: { type: 'string' },
       source: { type: 'string' }, // 来源：MAM, MAS, 。。。
-      version: { type: 'string', validation: 'require' },
-      keyman: { type: 'string', validation: 'require' }, // 人物
+      version: { type: 'string' },
+      keyman: { type: 'string' }, // 人物
       language: { type: 'string' }, // 语言
       root: { type: 'string' }, // 根结点ID, 用于记录最开始时候的结点ID, 如果这条记录是根，那么置空
-      type: { type: 'string', validation: 'require' }, // 类型：素材，节目，其它
-      inpoint: { type: 'number', validation: 'require' },
-      outpoint: { type: 'number', validation: 'require' },
+      type: { type: 'string' }, // 类型：素材，节目，其它
+      inpoint: { type: 'number' },
+      outpoint: { type: 'number' },
       duration: { type: 'string' },
       available: { type: 'string', default: () => CatalogInfo.AVAILABLE.NO },
       materialDate: { type: 'object', default() { return { from: '', to: '' }; } }, // 素材日期 { from: '2017-03-21', to: '2017-03-21' }

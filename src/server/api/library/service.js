@@ -847,7 +847,8 @@ service.getSourceFileAndSubtitleFile = function getSourceFileAndSubtitleFile(_id
     return cb && cb(i18n.t('libraryFileInfoFieldIsNull', { field: '_id' }));
   }
 
-  catalogInfo.collection.findOne({ _id }, (err, doc) => {
+  const query = { $or: [{ _id }, { objectId: _id }] };
+  catalogInfo.collection.findOne(query, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
