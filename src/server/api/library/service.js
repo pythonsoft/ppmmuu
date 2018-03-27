@@ -842,6 +842,37 @@ service.getFile = function getFile(id, cb) {
   });
 };
 
+service.getSourceFileAndSubtitleFile = function getSourceFileAndSubtitleFile(_id, cb) {
+  if (!_id) {
+    return cb && cb(i18n.t('libraryFileInfoFieldIsNull', { field: '_id' }));
+  }
+
+  const query = { $or: [{ _id }, { objectId: _id }] };
+  catalogInfo.collection.findOne(query, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if (!doc) {
+      return cb && cb(i18n.t('catalogInfoNotFound'));
+    }
+    const objectId = doc.objectId;
+
+    fileInfo.collection.find({
+      objectId,
+      type: { $in: [FileInfo.TYPE.HIGH_VIDEO, FileInfo.TYPE.SUBTITLE] },
+    }).toArray((err, docs) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      return cb && cb(null, docs);
+    });
+  });
+};
+
 service.getSubtitleFile = function getSubtitleFile(id, cb) {
   service.getFile(id, (err, doc) => {
     if (err) {
@@ -1012,6 +1043,19 @@ service.updateTemplate = function updateTemplate(_id, info, cb) {
       return cb && cb(null, info);
     });
   }
+};
+
+service.getDefaultLibraryTemplateInfo = function getDefaultLibraryTemplateInfo(departmentId, cb) {
+  templateInfo.collection.findOne({ 'department._id': departmentId }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+    if (!doc) {
+      return cb && cb(i18n.t('defaultLibraryTemplateNotFound'));
+    }
+    return cb && cb(null, doc);
+  });
 };
 
 module.exports = service;

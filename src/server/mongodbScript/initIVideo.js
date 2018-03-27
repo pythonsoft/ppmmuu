@@ -1,57 +1,87 @@
 
 'use strict';
 
-const service = require('../api/ivideo/service');
+const uuid = require('uuid');
+const ItemInfo = require('../api/ivideo/itemInfo');
 
-const userId = 'bea711c0-67ae-11e7-8b13-c506d97b38b0';
+const itemInfo = new ItemInfo();
 
-const init = function init() {
-  service.ensureAccountInit(userId, (err, doc, isNew) => {
-    if (err) {
-      console.log('ensure -->', err);
-      return false;
-    }
+const initDir = [
+  {
+    _id: uuid.v1(),
+    name: '收录素材',
+    creatorId: '',
+    creator: {},
+    createdTime: new Date(),
+    parentId: '',
+    type: '2',
+    modifyTime: new Date(),
+    description: '',
+    snippet: {},
+    details: {},
+    canRemove: '0',
+    ownerType: ItemInfo.OWNER_TYPE.SHOULU,
+  },
+  {
+    _id: uuid.v1(),
+    name: '新闻素材',
+    creatorId: '',
+    creator: {},
+    createdTime: new Date(),
+    parentId: '',
+    type: '2',
+    modifyTime: new Date(),
+    description: '',
+    snippet: {},
+    details: {},
+    canRemove: '0',
+    ownerType: ItemInfo.OWNER_TYPE.NEWS,
+  },
+  {
+    _id: uuid.v1(),
+    name: '共享素材',
+    creatorId: '',
+    creator: {},
+    createdTime: new Date(),
+    parentId: '',
+    type: '2',
+    modifyTime: new Date(),
+    description: '',
+    snippet: {},
+    details: {},
+    canRemove: '0',
+    ownerType: ItemInfo.OWNER_TYPE.SHARE,
+  },
+  {
+    _id: uuid.v1(),
+    name: '我的素材',
+    creatorId: '',
+    creator: {},
+    createdTime: new Date(),
+    parentId: '',
+    type: '2',
+    modifyTime: new Date(),
+    description: '',
+    snippet: {},
+    details: {},
+    canRemove: '0',
+    ownerType: ItemInfo.OWNER_TYPE.MINE,
+  },
+];
 
-    if (!isNew) {
-      return false;
-    }
-
-    const id = doc._id;
-
-    service.createDirectory(userId, '目录1', id, {}, (err, r) => {
-      if (err) {
-        console.log('createDirectory -->', err);
-        return false;
-      }
-      const dirId = r.insertedId;
-
-      service.createDirectory(userId, '目录1-1', dirId, {}, (err) => {
-        if (err) {
-          console.log('createDirectory -->', err);
-          return false;
-        }
-      });
-
-      service.createDirectory(userId, '目录1-2', dirId, {}, (err) => {
-        if (err) {
-          console.log('createDirectory -->', err);
-          return false;
-        }
-      });
-    });
-  });
-};
-
-service.getMyResource(userId, (err, doc) => {
+itemInfo.collection.findOne({ name: '收录素材', creatorId: '', ownerType: ItemInfo.OWNER_TYPE.SHOULU }, (err, doc) => {
   if (err) {
-    console.log('ensure -->', err);
-    return false;
+    console.log('初始化视频编辑目录失败', JSON.stringify(err));
+    throw new Error(err);
   }
-
   if (!doc) {
-    init();
+    itemInfo.collection.insertMany(initDir, (err) => {
+      if (err) {
+        console.log('初始化视频编辑目录失败', JSON.stringify(err));
+        throw new Error(err);
+      }
+      console.log('初始化视频编辑目录成功!');
+    });
   }
-
-  console.log('init ivideo data completely.');
 });
 

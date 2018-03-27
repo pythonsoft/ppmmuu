@@ -73,7 +73,12 @@ router.use(isLogin.hasAccessMiddleware);
  *                  type: string
  */
 router.post('/createShelfTask', (req, res) => {
-  service.createShelfTask(req, (err, r) => res.json(result.json(err, r)));
+  const creator = { _id: req.ex.userInfo._id, name: req.ex.userInfo.name };
+  const department = req.ex.userInfo.department;
+  const info = req.body;
+  info.creator = creator;
+  info.department = department;
+  service.createShelfTask(info, (err, r) => res.json(result.json(err, r)));
 });
 
 /**
@@ -113,7 +118,7 @@ router.post('/createShelfTask', (req, res) => {
  * */
 router.get('/getShelfDetail', (req, res) => {
   req.query.fields = req.query.fields || 'name,objectId,programNO,details,editorInfo';
-  service.getShelfDetail(req.query, (err, docs) => res.json(result.json(err, docs)));
+  service.getShelfAndSubscription(req.query, (err, docs) => res.json(result.json(err, docs)));
 });
 
 
@@ -399,6 +404,13 @@ router.get('/listDepartmentShelfTask', (req, res) => {
  *         default: '20'
  *         collectionFormat: csv
  *       - in: query
+ *         name: _ids
+ *         description: ''
+ *         required: false
+ *         type: string
+ *         default: '20,123,12312'
+ *         collectionFormat: csv
+ *       - in: query
  *         name: keyword
  *         description: ''
  *         required: false
@@ -476,6 +488,65 @@ router.post('/saveShelf', (req, res) => {
 
 /**
  * @permissionGroup: myShelf
+ * @permissionName: 批量保存上架任务
+ * @permissionPath: /shelves/batchSaveShelf
+ * @apiName: batchSaveShelf
+ * @apiFuncType: post
+ * @apiFuncUrl: /shelves/batchSaveShelf
+ * @swagger
+ * /shelves/batchSaveShelf:
+ *   post:
+ *     description: 批量保存上架任务
+ *     tags:
+ *       - v1
+ *       - ShelfTaskInfo
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: 批量保存上架任务
+ *         schema:
+ *           type: object
+ *           required:
+ *             - _ids
+ *             - firstId
+ *             - editorInfo
+ *           properties:
+ *             _ids:
+ *               type: string
+ *               description: ''
+ *               example: "aa,gg"
+ *             firstId:
+ *               type: string
+ *               description: ''
+ *               example: "aa"
+ *             editorInfo:
+ *               type: object
+ *               description: ''
+ *               example: {subscribeType: ShelfTaskInfo.SUBSCRIBE_TYPE.POLITIC, source: '', limit: '', cover: ''}
+ *     responses:
+ *       200:
+ *         description: ShelfTaskInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.post('/batchSaveShelf', (req, res) => {
+  service.batchSaveShelf(req.body, (err, r) => res.json(result.json(err, r)));
+});
+
+/**
+ * @permissionGroup: myShelf
  * @permissionName: 提交上架任务
  * @permissionPath: /shelves/submitShelf
  * @apiName: submitShelf
@@ -525,7 +596,70 @@ router.post('/saveShelf', (req, res) => {
  *                  type: string
  */
 router.post('/submitShelf', (req, res) => {
-  service.submitShelf(req, (err, r) => res.json(result.json(err, r)));
+  const info = req.body;
+  info.userInfo = req.ex.userInfo;
+  service.submitShelf(info, (err, r) => res.json(result.json(err, r)));
+});
+
+/**
+ * @permissionGroup: myShelf
+ * @permissionName: 批量提交上架任务
+ * @permissionPath: /shelves/batchSubmitShelf
+ * @apiName: batchSubmitShelf
+ * @apiFuncType: post
+ * @apiFuncUrl: /shelves/batchSubmitShelf
+ * @swagger
+ * /shelves/batchSubmitShelf:
+ *   post:
+ *     description: 批量提交上架任务
+ *     tags:
+ *       - v1
+ *       - ShelfTaskInfo
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: 批量提交上架任务
+ *         schema:
+ *           type: object
+ *           required:
+ *             - _ids
+ *             - editorInfo
+ *             - firstId
+ *           properties:
+ *             _ids:
+ *               type: string
+ *               description: ''
+ *               example: "aa,gg"
+ *             firstId:
+ *               type: string
+ *               description: ''
+ *               example: "aa"
+ *             editorInfo:
+ *               type: object
+ *               description: ''
+ *               example: {subscribeType: ShelfTaskInfo.SUBSCRIBE_TYPE.POLITIC, source: '', limit: '', cover: ''}
+ *     responses:
+ *       200:
+ *         description: ShelfTaskInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.post('/batchSubmitShelf', (req, res) => {
+  const info = req.body;
+  info.userInfo = req.ex.userInfo;
+  service.batchSubmitShelf(info, (err, r) => res.json(result.json(err, r)));
 });
 
 /**
@@ -838,6 +972,12 @@ router.get('/searchUser', (req, res) => {
  *       - ShelfTaskInfo
  *     produces:
  *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: keyword
+ *         description: 关键字
+ *         required: false
+ *         type: string
  *     responses:
  *       200:
  *         description: ShelfTaskInfo
@@ -855,7 +995,7 @@ router.get('/searchUser', (req, res) => {
  *                  type: string
  */
 router.get('/listSubscribeType', (req, res) => {
-  service.listSubscribeType((err, docs) =>
+  service.listSubscribeType(req.query, (err, docs) =>
       res.json(result.json(err, docs)));
 });
 

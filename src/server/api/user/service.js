@@ -170,10 +170,7 @@ const loginHandle = function loginHandle(username, password, cb) {
       return cb && cb(i18n.t('usernameOrPasswordIsWrong'));
     }
 
-    service.registerUserToEaseMob(doc, (err) => {
-      if (err) {
-        return cb && cb(err);
-      }
+    service.registerUserToEaseMob(doc, () => {
       if (UserInfo.VERIFY_TYPE.PASSWORD === doc.verifyType) {
         if (doc.expiredTime < new Date()) {
           return cb && cb(i18n.t('userExpiredTime'));
@@ -580,7 +577,7 @@ service.adAccountSync = function adAccountSync(info, cb) {
         doc.department._id = dept._id;
         doc.department.name = dept.name;
       }
-      userInfo.collection.findOne({ _id: info._id}, (err, user) => {
+      userInfo.collection.findOne({ _id: info._id }, (err, user) => {
         if (err) {
           logger.error(err.message);
           return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));

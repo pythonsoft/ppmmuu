@@ -23,7 +23,8 @@ const meidaCenterSearchSelects = [
       { value: '墊播', label: '墊播' },
       { value: '素材', label: '素材' },
     ],
-    selected: [],
+    selected: ['廣告'],
+    show: true,
   },
   {
     key: 'ccid',
@@ -36,6 +37,26 @@ const meidaCenterSearchSelects = [
       { value: 'segment', label: 'segment' },
     ],
     selected: [],
+    show: true,
+  },
+  {
+    key: 'resource_location',
+    label: '資源所屬部門',
+    items: [
+      { value: '節目資料管理部', label: '節目資料管理部' },
+      { value: '鏡面宣傳部', label: '鏡面宣傳部' },
+      { value: '頻道編播部', label: '頻道編播部' },
+      { value: '共享資源', label: '共享資源' },
+      { value: '中文台專題主編組', label: '中文台專題主編組' },
+      { value: '中文台專題製作組', label: '中文台專題製作組' },
+      { value: '中文台娛樂製作組', label: '中文台娛樂製作組' },
+      { value: '中文台時尚製作組', label: '中文台時尚製作組' },
+      { value: '中文台時尚主編組', label: '中文台時尚主編組' },
+      { value: '節目購銷部', label: '節目購銷部' },
+      { value: '影帶管理部', label: '影帶管理部' },
+    ],
+    selected: [],
+    show: true,
   },
   {
     key: 'news_type',
@@ -61,10 +82,11 @@ const meidaCenterSearchSelects = [
       { value: 'NowTV', label: 'NowTV' },
     ],
     selected: [],
+    show: false,
   },
   {
     key: 'occur_country',
-    label: '事發國家',
+    label: '事發地区',
     items: [
       { value: '安哥拉 Angola AO', label: 'Angola AO安哥拉' },
       { value: '阿富汗 Afghanistan AF', label: 'Afghanistan AF阿富汗' },
@@ -249,6 +271,7 @@ const meidaCenterSearchSelects = [
       { value: '贊比亞 Zambia ZM', label: 'Zambia ZM贊比亞' },
     ],
     selected: [],
+    show: false,
   },
   {
     key: 'versions',
@@ -268,6 +291,7 @@ const meidaCenterSearchSelects = [
       { value: '參展版', label: '參展版' },
     ],
     selected: [],
+    show: false,
   },
   {
     key: 'production_site',
@@ -281,24 +305,7 @@ const meidaCenterSearchSelects = [
       { value: 'NIL', label: 'NIL' },
     ],
     selected: [],
-  },
-  {
-    key: 'resource_location',
-    label: '資源所屬部門',
-    items: [
-      { value: '節目資料管理部', label: '節目資料管理部' },
-      { value: '鏡面宣傳部', label: '鏡面宣傳部' },
-      { value: '頻道編播部', label: '頻道編播部' },
-      { value: '共享資源', label: '共享資源' },
-      { value: '中文台專題主編組', label: '中文台專題主編組' },
-      { value: '中文台專題製作組', label: '中文台專題製作組' },
-      { value: '中文台娛樂製作組', label: '中文台娛樂製作組' },
-      { value: '中文台時尚製作組', label: '中文台時尚製作組' },
-      { value: '中文台時尚主編組', label: '中文台時尚主編組' },
-      { value: '節目購銷部', label: '節目購銷部' },
-      { value: '影帶管理部', label: '影帶管理部' },
-    ],
-    selected: [],
+    show: false,
   },
 ];
 
@@ -311,7 +318,8 @@ const mediaCenterSearchRadios = [
       { value: 1, label: '高清' },
       { value: 0, label: '標清' },
     ],
-    selected: 'all',
+    selected: 1,
+    show: true,
   },
   {
     key: 'pigeonhole',
@@ -321,7 +329,8 @@ const mediaCenterSearchRadios = [
       { value: '是', label: '是' },
       { value: '否', label: '否' },
     ],
-    selected: 'all',
+    selected: '是',
+    show: true,
   },
 ];
 
@@ -378,10 +387,8 @@ const subscribeConfig = [
     label: '排序依据',
     items: [
       { value: 'should', label: '相关程度' },
-      { value: { 'details.FIELD162': { order: 'asc' } }, label: '新闻时间由远到近' },
-      { value: { 'details.FIELD162': { order: 'desc' } }, label: '新闻时间由近到远' },
-      { value: { 'details.FIELD36': { order: 'desc' } }, label: '首播时间由近到远' },
-      { value: { 'details.FIELD36': { order: 'asc' } }, label: '首播时间由远到近' },
+      { value: { lastModifyTime: { order: 'desc' } }, label: '时间由近到远' },
+      { value: { lastModifyTime: { order: 'asc' } }, label: '时间由远到近' },
     ],
     selected: '',
     multiple: false,
@@ -390,18 +397,9 @@ const subscribeConfig = [
     defaultValue: 'should',
   },
   {
-    key: 'FIELD162',
-    label: '新闻日期',
-    selected: '',
-    multiple: false,
-    type: 'daterange',
-    example: { gte: '2017-10-16T08:52:17.200Z', lt: '2017-10-17T08:52:17.200Z' },
-    defaultValue: '',
-  },
-  {
-    key: 'FIELD36',
-    label: '首播日期',
-    selected: '',
+    key: 'full_time',
+    label: '日期范围',
+    selected: [],
     multiple: false,
     type: 'daterange',
     example: { gte: '2017-10-16T08:52:17.200Z', lt: '2017-10-17T08:52:17.200Z' },
@@ -598,3 +596,44 @@ const manuscriptInfo = [{
   description: '',
 }];
 initConfig('稿件配置', manuscriptInfo);
+
+// 条目信息字段显示排序
+const entryFieldSort = ['FIELD332', 'FIELD187', 'FIELD36', 'FIELD196', 'FIELD197', 'FIELD195', 'FIELD198', 'FIELD320', 'FIELD183', 'FIELD276', 'FIELD314', 'FIELD067', 'FIELD139', 'FIELD338', 'FIELD07', 'FIELD088', 'FIELD304', 'FIELD180', 'FIELD185', 'FIELD269', 'FIELD333', 'FIELD334', 'FIELD263', 'FIELD154', 'FIELD245', 'FIELD246', 'FIELD251', 'FIELD252', 'FIELD259', 'FIELD255', 'FIELD262', 'FIELD290', 'FIELD34', 'FIELD220', 'FIELD222', 'FIELD100', 'FIELD145', 'FIELD162', 'FIELD296', 'FIELD297', 'FIELD298', 'FIELD299', 'FIELD309', 'FIELD270', 'FIELD223', 'FIELD282', 'FIELD221', 'FIELD283', 'FIELD284', 'FIELD149', 'FIELD51', 'FIELD052', 'FIELD328', 'FIELD292', 'FIELD293', 'FIELD294', 'FIELD188', 'FIELD326', 'FIELD311', 'FIELD329', 'FIELD275', 'FIELD330', 'FIELD247', 'FIELD232', 'FIELD327', 'FIELD225', 'FIELD226', 'FIELD228', 'FIELD227', 'FIELD200', 'FIELD171', 'FIELD45', 'FIELD094', 'FIELD098', 'FIELD095', 'FIELD099', 'FIELD116', 'FIELD164', 'FIELD03', 'FIELD104', 'FIELD57', 'FIELD133', 'FIELD163', 'FIELD176', 'FIELD335', 'FIELD235', 'FIELD234', 'FIELD143', 'FIELD217', 'FIELD216', 'FIELD233', 'FIELD186', 'FIELD121', 'FIELD310', 'FIELD147', 'FIELD55', 'FIELD193', 'FIELD37', 'FIELD21', 'FIELD22', 'FIELD23', 'FIELD24', 'FIELD120', 'FIELD144', 'FIELD105', 'FIELD233', 'FIELD231', 'FIELD235', 'FIELD234', 'FIELD273', 'FIELD237', 'FIELD238', 'FIELD236', 'FIELD231', 'FIELD178', 'FIELD83', 'FIELD235', 'FIELD234', 'FIELD172', 'FIELD14', 'FIELD33', 'FIELD312', 'FIELD61', 'FIELD159', 'FIELD281', 'FIELD280', 'FIELD80', 'FIELD150', 'FIELD151', 'FIELD168', 'FIELD174', 'FIELD194', 'FIELD190', 'FIELD53', 'FIELD02', 'FIELD108', 'FIELD107', 'FIELD324', 'FIELD265', 'FIELD267', 'FIELD148', 'FIELD175', 'FIELD182', 'FIELD47', 'FIELD129', 'FIELD12', 'FIELD118', 'FIELD69', 'FIELD66', 'FIELD68', 'FIELD71', 'FIELD134', 'FIELD135', 'FIELD323', 'FIELD155', 'FIELD04', 'FIELD25', 'FIELD81', 'FIELD26', 'FIELD62', 'FIELD72', 'FIELD156', 'FIELD065', 'FIELD13', 'FIELD260', 'FIELD325', 'FIELD250', 'FIELD214', 'FIELD321', 'FIELDPUBLISH', 'FIELD115', 'FIELD079', 'FIELD030', 'FIELD189', 'FIELD215', 'FIELD170', 'FIELD169', 'FIELD204', 'FIELD209', 'FIELD271', 'FIELD208', 'FIELD136', 'FIELD89', 'FIELD161', 'FIELD173', 'FIELD244', 'FIELD243', 'FIELD74', 'FIELD165', 'FIELD40', 'FIELD28', 'FIELD29', 'FIELD27', 'FIELD233', 'FIELD235', 'FIELD234', 'FIELD273', 'FIELD274', 'FIELD237', 'FIELD238', 'FIELD236', 'FIELD237', 'FIELD238', 'FIELD224', 'FIELD58', 'FIELD289', 'FIELD73', 'FIELD125', 'FIELD268', 'FIELD85', 'FIELD20', 'FIELD18', 'FIELD19', 'FIELD75', 'FIELD123', 'FIELD230', 'FIELD113', 'FIELD286', 'FIELD17', 'FIELD35', 'FIELD109', 'FIELD167', 'FIELD166', 'FIELD141', 'FIELD160', 'FIELD157', 'FIELD192', 'FIELD191', 'FIELD70', 'FIELD319', 'FIELD41', 'FIELD42', 'FIELD158', 'FIELD103', 'FIELD261', 'FIELD60', 'FIELD49', 'FIELD48', 'FIELD50', 'FIELD59', 'FIELD181', 'FIELD220', 'FIELD80', 'FIELD324', 'FIELD067', 'FIELD36', 'FIELD189', 'FIELD162', 'FIELD145', 'FIELD276', 'FIELD314', 'FIELD183', 'FIELD088', 'FIELD221', 'FIELD44', 'FIELD90', 'FIELD01', 'FIELD86', 'FIELD38', 'FIELD285', 'FIELD199', 'FIELD131', 'FIELD201', 'FIELD106', 'FIELD84', 'FIELD313', 'FIELD279', 'FIELD132', 'FIELD64', 'FIELD63', 'FIELD142', 'FIELD318', 'FIELD126', 'FIELD130', 'FIELD152', 'FIELD322', 'FIELD177', 'FIELD211', 'FIELD256', 'FIELD203', 'FIELD295', 'FIELD213', 'FIELD77', 'FIELD212', 'FIELD138', 'FIELD119', 'FIELD117', 'FIELD249', 'FIELD137', 'FIELD92', 'FIELD272', 'FIELD242', 'FIELD179', 'FIELD046', 'FIELD110', 'FIELD128', 'FIELD124', 'FIELD127', 'FIELD184', 'FIELD218', 'FIELD219', 'FIELD253', 'FIELD254', 'FIELD287', 'FIELD288', 'FIELD257', 'FIELD258', 'FIELD54', 'FIELD205', 'FIELD207', 'FIELD206', 'FIELD202', 'FIELD114', 'FIELD76', 'FIELD31', 'FIELD236', 'FIELD266', 'FIELD111', 'FIELD102', 'FIELD101', 'FIELD146', 'FIELD277', 'FIELD278', 'FIELD06', 'FIELD300', 'FIELD096', 'FIELD317', 'FIELD093', 'FIELD097', 'FIELD248', 'FIELD241', 'FIELD239', 'FIELD240', 'FIELD05', 'FIELD08', 'FIELD291', 'FIELD43', 'FIELD16', 'FIELD39', 'FIELD15', 'FIELD32', 'FIELD078', 'FIELD140', 'FIELD210', 'FIELD307', 'FIELD308', 'FIELD87', 'FIELD264', 'FIELD229', 'FIELD228', 'FIELD227', 'FIELD122', 'FIELD56', 'FIELD331', 'FIELD153', 'FIELD315', 'FIELD09', 'FIELD91', 'FIELD11', 'FIELD10', 'FIELD112', 'FIELD82'];
+// 片段信息字段显示排序
+const fragmentFieldSort = ['FIELD187', 'FIELD195', 'FIELD196', 'FIELD276', 'FIELD314', 'FIELD222', 'FIELD220', 'FIELD139', 'FIELD145', 'FIELD162', 'FIELD309', 'FIELD326', 'FIELD327', 'FIELD328', 'FIELD311', 'FIELD275', 'FIELD330', 'FIELD329', 'FIELD100', 'FIELD171', 'FIELD45', 'FIELD335', 'FIELD164', 'FIELD03', 'FIELD57', 'FIELD133', 'FIELD163', 'FIELD55', 'FIELD178', 'FIELD83', 'FIELD172', 'FIELD14', 'FIELD168', 'FIELD174', 'FIELD194', 'FIELD53', 'FIELD02', 'FIELD108', 'FIELD324', 'FIELD148', 'FIELD175', 'FIELD25', 'FIELD81', 'FIELD26', 'FIELD62', 'FIELD325', 'FIELD067', 'FIELD170', 'FIELD169', 'FIELD332', 'FIELD161', 'FIELD173', 'FIELD165', 'FIELD28', 'FIELD29', 'FIELD27', 'FIELD58', 'FIELD268', 'FIELD167', 'FIELD166', 'FIELD319', 'FIELD44', 'FIELD01', 'FIELD86', 'FIELD84', 'FIELD279', 'FIELD64', 'FIELD63', 'FIELD318', 'FIELD176', 'FIELD177', 'FIELD295', 'FIELD77', 'FIELD138', 'FIELD223', 'FIELD180', 'FIELD31', 'FIELD088', 'FIELD304', 'FIELD300', 'FIELD317', 'FIELD221', 'FIELD87', 'FIELD56', 'FIELD331', 'FIELD315', 'FIELD91', 'FIELD82'];
+
+const entryFieldSortInfo = [{
+  key: 'entryFieldSortInfoConfig',
+  value: JSON.stringify(entryFieldSort),
+  description: '条目信息字段显示排序',
+}];
+initConfig('条目信息字段显示', entryFieldSortInfo);
+
+const fragmentFieldSortInfo = [{
+  key: 'fragmentFieldSortInfoConfig',
+  value: JSON.stringify(fragmentFieldSort),
+  description: '片段信息字段显示排序',
+}];
+initConfig('片段信息字段显示', fragmentFieldSortInfo);
+
+// 订阅下载格式，下载支持如下格式
+const subscribeDownloadType = [
+  {
+    key: '1080P',
+    value: '1080P',
+    description: '订阅下载1080P资源',
+  },
+  {
+    key: '360P',
+    value: '360P',
+    description: '订阅下载360P资源',
+  },
+  {
+    key: '音频WAV',
+    value: '音频WAV',
+    description: '订阅下载音频WAV资源',
+  },
+];
+
+initConfig('subscribe_download_type', subscribeDownloadType);
+

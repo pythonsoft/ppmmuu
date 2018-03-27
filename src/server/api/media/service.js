@@ -40,7 +40,7 @@ const service = {};
 
 const redisClient = config.redisClient;
 
-const ES_FILTER_FIELDS = 'id,duration,name,ccid,program_type,program_name_en,hd_flag,program_name_cn,last_modify,content_introduction,content,news_data,airdata,program_name,from_where,full_text,publish_time,rootid';
+const ES_FILTER_FIELDS = 'id,duration,name,ccid,program_type,program_name_en,hd_flag,program_name_cn,last_modify,content_introduction,content,full_time,program_name,from_where,full_text,publish_time,rootid';
 
 service.ES_FILTER_FIELDS = ES_FILTER_FIELDS;
 
@@ -148,9 +148,6 @@ service.getEsMediaList = function getEsMediaList(info, cb) {
       match: [{
         key: 'program_type',
         value: category,
-      }, {
-        key: 'publish_status',
-        value: 1,
       }],
       source: ES_FILTER_FIELDS,
       sort: [{
@@ -205,17 +202,22 @@ service.getCacheEsMediaList = function getCacheEsMediaList(info, cb) {
 
 const getEsOptions = function getEsOptions(info) {
   let match = info.match || [];
-  let should = info.should || [];
+  // let should = info.should || [];
   const range = info.range || [];
   const hl = info.hl || '';
   const sort = info.sort || [];
   const start = info.start || 0;
   const pageSize = info.pageSize || 24;
   const source = info.source || ES_FILTER_FIELDS;
+  const isAccurate = info.isAccurate;
+  match.push({
+    key: 'publish_status',
+    value: 1,
+  });
 
   // convert simplified to tranditional
   match = JSON.parse(nodecc.simplifiedToTraditional(JSON.stringify(match)));
-  should = JSON.parse(nodecc.simplifiedToTraditional(JSON.stringify(should)));
+  // should = JSON.parse(nodecc.simplifiedToTraditional(JSON.stringify(should)));
   const getHighLightFields = function getHighLightFields(fields) {
     const obj = {};
     fields = fields.split(',');
@@ -231,27 +233,28 @@ const getEsOptions = function getEsOptions(info) {
       const temp = arr[i];
       if (temp.value) {
         if (temp.key === key) {
-          const fullText = temp.value.trim().split(' ');
-          const matchPhrase = {};
-          matchPhrase[key] = temp.value.trim();
-          rs.push({
-            match_phrase: matchPhrase,
-          });
-          for (let j = 0, len1 = fullText.length; j < len1; j++) {
-            if (fullText[j]) {
-              const item = {
-                match: {},
-              };
-              item.match[key] = fullText[j];
-              rs.push(item);
-            }
+          const value = temp.value.trim().split(' ');
+          for (let i = 0, len = value.length; i < len; i++) {
+            const matchPhrase = {};
+            matchPhrase[key] = value[i];
+            rs.push({
+              match_phrase: matchPhrase,
+            });
           }
-        } else {
-          const item = {
-            match: {},
-          };
-          item.match[temp.key] = temp.value;
-          rs.push(item);
+        } else if (!(temp.value.constructor.name === 'Array' && temp.value.length === 0)) {
+          if (temp.value.constructor.name === 'Array') {
+            const item = {
+              terms: {},
+            };
+            item.terms[temp.key] = temp.value;
+            rs.push(item);
+          } else {
+            const item = {
+              match: {},
+            };
+            item.match[temp.key] = temp.value;
+            rs.push(item);
+          }
         }
       }
     }
@@ -332,78 +335,72 @@ const getEsOptions = function getEsOptions(info) {
     }
   };
 
-  const must = formatMustMust(match, 'full_text');
-  const mustShould = formatMustShould(match, 'full_text');
-  const shoulds = formatShould(should, 'full_name');
-  const sorts = formatSort(sort);
-  const highlight = getHighLightFields(hl);
-  formatRange(range, must);
-
   const options = {
     _source: source.split(','),
     from: start * 1,
     size: pageSize * 1,
   };
+  const sorts = formatSort(sort);
+  const highlight = getHighLightFields(hl);
 
-  if (must.length && mustShould.length) {
-    const percent = mustShould.length > 1 ? '75%' : '100%';
+  if (isAccurate) {
+    const must = formatShould(match, 'full_text');
+    formatRange(range, must);
     options.query = {
       bool: {
-        must: {
-          bool: {
-            should: mustShould,
-            minimum_should_match: percent,
-            must,
-          },
-        },
+        must,
       },
     };
-  } else if (must.length) {
-    options.query = {
-      bool: {
-        must: {
-          bool: {
-            must,
-          },
-        },
-      },
-    };
-  } else if (mustShould.length) {
-    options.query = {
-      bool: {
-        must: {
-          bool: {
-            should: mustShould,
-            minimum_should_match: '75%',
-          },
-        },
-      },
-    };
-  }
-
-  if (shoulds.length) {
-    if (options.query) {
-      options.query.bool.should = shoulds;
-    } else {
+  } else {
+    const must = formatMustMust(match, 'full_text');
+    const mustShould = formatMustShould(match, 'full_text');
+    // const shoulds = formatShould(should, 'full_name');
+    formatRange(range, must);
+    if (must.length && mustShould.length) {
+      const percent = mustShould.length > 1 ? '75%' : '100%';
       options.query = {
         bool: {
-          should: shoulds,
+          must: {
+            bool: {
+              should: mustShould,
+              minimum_should_match: percent,
+              must,
+            },
+          },
+        },
+      };
+    } else if (must.length) {
+      options.query = {
+        bool: {
+          must: {
+            bool: {
+              must,
+            },
+          },
+        },
+      };
+    } else if (mustShould.length) {
+      options.query = {
+        bool: {
+          must: {
+            bool: {
+              should: mustShould,
+              minimum_should_match: '75%',
+            },
+          },
         },
       };
     }
   }
-
   if (sorts.length) {
     options.sort = sorts;
   }
-
   if (!utils.isEmptyObject(highlight)) {
     options.highlight = {
       require_field_match: false,
       fields: highlight,
     };
   }
-
   return options;
 };
 
@@ -425,7 +422,6 @@ service.esSearch = function esSearch(info, cb, userId, videoIds) {
     body,
     json: true,
   };
-  // console.log(JSON.stringify(body));
 
   utils.commonRequestCallApi(options, (err, rs) => {
     if (err) {
@@ -623,6 +619,54 @@ service.xml2srt = (info, cb) => {
   }
 };
 
+const formatProgramOrSequence = function formatProgramOrSequence(source, cb) {
+  const program = source.program || {};
+  const sequence = source.sequence || {};
+  const sortField = function sortField(key, fieldKey) {
+    configurationInfo.collection.findOne({ key }, { fields: { key: 1, value: 1 } }, (err, doc) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      if (!doc) {
+        return cb && cb(null);
+      }
+
+      try {
+        const sortArr = JSON.parse(doc.value);
+        const needSortArr = source[fieldKey];
+        const newArr = [];
+        for (let i = 0, len = sortArr.length; i < len; i++) {
+          const field = sortArr[i];
+          if (needSortArr[field]) {
+            if (typeof needSortArr[field] === 'string' && needSortArr[field].match('\\d{4}-\\d{2}-\\d{2}')) {
+              if (new Date(needSortArr[field]) < new Date('1900-01-01')) {
+                needSortArr[field] = 'N/A';
+              }
+            }
+            const item = {
+              key: field,
+              value: needSortArr[field],
+              cn: fieldConfig[field] ? fieldConfig[field].cn : '',
+            };
+            newArr.push(item);
+          }
+        }
+        source[fieldKey] = newArr;
+        return cb && cb(null);
+      } catch (e) {
+        return cb && cb(i18n.t('getMeidaCenterSearchConfigsJSONError'));
+      }
+    });
+  };
+  if (!utils.isEmptyObject(program)) {
+    sortField('entryFieldSortInfoConfig', 'program');
+  } else if (!utils.isEmptyObject(sequence)) {
+    sortField('fragmentFieldSortInfoConfig', 'sequence');
+  }
+};
+
 const getObjectFromHK = function getObjectFromHK(info, cb) {
   const options = {
     uri: `${config.hongkongUrl}get_object`,
@@ -645,23 +689,8 @@ const getObjectFromHK = function getObjectFromHK(info, cb) {
     const rs = JSON.parse(response.body);
     rs.status = '0';
 
-    if (rs.result.detail && rs.result.detail.program) {
-      const program = rs.result.detail.program;
+    if (rs.result.files) {
       const files = rs.result.files;
-
-      for (const key in program) {
-        if (program[key] === '' || program[key] === null) {
-          delete program[key];
-        } else {
-          if (typeof program[key] === 'string' && program[key].match('\\d{4}-\\d{2}-\\d{2}')) {
-            if (new Date(program[key]) < new Date('1900-01-01')) {
-              program[key] = 'N/A';
-            }
-          }
-          program[key] = { value: program[key], cn: fieldConfig[key] ? fieldConfig[key].cn : '' };
-        }
-      }
-
       for (let i = 0, len = files.length; i < len; i++) {
         const file = files[i];
         for (const k in file) {
@@ -672,24 +701,16 @@ const getObjectFromHK = function getObjectFromHK(info, cb) {
       }
     }
 
-    if (rs.result.detail && rs.result.detail.sequence) {
-      const sequence = rs.result.detail.sequence;
-
-      for (const key in sequence) {
-        if (sequence[key] === '' || sequence[key] === null) {
-          delete sequence[key];
-        } else {
-          if (typeof sequence[key] === 'string' && sequence[key].match('\\d{4}-\\d{2}-\\d{2}')) {
-            if (new Date(sequence[key]) < new Date('1900-01-01')) {
-              sequence[key] = 'N/A';
-            }
-          }
-          sequence[key] = { value: sequence[key], cn: fieldConfig[key] ? fieldConfig[key].cn : '' };
+    if (rs.result.detail) {
+      formatProgramOrSequence(rs.result.detail, (err) => {
+        if (err) {
+          return cb && cb(err);
         }
-      }
+        return cb(null, rs, 'mam');
+      });
+    } else {
+      return cb(null, rs, 'mam');
     }
-
-    return cb(null, rs, 'mam');
   });
 };
 

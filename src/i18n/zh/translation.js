@@ -510,8 +510,52 @@ module.exports = {
     message: '默认目录不能删除',
   },
   ivideoDefaultDirectoryIsNull: {
-    code: '-40013',
+    code: '-40014',
     message: '默认目录不存在',
+  },
+  ivideoProjectOwnerTypeIsInvalid: {
+    code: '-40015',
+    message: '参数ownerType不正确',
+  },
+  ivideoProjectCopyDestinationNotFound: {
+    code: '-40016',
+    message: '找不到目标文件',
+  },
+  ivideoProjectCopySourceNotFound: {
+    code: '-40017',
+    message: '找不到源文件',
+  },
+  ivideoProjectSrcOwnerTypeIsInvalid: {
+    code: '-40018',
+    message: '参数srcOwnerType非法',
+  },
+  ivideoProjectDestOwnerTypeIsInvalid: {
+    code: '-40019',
+    message: '参数destOwnerType非法',
+  },
+  ivideoProjectSrcIdsIsNull: {
+    code: '-40020',
+    message: '参数srcIds为空',
+  },
+  ivideoProjectDestIdIsNull: {
+    code: '-40021',
+    message: '参数destId为空',
+  },
+  ivideoProjectCannotFindMyMaterial: {
+    code: '-40022',
+    message: '找不到默认目录(我的素材)',
+  },
+  ivideoProjectCannotFindItem: {
+    code: '-40023',
+    message: '找不到目录或文件',
+  },
+  ivideoProjectCannotUpdateItem: {
+    code: '-40024',
+    message: '不能修改此目录或文件',
+  },
+  ivideoProjectCannotCopyOrMove: {
+    code: '-40024',
+    message: '存在不能移动的目录或文件',
   },
   joDownloadParamsIsNull: {
     code: '-50001',
@@ -1124,6 +1168,78 @@ module.exports = {
   helpError: {
     code: '-240001',
     message: '{{error}}',
+  },
+  faqInfoIsNotExist: {
+    code: '-250001',
+    message: '反馈信息不存在',
+  },
+  shelfTemplateInfoFieldIsNull: {
+    code: '-260001',
+    message: '上架模板：{{field}}为空',
+  },
+  canAddOnlyOneShelfTemplate: {
+    code: '-260002',
+    message: '只能存在一个上架模板',
+  },
+  fastEditTemplateInfoFieldIsNull: {
+    code: '-260003',
+    message: '快编模板：{{field}}为空',
+  },
+  shelfTemplateScriptIsInvalid: {
+    code: '-260004',
+    message: '上架模板存储路径脚本配置不正确',
+  },
+  shelfTemplateTranscodeTemplateIsInvalid: {
+    code: '-260005',
+    message: '上架模板转码模板脚本配置不正确',
+  },
+  createShelfTaskCreatorIsInvalid: {
+    code: '-260006',
+    message: '创建上架任务参数creator不正确',
+  },
+  canAddOnlyOneFastEditTemplate: {
+    code: '-260007',
+    message: '只能存在一个快编模板',
+  },
+  noFastEditTemplateFound: {
+    code: '-260008',
+    message: '没有找到快编模板，请先创建快编模板',
+  },
+  warehouseParamsFileInfosIsInvalid: {
+    code: '-260009',
+    message: '入库参数fileInfos不正确',
+  },
+  warehouseParamsCatalogInfoIsInvalid: {
+    code: '-260010',
+    message: '入库参数catalogInfo不正确',
+  },
+  noShelfTemplateFound: {
+    code: '-260011',
+    message: '没有找到上架模板，请先创建上架模板',
+  },
+  warehouseParamsWarehouseTypeIsInvalid: {
+    code: '-260012',
+    message: '参数warehouseType不正确',
+  },
+  defaultLibraryTemplateNotFound: {
+    code: '-260013',
+    message: '找不到当前用户所在部门的默认入库模板，请先创建',
+  },
+  fastTemplateBucketIsNotExist: {
+    code: '-260014',
+    message: '快编模板没有配置存储区',
+  },
+  fastTemplateScriptIsInvalid: {
+    code: '-260015',
+    message: '快编模板路径脚本配置不正确',
+  },
+  shelfTaskFileTypeIsInValid: {
+    code: '-260016',
+    message: '上架流程的文件type不正确',
+  },
+  shelfTaskFilesIsInValid: {
+    code: '-260017',
+    message: '上架流程的文件files格式不正确',
   },
 };
 

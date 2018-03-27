@@ -15,9 +15,11 @@ const roleService = require('../role/service');
 const subscribeManagementService = require('../subscribeManagement/service');
 const mediaService = require('../media/service');
 const templateService = require('../template/service');
+const fieldConfig = require('../subscribe/fieldConfig');
 
 const ShelfTaskInfo = require('./shelfTaskInfo');
 const CatalogInfo = require('../library/catalogInfo');
+const FileInfo = require('../library/fileInfo');
 
 const shelfTaskInfo = new ShelfTaskInfo();
 
@@ -29,10 +31,24 @@ const listShelfTask = function listShelfTask(query, page, pageSize, cb) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
+    const items = docs.docs;
+    if (items && items.length) {
+      for (let i = 0, len = items.length; i < len; i++) {
+        items[i].outpoint = items[i].details.OUTPOINT || 0;
+        items[i].inpoint = items[i].details.INPOINT || 0;
+        if (items[i].editorInfo && items[i].editorInfo.subscribeType && items[i].editorInfo.subscribeType.constructor.name === 'Array') {
+          items[i].editorInfo.subscribeType = items[i].editorInfo.subscribeType.join(',');
+        }
+        items[i].editorInfo.fileName = items[i].details.NAME;
+        delete items[i].details;
+      }
+    }
 
     return cb && cb(null, docs);
-  }, '-createdTime', '-files,-details,-full_text');
+  }, '-createdTime', '-files,-full_text');
 };
+
+service.listShelfTask = listShelfTask;
 
 const listDepartmentShelfTask = function listDepartmentShelfTask(req, cb) {
   const userInfo = req.ex.userInfo;
@@ -62,6 +78,7 @@ const listDepartmentShelfTask = function listDepartmentShelfTask(req, cb) {
       { programNO: { $regex: keyword, $options: 'i' } },
       { 'assignee.name': { $regex: keyword, $options: 'i' } },
       { 'dealer.name': { $regex: keyword, $options: 'i' } },
+      { 'editorInfo.fileName': { $regex: keyword, $options: 'i' } },
     ];
   }
 
@@ -108,6 +125,7 @@ service.claimShelfTask = function claimShelfTask(req, cb) {
         name: userInfo.name,
       },
       lastModifyTime: new Date(),
+      full_time: new Date(),
       operationTime: new Date(),
     };
     shelfTaskInfo.collection.update({ _id: { $in: _ids } }, { $set: updateInfo }, { multi: true }, (err) => {
@@ -154,6 +172,7 @@ service.assignShelfTask = function assignShelfTask(req, cb) {
         name: userInfo.name,
       },
       lastModifyTime: new Date(),
+      full_time: new Date(),
       operationTime: new Date(),
     };
     shelfTaskInfo.collection.update({ _id: { $in: _ids } }, { $set: updateInfo }, { multi: true }, (err) => {
@@ -189,7 +208,7 @@ const clearCover = function clearCover(_ids, cb) {
     }
     return cb && cb(null);
   });
-}
+};
 
 // 删除
 service.deleteShelfTask = function deleteShelfTask(req, cb) {
@@ -217,6 +236,7 @@ service.deleteShelfTask = function deleteShelfTask(req, cb) {
         name: userInfo.name,
       },
       lastModifyTime: new Date(),
+      full_time: new Date(),
     };
     shelfTaskInfo.collection.update({ _id: { $in: _ids } }, { $set: updateInfo }, { multi: true }, (err) => {
       if (err) {
@@ -231,18 +251,14 @@ service.deleteShelfTask = function deleteShelfTask(req, cb) {
 };
 
 // 创建上架任务
-service.createShelfTask = function createShelfTask(req, cb) {
-  const userInfo = req.ex.userInfo;
-  let info = req.body;
+service.createShelfTask = function createShelfTask(info, cb) {
   const force = info.force || false;
   const objectId = info.objectId || '';
-
-  info.creator = { _id: userInfo._id, name: userInfo.name };
-  info.department = userInfo.department;
   info.fromWhere = info.fromWhere || CatalogInfo.FROM_WHERE.MAM;
   const t = new Date();
   info.createdTime = t;
   info.lastModifyTime = t;
+  info.full_time = t;
   if (!info.programNO) {
     info.programNO = uuid.v1();
   }
@@ -252,7 +268,9 @@ service.createShelfTask = function createShelfTask(req, cb) {
     return cb && cb(result.err);
   }
   info = result.doc;
-  info.editorInfo.name = info.name;
+  if (!info._id) {
+    info._id = uuid.v1();
+  }
   mediaService.getObject({ objectid: objectId, fromWhere: info.fromWhere }, (err, rs) => {
     if (err) {
       return cb && cb(err);
@@ -263,12 +281,33 @@ service.createShelfTask = function createShelfTask(req, cb) {
     for (const key in basic) {
       info.details[key] = basic[key];
     }
+    info.editorInfo.fileName = basic.NAME;
     if (info.details.OUTPOINT) {
       info.details.duration = info.details.OUTPOINT - info.details.INPOINT;
     }
-    for (const key in program) {
-      info.details[key] = program[key].value;
+    for (let i = 0, len = program.length; i < len; i++) {
+      const item = program[i];
+      if (item.value === 'N/A') {
+        info.details[item.key] = new Date('1900-01-01').toISOString();
+      } else {
+        info.details[item.key] = item.value;
+      }
+      if (item.key === 'FIELD195') {
+        info.name = item.value;
+        info.editorInfo.name = item.value;
+      }
+      if (item.key === 'FIELD196' && !info.editorInfo.name) {
+        info.name = item.value;
+        info.editorInfo.name = item.value;
+      }
+      if (item.key === 'FIELD276') {
+        info.editorInfo.source = item.value;
+      }
     }
+    if (!info.editorInfo.name) {
+      info.editorInfo.name = info.name;
+    }
+    info.editorInfo.cover = `${config.domain}/media/getIcon?objectid=${objectId}&fromWhere=${info.fromWhere}`;
 
 
     // 为了订阅搜索统一一下搜索字段和香港接口一样
@@ -323,6 +362,7 @@ service.listMyselfShelfTask = function listMyselfShelfTask(req, cb) {
   const status = info.status || '';
   const page = info.page || 1;
   const pageSize = info.pageSize || 20;
+  let _ids = info._ids || '';
   const query = {};
 
   if (status) {
@@ -343,11 +383,16 @@ service.listMyselfShelfTask = function listMyselfShelfTask(req, cb) {
       { name: { $regex: keyword, $options: 'i' } },
       { programNO: { $regex: keyword, $options: 'i' } },
       { 'assignee.name': { $regex: keyword, $options: 'i' } },
+      { 'editorInfo.fileName': { $regex: keyword, $options: 'i' } },
     ];
   }
 
   query['department._id'] = userInfo.department._id;
   query['dealer._id'] = userInfo._id;
+  if (_ids) {
+    _ids = _ids.split(',');
+    query._id = { $in: _ids };
+  }
 
   listShelfTask(query, page, pageSize, cb);
 };
@@ -368,20 +413,6 @@ service.getShelfDetail = function getShelfDetail(info, cb) {
     query.status = status;
   }
 
-  const getSubscribeTypeById = function getSubscribeTypeById(id, callback) {
-    if (!id) {
-      return callback && callback(null, '');
-    }
-
-    subscribeManagementService.getSubscribeType(query, (err, doc) => {
-      if (err) {
-        return callback && callback(null, '');
-      }
-
-      return callback && callback(null, doc.name);
-    });
-  };
-
   if (fields) {
     fields = utils.formatSortOrFieldsParams(fields);
   } else {
@@ -397,14 +428,78 @@ service.getShelfDetail = function getShelfDetail(info, cb) {
     if (!doc) {
       return cb && cb(i18n.t('shelfNotFind'));
     }
-
-    getSubscribeTypeById(doc.editorInfo.subscribeType, (err, name) => {
+    if (!doc.editorInfo.subscribeType || doc.editorInfo.subscribeType === []) {
+      doc.editorInfo.subscribeType = '';
+      return cb && cb(null, doc);
+    }
+    if (doc.editorInfo && doc.editorInfo.subscribeType && doc.editorInfo.subscribeType.constructor.name === 'String') {
+      doc.editorInfo.subscribeType = doc.editorInfo.subscribeType.split(',');
+    }
+    subscribeManagementService.getSubscribeTypeByQuery({ _id: { $in: doc.editorInfo.subscribeType } }, (err, docs) => {
       if (err) {
         return cb && cb(err);
       }
-      doc.editorInfo.subscribeType = name || doc.editorInfo.subscribeType;
+      const subscribeText = [];
+      if (docs && docs.length) {
+        docs.forEach((item) => {
+          subscribeText.push(`${item.name}(${item._id})`);
+        });
+      }
+      doc.editorInfo.subscribeTypeText = subscribeText.join(',');
+      doc.editorInfo.subscribeType = doc.editorInfo.subscribeType.join(',');
       return cb && cb(null, doc);
     });
+  });
+};
+
+service.getShelfAndSubscription = function getShelfAndSubscription(info, cb) {
+  service.getShelfDetail(info, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+    const result = {};
+    const rs = [];
+    result.fromWhere = doc.fromWhere || CatalogInfo.FROM_WHERE.MAM;
+    rs.push({
+      key: 'name',
+      cn: '节目名称(中文)',
+      value: doc.editorInfo.name,
+    });
+    rs.push({
+      key: 'subscribeType',
+      cn: '订阅类型',
+      value: doc.editorInfo.subscribeTypeText,
+    });
+    rs.push({
+      key: 'limit',
+      cn: '限制',
+      value: doc.editorInfo.limit,
+    });
+    rs.push({
+      key: 'fileName',
+      cn: '文件名',
+      value: doc.details.NAME,
+    });
+    rs.push({
+      key: 'cover',
+      cn: '封面',
+      value: doc.editorInfo.cover,
+    });
+    if (doc.details) {
+      const program = doc.details;
+      for (const key in fieldConfig) {
+        if (key !== 'NAME') {
+          rs.push({
+            key,
+            cn: fieldConfig[key].cn,
+            value: program[key] || '',
+          });
+        }
+      }
+    }
+    result.details = rs;
+    return cb && cb(null, result);
   });
 };
 
@@ -428,7 +523,7 @@ service.saveShelf = function saveShelf(info, cb) {
     if (!doc) {
       return cb && cb(i18n.t('shelfCanNotSave'));
     }
-    shelfTaskInfo.collection.update({ _id }, { $set: { editorInfo, name: editorInfo.name } }, (err) => {
+    shelfTaskInfo.collection.update({ _id }, { $set: { editorInfo, name: editorInfo.name, lastModifyTime: new Date(), full_time: new Date() } }, (err) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
@@ -439,10 +534,95 @@ service.saveShelf = function saveShelf(info, cb) {
   });
 };
 
+const loopUpdateCover = function loopUpdateCover(cover, _ids, index, cb) {
+  if (!cover) {
+    return cb && cb(null);
+  }
+
+  if (!_ids.length) {
+    return cb && cb(null);
+  }
+
+  if (index >= _ids.length) {
+    return cb && cb(null);
+  }
+
+  const _id = _ids[index];
+  let srcPath = cover.split('/');
+  const srcPathLen = srcPath.length;
+  if (srcPathLen < 2) {
+    return cb && cb(null);
+  }
+  srcPath = path.join(config.uploadPath, srcPath[srcPathLen - 1]);
+  const fileName = uuid.v1();
+  const destPath = path.join(config.uploadPath, fileName);
+  if (!fs.existsSync(srcPath)) {
+    return cb && cb(null);
+  }
+  fs.copyFileSync(srcPath, destPath);
+  const url = `${config.domain}/uploads/${fileName}`;
+  shelfTaskInfo.collection.update({ _id }, { $set: { 'editorInfo.cover': url } }, (err) => {
+    if (err) {
+      logger.error(err.message);
+    }
+    loopUpdateCover(cover, _ids, index + 1, cb);
+  });
+};
+// 保存
+service.batchSaveShelf = function batchSaveShelf(info, cb) {
+  let _ids = info._ids;
+  const firstId = info.firstId;
+  const editorInfo = info.editorInfo || '';
+  const name = editorInfo.name || '';
+  delete editorInfo.name;
+  const struct = {
+    _ids: { type: 'string', validation: 'require' },
+    editorInfo: { type: 'object', validation: 'require' },
+    firstId: { type: 'string', validation: 'require' },
+  };
+  const err = utils.validation(info, struct);
+  _ids = _ids.split(',');
+  if (err) {
+    return cb && cb(err);
+  }
+
+  const updateInfo = {
+    lastModifyTime: new Date(),
+    full_time: new Date(),
+    'editorInfo.subscribeType': editorInfo.subscribeType,
+    'editorInfo.limit': editorInfo.limit,
+  };
+  shelfTaskInfo.collection.updateMany({ _id: { $in: _ids }, status: ShelfTaskInfo.STATUS.DOING }, { $set: updateInfo }, (err) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+    const firstUpdateInfo = {
+      lastModifyTime: new Date(),
+      full_time: new Date(),
+      'editorInfo.subscribeType': editorInfo.subscribeType,
+      'editorInfo.limit': editorInfo.limit,
+      'editorInfo.source': editorInfo.source,
+      'editorInfo.cover': editorInfo.cover,
+      'editorInfo.name': name,
+      name,
+    };
+    shelfTaskInfo.collection.update({ _id: firstId, status: ShelfTaskInfo.STATUS.DOING }, { $set: firstUpdateInfo }, (err) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+      const index = _ids.indexOf(firstId);
+      _ids.splice(index, 1);
+      return cb && cb(null, 'ok');
+      // loopUpdateCover(editorInfo.cover, _ids, 0, () => cb && cb(null, 'ok'));
+    });
+  });
+};
+
 // 提交
-service.submitShelf = function submitShelf(req, cb) {
-  const userInfo = req.ex.userInfo;
-  const info = req.body;
+service.submitShelf = function submitShelf(info, cb) {
+  const userInfo = info.userInfo;
   const _id = info._id;
   const editorInfo = info.editorInfo || '';
   const struct = {
@@ -454,7 +634,7 @@ service.submitShelf = function submitShelf(req, cb) {
     return cb && cb(err);
   }
 
-  shelfTaskInfo.collection.findOne({ _id, 'dealer._id': userInfo._id, status: ShelfTaskInfo.STATUS.DOING }, (err, doc) => {
+  shelfTaskInfo.collection.findOne({ _id, 'dealer._id': userInfo._id, status: ShelfTaskInfo.STATUS.DOING, packageStatus: ShelfTaskInfo.PACKAGE_STATUS.COMPLETED }, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -467,11 +647,23 @@ service.submitShelf = function submitShelf(req, cb) {
         _id: userInfo._id,
         name: userInfo.name,
       },
-      editorInfo,
+      'editorInfo.limit': editorInfo.limit,
+      'editorInfo.subscribeType': editorInfo.subscribeType,
       status: ShelfTaskInfo.STATUS.SUBMITTED,
       full_text: '',
-      name: editorInfo.name,
+      lastModifyTime: new Date(),
+      full_time: new Date(),
     };
+    if (editorInfo.name) {
+      updateInfo.name = editorInfo.name;
+      updateInfo['editorInfo.name'] = editorInfo.name;
+    }
+    if (editorInfo.source) {
+      updateInfo['editorInfo.source'] = editorInfo.source;
+    }
+    if (editorInfo.cover) {
+      updateInfo['editorInfo.cover'] = editorInfo.cover;
+    }
     for (const key in doc.editorInfo) {
       if (typeof doc.editorInfo[key] === 'string') {
         updateInfo.full_text += `${doc.editorInfo[key]} `;
@@ -491,6 +683,53 @@ service.submitShelf = function submitShelf(req, cb) {
       return cb && cb(null, 'ok');
     });
   });
+};
+
+// 批量提交
+service.batchSubmitShelf = function batchSubmitShelf(info, cb) {
+  let _ids = info._ids;
+  const firstId = info.firstId;
+  const editorInfo = info.editorInfo || '';
+  const name = editorInfo.name || '';
+  const cover = editorInfo.cover || '';
+  const source = editorInfo.source || '';
+  const struct = {
+    _ids: { type: 'string', validation: 'require' },
+    editorInfo: { type: 'object', validation: 'require' },
+    firstId: { type: 'string', validation: 'require' },
+  };
+  _ids = _ids.split(',');
+  const err = utils.validation(info, struct);
+  if (err) {
+    return cb && cb(err);
+  }
+
+  const loopSubmitSelf = function loopSubmitSelf(index) {
+    if (index >= _ids.length) {
+      return cb && cb(null, 'ok');
+      // const index = _ids.indexOf(firstId);
+      // _ids.splice(index, 1);
+      // loopUpdateCover(editorInfo.cover, _ids, 0, () => cb && cb(null, 'ok'));
+    }
+    info._id = _ids[index];
+    info.editorInfo = editorInfo;
+    if (firstId === info._id) {
+      info.editorInfo.name = name;   // 第一个的名字要保存
+      info.editorInfo.cover = cover;
+      info.editorInfo.source = source;
+    } else {
+      delete info.editorInfo.name;
+      delete info.editorInfo.cover;
+      delete info.editorInfo.source;
+    }
+    service.submitShelf(info, (err) => {
+      if (err) {
+        return cb && cb(err);
+      }
+      loopSubmitSelf(index + 1);
+    });
+  };
+  loopSubmitSelf(0);
 };
 
 service.sendBackShelf = function sendBackShelf(req, cb) {
@@ -519,6 +758,7 @@ service.sendBackShelf = function sendBackShelf(req, cb) {
         name: userInfo.name,
       },
       lastModifyTime: new Date(),
+      full_time: new Date(),
     };
     shelfTaskInfo.collection.update({ _id: { $in: _ids }, 'dealer._id': userInfo._id }, { $set: updateInfo }, { multi: true }, (err) => {
       if (err) {
@@ -560,6 +800,7 @@ service.listLineShelfTask = function listLineShelfTask(req, cb) {
       { name: { $regex: keyword, $options: 'i' } },
       { programNO: { $regex: keyword, $options: 'i' } },
       { 'dealer.name': { $regex: keyword, $options: 'i' } },
+      { 'editorInfo.fileName': { $regex: keyword, $options: 'i' } },
     ];
   }
 
@@ -595,6 +836,7 @@ service.onlineShelfTask = function onlineShelfTask(req, cb) {
         name: userInfo.name,
       },
       lastModifyTime: new Date(),
+      full_time: new Date(),
     };
     shelfTaskInfo.collection.update({ _id: { $in: _ids } }, { $set: updateInfo }, { multi: true }, (err) => {
       if (err) {
@@ -643,6 +885,7 @@ service.offlineShelfTask = function offlineShelfTask(req, cb) {
         name: userInfo.name,
       },
       lastModifyTime: new Date(),
+      full_time: new Date(),
     };
     shelfTaskInfo.collection.update({ _id: { $in: _ids } }, { $set: updateInfo }, { multi: true }, (err) => {
       if (err) {
@@ -680,6 +923,7 @@ service.editShelfTaskAgain = function editShelfTaskAgain(req, cb) {
         name: userInfo.name,
       },
       lastModifyTime: new Date(),
+      full_time: new Date(),
     };
     shelfTaskInfo.collection.update({ _id }, { $set: updateInfo }, { multi: true }, (err) => {
       if (err) {
@@ -704,8 +948,8 @@ service.searchUser = function searchUser(req, cb) {
   roleService.searchUserOrGroup(info, cb);
 };
 
-service.listSubscribeType = function listSubscribeType(cb) {
-  const info = { pageSize: 999 };
+service.listSubscribeType = function listSubscribeType(info, cb) {
+  info.pageSize = 999;
   subscribeManagementService.listSubscribeType(info, (err, rs) => {
     if (err) {
       return cb && cb(err);
@@ -832,6 +1076,101 @@ service.distribute = function distribute(userInfo, templateId, shelfTaskId, cb) 
 
         return cb && cb(i18n.t('jobDistributeError', { error: rs.statusInfo.message }));
       });
+    });
+  });
+};
+
+
+service.updatePackageStatus = function updatePackageStatus(id, packageStatus, cb) {
+  const updateInfo = {
+    lastModifyTime: new Date(),
+    full_time: new Date(),
+    packageStatus,
+  };
+  shelfTaskInfo.collection.update({ _id: id }, { $set: updateInfo }, (err) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+    return cb && cb(null, 'ok');
+    // loopUpdateCover(editorInfo.cover, _ids, 0, () => cb && cb(null, 'ok'));
+  });
+};
+
+service.getFilesById = function getFilesById(_id, cb) {
+  if (!_id) {
+    return cb && cb(i18n.t('libraryFileInfoFieldIsNull', { field: '_id' }));
+  }
+
+  shelfTaskInfo.collection.find({ _id }, { fields: { files: 1, fromWhere: 1 } }).toArray((err, docs) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    return cb && cb(null, docs);
+  });
+};
+
+service.addFilesToTask = function addFilesToTask(info, cb) {
+  const struct = {
+    _id: { type: 'string', validation: 'require' },
+    files: { type: 'string', validation: 'require' },
+  };
+  const err = utils.validation(info, struct);
+  if (err) {
+    return cb && cb(err);
+  }
+  let newFiles = info.files;
+  try {
+    newFiles = JSON.parse(newFiles);
+    if (newFiles.constructor.name !== 'Array') {
+      return cb && cb(i18n.t('shelfTaskFilesIsInValid'));
+    }
+  } catch (e) {
+    return cb && cb(i18n.t('shelfTaskFilesIsInValid'));
+  }
+  shelfTaskInfo.collection.findOne({ _id: info._id }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if (!doc) {
+      return cb && cb(i18n.t(i18n.t('shelfNotFind')));
+    }
+
+    let files = doc.files || [];
+    for (let k = 0, len = newFiles.length; k < len; k++) {
+      if (!utils.isValueInObject(newFiles[k].type, FileInfo.TYPE)) {
+        return cb && cb(i18n.t('shelfTaskFileTypeIsInValid'));
+      }
+    }
+    if (files && files.length > 0) {
+      for (let i = 0, len1 = newFiles.length; i < len1; i++) {
+        const newFile = newFiles[i];
+        let flag = true;
+        for (let j = 0, len2 = files.length; j < len2; j++) {
+          const file = files[j];
+          if (newFile.type === file.type) {
+            files[j] = newFile;
+            flag = false;
+            break;
+          }
+        }
+        if (flag) {
+          files.push(newFile);
+        }
+      }
+    } else {
+      files = newFiles;
+    }
+    shelfTaskInfo.collection.updateOne({ _id: info._id }, { $set: { files } }, (err) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+      return cb && cb(null, 'ok');
     });
   });
 };
