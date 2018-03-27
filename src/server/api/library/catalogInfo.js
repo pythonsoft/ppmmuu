@@ -21,7 +21,7 @@ class CatalogInfo extends DB {
       parentId: { type: 'string' },
       keyword: { type: 'string' },
       content: { type: 'string', validation: 'require' },
-      source: { type: 'string', validation: 'require' }, // 来源：MAM, MAS, 。。。
+      source: { type: 'string' }, // 来源：MAM, MAS, 。。。
       version: { type: 'string', validation: 'require' },
       keyman: { type: 'string', validation: 'require' }, // 人物
       language: { type: 'string' }, // 语言

@@ -19,8 +19,6 @@ const ItemInfo = require('./itemInfo');
 const itemInfo = new ItemInfo();
 
 const service = {};
-const shelfManageService = require('../shelfManage/service');
-const libraryService = require('../library/service');
 
 const createSnippetOrDirItem = function createSnippetOrDirItem(creatorId, ownerType, name, parentId, type = ItemInfo.TYPE.DIRECTORY, canRemove = ItemInfo.CAN_REVMOE.YES, snippet = {}, details = {}, cb, creator) {
   if (!creatorId) {
@@ -539,99 +537,56 @@ service.copy = function copy(info, needDelete = false, cb) {
   });
 };
 
-const WAREHOUSE_TYPE = {
-  WAREHOUSE: '1',
-  WAREHOUSE_SHELF: '2',
-};
-
 
 // 入库
 service.warehouse = function warehouse(info, cb) {
-  if (info.warehouseType === WAREHOUSE_TYPE.WAREHOUSE) {
-    const params = {
-      fastEditorId: '',
-      fastEditorTemplateId: '',
-      createParams: [],
-      userId: info.creator._id,
-      userName: info.creator.name,
-      catalogInfo: {},
-      libraryTemplateId: '',
-    };
-    if (!info.fileInfos || info.fileInfos.constructor.name !== 'Array') {
-      return cb && cb(i18n.t('warehouseParamsFileInfosIsInvalid'));
-    }
-    params.createParams = info.fileInfos;
-    params.catalogInfo = info.catalogInfo;
-
-    shelfManageService.getDefaultFastEditTemplateInfo((err, doc) => {
-      if (err) {
-        return cb && cb(err);
-      }
-      libraryService.getDefaultLibraryTemplateInfo(info.department._id, (err, doc) => {
-        if (err) {
-          return cb && cb(err);
-        }
-        params.libraryTemplateId = doc._id;
-        return cb && cb(null, 'ok');
-        // const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/JobService/createWarehouse`;
-        // utils.requestCallApi(url, 'POST', param, '', (err, rs) => {
-        //   if (err) {
-        //     return cb && cb(err); // res.json(result.fail(err));
-        //   }
-        //
-        //   if (rs.status === '0') {
-        //     return cb && cb(null, 'ok');
-        //   } else {
-        //     return cb && cb(i18n.t('joDownloadError', { error: rs.statusInfo.message }));
-        //   }
-        // });
-      });
-    });
-  } else if (info.warehouseType === WAREHOUSE_TYPE.WAREHOUSE_SHELF) {
-    const params = {
-      fastEditorId: '',
-      fastEditorTemplateId: '',
-      createParams: [],
-      userId: info.creator._id,
-      userName: info.creator.name,
-      catalogInfo: {},
-      shelveTemplateId: '',
-      libraryTemplateId: '',
-    };
-    if (!info.fileInfos || info.fileInfos.constructor.name !== 'Array') {
-      return cb && cb(i18n.t('warehouseParamsFileInfosIsInvalid'));
-    }
-    params.createParams = info.fileInfos;
-    params.catalogInfo = info.catalogInfo;
-    shelfManageService.getDefaultFastEditTemplateInfo((err, doc) => {
-      if (err) {
-        return cb && cb(err);
-      }
-      params.fastEditorTemplateId = doc._id;
-      shelfManageService.getDefaultTemplateInfo((err, doc) => {
-        if (err) {
-          return cb && cb(err);
-        }
-        params.shelveTemplateId = doc._id;
-        params.libraryTemplateId = doc.libraryTemplate._id;
-        return cb && cb(null, 'ok');
-        // const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/JobService/createWarehouse`;
-        // utils.requestCallApi(url, 'POST', param, '', (err, rs) => {
-        //   if (err) {
-        //     return cb && cb(err); // res.json(result.fail(err));
-        //   }
-        //
-        //   if (rs.status === '0') {
-        //     return cb && cb(null, 'ok');
-        //   } else {
-        //     return cb && cb(i18n.t('joDownloadError', { error: rs.statusInfo.message }));
-        //   }
-        // });
-      });
-    });
-  } else {
-    return cb && cb(i18n.t('warehouseParamsWarehouseTypeIsInvalid'));
+  const processParams = info.processParams || '';
+  const originalFileInfo = info.originalFileInfo || '';
+  const catalogInfo = info.catalogInfo || '';
+  const struct = {
+    processParams: { type: 'array', validation: 'require' },
+    originalFileInfo: { type: 'array', validation: 'require' },
+    catalogInfo: { type: 'object', validation: 'require' },
+  };
+  const err = utils.validation(info, struct);
+  if (err) {
+    return cb && cb(err);
   }
+  const params = {
+    processId: '',
+    paramJson: {},
+  }
+  params.paramJson = {
+    userId: info.creator._id,
+    userName: info.creator.name,
+    originalFileInfo,
+    catalogInfo,
+    catalogName: catalogInfo.chineseName || '',
+  };
+
+  processParams.forEach((item) => {
+    if (item.key === 'processId') {
+      params.processId = item.value;
+    } else {
+      params.paramJson[item.key] = item.value;
+    }
+  });
+
+  params.paramJson = JSON.stringify(params.paramJson);
+
+  console.log(params.paramJson);
+  const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/ProcessInstanceService/create`;
+  utils.requestCallApi(url, 'POST', params, '', (err, rs) => {
+    if (err) {
+      return cb && cb(err); // res.json(result.fail(err));
+    }
+
+    if (rs.status === '0') {
+      return cb && cb(null, 'ok');
+    } else {
+      return cb && cb(i18n.t('joDownloadError', { error: rs.statusInfo.message }));
+    }
+  });
 };
 
 module.exports = service;

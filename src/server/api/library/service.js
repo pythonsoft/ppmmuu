@@ -842,18 +842,33 @@ service.getFile = function getFile(id, cb) {
   });
 };
 
-service.getSourceFileAndSubtitleFile = function getSourceFileAndSubtitleFile(objectId, cb) {
-  if (!objectId) {
-    return cb && cb(i18n.t('libraryFileInfoFieldIsNull', { field: 'objectId' }));
+service.getSourceFileAndSubtitleFile = function getSourceFileAndSubtitleFile(_id, cb) {
+  if (!_id) {
+    return cb && cb(i18n.t('libraryFileInfoFieldIsNull', { field: '_id' }));
   }
 
-  fileInfo.collection.find({ objectId, type: { $in: [FileInfo.TYPE.HIGH_VIDEO, FileInfo.TYPE.SUBTITLE] } }).toArray((err, docs) => {
+  catalogInfo.collection.findOne({ _id }, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
 
-    return cb && cb(null, docs);
+    if (!doc) {
+      return cb && cb(i18n.t('catalogInfoNotFound'));
+    }
+    const objectId = doc.objectId;
+
+    fileInfo.collection.find({
+      objectId,
+      type: { $in: [FileInfo.TYPE.HIGH_VIDEO, FileInfo.TYPE.SUBTITLE] },
+    }).toArray((err, docs) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+
+      return cb && cb(null, docs);
+    });
   });
 };
 

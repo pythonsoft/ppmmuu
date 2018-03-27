@@ -41,7 +41,7 @@ const DOWNLOAD_TYPE_MAP = {
 const filterDoc = function filterDoc(_source) {
   const doc = {};
   doc._id = _source._id;
-  doc.name = _source.name;
+  doc.name = _source.details.NAME;
   doc.objectId = _source.objectId;
   doc.programNO = _source.programNO;
   doc.newsTime = _source.details.FIELD162 || null;
@@ -320,8 +320,7 @@ const getEsOptions = function getEsOptions(info) {
   let keyword = info.keyword || '';
   let duration = info.duration || '';
   let sort = info.sort || '';
-  let FIELD162 = info.FIELD162 || '';
-  let FIELD36 = info.FIELD36 || '';
+  let fullTime = info.full_time || '';
   const start = info.start || 0;
   const pageSize = info.pageSize || 28;
   const options = {
@@ -335,39 +334,42 @@ const getEsOptions = function getEsOptions(info) {
     }],
   };
   const query = {
-    bool: { must: [] },
+    bool: { must: { bool: { must: [], should: [] } } },
   };
   keyword = keyword.trim();
-  const musts = query.bool.must;
+  const musts = query.bool.must.bool.must;
+  const shoulds = query.bool.must.bool.should;
 
   const status = { match: { status: ShelfInfo.STATUS.ONLINE } };
   musts.push(status);
 
   const getMustShould = function getMustShould(str, field) {
-    const mustShould = {
-      bool: {
-        should: [],
-      },
-    };
     str = str.split(' ');
-    for (let i = 0; i < str.length; i++) {
-      const temp = { match: {} };
-      temp.match[field] = str[i];
-      mustShould.bool.should.push(temp);
-    }
-    return mustShould;
+    const temp = { terms: {} };
+    temp.terms[field] = str;
+    musts.push(temp);
   };
 
   if (keyword) {
     keyword = nodecc.simplifiedToTraditional(keyword);
-    const temp = { match: { full_text: keyword } };
-    musts.push(temp);
+    keyword = keyword.trim().split(' ');
+    for (let i = 0, len = keyword.length; i < len; i++) {
+      if (keyword[i]) {
+        const temp = { match: { full_text: keyword[i] } };
+        shoulds.push(temp);
+      }
+    }
+    if (shoulds.length === 1) {
+      query.bool.must.bool.minimum_should_match = '100%';
+    } else if (shoulds.length > 1) {
+      query.bool.must.bool.minimum_should_match = '75%';
+    }
   }
   if (subscribeType) {
-    musts.push(getMustShould(subscribeType, 'editorInfo.subscribeType'));
+    getMustShould(subscribeType, 'editorInfo.subscribeType');
   }
   if (FIELD323) {
-    musts.push(getMustShould(FIELD323, 'details.FIELD323'));
+    getMustShould(FIELD323, 'details.FIELD323');
   }
   if (duration) {
     try {
@@ -386,10 +388,6 @@ const getEsOptions = function getEsOptions(info) {
     } catch (e) {
       // return {err: i18n.t('invalidSearchParams')};
     }
-  } else if (keyword) {
-    query.bool.should = [
-      { match: { name: keyword } },
-    ];
   }
 
   const getDateRange = function getDateRange(str) {
@@ -409,14 +407,9 @@ const getEsOptions = function getEsOptions(info) {
     return rs;
   };
 
-  if (FIELD162 && FIELD162.constructor.name.toLowerCase() === 'string') {
-    FIELD162 = getDateRange(FIELD162);
-    const temp = { range: { 'details.FIELD162': FIELD162 } };
-    musts.push(temp);
-  }
-  if (FIELD36 && FIELD36.constructor.name.toLowerCase() === 'string') {
-    FIELD36 = getDateRange(FIELD36);
-    const temp = { range: { 'details.FIELD36': FIELD36 } };
+  if (fullTime && fullTime.constructor.name.toLowerCase() === 'string') {
+    fullTime = getDateRange(fullTime);
+    const temp = { range: { lastModifyTime: fullTime } };
     musts.push(temp);
   }
   options.query = query;
@@ -465,14 +458,13 @@ service.esSearch = function esSearch(req, cb) {
     }
 
     if (subscribeType) {
-      subscribeType = subscribeType.split(',');
+      subscribeType = subscribeType.split(' ');
       for (let i = 0, len = subscribeType.length; i < len; i++) {
         if (doc.subscribeType.indexOf(subscribeType[i]) === -1) {
           return cb && cb(i18n.t('invalidSubscribeType'));
         }
       }
     }
-
     if (isRelated && !info.subscribeType) {
       info.subscribeType = doc.subscribeType.join(' ');
     }

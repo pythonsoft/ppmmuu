@@ -19,6 +19,7 @@ const fieldConfig = require('../subscribe/fieldConfig');
 
 const ShelfTaskInfo = require('./shelfTaskInfo');
 const CatalogInfo = require('../library/catalogInfo');
+const FileInfo = require('../library/fileInfo');
 
 const shelfTaskInfo = new ShelfTaskInfo();
 
@@ -124,6 +125,7 @@ service.claimShelfTask = function claimShelfTask(req, cb) {
         name: userInfo.name,
       },
       lastModifyTime: new Date(),
+      full_time: new Date(),
       operationTime: new Date(),
     };
     shelfTaskInfo.collection.update({ _id: { $in: _ids } }, { $set: updateInfo }, { multi: true }, (err) => {
@@ -170,6 +172,7 @@ service.assignShelfTask = function assignShelfTask(req, cb) {
         name: userInfo.name,
       },
       lastModifyTime: new Date(),
+      full_time: new Date(),
       operationTime: new Date(),
     };
     shelfTaskInfo.collection.update({ _id: { $in: _ids } }, { $set: updateInfo }, { multi: true }, (err) => {
@@ -233,6 +236,7 @@ service.deleteShelfTask = function deleteShelfTask(req, cb) {
         name: userInfo.name,
       },
       lastModifyTime: new Date(),
+      full_time: new Date(),
     };
     shelfTaskInfo.collection.update({ _id: { $in: _ids } }, { $set: updateInfo }, { multi: true }, (err) => {
       if (err) {
@@ -254,6 +258,7 @@ service.createShelfTask = function createShelfTask(info, cb) {
   const t = new Date();
   info.createdTime = t;
   info.lastModifyTime = t;
+  info.full_time = t;
   if (!info.programNO) {
     info.programNO = uuid.v1();
   }
@@ -459,7 +464,7 @@ service.getShelfAndSubscription = function getShelfAndSubscription(info, cb) {
     rs.push({
       key: 'name',
       cn: '节目名称(中文)',
-      value: doc.editorInfo.fileName,
+      value: doc.editorInfo.name,
     });
     rs.push({
       key: 'subscribeType',
@@ -518,7 +523,7 @@ service.saveShelf = function saveShelf(info, cb) {
     if (!doc) {
       return cb && cb(i18n.t('shelfCanNotSave'));
     }
-    shelfTaskInfo.collection.update({ _id }, { $set: { editorInfo, name: editorInfo.name, lastModifyTime: new Date() } }, (err) => {
+    shelfTaskInfo.collection.update({ _id }, { $set: { editorInfo, name: editorInfo.name, lastModifyTime: new Date(), full_time: new Date() } }, (err) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
@@ -583,6 +588,7 @@ service.batchSaveShelf = function batchSaveShelf(info, cb) {
 
   const updateInfo = {
     lastModifyTime: new Date(),
+    full_time: new Date(),
     'editorInfo.subscribeType': editorInfo.subscribeType,
     'editorInfo.limit': editorInfo.limit,
   };
@@ -593,6 +599,7 @@ service.batchSaveShelf = function batchSaveShelf(info, cb) {
     }
     const firstUpdateInfo = {
       lastModifyTime: new Date(),
+      full_time: new Date(),
       'editorInfo.subscribeType': editorInfo.subscribeType,
       'editorInfo.limit': editorInfo.limit,
       'editorInfo.source': editorInfo.source,
@@ -645,6 +652,7 @@ service.submitShelf = function submitShelf(info, cb) {
       status: ShelfTaskInfo.STATUS.SUBMITTED,
       full_text: '',
       lastModifyTime: new Date(),
+      full_time: new Date(),
     };
     if (editorInfo.name) {
       updateInfo.name = editorInfo.name;
@@ -750,6 +758,7 @@ service.sendBackShelf = function sendBackShelf(req, cb) {
         name: userInfo.name,
       },
       lastModifyTime: new Date(),
+      full_time: new Date(),
     };
     shelfTaskInfo.collection.update({ _id: { $in: _ids }, 'dealer._id': userInfo._id }, { $set: updateInfo }, { multi: true }, (err) => {
       if (err) {
@@ -827,6 +836,7 @@ service.onlineShelfTask = function onlineShelfTask(req, cb) {
         name: userInfo.name,
       },
       lastModifyTime: new Date(),
+      full_time: new Date(),
     };
     shelfTaskInfo.collection.update({ _id: { $in: _ids } }, { $set: updateInfo }, { multi: true }, (err) => {
       if (err) {
@@ -875,6 +885,7 @@ service.offlineShelfTask = function offlineShelfTask(req, cb) {
         name: userInfo.name,
       },
       lastModifyTime: new Date(),
+      full_time: new Date(),
     };
     shelfTaskInfo.collection.update({ _id: { $in: _ids } }, { $set: updateInfo }, { multi: true }, (err) => {
       if (err) {
@@ -912,6 +923,7 @@ service.editShelfTaskAgain = function editShelfTaskAgain(req, cb) {
         name: userInfo.name,
       },
       lastModifyTime: new Date(),
+      full_time: new Date(),
     };
     shelfTaskInfo.collection.update({ _id }, { $set: updateInfo }, { multi: true }, (err) => {
       if (err) {
@@ -1072,6 +1084,7 @@ service.distribute = function distribute(userInfo, templateId, shelfTaskId, cb) 
 service.updatePackageStatus = function updatePackageStatus(id, packageStatus, cb) {
   const updateInfo = {
     lastModifyTime: new Date(),
+    full_time: new Date(),
     packageStatus,
   };
   shelfTaskInfo.collection.update({ _id: id }, { $set: updateInfo }, (err) => {
@@ -1096,6 +1109,69 @@ service.getFilesById = function getFilesById(_id, cb) {
     }
 
     return cb && cb(null, docs);
+  });
+};
+
+service.addFilesToTask = function addFilesToTask(info, cb) {
+  const struct = {
+    _id: { type: 'string', validation: 'require' },
+    files: { type: 'string', validation: 'require' },
+  };
+  const err = utils.validation(info, struct);
+  if (err) {
+    return cb && cb(err);
+  }
+  let newFiles = info.files;
+  try {
+    newFiles = JSON.parse(newFiles);
+    if (newFiles.constructor.name !== 'Array') {
+      return cb && cb(i18n.t('shelfTaskFilesIsInValid'));
+    }
+  } catch (e) {
+    return cb && cb(i18n.t('shelfTaskFilesIsInValid'));
+  }
+  shelfTaskInfo.collection.findOne({ _id: info._id }, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if (!doc) {
+      return cb && cb(i18n.t(i18n.t('shelfNotFind')));
+    }
+
+    let files = doc.files || [];
+    for (let k = 0, len = newFiles.length; k < len; k++) {
+      if (!utils.isValueInObject(newFiles[k].type, FileInfo.TYPE)) {
+        return cb && cb(i18n.t('shelfTaskFileTypeIsInValid'));
+      }
+    }
+    if (files && files.length > 0) {
+      for (let i = 0, len1 = newFiles.length; i < len1; i++) {
+        const newFile = newFiles[i];
+        let flag = true;
+        for (let j = 0, len2 = files.length; j < len2; j++) {
+          const file = files[j];
+          if (newFile.type === file.type) {
+            files[j] = newFile;
+            flag = false;
+            break;
+          }
+        }
+        if (flag) {
+          files.push(newFile);
+        }
+      }
+    } else {
+      files = newFiles;
+    }
+    shelfTaskInfo.collection.updateOne({ _id: info._id }, { $set: { files } }, (err) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(i18n.t('databaseError'));
+      }
+      return cb && cb(null, 'ok');
+    });
   });
 };
 

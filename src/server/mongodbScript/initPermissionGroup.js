@@ -150,6 +150,20 @@ const infos = [
     topParentMenu: '管理',
   },
   {
+    _id: 'processManager',
+    name: '流程管理',
+    index: 'processManager',
+    parentIndex: 'management',
+    topParentMenu: '管理',
+  },
+  {
+    _id: 'processTemplate',
+    name: '流程模板',
+    index: 'processTemplate',
+    parentIndex: 'processManager',
+    topParentMenu: '管理',
+  },
+  {
     _id: 'transcode',
     name: '转码任务',
     index: 'transcode',

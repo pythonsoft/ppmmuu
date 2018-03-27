@@ -30,7 +30,12 @@ router.patch('/shelves/:id/:packageStatus', (req, res) => {
 });
 
 router.post('/shelves', (req, res) => {
+  req.body.creator = { _id: req.body.userId, name: req.body.userName };
   service.createShelfTask(req.body, (err, r) => res.json(result.json(err, r)));
+});
+
+router.post('/shelves/addFiles', (req, res) => {
+  shelfService.addFilesToTask(req.body, (err, r) => res.json(result.json(err, r)));
 });
 
 router.use(isLogin.middleware);
@@ -711,5 +716,37 @@ router.post('/updateFastEditTemplate', (req, res) => {
   service.updateFastEditTemplate(req.body, (err, r) => res.json(result.json(err, r)));
 });
 
+
+/**
+ * @permissionGroup: shelfList
+ * @permissionName: 查看上架任务流程详情
+ * @permissionPath: /shelfManage/getShelfTaskProcess
+ * @apiName: getShelfTaskProcess
+ * @apiFuncType: get
+ * @apiFuncUrl: /shelfManage/getShelfTaskProcess
+ * @swagger
+ * /shelfManage/getShelfTaskProcess:
+ *   get:
+ *     description: 查看上架任务流程详情
+ *     tags:
+ *       - v1
+ *       - library
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: _id
+ *         description: ''
+ *         required: true
+ *         type: string
+ *         default: ''
+ *         collectionFormat: csv
+ *     responses:
+ *       200:
+ *         description:
+ * */
+router.get('/getShelfTaskProcess', (req, res) => {
+  service.getShelfTaskProcess(req.query, (err, doc) => res.json(result.json(err, doc)));
+});
 
 module.exports = router;
