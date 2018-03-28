@@ -513,12 +513,8 @@ const isDate = (date) => {
   if (date === undefined || date === null) return false;
   return !isNaN(new Date(date).getTime());
 };
-const toDate = (date) => {
-  return isDate(date) ? new Date(date) : null;
-};
-const fillupZero = (v) => {
-  return v < 10 ? `0${v}` : v;
-};
+const toDate = date => isDate(date) ? new Date(date) : null;
+const fillupZero = v => v < 10 ? `0${v}` : v;
 
 utils.formatTime = (date, format = 'YYYY-MM-DD HH:mm:ss') => {
   date = toDate(date);
@@ -560,7 +556,7 @@ utils.transformSecondsToStr = (time = 0, format = 'HH:mm:ss:ff', fps = 25) => {
   return result;
 };
 
-utils.download = download(url, tempPath, cb) => {
+utils.download = (url, tempPath, cb) => {
   const file = fs.createWriteStream(tempPath);
   request.get(url).on('response', (response) => {
     response.pipe(file);

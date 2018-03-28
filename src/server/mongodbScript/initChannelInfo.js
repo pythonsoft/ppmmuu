@@ -34,7 +34,7 @@ channelInfo.collection.findOne({}, (err, doc) => {
   }
 });
 
-const dealAnchor = function dealAnchor() {
+const dealAnchor = () => {
   userInfo.collection.findOne({ name: 'xuyawen' }, (err, user) => {
     channelInfo.collection.findOne({}, (err, doc) => {
       const channelId = doc._id;

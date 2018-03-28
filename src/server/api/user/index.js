@@ -346,7 +346,10 @@ router.get('/auth', (req, res) => {
     const rs = Object.assign({
       token: loginMiddleware.getTicket(req),
       jwtToken: service.getJwtToken(),
-    }, data);
+      userInfo: data.userInfo,
+      menu: data.menu,
+    });
+
     return res.json(result.success(rs));
   });
 });

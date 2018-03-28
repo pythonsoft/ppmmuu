@@ -59,7 +59,6 @@ const init = function init() {
 
   redisClient.on('ready', () => {
     console.log('Redis Connect Success!');
-    initRedisMQ();
   });
 
   config.redisClient = redisClient;

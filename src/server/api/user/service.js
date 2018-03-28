@@ -445,11 +445,12 @@ service.getUserInfoIncludePermission = (userId, cb) => {
 };
 
 service.getUserInfoAndMenu = (userId, cb) => {
-  service.getUserInfoIncludePermission(userId, (err, doc) => {
+  service.getUserInfoIncludePermission(userId, (err, info) => {
     if (err) {
       return cb && cb(err);
     }
 
+    const doc = Object.assign({}, info);
     const permissions = doc.permissions || [];
     delete doc.permissions;
     delete doc.mediaExpressUser;
