@@ -1,7 +1,7 @@
 
 'use strict';
 
-const service = require('../api/library/service');
+// const service = require('../api/library/service');
 
 // service.addTemplate({
 //   source: 'MAM',

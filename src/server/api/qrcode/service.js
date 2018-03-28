@@ -17,7 +17,7 @@ const userService = require('../user/service');
 
 const service = {};
 
-service.getDetail = function getDetail(query, cb) {
+service.getDetail = (query, cb) => {
   qrcodeInfo.collection.findOne(query, (err, doc) => {
     if (err) {
       logger.error(err.message);
@@ -32,7 +32,7 @@ service.getDetail = function getDetail(query, cb) {
   });
 };
 
-service.createQRCode = function createQRCode(url, cb) {
+service.createQRCode = (url, cb) => {
   const createdTime = new Date();
   const expiredTime = new Date();
   expiredTime.setMinutes(expiredTime.getMinutes() + 1);
@@ -70,7 +70,7 @@ service.createQRCode = function createQRCode(url, cb) {
   });
 };
 
-service.updateQRCode = function updateQRCode(id, info = {}, cb) {
+service.updateQRCode = (id, info = {}, cb) => {
   if (!id) {
     return cb && cb(i18n.t('qrcodeParamIsNull', { field: 'id' }));
   }
@@ -92,7 +92,7 @@ service.updateQRCode = function updateQRCode(id, info = {}, cb) {
  * @param cb
  * @returns {*}
  */
-service.query = function (res, id, cb) {
+service.query = (res, id, cb) => {
   if (!id) {
     return cb && cb(i18n.t('qrcodeParamIsNull', { field: 'id' }));
   }
@@ -135,7 +135,7 @@ service.query = function (res, id, cb) {
 };
 
 // 客户端扫码调用此接口
-service.scan = function (id, ticket, cb) {
+service.scan = (id, ticket, cb) => {
   if (!id) {
     return cb && cb(i18n.t('qrcodeParamIsNull', { field: 'id' }));
   }
