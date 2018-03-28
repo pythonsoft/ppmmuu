@@ -1,4 +1,5 @@
-const config = require('../config');
+'use strict';
+
 const UserInfo = require('../api/user/userInfo');
 
 const userInfo = new UserInfo();

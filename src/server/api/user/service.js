@@ -8,16 +8,15 @@ const logger = require('../../common/log')('error');
 const i18n = require('i18next');
 const utils = require('../../common/utils');
 const Token = require('../../common/token');
-const WebosApi = require('../../common/webosAPI');
+const WebOSApi = require('../../common/webosAPI');
 const config = require('../../config');
-const Login = require('../../middleware/login');
-
 const jwt = require('jsonwebtoken');
 
 const SearchHistoryInfo = require('./searchHistoryInfo');
 const WatchingHistoryInfo = require('./watchingHistoryInfo');
 const UserInfo = require('./userInfo');
 const PermissionGroup = require('../role/permissionGroup');
+const PermissionAssignmentInfo = require('../role/permissionAssignmentInfo');
 const GroupInfo = require('../group/groupInfo');
 
 const userInfo = new UserInfo();
@@ -29,6 +28,8 @@ const groupInfo = new GroupInfo();
 const groupService = require('../group/service');
 const groupUserService = require('../group/userService');
 const subscribeService = require('../subscribe/service');
+
+const redisClient = config.redisClient;
 
 const service = {};
 
@@ -59,64 +60,40 @@ const getMenuByPermissions = function getMenuByPermissions(permissions, cb) {
  * @param cb
  */
 function setCookie2(res, doc, cb) {
-  const expires = new Date().getTime() + config.cookieExpires;
-  const token = generateToken(doc._id, expires);
-
-  const jwtToken = jwt.sign({
-    service: 'bd-bigdata',
-  }, config.KEY, {
-    expiresIn: expires,
-  });
-
-  Login.getUserInfo(doc._id, (err, info) => {
+  const userId = doc._id;
+  service.getUserInfoAndMenu(userId, (err, rs) => {
     if (err) {
-      return cb && cb(i18n.t('loginCannotGetUserInfo'));
+      return cb && cb(err);
     }
 
-    const permissions = info.permissions || [];
-    getMenuByPermissions(permissions, (err, menu) => {
-      if (err) {
-        return cb && cb(err);
-      }
+    const expires = new Date().getTime() + config.cookieExpires;
+    const token = generateToken(userId, expires);
+    const userInfo = rs.userInfo;
+    const menu = rs.menu;
+    const jwtToken = service.getJwtToken(expires);
 
-      res.cookie('ticket', token, {
-        expires: new Date(expires),
-        httpOnly: true,
-      });
+    const userInfoWidthPermissions = Object.assign({}, userInfo);
+    userInfoWidthPermissions.permissions = rs.permissions;
 
-      delete info.permissions;
-      delete info.mediaExpressUser;
+    redisClient.set(userId, JSON.stringify(userInfoWidthPermissions));
+    redisClient.EXPIRE(userId, config.redisExpires);
 
-      subscribeService.hasSubscribeInfo(doc.company._id, (err, isExist) => {
-        if (err) {
-          return cb && cb(err);
-        }
-        if (isExist) {
-          menu.push({
-            _id: 'subscriptions',
-            name: '订阅',
-            index: 'subscriptions',
-            parentIndex: '',
-          });
-        }
-        return cb && cb(null, {
-          token,
-          menu,
-          userInfo: info,
-          jwtToken,
-        });
-      });
+    res.cookie('ticket', token, {
+      expires: new Date(expires),
+      httpOnly: true,
     });
+
+    return cb && cb(null, { token, menu, userInfo, jwtToken });
   });
 }
 
 function webosLogin(userId, password, cb) {
-  const wos = new WebosApi(config.WEBOS_SERVER);
+  const wos = new WebOSApi(config.WEBOS_SERVER);
   wos.getTicket(userId, password, (err, r) => {
     if (err) {
       return cb && cb(err);
     }
-    const iL = WebosApi.decryptTicket(r, config.WEBOS_SERVER.key);
+    const iL = WebOSApi.decryptTicket(r, config.WEBOS_SERVER.key);
     if (iL[0] === userId) {
       return cb && cb(null, r);
     }
@@ -243,6 +220,17 @@ const loginHandleByTicket = function loginHandle(ticket, cb) {
       return cb && cb(null, doc);
     });
   });
+};
+
+service.getJwtToken = (exp) => {
+  const expires = exp || new Date().getTime() + config.cookieExpires;
+  const jwtToken = jwt.sign({
+    service: 'bd-bigdata',
+  }, config.KEY, {
+    expiresIn: expires,
+  });
+
+  return jwtToken;
 };
 
 service.decodeTicket = function decodeTicket(ticket) {
@@ -431,6 +419,62 @@ service.removeSearchHistory = (ids, userId, cb) => {
     filter._id = { $in: ids.split(',') };
   }
   searchHistoryInfo.collection.deleteMany(filter, null, (err, r) => cb && cb(err, r));
+};
+
+service.getUserInfoIncludePermission = (userId, cb) => {
+  userInfo.getUserInfo(userId, '', (err, doc) => {
+    if (err) {
+      return cb && cb(err);
+    }
+
+    if (!doc) {
+      return cb && cb(i18n.t('loginCannotFindUser'));
+    }
+
+    groupUserService.getOwnerEffectivePermission({
+      _id: doc._id,
+      type: PermissionAssignmentInfo.TYPE.USER,
+    }, (err, result) => {
+      if (err) {
+        return cb && cb(err);
+      }
+      doc.permissions = result;
+      return cb && cb(null, doc);
+    });
+  });
+};
+
+service.getUserInfoAndMenu = (userId, cb) => {
+  service.getUserInfoIncludePermission(userId, (err, doc) => {
+    if (err) {
+      return cb && cb(err);
+    }
+
+    const permissions = doc.permissions || [];
+    delete doc.permissions;
+    delete doc.mediaExpressUser;
+
+    getMenuByPermissions(permissions, (err, menu) => {
+      if (err) {
+        return cb && cb(err);
+      }
+
+      subscribeService.hasSubscribeInfo(doc.company._id, (err, isExist) => {
+        if (err) {
+          return cb && cb(err);
+        }
+        if (isExist) {
+          menu.push({
+            _id: 'subscriptions',
+            name: '订阅',
+            index: 'subscriptions',
+            parentIndex: '',
+          });
+        }
+        return cb && cb(null, { userInfo: doc, menu, permissions });
+      });
+    });
+  });
 };
 
 const getGroupByNameOrCreate = function getGroupByNameOrCreate(query, cb) {
@@ -773,7 +817,7 @@ service.registerUserToEaseMob = function registerUserToEaseMob(user, cb) {
       username: user._id.replace(/-/g, '_'),
       password: `${t}`,
     };
-    utils.callApi(`${config.easemob_url}users`, 'POST', info, Authorization, err => cb && cb(null, 'ok'));
+    utils.callApi(`${config.easemob_url}users`, 'POST', info, Authorization, () => cb && cb(null, 'ok'));
   });
 };
 

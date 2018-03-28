@@ -1,3 +1,5 @@
+'use strict';
+
 const channelService = require('../api/connection/service');
 const ChannelInfo = require('../api/connection/channelInfo');
 const AnchorInfo = require('../api/connection/anchorInfo');

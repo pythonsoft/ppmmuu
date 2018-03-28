@@ -10,13 +10,10 @@ const utils = require('../common/utils');
 const result = require('../common/result');
 const token = require('../common/token');
 const config = require('../config');
-const UserInfo = require('../api/user/userInfo');
+const userService = require('../api/user/service');
 const PermissionInfo = require('../api/role/permissionInfo');
-const PermissionAssignmentInfo = require('../api/role/permissionAssignmentInfo');
 const SubscribeInfo = require('../api/subscribeManagement/subscribeInfo');
-const groupService = require('../api/group/userService');
 
-const userInfo = new UserInfo();
 const subscribeInfo = new SubscribeInfo();
 const redisClient = config.redisClient;
 
@@ -25,8 +22,7 @@ const TICKET_COOKIE_NAME = 'ticket';
 const login = {};
 
 login.isLogin = function isLogin(req) {
-  const query = utils.trim(req.query);
-  const ticket = query[TICKET_COOKIE_NAME] || (req.cookies[TICKET_COOKIE_NAME] || req.header(`ump-${TICKET_COOKIE_NAME}`)) || (req.body || req.body[TICKET_COOKIE_NAME]);
+  const ticket = login.getTicket(req);
 
   if (!ticket) {
     return false;
@@ -41,31 +37,19 @@ login.isLogin = function isLogin(req) {
   return decodeTicket;
 };
 
-login.getUserInfo = function getUserInfo(userId, cb) {
-  let info = {};
-  userInfo.getUserInfo(userId, '', (err, doc) => {
+login.getUserInfo = (userId, cb) => {
+  userService.getUserInfoIncludePermission(userId, (err, doc) => {
     if (err) {
       return cb && cb(err);
     }
 
-    if (!doc) {
-      return cb && cb(i18n.t('loginCannotFindUser'));
-    }
-
-    groupService.getOwnerEffectivePermission({ _id: doc._id, type: PermissionAssignmentInfo.TYPE.USER }, (err, result) => {
-      if (err) {
-        return cb && cb(err);
-      }
-      info = doc;
-      info.permissions = result;
-      redisClient.set(userId, JSON.stringify(info));
-      redisClient.EXPIRE(userId, config.redisExpires);
-      return cb && cb(null, info);
-    });
+    redisClient.set(userId, JSON.stringify(doc));
+    redisClient.EXPIRE(userId, config.redisExpires);
+    return cb && cb(null, doc);
   });
 };
 
-login.getUserInfoRedis = function getUserInfo(userId, cb) {
+login.getUserInfoRedis = (userId, cb) => {
   let info = {};
 
   redisClient.get(userId, (err, r) => {
@@ -96,39 +80,45 @@ function getClientPlatform(req) {
   return PLATFORM_TYPE.PC;
 }
 
-const verifyTicket = function (ticket) {
-  const decodeTicket = token.decipher(ticket, config.KEY);
+// const verifyTicket = function (ticket) {
+//   const decodeTicket = token.decipher(ticket, config.KEY);
+//
+//   if (!decodeTicket) {
+//     return false;
+//   }
+//
+//   const now = new Date().getTime();
+//   if (decodeTicket[1] > now) { // token有效期内
+//     req.ex = { userId: decodeTicket[0] };
+//     req.query = utils.trim(req.query);
+//
+//     if (!(req.headers['content-type'] && req.headers['content-type'].indexOf('multipart/form-data') !== -1)) {
+//       req.body = utils.trim(req.body);
+//     }
+//
+//     login.getUserInfoRedis(req.ex.userId, (err, info) => {
+//       if (err) {
+//         res.clearCookie(TICKET_COOKIE_NAME);
+//         return res.json(result.fail(err));
+//       }
+//
+//       req.ex.userInfo = info;
+//       req.ex.platform = getClientPlatform(req);
+//       next();
+//     });
+//   } else { // 过期
+//     res.clearCookie(TICKET_COOKIE_NAME);
+//     return res.json(result.fail(req.t('loginExpired')));
+//   }
+// };
 
-  if (!decodeTicket) {
-    return false;
-  }
-
-  const now = new Date().getTime();
-  if (decodeTicket[1] > now) { // token有效期内
-    req.ex = { userId: decodeTicket[0] };
-    req.query = utils.trim(req.query);
-
-    if (!(req.headers['content-type'] && req.headers['content-type'].indexOf('multipart/form-data') !== -1)) {
-      req.body = utils.trim(req.body);
-    }
-
-    login.getUserInfoRedis(req.ex.userId, (err, info) => {
-      if (err) {
-        res.clearCookie(TICKET_COOKIE_NAME);
-        return res.json(result.fail(err));
-      }
-
-      req.ex.userInfo = info;
-      req.ex.platform = getClientPlatform(req);
-      next();
-    });
-  } else { // 过期
-    res.clearCookie(TICKET_COOKIE_NAME);
-    return res.json(result.fail(req.t('loginExpired')));
-  }
+login.getTicket = (req) => {
+  const query = utils.trim(req.query);
+  const ticket = query[TICKET_COOKIE_NAME] || (req.cookies[TICKET_COOKIE_NAME] || req.header(`ump-${TICKET_COOKIE_NAME}`)) || (req.body || req.body[TICKET_COOKIE_NAME]);
+  return ticket;
 };
 
-login.middleware = function middleware(req, res, next) {
+login.middleware = (req, res, next) => {
   const decodeTicket = login.isLogin(req);
 
   if (decodeTicket) {
@@ -160,7 +150,7 @@ login.middleware = function middleware(req, res, next) {
   }
 };
 
-login.webSocketMiddleware = function (socket) {
+login.webSocketMiddleware = (socket) => {
   const authorize = socket.request.headers[`ump-${TICKET_COOKIE_NAME}`] || utils.formatCookies(socket.request.headers.cookie)[TICKET_COOKIE_NAME];
   let secret = socket.request.headers['ump-secret'] || '0';
 

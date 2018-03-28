@@ -458,7 +458,7 @@ utils.formatValueNeedSplitWidthFlag = function formatParamsNeedSplitWidthFlag(va
   return v.split(flag);
 };
 
-utils.console = function (title, content) {
+utils.console = (title, content) => {
   console.log(`******** ${title} ********`);
   if (!content) {
     return false;
@@ -467,7 +467,7 @@ utils.console = function (title, content) {
   console.log(`******** ${title} ********`);
 };
 
-utils.formatCookies = function (cookies) {
+utils.formatCookies = (cookies) => {
   const cs = {};
   if (!cookies) { return cs; }
   const arr = cookies.split('; ');
@@ -480,7 +480,7 @@ utils.formatCookies = function (cookies) {
   return cs;
 };
 
-utils.processWrite = function (str) {
+utils.processWrite = (str) => {
   const out = process.stdout;
   if (!out || !out.clearLine) {
     console.log(str);
@@ -491,7 +491,7 @@ utils.processWrite = function (str) {
   out.write(str);
 };
 
-utils.formatSize = function (size, isNeedUnit) {
+utils.formatSize = (size, isNeedUnit) => {
   let str = '';
   let unit = 'B';
   if (size < 1000) {
@@ -509,18 +509,18 @@ utils.formatSize = function (size, isNeedUnit) {
   return isNeedUnit ? { size: str, unit } : (`${str} ${unit}`);
 };
 
-const isDate = function (date) {
+const isDate = (date) => {
   if (date === undefined || date === null) return false;
   return !isNaN(new Date(date).getTime());
 };
-const toDate = function (date) {
+const toDate = (date) => {
   return isDate(date) ? new Date(date) : null;
 };
-const fillupZero = function (v) {
+const fillupZero = (v) => {
   return v < 10 ? `0${v}` : v;
 };
 
-utils.formatTime = function (date, format = 'YYYY-MM-DD HH:mm:ss') {
+utils.formatTime = (date, format = 'YYYY-MM-DD HH:mm:ss') => {
   date = toDate(date);
   if (!date) return '';
   const year = date.getFullYear();
@@ -540,7 +540,7 @@ utils.formatTime = function (date, format = 'YYYY-MM-DD HH:mm:ss') {
   return result;
 };
 
-utils.transformSecondsToStr = function (time = 0, format = 'HH:mm:ss:ff', fps = 25) {
+utils.transformSecondsToStr = (time = 0, format = 'HH:mm:ss:ff', fps = 25) => {
   if (time < 0) time = 0;
   const hours = Math.floor(time / (60 * 60));
   time %= (60 * 60);
@@ -560,7 +560,7 @@ utils.transformSecondsToStr = function (time = 0, format = 'HH:mm:ss:ff', fps = 
   return result;
 };
 
-utils.download = function download(url, tempPath, cb) {
+utils.download = download(url, tempPath, cb) => {
   const file = fs.createWriteStream(tempPath);
   request.get(url).on('response', (response) => {
     response.pipe(file);
