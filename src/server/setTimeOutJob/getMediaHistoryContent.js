@@ -58,4 +58,4 @@ const renewHistoryList = function renewHistoryList() {
     });
 };
 
-setInterval(renewHistoryList, 100 * 1);
+setInterval(renewHistoryList, 1000 * 6);

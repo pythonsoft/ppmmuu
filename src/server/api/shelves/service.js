@@ -1253,7 +1253,7 @@ service.warehouse = function warehouse(info, cb) {
 
     params.paramJson = JSON.stringify(params.paramJson);
 
-    console.log(params);
+    console.log(JSON.stringify(params));
     const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/ProcessInstanceService/create`;
     utils.requestCallApi(url, 'POST', params, '', (err, rs) => {
       if (err) {
