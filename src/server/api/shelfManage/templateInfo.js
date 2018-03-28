@@ -23,8 +23,6 @@ class TemplateInfo extends DB {
         type: 'string',
         validation: 'require',
       },
-      editorTemplate: { type: 'object', default: { _id: '', name: '' } },  // 用于快编的转码模板
-      libraryTemplate: { type: 'object', default: { _id: '', name: '' } },                    // 入库模板
       transcodeTemplateDetail: {
         type: 'object',
         default() {
@@ -35,6 +33,7 @@ class TemplateInfo extends DB {
         },
       },
       script: { type: 'string' },     // 路径脚本
+      typeScript: { type: 'string' },  // 转码生成的文件格式脚本
       description: { type: 'string' },
       subtitleType: { type: 'array' },
     };

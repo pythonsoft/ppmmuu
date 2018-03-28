@@ -19,11 +19,21 @@ const fieldConfig = require('../subscribe/fieldConfig');
 
 const ShelfTaskInfo = require('./shelfTaskInfo');
 const CatalogInfo = require('../library/catalogInfo');
-const FileInfo = require('../library/fileInfo');
+const UserInfo = require('../user/userInfo');
 
 const shelfTaskInfo = new ShelfTaskInfo();
+const userInfo = new UserInfo();
 
 const service = {};
+
+const getTaskFileName = function getTaskFileName(files) {
+  if (files && files.length) {
+    let name = files[0].name;
+    name = name.split('.')[0];
+    return name;
+  }
+  return '';
+}
 
 const listShelfTask = function listShelfTask(query, page, pageSize, cb) {
   shelfTaskInfo.pagination(query, page, pageSize, (err, docs) => {
@@ -39,7 +49,7 @@ const listShelfTask = function listShelfTask(query, page, pageSize, cb) {
         if (items[i].editorInfo && items[i].editorInfo.subscribeType && items[i].editorInfo.subscribeType.constructor.name === 'Array') {
           items[i].editorInfo.subscribeType = items[i].editorInfo.subscribeType.join(',');
         }
-        items[i].editorInfo.fileName = items[i].details.NAME;
+        items[i].editorInfo.fileName = getTaskFileName(items[i].files);
         delete items[i].details;
       }
     }
@@ -250,6 +260,19 @@ service.deleteShelfTask = function deleteShelfTask(req, cb) {
   });
 };
 
+const getUserInfo = function getUserInfo(query, cb) {
+  userInfo.collection.findOne(query, (err, doc) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+    if (!doc) {
+      return cb && cb(i18n.t('userNotFind'));
+    }
+    return cb && cb(null, doc);
+  });
+};
+
 // 创建上架任务
 service.createShelfTask = function createShelfTask(info, cb) {
   const force = info.force || false;
@@ -271,76 +294,69 @@ service.createShelfTask = function createShelfTask(info, cb) {
   if (!info._id) {
     info._id = uuid.v1();
   }
-  mediaService.getObject({ objectid: objectId, fromWhere: info.fromWhere }, (err, rs) => {
+  if (info.name) {
+    info.editorInfo.name = info.name;
+  }
+  getUserInfo({ _id: info.creator._id }, (err, doc) => {
     if (err) {
       return cb && cb(err);
     }
-    const program = rs.result.detail.program;
-    const basic = rs.result.basic;
-    info.files = rs.result.files;
-    for (const key in basic) {
-      info.details[key] = basic[key];
-    }
-    info.editorInfo.fileName = basic.NAME;
-    if (info.details.OUTPOINT) {
-      info.details.duration = info.details.OUTPOINT - info.details.INPOINT;
-    }
-    for (let i = 0, len = program.length; i < len; i++) {
-      const item = program[i];
-      if (item.value === 'N/A') {
-        info.details[item.key] = new Date('1900-01-01').toISOString();
-      } else {
-        info.details[item.key] = item.value;
+    info.department = doc.department;
+    mediaService.getObject({ objectId, fromWhere: info.fromWhere }, (err, rs) => {
+      if (err) {
+        return cb && cb(err);
       }
-      if (item.key === 'FIELD195') {
-        info.name = item.value;
-        info.editorInfo.name = item.value;
+      const program = rs.result.detail.program;
+      const basic = rs.result.basic;
+      info.files = [];
+      for (const key in basic) {
+        info.details[key] = basic[key];
       }
-      if (item.key === 'FIELD196' && !info.editorInfo.name) {
-        info.name = item.value;
-        info.editorInfo.name = item.value;
+      info.editorInfo.fileName = basic.NAME;
+      if (info.details.OUTPOINT) {
+        info.details.duration = info.details.OUTPOINT - info.details.INPOINT;
       }
-      if (item.key === 'FIELD276') {
-        info.editorInfo.source = item.value;
-      }
-    }
-    if (!info.editorInfo.name) {
-      info.editorInfo.name = info.name;
-    }
-    info.editorInfo.cover = `${config.domain}/media/getIcon?objectid=${objectId}&fromWhere=${info.fromWhere}`;
-
-
-    // 为了订阅搜索统一一下搜索字段和香港接口一样
-    const FILED_MAP = {
-      newsTime: 'FIELD162',
-      airTime: 'FIELD36',
-      version: 'FIELD323',
-    };
-
-    for (const key in FILED_MAP) {
-      if (info.details[key]) {
-        info.details[FILED_MAP[key]] = info.details[key];
-      }
-    }
-
-    if (force) {
-      shelfTaskInfo.insertOne(info, (err) => {
-        if (err) {
-          logger.error(err.message);
-          return cb && cb(err);
+      for (let i = 0, len = program.length; i < len; i++) {
+        const item = program[i];
+        if (item.value === 'N/A') {
+          info.details[item.key] = new Date('1900-01-01').toISOString();
+        } else {
+          info.details[item.key] = item.value;
         }
+        if (!info.name) {
+          if (item.key === 'FIELD195') {
+            info.name = item.value;
+            info.editorInfo.name = item.value;
+          }
+          if (item.key === 'FIELD196' && !info.editorInfo.name) {
+            info.name = item.value;
+            info.editorInfo.name = item.value;
+          }
+          if (item.key === 'FIELD276') {
+            info.editorInfo.source = item.value;
+          }
+        }
+      }
+      if (!info.editorInfo.name) {
+        info.editorInfo.name = info.name;
+      }
+      info.editorInfo.cover = `${config.domain}/media/getIcon?objectid=${objectId}&fromWhere=${info.fromWhere}`;
 
-        return cb && cb(null, info._id);
-      });
-    } else {
-      shelfTaskInfo.collection.findOne({ objectId: info.objectId }, (err, doc) => {
-        if (err) {
-          logger.error(err.message);
-          return cb && cb(err);
+
+      // 为了订阅搜索统一一下搜索字段和香港接口一样
+      const FILED_MAP = {
+        newsTime: 'FIELD162',
+        airTime: 'FIELD36',
+        version: 'FIELD323',
+      };
+
+      for (const key in FILED_MAP) {
+        if (info.details[key]) {
+          info.details[FILED_MAP[key]] = info.details[key];
         }
-        if (doc) {
-          return cb && cb(i18n.t('shelfHasExists'));
-        }
+      }
+
+      if (force) {
         shelfTaskInfo.insertOne(info, (err) => {
           if (err) {
             logger.error(err.message);
@@ -349,8 +365,26 @@ service.createShelfTask = function createShelfTask(info, cb) {
 
           return cb && cb(null, info._id);
         });
-      });
-    }
+      } else {
+        shelfTaskInfo.collection.findOne({objectId: info.objectId}, (err, doc) => {
+          if (err) {
+            logger.error(err.message);
+            return cb && cb(err);
+          }
+          if (doc) {
+            return cb && cb(i18n.t('shelfHasExists'));
+          }
+          shelfTaskInfo.insertOne(info, (err) => {
+            if (err) {
+              logger.error(err.message);
+              return cb && cb(err);
+            }
+
+            return cb && cb(null, info._id);
+          });
+        });
+      }
+    });
   });
 };
 
@@ -1141,11 +1175,6 @@ service.addFilesToTask = function addFilesToTask(info, cb) {
     }
 
     let files = doc.files || [];
-    for (let k = 0, len = newFiles.length; k < len; k++) {
-      if (!utils.isValueInObject(newFiles[k].type, FileInfo.TYPE)) {
-        return cb && cb(i18n.t('shelfTaskFileTypeIsInValid'));
-      }
-    }
     if (files && files.length > 0) {
       for (let i = 0, len1 = newFiles.length; i < len1; i++) {
         const newFile = newFiles[i];
@@ -1174,5 +1203,70 @@ service.addFilesToTask = function addFilesToTask(info, cb) {
     });
   });
 };
+
+// 上架
+service.warehouse = function warehouse(info, cb) {
+  const struct = {
+    processId: { type: 'string', validation: 'require' },
+    shelveTemplateId: { type: 'string', validation: 'require' },
+    objectId: { type: 'string', validation: 'require' },
+    name: { type: 'string', validation: 'require' },
+    fileName: { type: 'string', validation: 'require' },
+    fromWhere: { type: 'string', validation: 'require' },
+  };
+  const err = utils.validation(info, struct);
+  if (err) {
+    return cb && cb(err);
+  }
+  const checkForce = function (callback) {
+    if (!info.force) {
+      return callback && callback(null);
+    }
+    shelfTaskInfo.collection.findOne({ objectId: info.objectId }, (err, doc) => {
+      if (err) {
+        logger.error(err.message);
+        return cb && cb(err);
+      }
+      if (doc) {
+        return cb && cb(i18n.t('shelfHasExists'));
+      }
+    });
+  };
+
+  checkForce((err) => {
+    if (err) {
+      return cb && cb(err);
+    }
+
+    const params = {
+      processId: info.processId,
+      paramJson: {},
+    };
+    params.paramJson = {
+      objectId: info.objectId,
+      userId: info.creator._id,
+      userName: info.creator.name,
+      fileName: info.fileName,
+      shelveTemplateId: info.shelveTemplateId,
+      fromWhere: info.fromWhere,
+    };
+
+    params.paramJson = JSON.stringify(params.paramJson);
+
+    console.log(params);
+    const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/ProcessInstanceService/create`;
+    utils.requestCallApi(url, 'POST', params, '', (err, rs) => {
+      if (err) {
+        return cb && cb(err); // res.json(result.fail(err));
+      }
+
+      if (rs.status === '0') {
+        return cb && cb(null, 'ok');
+      }
+      return cb && cb(i18n.t('joDownloadError', { error: rs.statusInfo.message }));
+    });
+  });
+};
+
 
 module.exports = service;

@@ -630,6 +630,11 @@ const subscribeDownloadType = [
     value: '8',
     description: '订阅下载音频WAV资源',
   },
+  {
+    key: 'mp3',
+    value: '9',
+    description: '订阅下载音频mp3资源',
+  },
 ];
 
 const subscribeDownloadTypeInfo = [{
