@@ -39,26 +39,26 @@ const DOWNLOAD_TYPE_MAP = {
   2: '手动下载',
 };
 
-const getValidFiles = function getValidFiles(files) {
+const getValidFiles = function getValidFiles(files, allowedDownloadFileTypes) {
   const validFiles = [];
-  for (let i = 0, len = files.length; i < len; i++) {
-    const file = files[i];
-    const validTypes = [FileInfo.TYPE.P1080, FileInfo.TYPE.P360, FileInfo.TYPE.AUDIO];
-    if (file.type && validTypes.indexOf(file.type) !== -1) {
-      if (file.type === FileInfo.TYPE.P1080) {
-        file.typeName = '全高清';
-      } else if (file.type === FileInfo.TYPE.P360) {
-        file.typeName = '标清';
-      } else {
-        file.typeName = '音频';
+  const validTypes = [];
+  if (allowedDownloadFileTypes.length) {
+    allowedDownloadFileTypes.forEach((item) => {
+      validTypes.push(item.value);
+    });
+    for (let i = 0, len = files.length; i < len; i++) {
+      const file = files[i];
+      const index = validTypes.indexOf(file.type);
+      if (file.type && index !== -1) {
+        file.typeName = allowedDownloadFileTypes[index].key;
+        validFiles.push(file);
       }
-      validFiles.push(file);
     }
   }
   return validFiles;
 };
 
-const filterDoc = function filterDoc(_source) {
+const filterDoc = function filterDoc(_source, allowedDownloadFileTypes) {
   const doc = {};
   doc._id = _source._id;
   doc.name = _source.details.NAME;
@@ -75,7 +75,7 @@ const filterDoc = function filterDoc(_source) {
   doc.outpoint = _source.details.OUTPOINT;
   doc.duration = _source.details.OUTPOINT - _source.details.INPOINT;
   const files = _source.files || [];
-  doc.files = getValidFiles(files);
+  doc.files = getValidFiles(files, allowedDownloadFileTypes);
   doc.fromWhere = _source.fromWhere || CatalogInfo.FROM_WHERE.MAM;
   doc.content = _source.details.FIELD03 || _source.details.FIELD321 || _source.details.FIELD247;
   return doc;
@@ -294,7 +294,7 @@ service.getSubscribeSearchConfig = function getSubscribeSearchConfig(req, cb) {
   });
 };
 
-const executeEsSerach = function executeEsSearch(body, userId, keyword, isRelated, cb) {
+const executeEsSerach = function executeEsSearch(body, userId, keyword, isRelated, allowedDownloadFileTypes, cb) {
   const url = `${config.esBaseUrl}ump_v1/ShelfTaskInfo/_search`;
   const options = {
     method: 'POST',
@@ -322,7 +322,7 @@ const executeEsSerach = function executeEsSearch(body, userId, keyword, isRelate
           _source[key] = highlight[key].join('');
         }
       }
-      newRs.docs.push(filterDoc(_source));
+      newRs.docs.push(filterDoc(_source, allowedDownloadFileTypes));
     }
 
     if (userId && keyword && !isRelated) {
@@ -457,6 +457,7 @@ service.esSearch = function esSearch(req, cb) {
   const userInfo = req.ex.userInfo;
   const companyId = userInfo.company._id;
   const isRelated = info.isRelated || false;
+  const allowedDownloadFileTypes = req.ex.downloadFileTypes || [];
   let subscribeType = info.subscribeType || '';
 
   // 检查subscribeType是否合法
@@ -494,7 +495,7 @@ service.esSearch = function esSearch(req, cb) {
     const options = getEsOptions(info);
     let keyword = info.keyword || '';
     keyword = keyword.trim();
-    executeEsSerach(options, userInfo._id, keyword, isRelated, (err, docs) => {
+    executeEsSerach(options, userInfo._id, keyword, isRelated, allowedDownloadFileTypes, (err, docs) => {
       if (err) {
         return cb && cb(err);
       }
@@ -512,6 +513,7 @@ service.getEsMediaList = function getEsMediaList(req, cb) {
   const userInfo = req.ex.userInfo;
   const companyId = userInfo.company._id;
   const pageSize = info.pageSize || 7;
+  const allowedDownloadFileTypes = req.ex.downloadFileTypes || [];
   const rs = {};
 
   const loopGetShelfTaskInfo = function loopGetShelfTaskInfo(subscribeType, subscribeNames, index, cb) {
@@ -536,7 +538,7 @@ service.getEsMediaList = function getEsMediaList(req, cb) {
       docs = docs.docs;
       if (docs && docs.length) {
         docs.forEach((item) => {
-          category.docs.push(filterDoc(item));
+          category.docs.push(filterDoc(item, allowedDownloadFileTypes));
         });
         rs.category.push(category);
       }
@@ -593,6 +595,7 @@ service.getEsMediaList = function getEsMediaList(req, cb) {
 service.getShelfInfo = function getShelfInfo(req, cb) {
   const _id = req.query._id || '';
   const fields = '_id,name,programNO,objectId,details,editorInfo,lastModifyTime,files,fromWhere';
+  const allowedDownloadFileTypes = req.ex.downloadFileTypes;
 
   const info = {
     _id,
@@ -645,7 +648,7 @@ service.getShelfInfo = function getShelfInfo(req, cb) {
     }
     const files = doc.files || [];
     doc.details = rs;
-    doc.files = getValidFiles(files);
+    doc.files = getValidFiles(files, allowedDownloadFileTypes);
     return cb && cb(null, doc);
   });
 };

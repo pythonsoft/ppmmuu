@@ -556,7 +556,7 @@ router.post('/move', (req, res) => {
 
 /**
  * @permissionGroup: movieEditor
- * @permissionName: 视频入库或入库并上架
+ * @permissionName: 视频剪辑
  * @permissionPath: /ivideo/warehouse
  * @apiName: warehouse
  * @apiFuncType: post

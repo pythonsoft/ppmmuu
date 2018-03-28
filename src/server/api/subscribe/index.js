@@ -135,7 +135,7 @@ router.get('/getSubscribeTypeSummary', (req, res) => {
  *                message:
  *                  type: string
  */
-router.post('/esSearch', (req, res) => {
+router.post('/esSearch', isLogin.hasSubscribeMiddleware, (req, res) => {
   service.esSearch(req, (err, doc) => res.json(result.json(err, doc)), req.ex.userId);
 });
 
@@ -177,7 +177,7 @@ router.post('/esSearch', (req, res) => {
  *                  type: string
  *
  */
-router.get('/getEsMediaList', (req, res) => {
+router.get('/getEsMediaList', isLogin.hasSubscribeMiddleware, (req, res) => {
   service.getEsMediaList(req, (err, doc) => res.json(result.json(err, doc)));
 });
 

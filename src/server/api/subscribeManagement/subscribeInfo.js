@@ -36,6 +36,7 @@ class SubscribeInfo extends DB {
       createdTime: { type: 'date', validation: 'require', allowUpdate: false },
       lastModifyTime: { type: 'date', validation: 'require' },
       autoPush: { type: 'boolean', default: true },    // 是否自动推送
+      downloadFileTypes: { type: 'array' },
       transcodeTemplateDetail: { type: 'object',
         default() {
           return {

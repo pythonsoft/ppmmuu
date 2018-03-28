@@ -1241,5 +1241,9 @@ module.exports = {
     code: '-260017',
     message: '上架流程的文件files格式不正确',
   },
+  shelfTemplateTypeScriptIsInvalid: {
+    code: '-260018',
+    message: '上架模板格式脚本配置不正确',
+  },
 };
 

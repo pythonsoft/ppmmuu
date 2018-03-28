@@ -598,4 +598,38 @@ router.get('/listSubscribeType', (req, res) => {
 router.post('/deleteSubscribeType', (req, res) => {
   service.deleteSubscribeType(req.body, (err, r) => res.json(result.json(err, r)));
 });
+
+/**
+ * @apiName: getSearchConfig
+ * @apiFuncType: get
+ * @apiFuncUrl: /subscribeManagement/getSearchConfig
+ * @swagger
+ * /subscribeManagement/getSearchConfig:
+ *   get:
+ *     description: 获取订阅文件下载类型
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - Search
+ *     produces:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *
+ */
+router.get('/getSearchConfig', (req, res) => {
+  service.getSearchConfig((err, doc) => res.json(result.json(err, doc)));
+});
 module.exports = router;

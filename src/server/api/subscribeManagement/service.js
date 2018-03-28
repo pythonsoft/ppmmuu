@@ -17,6 +17,7 @@ const subscribeInfo = new SubscribeInfo();
 const groupInfo = new GroupInfo();
 const subscribeLog = new SubscribeLog();
 const subscribeType = new SubscribeType();
+const configService = require('../configuration/service');
 
 const service = {};
 
@@ -403,5 +404,14 @@ service.listSubscribeType = function listSubscribeType(info, cb) {
     return cb && cb(null, docs);
   }, '-createdTime');
 };
+
+service.getSearchConfig = function getSearchConfig(cb) {
+  configService.getConfig({ key: 'subscribe_download_type' }, (err, value) => {
+    if (err) {
+      return cb && cb(err);
+    }
+    return cb && cb(null, value);
+  });
+}
 
 module.exports = service;
