@@ -1,3 +1,5 @@
+'use strict';
+
 const CatalogInfo = require('../api/library/catalogInfo');
 const CatalogTaskInfo = require('../api/library/catalogTaskInfo');
 const FileInfo = require('../api/library/fileInfo');

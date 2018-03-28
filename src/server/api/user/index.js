@@ -125,9 +125,9 @@ router.get('/getToken', (req, res) => {
   service.login(res, username, password, (err, data) => res.json(result.json(err, data.token)));
 });
 
-const isLogin = require('../../middleware/login');
+const loginMiddleware = require('../../middleware/login');
 
-router.use(isLogin.middleware);
+router.use(loginMiddleware.middleware);
 
 /**
  * @apiName: postUserUpdate
@@ -337,7 +337,22 @@ router.get('/getUsers', (req, res) => {
  *                  type: string
  *
  */
-router.get('/auth', (req, res) => res.json(result.json(null, 'ok')));
+// router.get('/auth', (req, res) => res.json(result.json(null, 'ok')));
+router.get('/auth', (req, res) => {
+  service.getUserInfoAndMenu(req.ex.userInfo._id, (err, data) => {
+    if (err) {
+      return res.json(result.fail(err));
+    }
+    const rs = Object.assign({
+      token: loginMiddleware.getTicket(req),
+      jwtToken: service.getJwtToken(),
+      userInfo: data.userInfo,
+      menu: data.menu,
+    });
+
+    return res.json(result.success(rs));
+  });
+});
 
 /**
  * @apiName: postUserChangePassword
@@ -818,7 +833,7 @@ router.get('/listMyAuditJob', (req, res) => {
  *       200:
  *         description: taskList
  */
-router.get('/listAuditJob', isLogin.hasAccessMiddleware, (req, res) => {
+router.get('/listAuditJob', loginMiddleware.hasAccessMiddleware, (req, res) => {
   jobService.listAuditInfo(req, true, (err, r) => res.json(result.json(err, r)));
 });
 
@@ -851,7 +866,7 @@ router.get('/listAuditJob', isLogin.hasAccessMiddleware, (req, res) => {
  *       200:
  *         description: AuditInfo
  */
-router.post('/passOrRejectAudit', isLogin.hasAccessMiddleware, (req, res) => {
+router.post('/passOrRejectAudit', loginMiddleware.hasAccessMiddleware, (req, res) => {
   auditService.passOrReject(req, (err, data) => res.json(result.json(err, data)));
 });
 

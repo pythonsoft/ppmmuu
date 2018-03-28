@@ -29,7 +29,7 @@ templateGroupInfo.collection.findOne({ name: groupName }, (err, doc) => {
   if (err) {
     console.log(err.message);
   } else if (doc) {
-    templateInfo.collection.updateMany({ groupId: '' }, { $set: { groupId: doc._id } }, (err) => {});
+    templateInfo.collection.updateMany({ groupId: '' }, { $set: { groupId: doc._id } }, () => {});
   } else {
     service.addGroup({ name: groupName }, (err) => {
       if (err) {
@@ -40,7 +40,7 @@ templateGroupInfo.collection.findOne({ name: groupName }, (err, doc) => {
             console.log(err.message);
           }
           if (doc) {
-            templateInfo.collection.updateMany({ groupId: { $exists: false } }, { $set: { groupId: doc._id } }, (err) => {});
+            templateInfo.collection.updateMany({ groupId: { $exists: false } }, { $set: { groupId: doc._id } }, () => {});
           }
         });
       }

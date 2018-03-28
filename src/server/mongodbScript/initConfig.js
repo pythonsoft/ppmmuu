@@ -1,4 +1,3 @@
-
 'use strict';
 
 const ConfigGroup = require('../api/configuration/configurationGroupInfo');
@@ -7,8 +6,6 @@ const configGroup = new ConfigGroup();
 const ConfigInfo = require('../api/configuration/configurationInfo');
 
 const configInfo = new ConfigInfo();
-
-const utils = require('../common/utils');
 
 const meidaCenterSearchSelects = [
   {

@@ -1,3 +1,5 @@
+'use strict';
+
 const request = require('request');
 const fs = require('fs');
 const path = require('path');
@@ -5,7 +7,7 @@ const utils = require('./server/common/utils');
 
 const api = {};
 
-api.generateBuildVersion = function (version) {
+api.generateBuildVersion = (version) => {
   const arr = version.split('.');
   const len = arr.length;
   arr[len - 1] = utils.formatTime(new Date(), 'YYYYMMDDHHmmss');
@@ -24,7 +26,7 @@ const composeTemplate = function composeTemplate(version, updateList) {
 `;
 };
 
-api.create = function (version, generatePath, cb) {
+api.create = (version, generatePath, cb) => {
   if (!version) {
     return cb && cb('version is null.');
   }
@@ -40,7 +42,7 @@ api.create = function (version, generatePath, cb) {
   const pageSize = 20;
   let logs = [];
 
-  const req = function (page, doneFn) {
+  const req = (page, doneFn) => {
     request(`http://gitlab.szdev.cn/dev/UMP-FE/issues?private_token=vKXd3Vzzr_dPwKVkpxF8&scope=all&utf8=%E2%9C%93&state=closed&page=${page}&milestone_title=${version}`, (error, response, data) => {
       if (error) {
         return cb && cb(error);
@@ -51,8 +53,6 @@ api.create = function (version, generatePath, cb) {
       const mt = data.match(issueReg);
       const rs = [];
       let t = null;
-
-      console.log('mt -->', mt);
 
       for (let i = 0, len = mt.length; i < len; i++) {
         t = mt[i];

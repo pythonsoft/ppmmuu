@@ -555,7 +555,7 @@ service.warehouse = function warehouse(info, cb) {
   const params = {
     processId: '',
     paramJson: {},
-  }
+  };
   params.paramJson = {
     userId: info.creator._id,
     userName: info.creator.name,
@@ -583,9 +583,8 @@ service.warehouse = function warehouse(info, cb) {
 
     if (rs.status === '0') {
       return cb && cb(null, 'ok');
-    } else {
-      return cb && cb(i18n.t('joDownloadError', { error: rs.statusInfo.message }));
     }
+    return cb && cb(i18n.t('joDownloadError', { error: rs.statusInfo.message }));
   });
 };
 

@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * 将当前版本信息写入到UMP系统中
  */
@@ -9,7 +11,7 @@ const VersionInfo = require('../api/help/versionInfo');
 
 const versionFilePath = path.join(__dirname, 'version.json');
 
-const initVersion = function () {
+const initVersion = () => {
   if (fs.existsSync(versionFilePath)) {
     const content = fs.readFileSync(versionFilePath);
     const json = JSON.parse(content);
@@ -27,7 +29,7 @@ const initVersion = function () {
       modifyTime: t,
     };
 
-    service.ensureVersionInfoByVersion(info.version, info, (err, r) => {
+    service.ensureVersionInfoByVersion(info.version, info, (err) => {
       if (err) {
         console.log('版本信息更新失败 --->', err);
         return false;

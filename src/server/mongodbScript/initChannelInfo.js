@@ -1,3 +1,5 @@
+'use strict';
+
 const channelService = require('../api/connection/service');
 const ChannelInfo = require('../api/connection/channelInfo');
 const AnchorInfo = require('../api/connection/anchorInfo');
@@ -32,7 +34,7 @@ channelInfo.collection.findOne({}, (err, doc) => {
   }
 });
 
-const dealAnchor = function dealAnchor() {
+const dealAnchor = () => {
   userInfo.collection.findOne({ name: 'xuyawen' }, (err, user) => {
     channelInfo.collection.findOne({}, (err, doc) => {
       const channelId = doc._id;
