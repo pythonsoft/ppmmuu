@@ -245,7 +245,7 @@ login.hasSubscribeMiddleware = function hasSubscribeMiddleware(req, res, next) {
     if (!doc) {
       return res.json(result.fail(i18n.t('companyHasNoSubscribeInfo')));
     }
-
+    req.ex.downloadFileTypes = doc.downloadFileTypes || [];
     doc = SubscribeInfo.getStatus(doc);
     if (doc.status === SubscribeInfo.STATUS.UNUSED) {
       return res.json(result.fail(i18n.t('companySubscribeInfoUnused')));

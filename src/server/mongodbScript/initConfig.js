@@ -619,21 +619,27 @@ initConfig('片段信息字段显示', fragmentFieldSortInfo);
 // 订阅下载格式，下载支持如下格式
 const subscribeDownloadType = [
   {
-    key: '1080P',
-    value: '1080P',
+    key: '全高清',
+    value: '6',
     description: '订阅下载1080P资源',
   },
   {
-    key: '360P',
-    value: '360P',
+    key: '标清',
+    value: '7',
     description: '订阅下载360P资源',
   },
   {
-    key: '音频WAV',
-    value: '音频WAV',
+    key: 'wav',
+    value: '8',
     description: '订阅下载音频WAV资源',
   },
 ];
 
-initConfig('subscribe_download_type', subscribeDownloadType);
+const subscribeDownloadTypeInfo = [{
+  key: 'subscribe_download_type',
+  value: JSON.stringify(subscribeDownloadType),
+  description: '订阅信息文件下载格式',
+}];
+
+initConfig('subscribe_download_type', subscribeDownloadTypeInfo);
 
