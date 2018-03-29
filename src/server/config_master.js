@@ -5,7 +5,7 @@
 'use strict';
 
 /* eslint-disable no-undef */
-config.host = '10.0.15.198:8080';
+config.host = '10.0.16.119:8080';
 config.domain = `http://${config.host}`;
 
 config.dbName = process.env.NODE_ENV === 'test' ? 'ump_test' : 'ump';
