@@ -23,7 +23,7 @@ router.get('/shelfTemplate/:id/', (req, res) => {
   service.getShelfTemplateResult(_id, filePath, (err, doc) => res.json(result.json(err, doc)));
 });
 
-router.patch('/shelves/:id/:packageStatus', (req, res) => {
+router.post('/shelves/:id/:packageStatus', (req, res) => {
   const id = req.params.id;
   const packageStatus = req.params.packageStatus;
   service.updatePackageStatus(id, packageStatus, (err, r) => res.json(result.json(err, r)));

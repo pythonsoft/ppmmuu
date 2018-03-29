@@ -412,6 +412,6 @@ service.getSearchConfig = function getSearchConfig(cb) {
     }
     return cb && cb(null, value);
   });
-}
+};
 
 module.exports = service;
