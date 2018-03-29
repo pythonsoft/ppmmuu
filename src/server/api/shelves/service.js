@@ -1213,6 +1213,7 @@ service.warehouse = function warehouse(info, cb) {
     name: { type: 'string', validation: 'require' },
     fileName: { type: 'string', validation: 'require' },
     fromWhere: { type: 'string', validation: 'require' },
+    fileType: { type: 'string', validation: 'require' },
   };
   const err = utils.validation(info, struct);
   if (err) {
@@ -1249,6 +1250,7 @@ service.warehouse = function warehouse(info, cb) {
       fileName: info.fileName,
       shelveTemplateId: info.shelveTemplateId,
       fromWhere: info.fromWhere,
+      fileType: info.fileType,
     };
 
     params.paramJson = JSON.stringify(params.paramJson);
