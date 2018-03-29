@@ -302,7 +302,7 @@ service.createShelfTask = function createShelfTask(info, cb) {
       return cb && cb(err);
     }
     info.department = doc.department;
-    mediaService.getObject({ objectId, fromWhere: info.fromWhere }, (err, rs) => {
+    mediaService.getObject({ objectid: objectId, fromWhere: info.fromWhere }, (err, rs) => {
       if (err) {
         return cb && cb(err);
       }
