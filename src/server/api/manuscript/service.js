@@ -185,8 +185,13 @@ service.getSummary = function getStatusCount(info, cb) {
   manuscriptInfo.collection.aggregate([
     {
       $match: {
-        'creator._id': info.creator._id,
-        status: { $in: ManuscriptInfo.STATUS_VALS },
+        $or: [{
+          'creator._id': info.creator._id,
+          status: { $in: ManuscriptInfo.STATUS_VALS },
+        },
+        {
+          collaborators: { $elemMatch: { _id: info.creator._id } },
+        }],
       },
     },
     {

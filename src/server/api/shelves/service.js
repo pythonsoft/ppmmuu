@@ -24,6 +24,8 @@ const UserInfo = require('../user/userInfo');
 const shelfTaskInfo = new ShelfTaskInfo();
 const userInfo = new UserInfo();
 
+const libraryExtService = require('../library/extService');
+
 const service = {};
 
 const getTaskFileName = function getTaskFileName(files) {
@@ -33,7 +35,7 @@ const getTaskFileName = function getTaskFileName(files) {
     return name;
   }
   return '';
-}
+};
 
 const listShelfTask = function listShelfTask(query, page, pageSize, cb) {
   shelfTaskInfo.pagination(query, page, pageSize, (err, docs) => {
@@ -49,7 +51,6 @@ const listShelfTask = function listShelfTask(query, page, pageSize, cb) {
         if (items[i].editorInfo && items[i].editorInfo.subscribeType && items[i].editorInfo.subscribeType.constructor.name === 'Array') {
           items[i].editorInfo.subscribeType = items[i].editorInfo.subscribeType.join(',');
         }
-        items[i].editorInfo.fileName = getTaskFileName(items[i].files);
         delete items[i].details;
       }
     }
@@ -275,7 +276,6 @@ const getUserInfo = function getUserInfo(query, cb) {
 
 // 创建上架任务
 service.createShelfTask = function createShelfTask(info, cb) {
-  const force = info.force || false;
   const objectId = info.objectId || '';
   info.fromWhere = info.fromWhere || CatalogInfo.FROM_WHERE.MAM;
   const t = new Date();
@@ -296,6 +296,9 @@ service.createShelfTask = function createShelfTask(info, cb) {
   }
   if (info.name) {
     info.editorInfo.name = info.name;
+  }
+  if (info.fileName) {
+    info.editorInfo.fileName = info.fileName.split('.')[0];
   }
   getUserInfo({ _id: info.creator._id }, (err, doc) => {
     if (err) {
@@ -355,35 +358,14 @@ service.createShelfTask = function createShelfTask(info, cb) {
           info.details[FILED_MAP[key]] = info.details[key];
         }
       }
+      shelfTaskInfo.insertOne(info, (err) => {
+        if (err) {
+          logger.error(err.message);
+          return cb && cb(err);
+        }
 
-      if (force) {
-        shelfTaskInfo.insertOne(info, (err) => {
-          if (err) {
-            logger.error(err.message);
-            return cb && cb(err);
-          }
-
-          return cb && cb(null, info._id);
-        });
-      } else {
-        shelfTaskInfo.collection.findOne({objectId: info.objectId}, (err, doc) => {
-          if (err) {
-            logger.error(err.message);
-            return cb && cb(err);
-          }
-          if (doc) {
-            return cb && cb(i18n.t('shelfHasExists'));
-          }
-          shelfTaskInfo.insertOne(info, (err) => {
-            if (err) {
-              logger.error(err.message);
-              return cb && cb(err);
-            }
-
-            return cb && cb(null, info._id);
-          });
-        });
-      }
+        return cb && cb(null, info._id);
+      });
     });
   });
 };
@@ -1146,6 +1128,26 @@ service.getFilesById = function getFilesById(_id, cb) {
   });
 };
 
+const fillStreamUrlToFiles = function fillStreamUrlToFiles(files, fromWhere, cb) {
+  libraryExtService.getMapPath(fromWhere, (err, mapPath) => {
+    if (err) {
+      return cb && cb(err);
+    }
+    for (let i = 0, len = files.length; i < len; i++) {
+      const rs = {
+        FILENAME: files[i].name,
+        INPOINT: files[i].inpoint,
+        OUTPOINT: files[i].outpoint,
+        UNCPATH: files[i].path,
+        mapPath,
+      };
+      files[i].streamUrl = utils.getStreamUrl(rs, fromWhere);
+      files[i].downloadUrl = `${config.streamURL}/download?path=${files[i].path}`;
+    }
+    return cb && cb(null, files);
+  });
+};
+
 service.addFilesToTask = function addFilesToTask(info, cb) {
   const struct = {
     _id: { type: 'string', validation: 'require' },
@@ -1194,12 +1196,17 @@ service.addFilesToTask = function addFilesToTask(info, cb) {
     } else {
       files = newFiles;
     }
-    shelfTaskInfo.collection.updateOne({ _id: info._id }, { $set: { files } }, (err) => {
+    fillStreamUrlToFiles(files, 'ONLINE_SHELF', (err, files) => {
       if (err) {
-        logger.error(err.message);
-        return cb && cb(i18n.t('databaseError'));
+        return cb && cb(err);
       }
-      return cb && cb(null, 'ok');
+      shelfTaskInfo.collection.updateOne({ _id: info._id }, { $set: { files } }, (err) => {
+        if (err) {
+          logger.error(err.message);
+          return cb && cb(i18n.t('databaseError'));
+        }
+        return cb && cb(null, 'ok');
+      });
     });
   });
 };
@@ -1210,9 +1217,9 @@ service.warehouse = function warehouse(info, cb) {
     processId: { type: 'string', validation: 'require' },
     shelveTemplateId: { type: 'string', validation: 'require' },
     objectId: { type: 'string', validation: 'require' },
-    name: { type: 'string', validation: 'require' },
     fileName: { type: 'string', validation: 'require' },
     fromWhere: { type: 'string', validation: 'require' },
+    fileType: { type: 'string', validation: 'require' },
   };
   const err = utils.validation(info, struct);
   if (err) {
@@ -1249,6 +1256,8 @@ service.warehouse = function warehouse(info, cb) {
       fileName: info.fileName,
       shelveTemplateId: info.shelveTemplateId,
       fromWhere: info.fromWhere,
+      fileType: info.fileType,
+      catalogName: info.catalogName || '',
     };
 
     params.paramJson = JSON.stringify(params.paramJson);

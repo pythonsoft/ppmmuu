@@ -10,6 +10,7 @@ const i18n = require('i18next');
 const request = require('request');
 const logger = require('./log')('error');
 const fs = require('fs');
+const config = require('../config');
 
 const utils = {};
 
@@ -565,6 +566,51 @@ utils.download = (url, tempPath, cb) => {
     logger.error(error);
     return cb && cb(error.message);
   });
+};
+
+function formatFileExtToMp4(fileName) {
+  const name = fileName.replace('.wmv', '.mp4');
+  return name;
+}
+
+utils.getStreamUrl = function getStreamUrl(rs, fromWhere) {
+  let dateString = rs.UNCPATH || '';
+  let fileName = rs.FILENAME || '';
+  if (dateString) {
+    const temp = dateString.match(/\/[a-z,0-9,-,_]*\/\d{4}\/\d{2}\/\d{2}/g);
+    if (!temp) {
+      dateString = dateString.replace('\\', '\\\\').match(/\\\d{4}\\\d{2}\\\d{2}/g);
+    } else {
+      dateString = temp;
+    }
+    if (dateString) {
+      if (dateString.length === 1) {
+        dateString = dateString[0].replace(/\\/g, '\/');
+      }
+      const dateArray = dateString.split('/');
+      const year = dateArray[1] * 1;
+      const month = dateArray[2] * 1;
+      const day = dateArray[3] * 1;
+      let playPath = '/u';
+
+      // 2012/9/18
+      if (year < 2012) {
+        playPath = '/y';
+        fileName = formatFileExtToMp4(fileName);
+      } else if (year === 2012 || (year === 2013 && month <= 2 && day <= 28)) {
+        playPath = '/w';
+        fileName = formatFileExtToMp4(fileName);
+      }
+
+      if (fromWhere !== 'MAM' && fromWhere !== 'DAYANG') {
+        playPath = rs.mapPath;
+      }
+
+      const url = `${config.streamURL}${playPath}${dateString}/${fileName}`;
+      return url;
+    }
+  }
+  return '';
 };
 
 module.exports = utils;
