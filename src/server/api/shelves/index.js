@@ -999,4 +999,65 @@ router.get('/listSubscribeType', (req, res) => {
       res.json(result.json(err, docs)));
 });
 
+/**
+ * @permissionGroup: myShelf
+ * @permissionName: 视频上架
+ * @permissionPath: /shelves/warehouse
+ * @apiName: warehouse
+ * @apiFuncType: post
+ * @apiFuncUrl: /shelves/warehouse
+ * @swagger
+ * /shelves/warehouse:
+ *   post:
+ *     description:  视频上架
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - IVideo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         schema:
+ *          type: object
+ *          required:
+ *            - objectId
+ *            - fileName
+ *            - processId
+ *            - shelveTemplateId
+ *            - fromWhere
+ *          properties:
+ *            processId:
+ *              type: string
+ *              description: '流程Id'
+ *              example: '213'
+ *            fileName:
+ *              type: string
+ *              description: '文件名'
+ *              example: 'test.mxf'
+ *            objectId:
+ *              type: string
+ *              description: '视频d'
+ *              example: '213'
+ *            shelveTemplateId:
+ *              type: string
+ *              description: '上架模板Id'
+ *              example: '213'
+ *            fromWhere:
+ *              type: string
+ *              description: 'HK_RUKU,DAYNG,MAM'
+ *              example: 'HK_RUKU'
+ *     responses:
+ *       200:
+ *         description: IVideo
+ */
+router.post('/warehouse', (req, res) => {
+  const creatorId = req.ex.userInfo._id;
+  const name = req.ex.userInfo.name;
+  const creator = { _id: creatorId, name };
+  const info = req.body;
+  info.creator = creator;
+  service.warehouse(info, (err, r) => res.json(result.json(err, r)));
+});
 module.exports = router;

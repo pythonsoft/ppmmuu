@@ -376,11 +376,22 @@ service.getShelfTemplateResult = function getShelfTemplateResult(id, filePath, c
           if (tLen !== pLen) {
             return cb && cb(i18n.t('shelfTemplateScriptIsInvalid'));
           }
+          const typeScriptRs = exec({}, {}, doc.typeScript, []);
+          if (typeScriptRs.err) {
+            return cb && cb(i18n.t('shelfTemplateTypeScriptIsInvalid'));
+          }
+          const typeArr = typeScriptRs.result;
+          const rLen = typeArr.length;
+
+          if (rLen !== pLen) {
+            return cb && cb(i18n.t('shelfTemplateTypeScriptIsInvalid'));
+          }
 
           for (let i = 0; i < tLen; i++) {
             const temp = {
               id: arr[i],
               storagePath: downloadPath[i],
+              type: typeArr[i],
             };
             rs.transcodeTemplates.push(temp);
           }
