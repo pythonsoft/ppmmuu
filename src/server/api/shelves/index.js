@@ -1060,4 +1060,49 @@ router.post('/warehouse', (req, res) => {
   info.creator = creator;
   service.warehouse(info, (err, r) => res.json(result.json(err, r)));
 });
+
+/**
+ * @permissionGroup: myShelf
+ * @permissionName: 列表页提交上架任务
+ * @permissionPath: /shelves/batchSubmitByIds
+ * @apiName: batchSubmitByIds
+ * @apiFuncType: post
+ * @apiFuncUrl: /shelves/batchSubmitByIds
+ * @swagger
+ * /shelves/batchSubmitByIds:
+ *   post:
+ *     description: 列表页提交上架任务
+ *     tags:
+ *       - v1
+ *       - ShelfTaskInfo
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: 列表页提交上架任务
+ *         schema:
+ *           type: object
+ *           required:
+ *             - _ids
+ *     responses:
+ *       200:
+ *         description: ShelfTaskInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.post('/batchSubmitByIds', (req, res) => {
+  const info = req.body;
+  service.batchSubmitByIds(info, (err, r) => res.json(result.json(err, r)));
+});
 module.exports = router;

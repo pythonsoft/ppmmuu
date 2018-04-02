@@ -395,7 +395,7 @@ const subscribeConfig = [
   },
   {
     key: 'full_time',
-    label: '日期范围',
+    label: '播出时间',
     selected: [],
     multiple: false,
     type: 'daterange',

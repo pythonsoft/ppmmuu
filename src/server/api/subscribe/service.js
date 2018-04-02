@@ -431,7 +431,7 @@ const getEsOptions = function getEsOptions(info) {
 
   if (fullTime && fullTime.constructor.name.toLowerCase() === 'string') {
     fullTime = getDateRange(fullTime);
-    const temp = { range: { lastModifyTime: fullTime } };
+    const temp = { range: { 'editorInfo.airTime': fullTime } };
     musts.push(temp);
   }
   options.query = query;
@@ -651,5 +651,31 @@ service.getShelfInfo = function getShelfInfo(req, cb) {
     doc.files = getValidFiles(files, allowedDownloadFileTypes);
     return cb && cb(null, doc);
   });
+};
+
+service.createDownloadUrl = function createDownloadUrl(info, cb) {
+  const shelfTaskId = info.shelfTaskId || '';
+  const type = info.type || '';
+  const expiredTime = info.expiredTime || '';
+  const allowedDownloadFileTypes = info.downloadFileTypes;
+  const validTypes = [];
+  allowedDownloadFileTypes.forEach((item) => {
+    validTypes.push(item.value);
+  });
+
+  const struct = {
+    shelfTaskId: { type: 'string', validation: 'require' },
+    type: { type: 'string', validation(v) { if (validTypes.indexOf(v) !== -1) { return true; } return false; } },
+    expiredTime: { type: 'string', validation: 'require' },
+  };
+  const err = utils.validation(info, struct);
+  if (err) {
+    return cb && cb(err);
+  }
+
+  const token = utils.cipher(`${type},${expiredTime}`, config.KEY);
+  const downloadUrl = `${config.subscribeDownloadUrl}api/download/file/${shelfTaskId}?token=${token}`;
+
+  return cb && cb(null, downloadUrl);
 };
 module.exports = service;
