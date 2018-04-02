@@ -255,4 +255,60 @@ router.get('/getVideoInfo', isLogin.hasSubscribeMiddleware, (req, res) => {
   service.getShelfInfo(req, (err, doc) => res.json(result.json(err, doc)));
 });
 
+/**
+ * @apiName: createDownloadUrl
+ * @apiFuncType: post
+ * @apiFuncUrl: /subscribe/createDownloadUrl
+ * @swagger
+ * /subscribe/createDownloadUrl:
+ *   post:
+ *     description: 创建订阅视频下载链接
+ *     tags:
+ *       - v1
+ *       - ShelfTaskInfo
+ *     consumes:
+ *       - application/json
+ *     parameters:
+ *       - in: body
+ *         name: body
+ *         description: 创建订阅视频下载链接
+ *         schema:
+ *           type: object
+ *           required:
+ *             - shelfTaskId
+ *             - type
+ *             - expiredTime
+ *           properties:
+ *             shelfTaskId:
+ *               type: string
+ *               description: '上架任务_id'
+ *             type:
+ *               type: string
+ *               description: '文件类型'
+ *             expiredTime:
+ *               type: string
+ *               description: '下载链接过期时间'
+ *               example: '2018-07-02T09:46:25.591Z'
+ *     responses:
+ *       200:
+ *         description: ShelfTaskInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.post('/createDownloadUrl', isLogin.hasSubscribeMiddleware, (req, res) => {
+  const info = req.body;
+  info.downloadFileTypes = req.ex.downloadFileTypes;
+  service.createDownloadUrl(info, (err, r) => res.json(result.json(err, r)));
+});
+
 module.exports = router;
