@@ -1232,7 +1232,7 @@ service.warehouse = function warehouse(info, cb) {
     shelfTaskInfo.collection.findOne({ objectId: info.objectId }, (err, doc) => {
       if (err) {
         logger.error(err.message);
-        return cb && cb(err);
+        return cb && cb(i18n.t('databaseError'));
       }
       if (doc) {
         return cb && cb(i18n.t('shelfHasExists'));
@@ -1277,5 +1277,51 @@ service.warehouse = function warehouse(info, cb) {
   });
 };
 
+service.batchSubmitByIds = function batchSubmitByIds(info, cb) {
+  let _ids = info._ids || '';
+  const struct = {
+    _ids: { type: 'string', validation: 'require' },
+  };
+  const err = utils.validation(info, struct);
+  if (err) {
+    return cb && cb(err);
+  }
+  _ids = _ids.split(',');
+  shelfTaskInfo.collection.find({ _id: { $in: _ids }, status: ShelfTaskInfo.STATUS.DOING }).toArray((err, docs) => {
+    if (err) {
+      logger.error(err.message);
+      return cb && cb(i18n.t('databaseError'));
+    }
+
+    if (!docs || docs.length !== _ids.length) {
+      return cb && cb(i18n.t('shelfExistNotDoingStatus'));
+    }
+    for (let i = 0, len = docs.length; i < len; i++) {
+      const item = docs[i];
+      if (item.editorInfo) {
+        const struct = {
+          name: { type: 'string', validation: 'require' },
+          subscribeType: { type: 'array', validation: 'require' },
+          source: { type: 'string', validation: 'require' },
+          limit: { type: 'string', validation: 'require' },
+          cover: { type: 'string', validation: 'require' },
+        };
+        const err = utils.validation(item.editorInfo, struct);
+        if (err) {
+          return cb && cb(i18n.t('shelfEditorInfoRequired', { name: item.name }));
+        }
+      } else {
+        return cb && cb(i18n.t('shelfEditorInfoRequired', { name: item.name }));
+      }
+    }
+    shelfTaskInfo.collection.updateMany({ _id: { $in: _ids }, status: ShelfTaskInfo.STATUS.DOING }, { $set: { status: ShelfTaskInfo.STATUS.SUBMITTED } }, (err) => {
+      if (err) {
+        logger.error(err);
+        return cb && cb(i18n.t('databaseError'));
+      }
+      return cb && cb(null, 'ok');
+    });
+  });
+};
 
 module.exports = service;
