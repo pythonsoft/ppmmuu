@@ -670,8 +670,7 @@ const formatProgramOrSequence = (source, cb) => {
         key: k,
         value: val,
         cn: fieldConfig.config[k].cn,
-        group: group,
-        indexInGroup: indexInGroup,
+        order: { index: indexInGroup, groupName: group.name, groupIndex: group.index }
       });
     }
   }
