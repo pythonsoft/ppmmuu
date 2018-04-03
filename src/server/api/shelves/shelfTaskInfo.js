@@ -54,6 +54,7 @@ class ShelfTaskInfo extends DB {
           source: '',
           limit: '',
           cover: '',
+          airTime: '',
         } },
       fromWhere: {
         type: 'string',

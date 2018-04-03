@@ -95,3 +95,10 @@ config.DAYANG_ID = '63244331-906c-4aa4-b391-ee249496de62';
 config.client_id = 'YXA69Z_m4Pm6EeecZrWgZ2F4vA';
 config.client_secret = 'YXA6LvdT0V-OerbAW7inECGv4l5dzns';
 config.easemob_url = 'https://a1.easemob.com/1119180112178786/assistant/';
+
+// 记者云扫码默认页
+config.journalistCloud = 'http://ump.phoenixtv.com/apps/journalistCloud';
+
+
+// 订阅视频下载服务地址
+config.subscribeDownloadUrl = 'http://localhost:3000/';

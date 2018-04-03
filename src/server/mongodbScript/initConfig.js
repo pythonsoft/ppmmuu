@@ -344,34 +344,11 @@ const subscribeConfig = [
     defaultValue: '',
   },
   {
-    key: 'FIELD323',
-    label: '版本',
-    items: [
-      { value: '播出版', label: '播出版' },
-      { value: '素材版', label: '素材版' },
-      { value: '配音字幕版', label: '配音字幕版' },
-      { value: '字幕分離播出版', label: '字幕分離播出版' },
-      { value: '字幕分離母版', label: '字幕分離母版' },
-      { value: '字幕版', label: '字幕版' },
-      { value: '母版', label: '母版' },
-      { value: '剪輯版', label: '剪輯版' },
-      { value: '國際版', label: '國際版' },
-      { value: '拷貝板', label: '拷貝板' },
-      { value: '播放前版', label: '播放前版' },
-      { value: '參展版', label: '參展版' },
-    ],
-    selected: '',
-    multiple: true,
-    type: 'string',
-    example: ['播出版', '參展版'],
-    defaultValue: '',
-  },
-  {
     key: 'duration',
     label: '时长',
     items: [
       { value: { gte: 0, lt: 6000 }, label: '短片(4分钟以下)' },
-      { value: { gte: 30000 }, label: '短片(20分钟以上)' },
+      { value: { gte: 30000 }, label: '长片(20分钟以上)' },
     ],
     selected: '',
     multiple: false,
@@ -395,7 +372,16 @@ const subscribeConfig = [
   },
   {
     key: 'full_time',
-    label: '日期范围',
+    label: '播出时间',
+    selected: [],
+    multiple: false,
+    type: 'daterange',
+    example: { gte: '2017-10-16T08:52:17.200Z', lt: '2017-10-17T08:52:17.200Z' },
+    defaultValue: '',
+  },
+  {
+    key: 'lastModifyTime',
+    label: '上架时间',
     selected: [],
     multiple: false,
     type: 'daterange',
@@ -403,6 +389,7 @@ const subscribeConfig = [
     defaultValue: '',
   },
 ];
+
 
 const assistTags = [
   {

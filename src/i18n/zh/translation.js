@@ -859,7 +859,7 @@ module.exports = {
   },
   shelfExistNotDoingStatus: {
     code: '-110009',
-    message: '不是处理中的任务不能退回',
+    message: '不是处理中的任务不能进行此操作',
   },
   shelfExistNotSubmittedStatus: {
     code: '-110010',
@@ -884,6 +884,10 @@ module.exports = {
   shelfInfoIsNull: {
     code: '-110015',
     message: '上架信息不存在',
+  },
+  shelfEditorInfoRequired: {
+    code: '-110016',
+    message: '{{name}}编目信息未填写完整',
   },
   subscribeInfoHasExists: {
     code: '-120000',

@@ -75,7 +75,7 @@ class ManuscriptInfo extends DB {
 
     this.struct = {
       _id: { type: 'string', default() { return uuid.v1(); } },
-      title: { type: 'string', validation: 'require' },
+      title: { type: 'string' },
       viceTitle: { type: 'string' },
       collaborators: { type: 'array' },
       editContent: {

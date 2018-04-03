@@ -343,6 +343,7 @@ const getEsOptions = function getEsOptions(info) {
   let duration = info.duration || '';
   let sort = info.sort || '';
   let fullTime = info.full_time || '';
+  let lastModifyTime = info.lastModifyTime || '';
   const start = info.start || 0;
   const pageSize = info.pageSize || 28;
   const options = {
@@ -431,7 +432,12 @@ const getEsOptions = function getEsOptions(info) {
 
   if (fullTime && fullTime.constructor.name.toLowerCase() === 'string') {
     fullTime = getDateRange(fullTime);
-    const temp = { range: { lastModifyTime: fullTime } };
+    const temp = { range: { 'editorInfo.airTime': fullTime } };
+    musts.push(temp);
+  }
+  if (lastModifyTime && lastModifyTime.constructor.name.toLowerCase() === 'string') {
+    lastModifyTime = getDateRange(lastModifyTime);
+    const temp = { range: { lastModifyTime } };
     musts.push(temp);
   }
   options.query = query;
@@ -651,5 +657,35 @@ service.getShelfInfo = function getShelfInfo(req, cb) {
     doc.files = getValidFiles(files, allowedDownloadFileTypes);
     return cb && cb(null, doc);
   });
+};
+
+service.createDownloadUrl = function createDownloadUrl(info, cb) {
+  const shelfTaskId = info.shelfTaskId || '';
+  const type = info.type || '';
+  let expiredTime = info.expiredTime || '';
+  const allowedDownloadFileTypes = info.downloadFileTypes;
+  const validTypes = [];
+  allowedDownloadFileTypes.forEach((item) => {
+    validTypes.push(item.value);
+  });
+
+  const struct = {
+    shelfTaskId: { type: 'string', validation: 'require' },
+    type: { type: 'string', validation(v) { if (validTypes.indexOf(v) !== -1) { return true; } return false; } },
+  };
+  const err = utils.validation(info, struct);
+  if (err) {
+    return cb && cb(err);
+  }
+  if (!expiredTime) {
+    expiredTime = new Date();
+    expiredTime.setMinutes(expiredTime.getMinutes() + 30);   // 默认过期时间30分钟
+    expiredTime = expiredTime.toISOString();
+  }
+
+  const token = utils.cipher(`${type},${expiredTime}`, config.KEY);
+  const downloadUrl = `${config.subscribeDownloadUrl}api/download/file/${shelfTaskId}?token=${token}`;
+
+  return cb && cb(null, downloadUrl);
 };
 module.exports = service;
