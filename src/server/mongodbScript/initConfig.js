@@ -334,7 +334,7 @@ const mediaCenterSearchRadios = [
 const subscribeConfig = [
   {
     key: 'subscribeType',
-    label: '节目类型',
+    label: '订阅类型',
     items: [
     ],
     selected: '',
@@ -361,8 +361,10 @@ const subscribeConfig = [
     label: '排序依据',
     items: [
       { value: 'should', label: '相关程度' },
-      { value: { lastModifyTime: { order: 'desc' } }, label: '时间由近到远' },
-      { value: { lastModifyTime: { order: 'asc' } }, label: '时间由远到近' },
+      { value: { 'editorInfo.airTime': { order: 'desc' } }, label: '播出时间由近到远' },
+      { value: { 'editorInfo.airTime': { order: 'asc' } }, label: '播出时间由远到近' },
+      { value: { lastModifyTime: { order: 'desc' } }, label: '上架时间由近到远' },
+      { value: { lastModifyTime: { order: 'asc' } }, label: '上架时间由远到近' },
     ],
     selected: '',
     multiple: false,
@@ -371,7 +373,7 @@ const subscribeConfig = [
     defaultValue: 'should',
   },
   {
-    key: 'full_time',
+    key: 'airTime',
     label: '播出时间',
     selected: [],
     multiple: false,
