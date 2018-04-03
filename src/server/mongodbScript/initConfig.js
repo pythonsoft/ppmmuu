@@ -379,7 +379,17 @@ const subscribeConfig = [
     example: { gte: '2017-10-16T08:52:17.200Z', lt: '2017-10-17T08:52:17.200Z' },
     defaultValue: '',
   },
+  {
+    key: 'lastModifyTime',
+    label: '上架时间',
+    selected: [],
+    multiple: false,
+    type: 'daterange',
+    example: { gte: '2017-10-16T08:52:17.200Z', lt: '2017-10-17T08:52:17.200Z' },
+    defaultValue: '',
+  },
 ];
+
 
 const assistTags = [
   {
