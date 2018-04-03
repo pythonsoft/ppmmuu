@@ -343,6 +343,7 @@ const getEsOptions = function getEsOptions(info) {
   let duration = info.duration || '';
   let sort = info.sort || '';
   let fullTime = info.full_time || '';
+  let lastModifyTime = info.lastModifyTime || '';
   const start = info.start || 0;
   const pageSize = info.pageSize || 28;
   const options = {
@@ -432,6 +433,11 @@ const getEsOptions = function getEsOptions(info) {
   if (fullTime && fullTime.constructor.name.toLowerCase() === 'string') {
     fullTime = getDateRange(fullTime);
     const temp = { range: { 'editorInfo.airTime': fullTime } };
+    musts.push(temp);
+  }
+  if (lastModifyTime && lastModifyTime.constructor.name.toLowerCase() === 'string') {
+    lastModifyTime = getDateRange(lastModifyTime);
+    const temp = { range: { lastModifyTime } };
     musts.push(temp);
   }
   options.query = query;
