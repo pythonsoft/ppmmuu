@@ -277,7 +277,6 @@ router.get('/getVideoInfo', isLogin.hasSubscribeMiddleware, (req, res) => {
  *           required:
  *             - shelfTaskId
  *             - type
- *             - expiredTime
  *           properties:
  *             shelfTaskId:
  *               type: string

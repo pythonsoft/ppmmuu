@@ -1131,7 +1131,7 @@ const fillStreamUrlToFiles = function fillStreamUrlToFiles(files, fromWhere, cb)
         mapPath,
       };
       files[i].streamUrl = utils.getStreamUrl(rs, fromWhere);
-      files[i].downloadUrl = `${config.streamURL}/download?path=${files[i].path}`;
+      // files[i].downloadUrl = `${config.streamURL}/download?path=${files[i].path}`;
     }
     return cb && cb(null, files);
   });
@@ -1169,6 +1169,7 @@ service.addFilesToTask = function addFilesToTask(info, cb) {
     if (files && files.length > 0) {
       for (let i = 0, len1 = newFiles.length; i < len1; i++) {
         const newFile = newFiles[i];
+        newFile.shelfTaskId = info._id;
         let flag = true;
         for (let j = 0, len2 = files.length; j < len2; j++) {
           const file = files[j];
@@ -1183,6 +1184,9 @@ service.addFilesToTask = function addFilesToTask(info, cb) {
         }
       }
     } else {
+      for (let i = 0, len1 = newFiles.length; i < len1; i++) {
+        newFiles[i].shelfTaskId = info._id;
+      }
       files = newFiles;
     }
     fillStreamUrlToFiles(files, 'ONLINE_SHELF', (err, files) => {

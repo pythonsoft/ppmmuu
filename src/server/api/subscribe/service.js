@@ -656,7 +656,7 @@ service.getShelfInfo = function getShelfInfo(req, cb) {
 service.createDownloadUrl = function createDownloadUrl(info, cb) {
   const shelfTaskId = info.shelfTaskId || '';
   const type = info.type || '';
-  const expiredTime = info.expiredTime || '';
+  let expiredTime = info.expiredTime || '';
   const allowedDownloadFileTypes = info.downloadFileTypes;
   const validTypes = [];
   allowedDownloadFileTypes.forEach((item) => {
@@ -666,11 +666,15 @@ service.createDownloadUrl = function createDownloadUrl(info, cb) {
   const struct = {
     shelfTaskId: { type: 'string', validation: 'require' },
     type: { type: 'string', validation(v) { if (validTypes.indexOf(v) !== -1) { return true; } return false; } },
-    expiredTime: { type: 'string', validation: 'require' },
   };
   const err = utils.validation(info, struct);
   if (err) {
     return cb && cb(err);
+  }
+  if (!expiredTime) {
+    expiredTime = new Date();
+    expiredTime.setMinutes(expiredTime.getMinutes() + 30);   // 默认过期时间30分钟
+    expiredTime = expiredTime.toISOString();
   }
 
   const token = utils.cipher(`${type},${expiredTime}`, config.KEY);
