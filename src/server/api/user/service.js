@@ -631,7 +631,7 @@ service.adAccountSync = function adAccountSync(info, cb) {
           if (doc.department && !doc.department._id) {
             delete doc.department;
           }
-          userInfo.collection.updateOne({ _id: info._id }, { $set: doc }, (err) => {
+          userInfo.updateOne({ _id: info._id }, doc, (err) => {
             if (err) {
               logger.error(err.message);
               return cb && cb(i18n.t('databaseErrorDetail', { error: err.message }));

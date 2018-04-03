@@ -322,17 +322,28 @@ service.createShelfTask = function createShelfTask(info, cb) {
         } else {
           info.details[item.key] = item.value;
         }
-        if (!info.name) {
+        if (!info.name && info.fromWhere !== CatalogInfo.FROM_WHERE.HK_RUKU) {
           if (item.key === 'FIELD195') {
             info.name = item.value;
             info.editorInfo.name = item.value;
           }
-          if (item.key === 'FIELD196' && !info.editorInfo.name) {
+          if (item.key === 'FIELD03' || item.key === 'FIELD321' || item.key === 'FIELD247') {
+            info.editorInfo.content = item.value;
+          }
+          if (item.key === 'FIELD162' || item.key === 'FIELD36') {
+            info.editorInfo.airTime = item.value;
+          }
+        }
+        if (!info.name && info.fromWhere === CatalogInfo.FROM_WHERE.HK_RUKU) {
+          if (item.key === 'name') {
             info.name = item.value;
             info.editorInfo.name = item.value;
           }
-          if (item.key === 'FIELD276') {
-            info.editorInfo.source = item.value;
+          if (item.key === 'content') {
+            info.editorInfo.content = item.value;
+          }
+          if (item.key === 'newsTime' || item.key === 'airTime') {
+            info.editorInfo.airTime = item.value;
           }
         }
       }
@@ -474,14 +485,19 @@ service.getShelfAndSubscription = function getShelfAndSubscription(info, cb) {
     const rs = [];
     result.fromWhere = doc.fromWhere || CatalogInfo.FROM_WHERE.MAM;
     rs.push({
-      key: 'name',
-      cn: '节目名称(中文)',
-      value: doc.editorInfo.name,
-    });
-    rs.push({
       key: 'subscribeType',
       cn: '订阅类型',
       value: doc.editorInfo.subscribeTypeText,
+    });
+    rs.push({
+      key: 'name',
+      cn: '节目名称',
+      value: doc.editorInfo.name,
+    });
+    rs.push({
+      key: 'airTime',
+      cn: '播出时间',
+      value: doc.editorInfo.airTime,
     });
     rs.push({
       key: 'limit',
@@ -489,27 +505,10 @@ service.getShelfAndSubscription = function getShelfAndSubscription(info, cb) {
       value: doc.editorInfo.limit,
     });
     rs.push({
-      key: 'fileName',
-      cn: '文件名',
-      value: doc.details.NAME,
-    });
-    rs.push({
       key: 'cover',
       cn: '封面',
       value: doc.editorInfo.cover,
     });
-    if (doc.details) {
-      const program = doc.details;
-      for (const key in fieldConfig) {
-        if (key !== 'NAME') {
-          rs.push({
-            key,
-            cn: fieldConfig[key].cn,
-            value: program[key] || '',
-          });
-        }
-      }
-    }
     result.details = rs;
     return cb && cb(null, result);
   });
@@ -1131,7 +1130,7 @@ const fillStreamUrlToFiles = function fillStreamUrlToFiles(files, fromWhere, cb)
         mapPath,
       };
       files[i].streamUrl = utils.getStreamUrl(rs, fromWhere);
-      files[i].downloadUrl = `${config.streamURL}/download?path=${files[i].path}`;
+      // files[i].downloadUrl = `${config.streamURL}/download?path=${files[i].path}`;
     }
     return cb && cb(null, files);
   });
@@ -1169,6 +1168,7 @@ service.addFilesToTask = function addFilesToTask(info, cb) {
     if (files && files.length > 0) {
       for (let i = 0, len1 = newFiles.length; i < len1; i++) {
         const newFile = newFiles[i];
+        newFile.shelfTaskId = info._id;
         let flag = true;
         for (let j = 0, len2 = files.length; j < len2; j++) {
           const file = files[j];
@@ -1183,6 +1183,9 @@ service.addFilesToTask = function addFilesToTask(info, cb) {
         }
       }
     } else {
+      for (let i = 0, len1 = newFiles.length; i < len1; i++) {
+        newFiles[i].shelfTaskId = info._id;
+      }
       files = newFiles;
     }
     fillStreamUrlToFiles(files, 'ONLINE_SHELF', (err, files) => {
