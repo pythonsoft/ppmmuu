@@ -619,55 +619,66 @@ service.xml2srt = (info, cb) => {
   }
 };
 
-const formatProgramOrSequence = function formatProgramOrSequence(source, cb) {
-  const program = source.program || {};
-  const sequence = source.sequence || {};
-  const sortField = function sortField(key, fieldKey) {
-    configurationInfo.collection.findOne({ key }, { fields: { key: 1, value: 1 } }, (err, doc) => {
-      if (err) {
-        logger.error(err.message);
-        return cb && cb(i18n.t('databaseError'));
-      }
+const formatProgramOrSequence = (source, cb) => {
+  let key = '';
+  let fieldKey = '';
 
-      if (!doc) {
-        return cb && cb(null);
-      }
-
-      try {
-        const sortArr = JSON.parse(doc.value);
-        const needSortArr = source[fieldKey];
-        const newArr = [];
-        for (let i = 0, len = sortArr.length; i < len; i++) {
-          const field = sortArr[i];
-          if (needSortArr[field]) {
-            if (typeof needSortArr[field] === 'string' && needSortArr[field].match('\\d{4}-\\d{2}-\\d{2}')) {
-              if (new Date(needSortArr[field]) < new Date('1900-01-01')) {
-                needSortArr[field] = 'N/A';
-              }
-            }
-            const item = {
-              key: field,
-              value: needSortArr[field],
-              cn: fieldConfig[field] ? fieldConfig[field].cn : '',
-            };
-            newArr.push(item);
-          }
-        }
-        source[fieldKey] = newArr;
-        return cb && cb(null);
-      } catch (e) {
-        return cb && cb(i18n.t('getMeidaCenterSearchConfigsJSONError'));
-      }
-    });
-  };
-  if (!utils.isEmptyObject(program)) {
-    sortField('entryFieldSortInfoConfig', 'program');
-  } else if (!utils.isEmptyObject(sequence)) {
-    sortField('fragmentFieldSortInfoConfig', 'sequence');
+  if (!utils.isEmptyObject(source.program)) {
+    key = 'entryFieldSortInfoConfig';
+    fieldKey = 'program';
+  } else if (!utils.isEmptyObject(source.sequence)) {
+    key = 'fragmentFieldSortInfoConfig';
+    fieldKey = 'sequence';
   }
+
+  const rs = { fieldKey, newArr: [] };
+
+  if(!key) {
+    return cb && cb(null, rs);
+  }
+
+  // improve
+  const sourceValues = source[fieldKey];
+  const categoryType = sourceValues[fieldConfig.programTypeField];
+  const programTypeInfo = fieldConfig.getProgramTypeInfo(categoryType);
+
+  let index = 0;
+
+  for(let k in sourceValues) {
+
+    if(sourceValues[k] && fieldConfig.config[k]) {
+      let val = sourceValues[k];
+
+      if(sourceValues[k].constructor === String && sourceValues[k].match('\\d{4}-\\d{2}-\\d{2}') && new Date(sourceValues[k]) < new Date('1900-01-01')) {
+        val = 'N/A';
+      }
+
+      let group = fieldConfig.config[k].group;
+      let indexInGroup = fieldConfig.config[k].indexInGroup;
+
+      if(!group) {
+        if(programTypeInfo && programTypeInfo.fields.indexOf(k) !== -1) {
+          group = fieldConfig.generateGroupInfo(programTypeInfo);
+          indexInGroup = programTypeInfo.index;
+        }else {
+          group = fieldConfig.generateGroupInfo(fieldConfig.otherInfo);
+          indexInGroup = index++;
+        }
+      }
+
+      rs.newArr.push({
+        key: k,
+        value: val,
+        cn: fieldConfig.config[k].cn,
+        order: { index: indexInGroup, groupName: group.name, groupIndex: group.index }
+      });
+    }
+  }
+
+  return cb && cb(null, rs);
 };
 
-const getObjectFromHK = function getObjectFromHK(info, cb) {
+const getObjectFromHK = (info, cb) => {
   const options = {
     uri: `${config.hongkongUrl}get_object`,
     method: 'GET',
@@ -702,10 +713,15 @@ const getObjectFromHK = function getObjectFromHK(info, cb) {
     }
 
     if (rs.result.detail) {
-      formatProgramOrSequence(rs.result.detail, (err) => {
+      formatProgramOrSequence(rs.result.detail, (err, info) => {
         if (err) {
           return cb && cb(err);
         }
+
+        if(info.fieldKey) {
+          rs.result.detail[info.fieldKey] = info.newArr;
+        }
+
         return cb(null, rs, 'mam');
       });
     } else {
