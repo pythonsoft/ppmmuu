@@ -485,14 +485,19 @@ service.getShelfAndSubscription = function getShelfAndSubscription(info, cb) {
     const rs = [];
     result.fromWhere = doc.fromWhere || CatalogInfo.FROM_WHERE.MAM;
     rs.push({
-      key: 'name',
-      cn: '节目名称(中文)',
-      value: doc.editorInfo.name,
-    });
-    rs.push({
       key: 'subscribeType',
       cn: '订阅类型',
       value: doc.editorInfo.subscribeTypeText,
+    });
+    rs.push({
+      key: 'name',
+      cn: '节目名称',
+      value: doc.editorInfo.name,
+    });
+    rs.push({
+      key: 'airTime',
+      cn: '播出时间',
+      value: doc.editorInfo.airTime,
     });
     rs.push({
       key: 'limit',
@@ -500,27 +505,10 @@ service.getShelfAndSubscription = function getShelfAndSubscription(info, cb) {
       value: doc.editorInfo.limit,
     });
     rs.push({
-      key: 'fileName',
-      cn: '文件名',
-      value: doc.details.NAME,
-    });
-    rs.push({
       key: 'cover',
       cn: '封面',
       value: doc.editorInfo.cover,
     });
-    if (doc.details) {
-      const program = doc.details;
-      for (const key in fieldConfig) {
-        if (key !== 'NAME') {
-          rs.push({
-            key,
-            cn: fieldConfig[key].cn,
-            value: program[key] || '',
-          });
-        }
-      }
-    }
     result.details = rs;
     return cb && cb(null, result);
   });
