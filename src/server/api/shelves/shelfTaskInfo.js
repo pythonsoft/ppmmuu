@@ -51,7 +51,6 @@ class ShelfTaskInfo extends DB {
           name: '',              // 节目名称
           fileName: '',          // 文件名
           subscribeType: [],
-          source: '',
           limit: '',
           cover: '',
           airTime: '',
