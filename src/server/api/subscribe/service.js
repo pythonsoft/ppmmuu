@@ -342,7 +342,7 @@ const getEsOptions = function getEsOptions(info) {
   let keyword = info.keyword || '';
   let duration = info.duration || '';
   let sort = info.sort || '';
-  let fullTime = info.full_time || '';
+  let airTime = info.airTime || '';
   let lastModifyTime = info.lastModifyTime || '';
   const start = info.start || 0;
   const pageSize = info.pageSize || 28;
@@ -430,9 +430,9 @@ const getEsOptions = function getEsOptions(info) {
     return rs;
   };
 
-  if (fullTime && fullTime.constructor.name.toLowerCase() === 'string') {
-    fullTime = getDateRange(fullTime);
-    const temp = { range: { 'editorInfo.airTime': fullTime } };
+  if (airTime && airTime.constructor.name.toLowerCase() === 'string') {
+    airTime = getDateRange(airTime);
+    const temp = { range: { 'editorInfo.airTime': airTime } };
     musts.push(temp);
   }
   if (lastModifyTime && lastModifyTime.constructor.name.toLowerCase() === 'string') {
@@ -455,6 +455,8 @@ const getEsOptions = function getEsOptions(info) {
     require_field_match: false,
     fields: getHighLightFields(hl),
   };
+
+  console.log(JSON.stringify(options));
   return options;
 };
 
