@@ -1296,7 +1296,6 @@ service.batchSubmitByIds = function batchSubmitByIds(info, cb) {
           subscribeType: { type: 'array', validation: 'require' },
           limit: { type: 'string', validation: 'require' },
           cover: { type: 'string', validation: 'require' },
-          airTime: { type: 'string', validation: 'require' },
         };
         const err = utils.validation(item.editorInfo, struct);
         if (err) {
