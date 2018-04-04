@@ -135,10 +135,10 @@ const umpName = 'ump';
 const versionName = 'version.json';
 
 const chaoningCoolie = function (version, cb) {
-  const chaoningDeployPath = '/Users/steven/Desktop/ump';
-  const chaoningFEprojectPath = '/Users/steven/UMP-FE';
-  // const chaoningDeployPath = '/Users/chaoningx/Desktop/ump';
-  // const chaoningFEprojectPath = '/Users/chaoningx/WebstormProjects/ump-fe';
+  // const chaoningDeployPath = '/Users/steven/Desktop/ump';
+  // const chaoningFEprojectPath = '/Users/steven/UMP-FE';
+  const chaoningDeployPath = '/Users/chaoningx/Desktop/ump';
+  const chaoningFEprojectPath = '/Users/chaoningx/WebstormProjects/ump-fe';
   const chaoningFEProjectApiPath = path.join(chaoningFEprojectPath, 'src', 'fe', 'api');
   const chaoningFEProjectDistPath = path.join(chaoningFEprojectPath, 'dist');
 
