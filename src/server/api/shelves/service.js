@@ -274,7 +274,7 @@ const getUserInfo = function getUserInfo(query, cb) {
 // 创建上架任务
 service.createShelfTask = function createShelfTask(info, cb) {
   const objectId = info.objectId || '';
-  info.fromWhere = info.fromWhere || CatalogInfo.FROM_WHERE.MAM;
+  info.fromWhere = info.fromWhere || CatalogInfo.FROM_WHERE.HK_RUKU;
   const t = new Date();
   info.createdTime = t;
   info.lastModifyTime = t;
