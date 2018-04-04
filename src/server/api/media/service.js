@@ -722,6 +722,13 @@ const getObjectFromHK = (info, cb) => {
           rs.result.detail[info.fieldKey] = info.newArr;
         }
 
+        //如果为空值，那么返回[]
+        for(let k in rs.result.detail) {
+          if(utils.isEmptyObject(rs.result.detail[k])) {
+            rs.result.detail[k] = [];
+          }
+        }
+
         return cb(null, rs, 'mam');
       });
     } else {
@@ -730,7 +737,7 @@ const getObjectFromHK = (info, cb) => {
   });
 };
 
-service.getObject = function getObject(info, cb) {
+service.getObject = (info, cb) => {
   const struct = {
     objectid: { type: 'string', validation: 'require' },
   };
