@@ -64,7 +64,7 @@ const converseTimeToBeiJing = function converseTimeToBeiJing(time, needTimeConve
     t.setHours(t.getHours() + 8);
     return t.toISOString();
   }
-  return '';
+  return time;
 }
 
 const filterDoc = function filterDoc(_source, allowedDownloadFileTypes, needTimeConverse) {
