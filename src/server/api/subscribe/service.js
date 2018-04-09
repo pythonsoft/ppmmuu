@@ -58,16 +58,25 @@ const getValidFiles = function getValidFiles(files, allowedDownloadFileTypes) {
   return validFiles;
 };
 
-const filterDoc = function filterDoc(_source, allowedDownloadFileTypes) {
+const converseTimeToBeiJing = function converseTimeToBeiJing(time, needTimeConverse) {
+  if (time && needTimeConverse) {
+    const t = new Date(time);
+    t.setHours(t.getHours() + 8);
+    return t.toISOString();
+  }
+  return '';
+}
+
+const filterDoc = function filterDoc(_source, allowedDownloadFileTypes, needTimeConverse) {
   const doc = {};
   doc._id = _source._id;
-  doc.name = _source.details.NAME;
+  doc.name = _source.editorInfo.name;
   doc.objectId = _source.objectId;
   doc.programNO = _source.programNO;
-  doc.newsTime = _source.details.FIELD162 || null;
-  doc.playTime = _source.details.FIELD36 || null;
-  doc.viceTitle = _source.details.FIELD197 || null;
-  doc.storageTime = _source.lastModifyTime;
+  doc.newsTime = converseTimeToBeiJing(_source.details.FIELD162, needTimeConverse);
+  doc.playTime = converseTimeToBeiJing(_source.details.FIELD36, needTimeConverse);
+  doc.viceTitle = _source.details.FIELD197;
+  doc.storageTime = converseTimeToBeiJing(_source.lastModifyTime, needTimeConverse);
   doc.source = _source.editorInfo.source;
   doc.limit = _source.editorInfo.limit;
   doc.poster = _source.editorInfo.cover;
@@ -322,7 +331,7 @@ const executeEsSerach = function executeEsSearch(body, userId, keyword, isRelate
           _source[key] = highlight[key].join('');
         }
       }
-      newRs.docs.push(filterDoc(_source, allowedDownloadFileTypes));
+      newRs.docs.push(filterDoc(_source, allowedDownloadFileTypes, true));
     }
 
     if (userId && keyword && !isRelated) {
@@ -456,7 +465,6 @@ const getEsOptions = function getEsOptions(info) {
     fields: getHighLightFields(hl),
   };
 
-  console.log(JSON.stringify(options));
   return options;
 };
 
@@ -618,8 +626,8 @@ service.getShelfInfo = function getShelfInfo(req, cb) {
     doc.fromWhere = doc.fromWhere || CatalogInfo.FROM_WHERE.MAM;
     rs.push({
       key: 'name',
-      cn: '节目名称(中文)',
-      value: doc.editorInfo.fileName,
+      cn: '节目名称',
+      value: doc.editorInfo.name,
     });
     rs.push({
       key: 'subscribeType',
