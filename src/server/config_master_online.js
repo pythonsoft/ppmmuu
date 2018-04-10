@@ -102,3 +102,6 @@ config.journalistCloud = 'http://ump.phoenixtv.com/apps/journalistCloud';
 
 // 订阅视频下载服务地址
 config.subscribeDownloadUrl = 'http://localhost:3000/';
+
+// 证书所在根目录
+config.pemPath = path.join(__dirname, 'pem');
