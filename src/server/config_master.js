@@ -103,7 +103,7 @@ config.subscribeDownloadTemplateId = 'subscribe_autopush';   // 下载模板Id
 config.socketURL = 'http://localhost:9000';
 
 // 视频服务器地址
-config.streamURL = 'http://10.0.15.68:8099';
+config.streamURL = 'http://ump-live.phoenixtv.com';
 config.hkRuku = '/h';
 
 
@@ -119,7 +119,7 @@ config.easemob_url = 'https://a1.easemob.com/1119180112178786/assistant/';
 config.journalistCloud = 'http://10.0.16.132:8000/apps/journalistCloud';
 
 // 订阅视频下载服务地址
-config.subscribeDownloadUrl = 'http://localhost:3000/';
+config.subscribeDownloadUrl = 'http://10.0.15.184:3000/';
 
 // 证书所在根目录
 config.pemPath = path.join(__dirname, '../pem/');

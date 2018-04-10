@@ -32,6 +32,8 @@ class CatalogInfo extends DB {
       duration: { type: 'string' },
       available: { type: 'string', default: () => CatalogInfo.AVAILABLE.NO },
       materialDate: { type: 'object', default() { return { from: '', to: '' }; } }, // 素材日期 { from: '2017-03-21', to: '2017-03-21' }
+      materialTime: { type: 'object', default() { return { from: '', to: '' }; } }, // 素材时间 { from: '2018-04-10T03:04:05.714Z', to: '2018-04-10T03:04:05.714Z' }
+      channel: { type: 'string', default: '' },
       owner: { type: 'object', default() { return { _id: '', name: '' }; } },
       department: { type: 'object', default() { return { _id: '', name: '' }; } },
       createdTime: { type: 'date', validation: 'require', allowUpdate: false },
