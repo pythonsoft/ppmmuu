@@ -63,6 +63,13 @@ router.get('/channels', (req, res) => {
  *         default: ''
  *         collectionFormat: csv
  *       - in: query
+ *         name: channel
+ *         description: '频道'
+ *         required: false
+ *         type: string
+ *         default: '中文台'
+ *         collectionFormat: csv
+ *       - in: query
  *         name: time
  *         description: '日期'
  *         required: false
