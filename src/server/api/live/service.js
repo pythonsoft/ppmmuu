@@ -129,8 +129,11 @@ service.getProgram = function getStream(info, cb) {
           item.type = docs[i].type;
           item.typeName = FileInfo.TYPE_MAP[item.type];
           item.catalogInfoId = doc._id;
+          item.objectId = doc.objectId;
           item.inpoint = doc.inpoint;
           item.outpoint = doc.outpoint;
+          item.fromWhere = fromWhere;
+          item.fileName = docs[i].name;
           result.push(item);
         }
         return cb && cb(null, result);
