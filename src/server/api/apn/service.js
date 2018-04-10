@@ -1,4 +1,5 @@
 'use strict';
+
 const path = require('path');
 const config = require('../../config');
 
@@ -9,7 +10,7 @@ console.log('APPLE_PEM_BASE_PATH -->', APPLE_PEM_BASE_PATH);
 
 const service = {};
 
-service.push = function() {
+service.push = function () {
 
 };
 

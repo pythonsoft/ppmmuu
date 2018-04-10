@@ -65,7 +65,7 @@ const converseTimeToBeiJing = function converseTimeToBeiJing(time, needTimeConve
     return t.toISOString();
   }
   return time;
-}
+};
 
 const filterDoc = function filterDoc(_source, allowedDownloadFileTypes, needTimeConverse) {
   const doc = {};
@@ -694,7 +694,7 @@ service.createDownloadUrl = function createDownloadUrl(info, cb) {
   }
 
   const token = utils.cipher(`${type},${expiredTime}`, config.KEY);
-  const downloadUrl = `${config.subscribeDownloadUrl}api/download/file/${shelfTaskId}?token=${token}`;
+  const downloadUrl = `${config.subscribeDownloadUrl}api/download/shelfTask/file/${shelfTaskId}?token=${token}`;
 
   return cb && cb(null, downloadUrl);
 };

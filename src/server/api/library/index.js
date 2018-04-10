@@ -1013,9 +1013,17 @@ router.get('/listCatalog', (req, res) => {
  *               description: ''
  *               example: ""
  *             materialDate:
+ *               type: object
+ *               description: ''
+ *               example: { from: '2018-04-10T03:04:05.714Z', to: '2018-04-10T03:04:05.714Z' }
+ *             materialTime:
+ *               type: object
+ *               description: ''
+ *               example: { from: '2018-04-10T03:04:05.714Z', to: '2018-04-10T03:04:05.714Z' }
+ *             channel:
  *               type: string
  *               description: ''
- *               example: ""
+ *               example: "中文台"
  *     responses:
  *       200:
  *         description: CatalogInfo

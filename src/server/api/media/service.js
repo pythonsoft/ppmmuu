@@ -633,7 +633,7 @@ const formatProgramOrSequence = (source, cb) => {
 
   const rs = { fieldKey, newArr: [] };
 
-  if(!key) {
+  if (!key) {
     return cb && cb(null, rs);
   }
 
@@ -644,23 +644,22 @@ const formatProgramOrSequence = (source, cb) => {
 
   let index = 0;
 
-  for(let k in sourceValues) {
-
-    if(sourceValues[k] && fieldConfig.config[k]) {
+  for (const k in sourceValues) {
+    if (sourceValues[k] && fieldConfig.config[k]) {
       let val = sourceValues[k];
 
-      if(sourceValues[k].constructor === String && sourceValues[k].match('\\d{4}-\\d{2}-\\d{2}') && new Date(sourceValues[k]) < new Date('1900-01-01')) {
+      if (sourceValues[k].constructor === String && sourceValues[k].match('\\d{4}-\\d{2}-\\d{2}') && new Date(sourceValues[k]) < new Date('1900-01-01')) {
         val = 'N/A';
       }
 
       let group = fieldConfig.config[k].group;
       let indexInGroup = fieldConfig.config[k].indexInGroup;
 
-      if(!group) {
-        if(programTypeInfo && programTypeInfo.fields.indexOf(k) !== -1) {
+      if (!group) {
+        if (programTypeInfo && programTypeInfo.fields.indexOf(k) !== -1) {
           group = fieldConfig.generateGroupInfo(programTypeInfo);
           indexInGroup = programTypeInfo.index;
-        }else {
+        } else {
           group = fieldConfig.generateGroupInfo(fieldConfig.otherInfo);
           indexInGroup = index++;
         }
@@ -670,7 +669,7 @@ const formatProgramOrSequence = (source, cb) => {
         key: k,
         value: val,
         cn: fieldConfig.config[k].cn,
-        order: { index: indexInGroup, groupName: group.name, groupIndex: group.index }
+        order: { index: indexInGroup, groupName: group.name, groupIndex: group.index },
       });
     }
   }
@@ -718,13 +717,13 @@ const getObjectFromHK = (info, cb) => {
           return cb && cb(err);
         }
 
-        if(info.fieldKey) {
+        if (info.fieldKey) {
           rs.result.detail[info.fieldKey] = info.newArr;
         }
 
-        //如果为空值，那么返回[]
-        for(let k in rs.result.detail) {
-          if(utils.isEmptyObject(rs.result.detail[k])) {
+        // 如果为空值，那么返回[]
+        for (const k in rs.result.detail) {
+          if (utils.isEmptyObject(rs.result.detail[k])) {
             rs.result.detail[k] = [];
           }
         }

@@ -1249,5 +1249,13 @@ module.exports = {
     code: '-260018',
     message: '上架模板格式脚本配置不正确',
   },
+  liveNotStart: {
+    code: '-270001',
+    message: '节目还未开始',
+  },
+  liveStart: {
+    code: '-270002',
+    message: '正在直播中',
+  },
 };
 

@@ -15,7 +15,6 @@ const roleService = require('../role/service');
 const subscribeManagementService = require('../subscribeManagement/service');
 const mediaService = require('../media/service');
 const templateService = require('../template/service');
-const fieldConfig = require('../subscribe/fieldConfig');
 
 const ShelfTaskInfo = require('./shelfTaskInfo');
 const CatalogInfo = require('../library/catalogInfo');

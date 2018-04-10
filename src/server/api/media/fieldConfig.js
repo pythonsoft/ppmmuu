@@ -338,102 +338,102 @@ const baseInfo = {
   name: '基本信息',
   index: 0,
   fields: [
-  'x1',
-  'FIELD195',
-  'x2',
-  'FIELD196',
-  'FIELD01',
-  'FIELD197',
-  'FIELD187',
-  'FIELD90',
-  'FIELD36',
-  'FIELD189',
-  'FIELD183',
-  'FIELD276',
-  'FIELD314',
-  'x3',
-  'FIELD44',
-  'FIELD247',
-  'FIELD154',
-  'FIELD321'
-]};
+    'x1',
+    'FIELD195',
+    'x2',
+    'FIELD196',
+    'FIELD01',
+    'FIELD197',
+    'FIELD187',
+    'FIELD90',
+    'FIELD36',
+    'FIELD189',
+    'FIELD183',
+    'FIELD276',
+    'FIELD314',
+    'x3',
+    'FIELD44',
+    'FIELD247',
+    'FIELD154',
+    'FIELD321',
+  ] };
 
 const categoryInfo = {
   name: '编目信息',
   index: 2,
-  fields:[
-  'FIELD194',
-  'FIELD088',
-  'FIELD221',
-  'FIELD180',
-  'FIELD067',
-  'FIELD179',
-  'FIELD139',
-  'FIELD45',
-  'FIELD094',
-  'FIELD098',
-  'FIELD300',
-  'FIELD096',
-  'FIELD097',
-  'FIELD307',
-  'FIELD308',
-  'FIELD192',
-  'FIELD175',
-  'FIELD176',
-  'FIELD177',
-  'FIELD168',
-  'FIELD282',
-  'FIELD309',
-  'FIELD262',
-  'FIELD34',
-  'FIELD263',
-  'FIELD223',
-  'FIELD270',
-  'FIELD245',
-  'FIELD246',
-  'FIELD255',
-  'FIELD323',
-  'FIELD292',
-  'FIELD293',
-  'FIELD328',
-  'FIELD294',
-  'FIELD294',
-  'FIELD327',
-  'FIELD220',
-  'FIELD222',
-  'FIELD100',
-  'FIELD322'
-]};
+  fields: [
+    'FIELD194',
+    'FIELD088',
+    'FIELD221',
+    'FIELD180',
+    'FIELD067',
+    'FIELD179',
+    'FIELD139',
+    'FIELD45',
+    'FIELD094',
+    'FIELD098',
+    'FIELD300',
+    'FIELD096',
+    'FIELD097',
+    'FIELD307',
+    'FIELD308',
+    'FIELD192',
+    'FIELD175',
+    'FIELD176',
+    'FIELD177',
+    'FIELD168',
+    'FIELD282',
+    'FIELD309',
+    'FIELD262',
+    'FIELD34',
+    'FIELD263',
+    'FIELD223',
+    'FIELD270',
+    'FIELD245',
+    'FIELD246',
+    'FIELD255',
+    'FIELD323',
+    'FIELD292',
+    'FIELD293',
+    'FIELD328',
+    'FIELD294',
+    'FIELD294',
+    'FIELD327',
+    'FIELD220',
+    'FIELD222',
+    'FIELD100',
+    'FIELD322',
+  ] };
 
 const fileInfo = {
   name: '文件信息',
   index: 3,
   fields: [
-  'FIELD51',
-  'FIELD052',
-  'FIELD160',
-  'FIELD47',
-  'FIELD065',
-  'FIELD079',
-  'FIELD49',
-  'FIELD48',
-  'FIELD50',
-  'FIELD32',
-  'FIELD078'
-]};
+    'FIELD51',
+    'FIELD052',
+    'FIELD160',
+    'FIELD47',
+    'FIELD065',
+    'FIELD079',
+    'FIELD49',
+    'FIELD48',
+    'FIELD50',
+    'FIELD32',
+    'FIELD078',
+  ] };
 
 const otherInfo = {
   name: '其它信息',
   index: 4,
-  fields: []
+  fields: [],
 };
 
 const configExtends = (info) => {
   const fields = info.fields;
-  for(let i = 0, len = fields.length; i < len; i++) {
-    if(config[fields[i]]) {
-      config[fields[i]]['group'] = { name: info.name, index: info.index };
-      config[fields[i]]['indexInGroup'] = i;
+  for (let i = 0, len = fields.length; i < len; i++) {
+    if (config[fields[i]]) {
+      config[fields[i]].group = { name: info.name, index: info.index };
+      config[fields[i]].indexInGroup = i;
     }
   }
 };
@@ -456,8 +456,8 @@ const materialInfo = {
     'FIELD35',
     'FIELD143',
     'FIELD91',
-    'FIELD03 '
-  ]
+    'FIELD03 ',
+  ],
 };
 
 // const segmentInfo = {
@@ -484,8 +484,8 @@ const adInfo = {
     'FIELD252',
     'FIELD291',
     'FIELD259',
-    'FIELD290'
-  ]
+    'FIELD290',
+  ],
 };
 
 const packageInfo = {
@@ -499,8 +499,8 @@ const packageInfo = {
     'FIELD273',
     'FIELD273',
     'FIELD234',
-    'FIELD235'
-  ]
+    'FIELD235',
+  ],
 };
 
 const purchaseInfo = {
@@ -514,28 +514,28 @@ const purchaseInfo = {
     'FIELD273',
     'FIELD236',
     'FIELD234',
-    'FIELD235'
-  ]
+    'FIELD235',
+  ],
 };
 
 const programTypeField = 'FIELD276';
 
 const programTypeInfo = {
-  '素材': materialInfo,
-  '廣告': adInfo,
-  '包裝': packageInfo,
-  '採購': purchaseInfo
+  素材: materialInfo,
+  廣告: adInfo,
+  包裝: packageInfo,
+  採購: purchaseInfo,
 };
 
 const getProgramTypeInfo = (programType) => {
-  if(!programType) {
+  if (!programType) {
     return programType;
   }
   return programTypeInfo[programType];
 };
 
 const generateGroupInfo = (info) => {
-  if(!info || !info.name || typeof info.index === 'undefined') {
+  if (!info || !info.name || typeof info.index === 'undefined') {
     return { name: '', index: -1 };
   }
 
@@ -543,5 +543,5 @@ const generateGroupInfo = (info) => {
 };
 
 module.exports = {
-  config, programTypeField, getProgramTypeInfo, otherInfo, generateGroupInfo
+  config, programTypeField, getProgramTypeInfo, otherInfo, generateGroupInfo,
 };

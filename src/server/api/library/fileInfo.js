@@ -45,6 +45,7 @@ FileInfo.TYPE = {
   P360: '7', // 360P
   AUDIO: '8', // 音频
   MP3: '9', // mp3
+  P720: '10', // 720P
 };
 
 FileInfo.TYPE_MAP = {
@@ -58,6 +59,7 @@ FileInfo.TYPE_MAP = {
   7: '360P',
   8: '音频',
   9: 'mp3',
+  10: '720P',
 };
 
 FileInfo.AVAILABLE = {
