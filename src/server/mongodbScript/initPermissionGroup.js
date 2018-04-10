@@ -31,6 +31,13 @@ const infos = [
     topParentMenu: '媒体库',
   },
   {
+    _id: 'live',
+    name: '直播',
+    index: 'live',
+    parentIndex: '',
+    topParentMenu: '直播',
+  },
+  {
     _id: 'accountManagement',
     name: '账户管理',
     index: 'accountManagement',
