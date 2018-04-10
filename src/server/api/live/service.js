@@ -66,8 +66,7 @@ service.listProgram = function listProgram(info, cb) {
     const newTime = new Date(time);
     const tomorrow = new Date(time);
     tomorrow.setHours(tomorrow.getHours() + 24);
-    query['materialTime.from'] = { $gte: newTime.toISOString() };
-    query['materialTime.from'] = { $lt: tomorrow.toISOString() };
+    query['materialTime.from'] = { $gte: newTime.toISOString(), $lt: tomorrow.toISOString() };
   }
 
   catalogInfo.pagination(query, page, pageSize, (err, docs) => {
