@@ -61,7 +61,7 @@ const getValidFiles = function getValidFiles(files, allowedDownloadFileTypes) {
 const converseTimeToBeiJing = function converseTimeToBeiJing(time, needTimeConverse) {
   if (time && needTimeConverse) {
     const t = new Date(time);
-    t.setHours(t.getHours() + 8);
+    t.setHours(t.getHours() + 0);
     return t.toISOString();
   }
   return time;
