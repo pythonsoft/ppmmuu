@@ -104,7 +104,7 @@ service.getProgram = function getStream(info, cb) {
       return cb && cb(i18n.t('liveStart'));
     }
     const fromWhere = doc.fromWhere;
-    const types = [FileInfo.TYPE.P1080, FileInfo.TYPE.P720, FileInfo.TYPE.P360];
+    const types = [FileInfo.TYPE.HIGH_VIDEO, FileInfo.TYPE.LOW_BIT_VIDEO];
     fileInfo.collection.find({ objectId: doc.objectId, type: { $in: types } }).toArray((err, docs) => {
       if (err) {
         logger.error(err.message);
