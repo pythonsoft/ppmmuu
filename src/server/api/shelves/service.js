@@ -321,28 +321,22 @@ service.createShelfTask = function createShelfTask(info, cb) {
         } else {
           info.details[item.key] = item.value;
         }
-        if (!info.name && info.fromWhere !== CatalogInfo.FROM_WHERE.HK_RUKU) {
-          if (item.key === 'FIELD195') {
-            info.name = item.value;
-            info.editorInfo.name = item.value;
-          }
-          if (item.key === 'FIELD03' || item.key === 'FIELD321' || item.key === 'FIELD247') {
-            info.editorInfo.content = item.value;
-          }
-          if (item.key === 'FIELD162' || item.key === 'FIELD36') {
-            info.editorInfo.airTime = item.value;
-          }
+        if (item.key === 'FIELD03' || item.key === 'FIELD321' || item.key === 'FIELD247') {
+          info.editorInfo.content = item.value;
         }
-        if (!info.name && info.fromWhere === CatalogInfo.FROM_WHERE.HK_RUKU) {
-          if (item.key === 'name') {
+        if (item.key === 'FIELD162' || item.key === 'FIELD36') {
+          info.editorInfo.airTime = item.value;
+        }
+        if (item.key === 'content') {
+          info.editorInfo.content = item.value;
+        }
+        if (item.key === 'newsTime' || item.key === 'airTime') {
+          info.editorInfo.airTime = item.value;
+        }
+        if (!info.name) {
+          if (item.key === 'FIELD195' || item.key === 'name') {
             info.name = item.value;
             info.editorInfo.name = item.value;
-          }
-          if (item.key === 'content') {
-            info.editorInfo.content = item.value;
-          }
-          if (item.key === 'newsTime' || item.key === 'airTime') {
-            info.editorInfo.airTime = item.value;
           }
         }
       }
