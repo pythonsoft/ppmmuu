@@ -1263,7 +1263,7 @@ service.warehouse = function warehouse(info, cb) {
       if (rs.status === '0') {
         return cb && cb(null, 'ok');
       }
-      return cb && cb(i18n.t('joDownloadError', { error: rs.statusInfo.message }));
+      return cb && cb(i18n.t('shelfProcessError', { error: rs.statusInfo.message }));
     });
   });
 };
@@ -1313,5 +1313,28 @@ service.batchSubmitByIds = function batchSubmitByIds(info, cb) {
     });
   });
 };
+
+service.processDetail = function processDetail(info, cb) {
+  const _id = info._id || '';
+  const struct = {
+    _id: { type: 'string', validation: 'require' },
+  };
+  const err = utils.validation(info, struct);
+  if (err) {
+    return cb && cb(err);
+  }
+
+  const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/ProcessInstanceService/processDetail/${_id}`;
+  utils.requestCallApi(url, 'GET', '', '', (err, rs) => {
+    if (err) {
+      return cb && cb(err); // res.json(result.fail(err));
+    }
+
+    if (rs.status === '0') {
+      return cb && cb(null, 'ok');
+    }
+    return cb && cb(i18n.t('shelfProcessDetailError', { error: rs.statusInfo.message }));
+  });
+}
 
 module.exports = service;

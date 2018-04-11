@@ -626,6 +626,15 @@ service.createCatalog = function createCatalog(ownerId, ownerName, info, cb) {
   if (!info._id) {
     info._id = uuid.v1();
   }
+  if (info.hdFlag) {
+    info.hdFlag *= 1;
+  }
+  if (info.outpoint) {
+    info.outpoint *= 1;
+  }
+  if (info.inpoint) {
+    info.inpoint *= 1;
+  }
   formatDuration(info);
   if (info.parentId) {
     catalogInfo.collection.findOne({ _id: info.parentId }, (err, doc) => {
@@ -677,6 +686,16 @@ service.updateCatalog = function updateCatalog(id, info, cb) {
   }
 
   info.lastModifyTime = new Date();
+
+  if (info.hdFlag) {
+    info.hdFlag *= 1;
+  }
+  if (info.outpoint) {
+    info.outpoint *= 1;
+  }
+  if (info.inpoint) {
+    info.inpoint *= 1;
+  }
 
   catalogInfo.updateOne({ _id: id }, info, (err, r) => {
     if (err) {
@@ -783,6 +802,10 @@ service.createFile = function createFile(info, cb) {
     info._id = uuid.v1();
   }
 
+  if (info.size) {
+    info.size *= 1;
+  }
+
   fileInfo.insertOne(info, (err) => {
     if (err) {
       logger.error(err.message);
@@ -804,26 +827,16 @@ service.updateFile = function updateFile(id, info = {}, cb) {
     delete info._id;
   }
 
+  if (info.size) {
+    info.size *= 1;
+  }
+
   fileInfo.updateOne({ _id: id }, info, (err, r) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
     }
-
-    const updateInfo = {
-      _id: id,
-      name: info.name || '',
-      realPath: info.realPath || '',
-      size: info.size || 0,
-      type: info.type || FileInfo.TYPE.ORIGINAL,
-    };
-    catalogInfo.updateOne({ 'fileInfo._id': id }, { fileInfo: updateInfo, lastModifyTime: info.lastModifyTime }, (err) => {
-      if (err) {
-        logger.error(err.message);
-        return cb && cb(i18n.t('databaseError'));
-      }
-      return cb && cb(null, r);
-    });
+    return cb && cb(null, 'ok');
   });
 };
 

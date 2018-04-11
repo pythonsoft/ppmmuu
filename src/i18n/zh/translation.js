@@ -889,6 +889,14 @@ module.exports = {
     code: '-110016',
     message: '{{name}}编目信息未填写完整',
   },
+  shelfProcessError: {
+    code: '-110017',
+    message: '上架流程出错,{{error}}',
+  },
+  shelfProcessDetailError: {
+    code: '-110018',
+    message: '获取上架流程状态信息出错,{{error}}',
+  },
   subscribeInfoHasExists: {
     code: '-120000',
     message: '该公司已有订阅信息，不能重复增加',

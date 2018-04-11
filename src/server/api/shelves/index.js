@@ -1105,4 +1105,48 @@ router.post('/batchSubmitByIds', (req, res) => {
   const info = req.body;
   service.batchSubmitByIds(info, (err, r) => res.json(result.json(err, r)));
 });
+
+/**
+ * @permissionGroup: myShelf
+ * @permissionName: 上架任务流程详情
+ * @permissionPath: /shelves/processDetail
+ * @apiName: processDetail
+ * @apiFuncType: get
+ * @apiFuncUrl: /shelves/processDetail
+ * @swagger
+ * /shelves/processDetail:
+ *   get:
+ *     description: process detail
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - ShelfTaskInfo
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - in: query
+ *         name: _id
+ *         description:
+ *         required: true
+ *         type: string
+ *     responses:
+ *       200:
+ *         description: ShelfTaskInfo
+ *         schema:
+ *           type: object
+ *           properties:
+ *            status:
+ *              type: string
+ *            data:
+ *              type: object
+ *            statusInfo:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+router.get('/processDetail', (req, res) => {
+  service.processDetail(req.query, (err, docs) =>
+      res.json(result.json(err, docs)));
+});
 module.exports = router;
