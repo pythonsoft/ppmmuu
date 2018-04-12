@@ -33,7 +33,8 @@ service.push = function (info, cb) {
     if (!doc) {
       return cb && cb(i18n.t('userNotFind'));
     }
-    const tokens = doc.apnToken.split(',');
+    const token = doc.apnToken || '';
+    const tokens = token.split(',');
     const apnService = new apn.Provider({
       cert: path.join(APPLE_PEM_BASE_PATH, './cert.pem'),
       key: path.join(APPLE_PEM_BASE_PATH, './key.pem'),
