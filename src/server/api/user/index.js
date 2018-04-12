@@ -253,12 +253,12 @@ router.get('/detail', (req, res) => {
  */
 router.post('/logout', (req, res) => {
   const _id = req.ex.userInfo._id;
-  service.logout(_id, res, (err, data) => res.json(result.json(err, data)));
+  service.logout(_id, res, (err, data) => res.json(result.json(err, data)), true);
 });
 
 router.get('/logout', (req, res) => {
   const _id = req.ex.userInfo._id;
-  service.logout(_id, res, (err, data) => res.json(result.json(err, data)));
+  service.logout(_id, res, (err, data) => res.json(result.json(err, data)), true);
 });
 
 /**

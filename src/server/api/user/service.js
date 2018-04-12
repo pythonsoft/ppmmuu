@@ -344,12 +344,15 @@ service.updateUser = function updateUser(_id, info, cb) {
   });
 };
 
-service.logout = function logout(_id, res, cb) {
+service.logout = function logout(_id, res, cb, needClear = false) {
   if (!_id) {
     return cb && cb(i18n.t('userIdIsNull'));
   }
 
   res.cookie('ticket', '');
+  if (needClear) {
+    userInfo.updateOne({ _id }, { apnToken: '' }, () => {});
+  }
   config.redisClient.del([_id]);
   return cb && cb(null, 'ok');
 };
