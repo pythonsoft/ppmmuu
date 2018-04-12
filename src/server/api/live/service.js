@@ -146,7 +146,7 @@ service.createDownloadUrl = function createDownloadUrl(info, cb) {
   const catalogInfoId = info.catalogInfoId || '';
   const type = info.type || '';
   let expiredTime = info.expiredTime || '';
-  const validTypes = [FileInfo.TYPE.P1080, FileInfo.TYPE.P720, FileInfo.TYPE.P360];
+  const validTypes = [FileInfo.TYPE.HIGH_VIDEO, FileInfo.TYPE.LOW_BIT_VIDEO];
 
   const struct = {
     catalogInfoId: { type: 'string', validation: 'require' },
