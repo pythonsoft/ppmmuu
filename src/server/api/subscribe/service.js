@@ -560,7 +560,7 @@ service.getEsMediaList = function getEsMediaList(req, cb) {
       }
 
       loopGetShelfTaskInfo(subscribeType, subscribeNames, index + 1, cb);
-    }, '-createdTime');
+    }, '-lastModifyTime');
   };
 
   subscribeInfo.collection.findOne({ _id: companyId }, (err, doc) => {
