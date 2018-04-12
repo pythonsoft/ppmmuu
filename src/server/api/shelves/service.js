@@ -1329,6 +1329,6 @@ service.processDetail = function processDetail(info, cb) {
     }
     return cb && cb(i18n.t('shelfProcessDetailError', { error: rs.statusInfo.message }));
   });
-}
+};
 
 module.exports = service;

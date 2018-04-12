@@ -1265,5 +1265,9 @@ module.exports = {
     code: '-270002',
     message: '正在直播中',
   },
+  apnPushError: {
+    code: '-280001',
+    message: '苹果推送出错: {{error}}',
+  },
 };
 
