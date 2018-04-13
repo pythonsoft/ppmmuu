@@ -634,3 +634,13 @@ const subscribeDownloadTypeInfo = [{
 
 initConfig('subscribe_download_type', subscribeDownloadTypeInfo);
 
+//收录配置文件
+const recordInfo = [{
+  key: 'start_record',
+  value: JSON.stringify([{ channel: "资讯台", start: "2018-04-11" }, { channel: "中文台", start: "2018-04-11" }]),
+  description: '收录开始时间，在线剪辑工具，收录资源中使用',
+}];
+
+initConfig('收录配置', recordInfo);
+
+
