@@ -98,7 +98,7 @@ router.post('/update', (req, res) => {
 
 /**
  * @permissionGroup: configuration
- * @permissionName: 配置项列表
+ * @permissionName: 配置项详细信息
  * @permissionPath: /configuration/list
  * @apiName: getListConfig
  * @apiFuncType: get
@@ -125,6 +125,36 @@ router.get('/list', (req, res) => {
   service.listConfig(page, pageSize, req.query.groupId, req.query.name, (err, docs) => {
     res.json(result.json(err, docs));
   });
+});
+
+/**
+ * @permissionGroup: configuration
+ * @permissionName: 配置项列表
+ * @permissionPath: /configuration/detail
+ * @apiName: configurationDetail
+ * @apiFuncType: get
+ * @apiFuncUrl: /configuration/detail
+ * @swagger
+ * /configuration/detail:
+ *   get:
+ *     descrition: get configuration info
+ *     version: 1.0.0
+ *     tags:
+ *       - v1
+ *       - ConfigurationInfo
+ *     consumes:
+ *       - application/json
+ *     responses:
+ *       200:
+ *         description: ConfigInfo
+ *         schema:
+ *           $ref: '#/definitions/ResultInfo'
+ */
+router.get('/detail', (req, res) => {
+  const groupName = req.query.groupName;
+  const key = req.query.key;
+
+  service.getConfigByGroupNameAndKey(groupName, key, (err, docs) => res.json(result.json(err, docs)));
 });
 
 /**
