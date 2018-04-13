@@ -27,8 +27,8 @@ class CatalogInfo extends DB {
       language: { type: 'string' }, // 语言
       root: { type: 'string' }, // 根结点ID, 用于记录最开始时候的结点ID, 如果这条记录是根，那么置空
       type: { type: 'string' }, // 类型：素材，节目，其它
-      inpoint: { type: 'number' },
-      outpoint: { type: 'number' },
+      inpoint: { type: 'number' }, // 帧
+      outpoint: { type: 'number' }, // 帧
       duration: { type: 'string' },
       available: { type: 'string', default: () => CatalogInfo.AVAILABLE.NO },
       materialDate: { type: 'object', default() { return { from: '', to: '' }; } }, // 素材日期 { from: '2017-03-21', to: '2017-03-21' }
