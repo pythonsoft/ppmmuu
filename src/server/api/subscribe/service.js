@@ -690,7 +690,7 @@ service.createDownloadUrl = function createDownloadUrl(info, cb) {
   if (!expiredTime) {
     expiredTime = new Date();
     expiredTime.setMinutes(expiredTime.getMinutes() + 30);   // 默认过期时间30分钟
-    expiredTime = expiredTime.toISOString();
+    expiredTime = expiredTime.getTime();
   }
 
   const token = utils.cipher(`${type},${expiredTime}`, config.KEY);

@@ -10,7 +10,9 @@ const buildPath = path.join(__dirname, 'build');
 gulp.task('config', () => gulp.src(['./src/server/config_master.js'])
   .pipe(gulp.dest(buildPath)));
 
+gulp.task('apnPem', () => gulp.src(['./src/pem'])
+    .pipe(gulp.dest(buildPath)));
+
 gulp.task('default', [
   'config',
 ]);
-

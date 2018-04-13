@@ -49,9 +49,14 @@ service.push = function (info, cb) {
     note.topic = '';
     note.badge = 1;
     apnService.send(note, tokens)
-        .then(() => cb && cb(null, 'ok'))
-        .catch(error => cb && cb(i18n.t('apnPushError', { error })));
-    apnService.shutdown();
+        .then(() => {
+          apnService.shutdown();
+          return cb && cb(null, 'ok');
+        })
+        .catch((error) => {
+          apnService.shutdown();
+          return cb && cb(i18n.t('apnPushError', { error }));
+        });
   });
 };
 
