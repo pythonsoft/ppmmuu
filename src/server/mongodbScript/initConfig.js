@@ -641,6 +641,6 @@ const recordInfo = [{
   description: '收录开始时间，在线剪辑工具，收录资源中使用',
 }];
 
-initConfig('收录配置', recordInfo);
+initConfig('record_config', recordInfo);
 
 
