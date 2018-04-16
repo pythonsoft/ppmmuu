@@ -1269,5 +1269,9 @@ module.exports = {
     code: '-280001',
     message: '苹果推送出错: {{error}}',
   },
+  configurationGroupIsNotExist: {
+    code: '-290001',
+    message: '配置组信息不存在',
+  }
 };
 
