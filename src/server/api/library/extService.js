@@ -149,13 +149,13 @@ service.getAsyncCatalogInfoList = function getAsyncCatalogInfoList(info, cb) {
       if (!item.rootid) {
         item.rootid = item.id;
       }
-      if (!item.news_data) {
+      if (!item.news_data || item.news_data === 'N/A') {
         delete item.news_data;
       }
-      if (!item.airdata) {
+      if (!item.airdata || item.airdata === 'N/A') {
         delete item.airdata;
       }
-      if (!item.publish_time) {
+      if (!item.publish_time || item.publish_time === 'N/A') {
         delete item.publish_time;
       }
       rs.push(item);
