@@ -521,31 +521,65 @@ const manuscriptSubmit = [
 ];
 
 const initConfig = function initConfig(groupName, info) {
-  configGroup.collection.removeOne({ name: groupName }, (err) => {
-    const keys = [];
-    for (let i = 0, len = info.length; i < len; i++) {
-      keys.push(info[i].key);
+  configGroup.collection.findOne({ name: groupName }, (err, doc) => {
+    if(err) {
+      console.log('初始化配置出错', groupName, info);
+      return false;
     }
-    configInfo.collection.removeMany({ key: { $in: keys } }, (err) => {
-      configGroup.insertOne({ name: groupName }, (err, r) => {
+
+    if(doc) {
+      return false;
+    }
+
+    configGroup.insertOne({ name: groupName }, (err, r) => {
+      if (err) {
+        console.log(err);
+        throw err;
+      }
+
+      const genre = r.insertedId;
+      const data = info;
+
+      for (let i = 0, len = data.length; i < len; i++) {
+        data[i].genre = genre;
+      }
+
+      configInfo.insertMany(data, (err) => {
         if (err) {
-          console.log(err);
-          throw err;
+          throw new Error(`创建${groupName}配置出错:${err.message}`);
         }
 
-        const genre = r.insertedId;
-        for (let i = 0, len = info.length; i < len; i++) {
-          info[i].genre = genre;
-        }
-        configInfo.insertMany(info, (err) => {
-          if (err) {
-            throw new Error(`创建${groupName}配置出错:${err.message}`);
-          }
-          return true;
-        });
+        return true;
       });
     });
+
   });
+
+  // configGroup.collection.removeOne({ name: groupName }, (err) => {
+  //   const keys = [];
+  //   for (let i = 0, len = info.length; i < len; i++) {
+  //     keys.push(info[i].key);
+  //   }
+  //   configInfo.collection.removeMany({ key: { $in: keys } }, (err) => {
+  //     configGroup.insertOne({ name: groupName }, (err, r) => {
+  //       if (err) {
+  //         console.log(err);
+  //         throw err;
+  //       }
+  //
+  //       const genre = r.insertedId;
+  //       for (let i = 0, len = info.length; i < len; i++) {
+  //         info[i].genre = genre;
+  //       }
+  //       configInfo.insertMany(info, (err) => {
+  //         if (err) {
+  //           throw new Error(`创建${groupName}配置出错:${err.message}`);
+  //         }
+  //         return true;
+  //       });
+  //     });
+  //   });
+  // });
 };
 
 const mediaInfo = [
