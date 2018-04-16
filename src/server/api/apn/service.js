@@ -25,7 +25,7 @@ service.push = function (info, cb) {
     return cb && cb(err);
   }
 
-  userInfo.collection.findOne({ _id: info.userId }, { fields: { apnToken: 1 } }, (err, doc) => {
+  userInfo.collection.findOne({ _id: info.userId }, { fields: { apnToken: 1, name: 1 } }, (err, doc) => {
     if (err) {
       logger.error(err.message);
       return cb && cb(i18n.t('databaseError'));
@@ -44,7 +44,10 @@ service.push = function (info, cb) {
     const note = new apn.Notification({
       alert: info.alert,
       sound: 'default',
-      cmd: info.cmd,
+      payload: {
+        cmd: info.cmd,
+        userName: doc.name,
+      },
     });
     note.topic = '';
     note.badge = 1;
