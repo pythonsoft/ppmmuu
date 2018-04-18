@@ -330,7 +330,6 @@ setTimeout(() => {
               keyword: '',
               content: 'aas',
               source: 'MAM',
-              version: '',
               duration: '00:00:00:00',
               keyman: 'dddd',
               language: 'cn',

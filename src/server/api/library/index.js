@@ -1454,7 +1454,6 @@ router.get('/getSubtitles', (req, res) => {
   service.getSubtitleFile(_id, (err, docs) => res.json(result.json(err, docs)));
 });
 
-
 /**
  * @permissionGroup: libraryTemplate
  * @permissionName: 生成入库XML文件
