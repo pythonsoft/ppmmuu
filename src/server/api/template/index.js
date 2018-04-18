@@ -480,6 +480,10 @@ router.post('/update', (req, res) => {
  *       200:
  *         description:
  * */
+router.get('/getDetail', (req, res) => {
+  service.getDetail(req.query.id, (err, doc) => res.json(result.json(err, doc)));
+});
+
 router.post('/getDetail', (req, res) => {
   service.getDetail(req.body.id, (err, doc) => res.json(result.json(err, doc)));
 });
@@ -532,7 +536,6 @@ router.get('/search/userOrGroup', (req, res) => {
   service.searchUserOrGroup(req.query, (err, docs) =>
       res.json(result.json(err, docs)));
 });
-
 
 /**
  * @permissionGroup: downloadTemplate
