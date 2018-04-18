@@ -636,6 +636,7 @@ service.createCatalog = function createCatalog(ownerId, ownerName, info, cb) {
     info.inpoint *= 1;
   }
   formatDuration(info);
+
   if (info.parentId) {
     catalogInfo.collection.findOne({ _id: info.parentId }, (err, doc) => {
       if (err) {
