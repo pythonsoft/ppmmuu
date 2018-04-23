@@ -26,7 +26,7 @@ build_job:
   stage: build
   script:
     - sed -i -re "s/(^\s*config\.host)\s*=.*/\1='api\.szdev\.cn'/" src/server/config_master.js
-    - npm run build
+    - npm run buildP
   artifacts:
     when: always
     paths:
