@@ -51,8 +51,6 @@ const getDeployPath = () => {
   return false;
 };
 
-getDeployPath();
-
 let permissionNames = [];
 let permissionPaths = [];
 let permissionGroups = [];
@@ -171,6 +169,7 @@ const umpName = 'ump';
 const versionName = 'version.json';
 
 const chaoningCoolie = function (version, cb) {
+  getDeployPath();
   const chaoningDeployPath = UMP_DEPLOY_PATH;
   const chaoningFEprojectPath = FE_PROJECT_PATH;
   const chaoningFEProjectApiPath = path.join(chaoningFEprojectPath, 'src', 'fe', 'api');
