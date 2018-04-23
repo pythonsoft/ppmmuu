@@ -17,6 +17,42 @@ const pm2JSONPath = path.join(__dirname, '../pm2.json');
 const onlineConfig = path.join(__dirname, './server/config_master_online.js');
 const packageJsonPath = path.join(__dirname, '../package.json');
 
+// 打包输出根目录
+let UMP_DEPLOY_PATH = '';
+// FE项目所在根目录
+let FE_PROJECT_PATH = '';
+
+const deployPaths = {
+  '/Users/chaoningx/': {
+    ump: '/Users/chaoningx/Desktop/ump',
+    fe: '/Users/chaoningx/WebstormProjects/ump-fe',
+  },
+  '/Users/steven/': {
+    ump: '/Users/steven/Desktop/ump',
+    fe: '/Users/steven/UMP-FE',
+  }
+};
+
+const getDeployPath = () => {
+  for(let k in deployPaths) {
+    if(fs.existsSync(k)) {
+      UMP_DEPLOY_PATH = deployPaths[k].ump;
+      FE_PROJECT_PATH = deployPaths[k].fe;
+      break;
+    }
+  }
+
+  if(!UMP_DEPLOY_PATH) {
+    throw new Error('deployPaths not exist.');
+  }
+
+  console.log('get deploy paths success, project will export to :', UMP_DEPLOY_PATH);
+
+  return false;
+};
+
+getDeployPath();
+
 let permissionNames = [];
 let permissionPaths = [];
 let permissionGroups = [];
@@ -135,10 +171,8 @@ const umpName = 'ump';
 const versionName = 'version.json';
 
 const chaoningCoolie = function (version, cb) {
-  const chaoningDeployPath = '/Users/steven/Desktop/ump';
-  const chaoningFEprojectPath = '/Users/steven/UMP-FE';
-  // const chaoningDeployPath = '/Users/chaoningx/Desktop/ump';
-  // const chaoningFEprojectPath = '/Users/chaoningx/WebstormProjects/ump-fe';
+  const chaoningDeployPath = UMP_DEPLOY_PATH;
+  const chaoningFEprojectPath = FE_PROJECT_PATH;
   const chaoningFEProjectApiPath = path.join(chaoningFEprojectPath, 'src', 'fe', 'api');
   const chaoningFEProjectDistPath = path.join(chaoningFEprojectPath, 'dist');
 
