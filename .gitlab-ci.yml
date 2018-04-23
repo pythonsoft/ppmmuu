@@ -26,7 +26,7 @@ build_job:
   stage: build
   script:
     - sed -i -re "s/(^\s*config\.host)\s*=.*/\1='api\.szdev\.cn'/" src/server/config_master.js
-    - npm run buildP
+    - npm run build
   artifacts:
     when: always
     paths:
@@ -40,11 +40,11 @@ deploy_to_67_job:
   script:
     - proj_path="/home/ump/UMP/$CI_BUILD_REF_NAME/ump"
     - function at_67 { ssh ump@10.0.15.67 $1; }
-    - at_67 "mkdir -p ${proj_path}-manager/build ${proj_path}-manager/node_modules /home/ump/UMP/$CI_BUILD_REF_NAME/uploads"
+    - at_67 "mkdir -p ${proj_path}-manager/build ${proj_path}-manager/node_modules"
     - scp -r build/* ump@10.0.15.67:"${proj_path}-manager/build"
     - scp -r node_modules/* ump@10.0.15.67:"${proj_path}-manager/node_modules"
     - at_67 "sed -i -re \"s/(^\s*config\.host)\s*=.*/\1='api\.szdev\.cn'/\" ${proj_path}-manager/build/config_master.js"
-    - at_67 "pm2 startOrReload ${proj_path}-manager/build/pm2.json"
+    - at_67 "killall -q node; nohup node ${proj_path}-manager/build/server.js >/dev/null 2>&1 &"
 
   environment:
     name: test
@@ -58,7 +58,6 @@ restart_to_68_job:
   stage: restartFE
   script:
     - proj_path="/home/gitlab-runner/"
-    - mkdir -p ${proj_path}UMP-FE/src/fe
     - cp -r build/api ${proj_path}UMP-FE/src/fe
     - killall -q node
     - cd ${proj_path}UMP-FE
