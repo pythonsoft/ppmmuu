@@ -58,6 +58,7 @@ restart_to_68_job:
   stage: restartFE
   script:
     - proj_path="/home/gitlab-runner/"
+    - mkdir -p ${proj_path}UMP-FE/src/fe
     - cp -r build/api ${proj_path}UMP-FE/src/fe
     - killall -q node
     - cd ${proj_path}UMP-FE
