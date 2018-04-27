@@ -105,3 +105,10 @@ config.subscribeDownloadUrl = 'http://localhost:3000/';
 
 // 证书所在根目录
 config.pemPath = path.join(__dirname, 'pem');
+
+// instance service
+config.instance = {
+  protocol: 'http',
+  host: '172.19.223.160',
+  port: 8080
+};

@@ -1272,6 +1272,10 @@ module.exports = {
   configurationGroupIsNotExist: {
     code: '-290001',
     message: '配置组信息不存在',
+  },
+  instanceParamsError: {
+    code: '-300001',
+    message: '流程参数: {{error}} 不正确',
   }
 };
 

@@ -524,7 +524,6 @@ router.get('/deleteTemplate', (req, res) => {
   service.deleteTemplate({ id }, res);
 });
 
-
 /**
  * @apiName: mediaExpressDispatch
  * @apiFuncType: get
