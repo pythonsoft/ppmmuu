@@ -113,8 +113,8 @@ const downloadRequest = (userId, userName, transferTemplates, instanceData, cb) 
         data.push(item);
       }
     } else {
-      item.parms.transcodeTemplateId = transferTemplates;
-      data.push(p);
+      instanceData.parms.transcodeTemplateId = transferTemplates;
+      data.push(instanceData);
     }
   } else {
     data.push(instanceData);
@@ -126,7 +126,6 @@ const downloadRequest = (userId, userName, transferTemplates, instanceData, cb) 
     if (!info) {
       return cb && cb(null, 'ok');
     }
-
 
     instanceService.create(info.name, info.workflowId, info.parms, info.priority, (err, doc) => {
       if (err) {
@@ -670,8 +669,9 @@ service.download = function download(info, cb) {
         objectId: objectid,
         from: source,
         fileTypeId: params.filetypeid,
-        filename: params.filename,
-        bucketId: rs.bucketInfo._id
+        fileName: params.filename,
+        // bucketId: rs.bucketInfo._id
+        bucketId: 'lastpath_source'
       }
     };
 
@@ -696,8 +696,6 @@ service.download = function download(info, cb) {
         if (subtitleType && subtitleType.length > 0) {
           subtitleParams.subtitleTypes = subtitleType;
         }
-
-        instanceData.parms.transcodeTemplateId = transcodeTemplateId;
 
         downloadRequest(false, false, transcodeTemplateId, instanceData, (err) => {
           if (err) {

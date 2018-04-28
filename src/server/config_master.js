@@ -12,8 +12,8 @@ config.dbName = process.env.NODE_ENV === 'test' ? 'ump_test' : 'ump';
 
 config.mongodb = {
   // [`${config.dbName}URL`]: `mongodb://localhost:27017/${config.dbName === 'ump' ? 'ump_v1' : 'ump_test'}`,
-  // [`${config.dbName}URL`]: `mongodb://10.0.15.62:27018,10.0.15.62:27017/${config.dbName === 'ump' ? 'ump_v1' : 'ump_test'}?replicaSet=DevMongo`,
-  [`${config.dbName}URL`]: `mongodb://10.0.15.178:27017/${config.dbName === 'ump' ? 'ump_v1' : 'ump_test'}`,
+  [`${config.dbName}URL`]: `mongodb://10.0.15.62:27018,10.0.15.62:27017/${config.dbName === 'ump' ? 'ump_v1' : 'ump_test'}?replicaSet=DevMongo`,
+  // [`${config.dbName}URL`]: `mongodb://10.0.15.178:27017/${config.dbName === 'ump' ? 'ump_v1' : 'ump_test'}`,
 };
 
 config.redis_host = '10.0.15.69';

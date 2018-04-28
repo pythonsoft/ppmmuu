@@ -21,7 +21,13 @@ const co = (err, res, body, cb) => {
   }
 
   try {
-    const responseBody = JSON.parse(body);
+    let responseBody = {};
+
+    if(typeof body === 'string') {
+      responseBody = JSON.parse(body);
+    }else {
+      responseBody = body;
+    }
 
     if(responseBody.status === 0 || responseBody.status === '0') {
       return cb && cb(null, responseBody.result);
@@ -42,15 +48,24 @@ service.create = (name, workflowId, parms, priority, cb) => {
     return cb && cb(i18n.t('instanceParamsError', { error: 'params' }));
   }
 
-  request.post({
+  const postData = {
+    name: name || workflowId,
+    workflowId,
+    parms: parms,
+    priority: priority || 0
+  };
+
+  const options = {
+    method: 'POST',
     url: composeURL('/instance/create'),
-    from: {
-      name: name || workflowId,
-      workflowId,
-      parms: parms,
-      priority: priority || 0
-    }
-  }, (err, res, body) => {
+    headers:
+      { 'cache-control': 'no-cache',
+        'content-type': 'application/json' },
+    body: postData,
+    json: true
+  };
+
+  request(options, function (err, res, body) {
     co(err, res, body, cb);
   });
 };
