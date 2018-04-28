@@ -24,6 +24,7 @@ class TemplateInfo extends DB {
       details: { type: 'object' },
       groupId: { type: 'string' },
       groupName: { type: 'string' },
+      workflowId: { type: 'string' },
       transcodeTemplateDetail: {
         type: 'object',
         default() {

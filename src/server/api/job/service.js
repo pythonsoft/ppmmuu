@@ -28,6 +28,8 @@ const shelvesService = require('../shelves/service');
 const subscribeManagementService = require('../subscribeManagement/service');
 const groupService = require('../group/service');
 
+const instanceService = require('../instance/service');
+
 const TRANSCODE_API_SERVER_URL = `http://${config.TRANSCODE_API_SERVER.hostname}:${config.TRANSCODE_API_SERVER.port}`;
 const HttpRequest = require('../../common/httpRequest');
 
@@ -91,7 +93,53 @@ const multiDownloadRequest = function multiDownloadRequest(p, cb) {
   loopCreateDownloadRequest(0);
 };
 
-const downloadRequest = function downloadRequest(bucketId, transferTemplateId = '', transferParams, downloadParams, userId, userName, subtitleParams, cb) {
+const downloadRequest = (userId, userName, transferTemplates, instanceData, cb) => {
+  const data = [];
+
+  if(userId) {
+    instanceData.userId = userId;
+  }
+
+  if(userName) {
+    instanceData.userName = userName;
+  }
+
+  if (transferTemplates) {
+    if (transferTemplates.constructor === Array) {
+      const str = JSON.stringify(instanceData);
+      for (let i = 0, len = transferTemplates.length; i < len; i++) {
+        const item = JSON.parse(str);
+        item.parms.transcodeTemplateId = transferTemplates[i];
+        data.push(item);
+      }
+    } else {
+      instanceData.parms.transcodeTemplateId = transferTemplates;
+      data.push(instanceData);
+    }
+  } else {
+    data.push(instanceData);
+  }
+
+  const loopCreateDownloadRequest = (index) => {
+    const info = data[index];
+
+    if (!info) {
+      return cb && cb(null, 'ok');
+    }
+
+    instanceService.create(info.name, info.workflowId, info.parms, info.priority, (err, doc) => {
+      if (err) {
+        return cb && cb(err);
+      }
+
+      loopCreateDownloadRequest(index + 1);
+    });
+  };
+
+  loopCreateDownloadRequest(0);
+};
+
+const downloadRequest_bk = function downloadRequest(bucketId, transferTemplateId = '', transferParams, downloadParams, userId, userName, subtitleParams, cb) {
   const p = {
     source: CatalogInfo.FROM_WHERE.MAM,
     fileId: '',
@@ -129,7 +177,7 @@ const downloadRequest = function downloadRequest(bucketId, transferTemplateId = 
   }
 
   if (transferTemplateId) {
-    if (transferTemplateId.constructor.name.toLowerCase() === 'array') {
+    if (transferTemplateId.constructor === Array) {
       for (let i = 0, len = transferTemplateId.length; i < len; i++) {
         const item = JSON.parse(JSON.stringify(p));
         item.templateId = transferTemplateId[i];
@@ -148,7 +196,6 @@ const downloadRequest = function downloadRequest(bucketId, transferTemplateId = 
       return cb && cb(null, 'ok');
     }
     const param = pArr[index];
-    console.log(JSON.stringify(param));
     const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/JobService/download`;
     utils.requestCallApi(url, 'POST', param, '', (err, rs) => {
       if (err) {
@@ -561,19 +608,26 @@ service.download = function download(info, cb) {
   const filetypeid = info.filetypeid;
   const fileId = info.fileId;
   const templateId = info.templateId; // 下载模板Id
-  const receiverId = info.receiverId;
-  const receiverType = info.receiverType;
-  const transferMode = info.transferMode || 'direct';
   const source = info.fromWhere || CatalogInfo.FROM_WHERE.MAM;
-  const downloadParams = { objectid, inpoint: inpoint * 1, outpoint: outpoint * 1, filename, filetypeid, templateId, fileId };
+  const priority = info.priority || 0;
+
+  const downloadParams = {
+    objectid,
+    inpoint,
+    outpoint,
+    filename,
+    filetypeid,
+    templateId,
+    fileId
+  };
   if (!downloadParams) {
     return cb && cb(i18n.t('joDownloadParamsIsNull'));
   }
 
   const params = utils.merge({
     objectid: '',
-    inpoint: 0, // 起始帧
-    outpoint: 0, // 结束帧
+    inpoint: 0, // 起始时间，格式为：00:00:00.000
+    outpoint: 0, // 结束时间, 格式为：00:00:00.000
     filename: '',
     filetypeid: '',
     templateId,
@@ -585,15 +639,6 @@ service.download = function download(info, cb) {
 
   if (!params.objectid && (source === CatalogInfo.FROM_WHERE.MAM || source === CatalogInfo.FROM_WHERE.DAYANG)) {
     return cb && cb(i18n.t('joDownloadParamsObjectIdIsNull'));
-  }
-
-
-  if (typeof params.inpoint !== 'number' || typeof params.outpoint !== 'number') {
-    return cb && cb(i18n.t('joDownloadParamsInpointOrOutpointTypeError'));
-  }
-
-  if (params.inpoint > params.outpoint) {
-    return cb && cb(i18n.t('joDownloadParamsInpointLessThanOutpointTypeError'));
   }
 
   if (!params.filename) {
@@ -616,9 +661,27 @@ service.download = function download(info, cb) {
       return cb && cb(err);
     }
 
+    const instanceData = {
+      name: 'Download',
+      workflowId: rs.templateInfo.workflowId,
+      priority: priority,
+      parms: {
+        objectId: objectid,
+        from: source,
+        fileTypeId: params.filetypeid,
+        fileName: params.filename,
+        // bucketId: rs.bucketInfo._id
+        bucketId: 'lastpath_source'
+      }
+    };
+
+    if(params.inpoint !== '0' && params.outpoint !== '0') {
+      instanceData.parms.parts = [params.inpoint, params.outpoint].join(',');
+    }
+
     params.destination = rs.downloadPath;
     const subtitleType = rs.templateInfo.subtitleType;
-    let subtitleParams = '';
+    const subtitleParams = {};
 
     // 需要进行使用转码模板
     if (rs.templateInfo && rs.templateInfo.transcodeTemplateDetail && rs.templateInfo.transcodeTemplateDetail.transcodeTemplates &&
@@ -630,54 +693,25 @@ service.download = function download(info, cb) {
         }
 
         // 只有需要转码的才需要传字幕合成方式参数
-        if (subtitleType && subtitleType.length > 0 && transcodeTemplateId) {
-          subtitleParams = {};
+        if (subtitleType && subtitleType.length > 0) {
           subtitleParams.subtitleTypes = subtitleType;
         }
 
-        // 需要使用快传进行传输
-        if (rs.templateInfo.type === TemplateInfo.TYPE.DOWNLOAD_MEDIAEXPRESS && receiverId && receiverType) {
-          transcodeAndTransfer(rs.templateInfo.details.bucketId, receiverId, receiverType, transcodeTemplateId, userInfo, transferMode, params, subtitleParams, (err) => {
-            if (err) {
-              return cb && cb(err);
-            }
-
-            return cb && cb(null, 'ok');
-          });
-          return false;
-        }
-        // 调用下载接口
-        downloadRequest(rs.templateInfo.details.bucketId, transcodeTemplateId, '', params, userInfo._id, userInfo.name, subtitleParams, (err) => {
+        downloadRequest(false, false, transcodeTemplateId, instanceData, (err) => {
           if (err) {
             return cb && cb(err);
           }
           return cb && cb(null, 'ok');
         });
-        return false;
       });
-      return false;
-    }
-
-    // 需要使用快传进行传转
-    if (rs.templateInfo.type === TemplateInfo.TYPE.DOWNLOAD_MEDIAEXPRESS && receiverId && receiverType) {
-      transcodeAndTransfer(rs.templateInfo.details.bucketId, receiverId, receiverType, '', userInfo, transferMode, params, subtitleParams, (err) => {
+    } else {
+      downloadRequest(false, false, false, instanceData, (err) => {
         if (err) {
           return cb && cb(err);
         }
-
         return cb && cb(null, 'ok');
       });
-      return false;
     }
-    // 调用下载接口
-    downloadRequest(rs.templateInfo.details.bucketId, '', '', params, userInfo._id, userInfo.name, subtitleParams, (err) => {
-      if (err) {
-        return cb && cb(err);
-      }
-
-      return cb && cb(null, 'ok');
-    });
-    return false;
   });
 };
 
