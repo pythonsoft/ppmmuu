@@ -67,6 +67,7 @@ class ShelfTaskInfo extends DB {
         type: 'string',
         default: ShelfTaskInfo.PACKAGE_STATUS.COMPLETED,
       },
+      workflowInstanceId: { type: 'string', default: '' },
     };
   }
 }
