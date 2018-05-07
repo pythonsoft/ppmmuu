@@ -86,6 +86,7 @@ const listDepartmentShelfTask = function listDepartmentShelfTask(req, cb) {
     query.$or = [
       { name: { $regex: keyword, $options: 'i' } },
       { programNO: { $regex: keyword, $options: 'i' } },
+      { 'creator.name': { $regex: keyword, $options: 'i' } },
       { 'assignee.name': { $regex: keyword, $options: 'i' } },
       { 'dealer.name': { $regex: keyword, $options: 'i' } },
       { 'editorInfo.fileName': { $regex: keyword, $options: 'i' } },
@@ -1318,7 +1319,7 @@ service.processDetail = function processDetail(info, cb) {
     return cb && cb(err);
   }
 
-  const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/ProcessInstanceService/processDetail/${_id}`;
+  const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/instance_log/list?workflowInstanceId=${_id}`;
   utils.requestCallApi(url, 'GET', '', '', (err, rs) => {
     if (err) {
       return cb && cb(err); // res.json(result.fail(err));
