@@ -86,6 +86,7 @@ const listDepartmentShelfTask = function listDepartmentShelfTask(req, cb) {
     query.$or = [
       { name: { $regex: keyword, $options: 'i' } },
       { programNO: { $regex: keyword, $options: 'i' } },
+      { 'creator.name': { $regex: keyword, $options: 'i' } },
       { 'assignee.name': { $regex: keyword, $options: 'i' } },
       { 'dealer.name': { $regex: keyword, $options: 'i' } },
       { 'editorInfo.fileName': { $regex: keyword, $options: 'i' } },
