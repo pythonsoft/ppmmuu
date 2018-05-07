@@ -46,12 +46,12 @@ const getValidFiles = function getValidFiles(files, allowedDownloadFileTypes) {
     allowedDownloadFileTypes.forEach((item) => {
       validTypes.push(item.value);
     });
-    for (let i = 0, len = files.length; i < len; i++) {
-      const file = files[i];
-      const index = validTypes.indexOf(file.type);
-      if (file.type && index !== -1) {
-        file.typeName = allowedDownloadFileTypes[index].key;
-        validFiles.push(file);
+    for (let i = 0, len = validTypes.length; i < len; i++) {
+      const type = validTypes[i];
+      for (let k = 0, len1 = files.length; k < len1; k++) {
+        if (type === files[k].type) {
+          validFiles.push(files[k]);
+        }
       }
     }
   }
