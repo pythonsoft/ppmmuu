@@ -542,7 +542,7 @@ service.searchUserOrGroup = function searchUserOrGroup(info, cb) {
   const type = info.type;
   const keyword = info.keyword || '';
   const departmentId = info.departmentId || '';
-  const limit = info.limit || 10;
+  const limit = info.limit || 999;
   const query = {};
 
   if (type !== SEARCH_TYPE.USER && type !== SEARCH_TYPE.GROUP) {
