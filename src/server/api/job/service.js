@@ -28,7 +28,7 @@ const shelvesService = require('../shelves/service');
 const subscribeManagementService = require('../subscribeManagement/service');
 const groupService = require('../group/service');
 
-const instanceService = require('../instance/service');
+const workflowService = require('../workflow/service');
 
 const TRANSCODE_API_SERVER_URL = `http://${config.TRANSCODE_API_SERVER.hostname}:${config.TRANSCODE_API_SERVER.port}`;
 const HttpRequest = require('../../common/httpRequest');
@@ -127,7 +127,7 @@ const downloadRequest = (userId, userName, transferTemplates, instanceData, cb) 
       return cb && cb(null, 'ok');
     }
 
-    instanceService.create(info.name, info.workflowId, info.parms, info.priority, (err, doc) => {
+    workflowService.instanceCreate(info.name, info.workflowId, info.parms, info.priority, (err, doc) => {
       if (err) {
         return cb && cb(err);
       }
