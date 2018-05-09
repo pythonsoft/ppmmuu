@@ -103,7 +103,7 @@ const getArrByPattern = function getArrByPattern(codeStr, pattern) {
   return newArr;
 };
 
-const writeApiFuncFile = function writeApiFuncFile(filePath, funcName, funcType, funcUrl) {
+const writeApiFuncFile = function (filePath, funcName, funcType, funcUrl) {
   const tpl = `api.${funcName} = function ${funcName}(data, scope, needOriginResponse) {
   return new Promise((resolve, reject) => {
     if (scope) { scope.$progress.start(); }
@@ -130,7 +130,7 @@ const writeApiFuncFile = function writeApiFuncFile(filePath, funcName, funcType,
   fs.appendFileSync(filePath, tpl);
 };
 
-const writeUploadApiFuncFile = function writeApiFuncFile(filePath, funcName, funcType, funcUrl) {
+const writeUploadApiFuncFile = function(filePath, funcName, funcType, funcUrl) {
   const tpl = `api.${funcName} = function ${funcName}(param, config) {
   return new Promise((resolve, reject) => {
     axios.${funcType}('${funcUrl}', param, config).then((response) => {
@@ -149,7 +149,7 @@ const writeUploadApiFuncFile = function writeApiFuncFile(filePath, funcName, fun
   fs.appendFileSync(filePath, tpl);
 };
 
-const writeGetIconApiFuncFile = function writeApiFuncFile(filePath, funcName, funcType, funcUrl) {
+const writeGetIconApiFuncFile = function(filePath, funcName, funcType, funcUrl) {
   const tpl = `api.${funcName} = function ${funcName}(id, fromWhere) {
   return axios.defaults.baseURL + '${funcUrl}?objectid=' + id + '&fromWhere=' + fromWhere;
 };
