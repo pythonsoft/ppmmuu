@@ -165,24 +165,20 @@ service.getEsMediaList = function getEsMediaList(info, cb) {
       loopGetCategoryList(categories, index + 1);
     });
   };
+  const categories = [
+    { value: '素材', label: '素材' },
+    { value: '包裝', label: '包裝' },
+    { value: '自製', label: '自製' },
+    { value: '廣告', label: '廣告' },
+    { value: '宣傳', label: '宣傳' },
+    { value: '採購', label: '採購' },
+    { value: '墊播', label: '墊播' },
+  ];
+  if (!categories.length) {
+    return cb & cb(null, result);
+  }
 
-  service.getSearchConfig((err, rs) => {
-    if (err) {
-      return cb && cb(i18n.t('databaseError'));
-    }
-
-    if (!rs.searchSelectConfigs.length) {
-      return cb & cb(null, result);
-    }
-
-    const categories = rs.searchSelectConfigs[0].items;
-
-    if (!categories.length) {
-      return cb & cb(null, result);
-    }
-
-    loopGetCategoryList(categories, 0);
-  });
+  loopGetCategoryList(categories, 0);
 };
 
 service.getCacheEsMediaList = function getCacheEsMediaList(info, cb) {

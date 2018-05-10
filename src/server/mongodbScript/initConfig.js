@@ -535,7 +535,6 @@ const initConfig = function initConfig(groupName, info) {
     configGroup.insertOne({ name: groupName }, (err, r) => {
       if (err) {
         console.log(err);
-        throw err;
       }
 
       const genre = r.insertedId;
