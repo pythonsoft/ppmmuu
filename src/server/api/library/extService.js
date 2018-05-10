@@ -191,7 +191,7 @@ service.getObject = function getObject(_id, cb) {
   };
 
   const query = {};
-  query.$or = [{ _id }, { objectId: _id, root: '' }];
+  query.$or = [{ _id }, { objectId: _id }];
   catalogInfo.collection.findOne(query, (err, doc) => {
     if (err) {
       logger.error(err.message);

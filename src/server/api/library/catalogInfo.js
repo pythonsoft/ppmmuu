@@ -25,7 +25,7 @@ class CatalogInfo extends DB {
       version: { type: 'string' },
       keyman: { type: 'string' }, // 人物
       language: { type: 'string' }, // 语言
-      root: { type: 'string' }, // 根结点ID, 用于记录最开始时候的结点ID, 如果这条记录是根，那么置空
+      root: { type: 'string', default: '' }, // 根结点ID, 用于记录最开始时候的结点ID, 如果这条记录是根，那么置空
       type: { type: 'string' }, // 类型：素材，节目，其它
       inpoint: { type: 'number' }, // 帧
       outpoint: { type: 'number' }, // 帧
