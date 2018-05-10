@@ -202,6 +202,13 @@ router.get('/instance/log/list', (req, res) => {
  *         default: '1'
  *         collectionFormat: csv
  *       - in: query
+ *         name: keyword
+ *         description:
+ *         required: false
+ *         type: string
+ *         default: 'hello'
+ *         collectionFormat: csv
+ *       - in: query
  *         name: pageSize
  *         description: ''
  *         required: false
@@ -214,7 +221,7 @@ router.get('/instance/log/list', (req, res) => {
  * */
 router.get('/definition/list', (req, res) => {
   console.log('list -->', req.query);
-  service.definitionList(req.query.page, req.query.pageSize, (err, doc) => res.json(result.json(err, doc)));
+  service.definitionList(req.query.page, req.query.pageSize, req.query.keyword, (err, doc) => res.json(result.json(err, doc)));
 });
 
 /**

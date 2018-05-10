@@ -37,7 +37,7 @@ fieldMap.catalogInfoMap = {
 
 fieldMap.translateFields = {
   objectId: {
-    cn: 'objectId',
+    cn: '序號',
   },
   name: {
     cn: '節目名稱',
