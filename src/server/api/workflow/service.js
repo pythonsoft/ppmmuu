@@ -104,8 +104,8 @@ service.instanceLogList = (workflowInstanceId, cb) => {
 };
 
 /* 工作流定义管理 */
-service.definitionList = (page, pageSize, cb) => {
-  request(composeURL(`/definition/list?page=${page || 1}&pageSize=${pageSize || 20}`), (err, res, body) => {
+service.definitionList = (page, pageSize, keyword, cb) => {
+  request(composeURL(`/definition/list?page=${page || 1}&pageSize=${pageSize || 20}&keyword=${keyword || ''}`), (err, res, body) => {
     co(err, body, res, cb);
   });
 };
