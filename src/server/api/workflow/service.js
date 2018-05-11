@@ -77,7 +77,7 @@ service.instanceDetail = (id, cb) => {
   }
 
   request(composeURL(`/instance/detail/${id}`), (err, res, body) => {
-    co(err, body, res, cb);
+    co(err, res, body, cb);
   });
 };
 
@@ -89,7 +89,7 @@ service.instanceList = (page=1, pageSize=20, status, cb) => {
   }
 
   request(composeURL(params), (err, res, body) => {
-    co(err, body, res, cb);
+    co(err, res, body, cb);
   });
 };
 
@@ -99,14 +99,14 @@ service.instanceLogList = (workflowInstanceId, cb) => {
   }
 
   request(composeURL(`/instance_log/list?workflowInstanceId=${workflowInstanceId}`), (err, res, body) => {
-    co(err, body, res, cb);
+    co(err, res, body, cb);
   });
 };
 
 /* 工作流定义管理 */
 service.definitionList = (page, pageSize, keyword, cb) => {
   request(composeURL(`/definition/list?page=${page || 1}&pageSize=${pageSize || 20}&keyword=${keyword || ''}`), (err, res, body) => {
-    co(err, body, res, cb);
+    co(err, res, body, cb);
   });
 };
 
@@ -186,7 +186,7 @@ service.definitionDetail = (id, cb) => {
   }
 
   request(composeURL(`/definition/detail/${id}`), (err, res, body) => {
-    co(err, body, res, cb);
+    co(err, res, body, cb);
   });
 };
 
