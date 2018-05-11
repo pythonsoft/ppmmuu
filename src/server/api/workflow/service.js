@@ -94,7 +94,7 @@ service.instanceList = (page=1, pageSize=20, status, cb) => {
 };
 
 service.instanceLogList = (workflowInstanceId, cb) => {
-  if(!id) {
+  if(!workflowInstanceId) {
     return cb && cb(i18n.t('instanceParamsError', { error: 'workflowInstanceId' }));
   }
 
