@@ -117,6 +117,7 @@ const downloadRequest = (userId, userName, transferTemplates, instanceData, cb) 
       data.push(instanceData);
     }
   } else {
+    instanceData.parms.transcodeTemplateId = 'null';
     data.push(instanceData);
   }
 
@@ -618,7 +619,7 @@ service.download = function download(info, cb) {
     filename,
     filetypeid,
     templateId,
-    fileId
+    fileId,
   };
   if (!downloadParams) {
     return cb && cb(i18n.t('joDownloadParamsIsNull'));

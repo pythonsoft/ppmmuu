@@ -18,6 +18,8 @@ const ItemInfo = require('./itemInfo');
 
 const itemInfo = new ItemInfo();
 
+const workflowService = require('../workflow/service');
+
 const service = {};
 
 const createSnippetOrDirItem = function createSnippetOrDirItem(creatorId, ownerType, name, parentId, type = ItemInfo.TYPE.DIRECTORY, canRemove = ItemInfo.CAN_REVMOE.YES, snippet = {}, details = {}, cb, creator) {
@@ -538,53 +540,28 @@ service.copy = function copy(info, needDelete = false, cb) {
 };
 
 
-// 入库
+// 快编
 service.warehouse = function warehouse(info, cb) {
-  const processParams = info.processParams || '';
-  const originalFileInfo = info.originalFileInfo || '';
-  const catalogInfo = info.catalogInfo || '';
+  const catalogInfo = info.catalogInfo || {};
   const struct = {
-    processParams: { type: 'array', validation: 'require' },
-    originalFileInfo: { type: 'array', validation: 'require' },
+    workflowId: { type: 'array', validation: 'require' },
+    parms: { type: 'object', validation: 'require' },
     catalogInfo: { type: 'object', validation: 'require' },
   };
   const err = utils.validation(info, struct);
   if (err) {
     return cb && cb(err);
   }
-  const params = {
-    processId: '',
-    paramJson: {},
-  };
-  params.paramJson = {
-    userId: info.creator._id,
-    userName: info.creator.name,
-    originalFileInfo,
-    catalogInfo,
-    catalogName: catalogInfo.chineseName || '',
-  };
+  info.priority = info.priority || 0;
+  info.catalogName = catalogInfo.chineseName || '';
+  info.name = 'Fast Editor';
 
-  processParams.forEach((item) => {
-    if (item.key === 'processId') {
-      params.processId = item.value;
-    } else {
-      params.paramJson[item.key] = item.value;
-    }
-  });
-
-  params.paramJson = JSON.stringify(params.paramJson);
-
-  console.log(params.paramJson);
-  const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/ProcessInstanceService/create`;
-  utils.requestCallApi(url, 'POST', params, '', (err, rs) => {
+  console.log(JSON.stringify(info));
+  workflowService.instanceCreate(info.name, info.workflowId, info.parms, info.priority, (err, rs) => {
     if (err) {
-      return cb && cb(err); // res.json(result.fail(err));
+      return cb && cb(i18n.t('instanceResponseError', { error: err }));
     }
-
-    if (rs.status === '0') {
-      return cb && cb(null, 'ok');
-    }
-    return cb && cb(i18n.t('joDownloadError', { error: rs.statusInfo.message }));
+    return cb && cb(null, 'ok');
   });
 };
 

@@ -1276,6 +1276,10 @@ module.exports = {
   instanceParamsError: {
     code: '-300001',
     message: '流程参数: {{error}} 不正确',
-  }
+  },
+  instanceResponseError: {
+    code: '-300002',
+    message: '流程结果返回出错: {{error}}',
+  },
 };
 
