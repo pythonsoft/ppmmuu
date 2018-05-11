@@ -612,6 +612,7 @@ service.download = function download(info, cb) {
   const templateId = info.templateId; // 下载模板Id
   const source = info.fromWhere || CatalogInfo.FROM_WHERE.MAM;
   const priority = info.priority || 0;
+  const needMerge = info.needMerge || '';
 
   const downloadParams = {
     objectid,
@@ -680,7 +681,9 @@ service.download = function download(info, cb) {
 
     if (params.outpoint !== '0') {
       instanceData.parms.parts = [params.inpoint, params.outpoint].join(',');
-      instanceData.parms.needMerge = 'false';
+    }
+    if (needMerge) {
+      instanceData.parms.needMerge = needMerge;
     }
 
     params.destination = rs.downloadPath;
