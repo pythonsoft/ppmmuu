@@ -127,6 +127,7 @@ const downloadRequest = (userId, userName, transferTemplates, instanceData, cb) 
     if (!info) {
       return cb && cb(null, 'ok');
     }
+    console.log(info);
 
     workflowService.instanceCreate(info.name, info.workflowId, info.parms, info.priority, (err, doc) => {
       if (err) {
