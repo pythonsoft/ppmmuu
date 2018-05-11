@@ -24,6 +24,7 @@ const shelfTaskInfo = new ShelfTaskInfo();
 const userInfo = new UserInfo();
 
 const libraryExtService = require('../library/extService');
+const workflowService = require('../workflow/service');
 
 const service = {};
 
@@ -1200,12 +1201,12 @@ service.addFilesToTask = function addFilesToTask(info, cb) {
 // 上架
 service.warehouse = function warehouse(info, cb) {
   const struct = {
-    processId: { type: 'string', validation: 'require' },
+    workflowId: { type: 'string', validation: 'require' },
     shelveTemplateId: { type: 'string', validation: 'require' },
     objectId: { type: 'string', validation: 'require' },
     fileName: { type: 'string', validation: 'require' },
     fromWhere: { type: 'string', validation: 'require' },
-    fileType: { type: 'string', validation: 'require' },
+    fileTypeId: { type: 'string', validation: 'require' },
   };
   const err = utils.validation(info, struct);
   if (err) {
@@ -1230,35 +1231,30 @@ service.warehouse = function warehouse(info, cb) {
     if (err) {
       return cb && cb(err);
     }
+    const priority = info.priority || 0;
 
     const params = {
-      processId: info.processId,
-      paramJson: {},
+      workflowId: info.workflowId,
+      name: 'Shelve',
+      priority: priority * 1,
+      parms: {},
     };
-    params.paramJson = {
+    params.parms = {
       objectId: info.objectId,
       userId: info.creator._id,
       userName: info.creator.name,
       fileName: info.fileName,
       shelveTemplateId: info.shelveTemplateId,
-      fromWhere: info.fromWhere,
-      fileType: info.fileType,
+      from: info.fromWhere,
+      fileTypeId: info.fileTypeId,
       catalogName: info.catalogName || '',
     };
-
-    params.paramJson = JSON.stringify(params.paramJson);
-
     console.log(JSON.stringify(params));
-    const url = `http://${config.JOB_API_SERVER.hostname}:${config.JOB_API_SERVER.port}/ProcessInstanceService/create`;
-    utils.requestCallApi(url, 'POST', params, '', (err, rs) => {
+    workflowService.instanceCreate(params.name, params.workflowId, params.parms, params.priority, (err, rs) => {
       if (err) {
-        return cb && cb(err); // res.json(result.fail(err));
+        return cb && cb(i18n.t('shelfProcessError', { error: err }));
       }
-
-      if (rs.status === '0') {
-        return cb && cb(null, 'ok');
-      }
-      return cb && cb(i18n.t('shelfProcessError', { error: rs.statusInfo.message }));
+      return cb && cb(null, 'ok');
     });
   });
 };

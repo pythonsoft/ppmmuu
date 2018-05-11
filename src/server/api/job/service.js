@@ -664,19 +664,21 @@ service.download = function download(info, cb) {
     const instanceData = {
       name: 'Download',
       workflowId: rs.templateInfo.workflowId,
-      priority: priority,
+      priority,
       parms: {
         objectId: objectid,
         from: source,
         fileTypeId: params.filetypeid,
         fileName: params.filename,
         // bucketId: rs.bucketInfo._id
-        bucketId: 'lastpath_source'
-      }
+        bucketId: 'lastpath_source',
+        parts: 'null',
+      },
     };
 
-    if(params.inpoint !== '0' && params.outpoint !== '0') {
+    if (params.outpoint !== '0') {
       instanceData.parms.parts = [params.inpoint, params.outpoint].join(',');
+      instanceData.parms.needMerge = 'false';
     }
 
     params.destination = rs.downloadPath;
