@@ -542,18 +542,15 @@ service.copy = function copy(info, needDelete = false, cb) {
 
 // 快编
 service.warehouse = function warehouse(info, cb) {
-  const catalogInfo = info.catalogInfo || {};
   const struct = {
-    workflowId: { type: 'array', validation: 'require' },
+    workflowId: { type: 'string', validation: 'require' },
     parms: { type: 'object', validation: 'require' },
-    catalogInfo: { type: 'object', validation: 'require' },
   };
   const err = utils.validation(info, struct);
   if (err) {
     return cb && cb(err);
   }
   info.priority = info.priority || 0;
-  info.catalogName = catalogInfo.chineseName || '';
   info.name = 'Fast Editor';
 
   console.log(JSON.stringify(info));
