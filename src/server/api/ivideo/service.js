@@ -540,7 +540,7 @@ service.copy = function copy(info, needDelete = false, cb) {
 };
 
 
-// 快编
+// 快编入库并上架
 service.warehouse = function warehouse(info, cb) {
   const struct = {
     workflowId: { type: 'string', validation: 'require' },
@@ -551,7 +551,7 @@ service.warehouse = function warehouse(info, cb) {
     return cb && cb(err);
   }
   info.priority = info.priority || 0;
-  info.name = 'Fast Editor';
+  info.name = 'Edit_Import_Shelve';
 
   console.log(JSON.stringify(info));
   workflowService.instanceCreate(info.name, info.workflowId, info.parms, info.priority, (err, rs) => {
