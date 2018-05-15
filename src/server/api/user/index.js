@@ -736,14 +736,12 @@ router.post('/adAccountSync', (req, res) => {
  *         description: taskList
  */
 router.get('/listJob', (req, res) => {
-  const page = req.query.page;
+  const page = req.query.page || 1;
   const pageSize = req.query.pageSize;
   const status = req.query.status || '';
   const currentStep = req.query.currentStep || '-1';
   const userId = req.ex.userId;
-
-  res.set('Content-Type', 'application/json');
-  jobService.list({ page: page * 1, pageSize: pageSize * 1, status, currentStep, userId }, res);
+  jobService.list({ page: page * 1, pageSize: pageSize * 1, status, currentStep, userId }, (err, r) => res.json(result.json(err, r)));
 });
 
 /* downloadTask */

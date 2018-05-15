@@ -523,12 +523,12 @@ const manuscriptSubmit = [
 
 const initConfig = function initConfig(groupName, info) {
   configGroup.collection.findOne({ name: groupName }, (err, doc) => {
-    if(err) {
+    if (err) {
       console.log('初始化配置出错', groupName, info);
       return false;
     }
 
-    if(doc) {
+    if (doc) {
       return false;
     }
 
@@ -552,7 +552,6 @@ const initConfig = function initConfig(groupName, info) {
         return true;
       });
     });
-
   });
 
   // configGroup.collection.removeOne({ name: groupName }, (err) => {
@@ -668,13 +667,12 @@ const subscribeDownloadTypeInfo = [{
 
 initConfig('subscribe_download_type', subscribeDownloadTypeInfo);
 
-//收录配置文件
+// 收录配置文件
 const recordInfo = [{
   key: 'start_record',
-  value: JSON.stringify([{ channel: "资讯台", start: "2018-04-11" }, { channel: "中文台", start: "2018-04-11" }]),
+  value: JSON.stringify([{ channel: '资讯台', start: '2018-04-11' }, { channel: '中文台', start: '2018-04-11' }]),
   description: '收录开始时间，在线剪辑工具，收录资源中使用',
 }];
 
 initConfig('record_config', recordInfo);
-
 

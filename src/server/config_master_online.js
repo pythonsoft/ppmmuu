@@ -110,5 +110,5 @@ config.pemPath = path.join(__dirname, 'pem');
 config.instance = {
   protocol: 'http',
   host: '172.19.223.160',
-  port: 8080
+  port: 8080,
 };

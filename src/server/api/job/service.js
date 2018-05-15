@@ -96,11 +96,11 @@ const multiDownloadRequest = function multiDownloadRequest(p, cb) {
 const downloadRequest = (userId, userName, transferTemplates, instanceData, cb) => {
   const data = [];
 
-  if(userId) {
+  if (userId) {
     instanceData.userId = userId;
   }
 
-  if(userName) {
+  if (userName) {
     instanceData.userName = userName;
   }
 
@@ -127,7 +127,7 @@ const downloadRequest = (userId, userName, transferTemplates, instanceData, cb) 
     if (!info) {
       return cb && cb(null, 'ok');
     }
-    console.log(info);
+    console.log(JSON.stringify(info));
 
     workflowService.instanceCreate(info.name, info.workflowId, info.parms, info.priority, (err, doc) => {
       if (err) {
@@ -352,8 +352,14 @@ service.jugeTemplateAuditAndCreateAudit = function jugeTemplateAuditAndCreateAud
   if (utils.isEmptyObject(info)) {
     return cb && cb(i18n.t('jobDownloadParamsIsNull'));
   }
-  let objectid = info.objectid || '';
-  const fromWhere = info.fromWhere || CatalogInfo.FROM_WHERE.MAM;
+  let objectid = info.parms.objectId || '';
+  let fromWhere = info.parms.from || CatalogInfo.FROM_WHERE.MAM;
+  if (!objectid) {
+    if (info.parms.orgFiles && info.parms.orgFiles.length) {
+      objectid = info.parms.orgFiles[0].objectId;
+      fromWhere = info.parms.orgFiles[0].fromWhere || CatalogInfo.FROM_WHERE.MAM;
+    }
+  }
   objectid = objectid.split(',');
 
   const loopGetObject = function loopGetObject(index) {
@@ -488,11 +494,12 @@ service.jugeDownload = function jugeDownload(info, cb) {
   });
 };
 
+// 这个接口废弃不用
 service.multiDownload = function multiDownload(info, cb) {
   const struct = {
     templateId: { type: 'string', validation: 'require' },
     fromWhere: { type: 'string', validation: 'require' },
-    fileInfo: { type: 'array', validation: 'require' },
+    orgFiles: { type: 'array', validation: 'require' },
   };
   const err = utils.validation(info, struct);
   if (err) {
@@ -502,11 +509,14 @@ service.multiDownload = function multiDownload(info, cb) {
   const userInfo = info.userInfo;
   const downloadParams = info.downloadParams || '';
   const fromWhere = info.fromWhere;
-  const fileInfo = info.fileInfo;
+  const orgFiles = info.orgFiles;
   const downloadTemplateId = info.templateId;
   const receiverId = info.receiverId || '';
   const receiverType = info.receiverType || '';
   const transferMode = info.transferMode || 'direct';
+  const priority = info.priority || 0;
+  const needMerge = info.needMerge || '';
+
 
   const params = {
     bucketId: '',
@@ -514,14 +524,26 @@ service.multiDownload = function multiDownload(info, cb) {
     userId: userInfo._id,
     userName: userInfo.name,
     source: fromWhere,
-    multiFileInfos: {},
   };
-
-  params.multiFileInfos = JSON.stringify({ fileInfo });
 
   templateService.getDownloadPath(userInfo, downloadTemplateId, (err, rs) => {
     if (err) {
       return cb && cb(err);
+    }
+
+    const instanceData = {
+      name: 'Download',
+      workflowId: rs.templateInfo.workflowId,
+      priority,
+      parms: {
+        orgFiles,
+        // bucketId: rs.bucketInfo._id
+        bucketId: 'lastpath_source',
+        parts: 'null',
+      },
+    };
+    if (needMerge) {
+      instanceData.parms.needMerge = needMerge;
     }
 
     const destination = rs.downloadPath;
@@ -547,7 +569,7 @@ service.multiDownload = function multiDownload(info, cb) {
           return cb && cb(err);
         }
 
-        params.templateId = transcodeTemplateId;
+        params.transcodeTemplateId = transcodeTemplateId;
 
         // 只有需要转码的才需要传字幕合成方式参数
         if (subtitleType && subtitleType.length > 0 && transcodeTemplateId) {
@@ -568,7 +590,7 @@ service.multiDownload = function multiDownload(info, cb) {
           return false;
         }
         // 调用下载接口
-        multiDownloadRequest(params, (err) => {
+        downloadRequest(false, false, transcodeTemplateId, instanceData, (err) => {
           if (err) {
             return cb && cb(err);
           }
@@ -591,7 +613,7 @@ service.multiDownload = function multiDownload(info, cb) {
       return false;
     }
     // 调用下载接口
-    multiDownloadRequest(params, (err) => {
+    downloadRequest(false, false, false, instanceData, (err) => {
       if (err) {
         return cb && cb(err);
       }
@@ -602,109 +624,52 @@ service.multiDownload = function multiDownload(info, cb) {
 };
 
 service.download = function download(info, cb) {
+  const downloadTemplateId = info.templateId; // 下载模板Id
+  const parms = info.parms;
   const userInfo = info.userInfo;
-  const objectid = info.objectid;
-  const inpoint = info.inpoint || 0;
-  const outpoint = info.outpoint;
-  const filename = info.filename;
-  const filetypeid = info.filetypeid;
-  const fileId = info.fileId;
-  const templateId = info.templateId; // 下载模板Id
-  const source = info.fromWhere || CatalogInfo.FROM_WHERE.MAM;
-  const priority = info.priority || 0;
-  const needMerge = info.needMerge || '';
 
-  const downloadParams = {
-    objectid,
-    inpoint,
-    outpoint,
-    filename,
-    filetypeid,
-    templateId,
-    fileId,
+  const struct = {
+    workflowId: { type: 'string', validation: 'require' },
+    parms: { type: 'object', validation: 'require' },
+    name: { type: 'string', validation: 'require' },
+    templateId: { type: 'string', validation: 'require' },
   };
-  if (!downloadParams) {
-    return cb && cb(i18n.t('joDownloadParamsIsNull'));
-  }
-
-  const params = utils.merge({
-    objectid: '',
-    inpoint: 0, // 起始时间，格式为：00:00:00.000
-    outpoint: 0, // 结束时间, 格式为：00:00:00.000
-    filename: '',
-    filetypeid: '',
-    templateId,
-    destination: '', // 相对路径，windows路径 格式 \\2017\\09\\15
-    targetname: '', // 文件名,不需要文件名后缀，非必须
-    source,  // 来源
-    fileId: '',      //如果来源是ump,需要文件Id
-  }, downloadParams);
-
-  if (!params.objectid && (source === CatalogInfo.FROM_WHERE.MAM || source === CatalogInfo.FROM_WHERE.DAYANG)) {
-    return cb && cb(i18n.t('joDownloadParamsObjectIdIsNull'));
-  }
-
-  if (!params.filename) {
-    return cb && cb(i18n.t('joDownloadParamsFileNameIsNull'));
-  }
-
-  if (!params.filetypeid && (source === CatalogInfo.FROM_WHERE.MAM || source === CatalogInfo.FROM_WHERE.DAYANG)) {
-    return cb && cb(i18n.t('joDownloadParamsFileTypeIdIsNull'));
+  const err = utils.validation(info, struct);
+  if (err) {
+    return cb && cb(err);
   }
 
   if (!userInfo) {
     return cb && cb(i18n.t('userNotFind'));
   }
 
-  const downloadTemplateId = downloadParams.templateId;
-
   // 拿到下载路径
   templateService.getDownloadPath(userInfo, downloadTemplateId, (err, rs) => {
     if (err) {
       return cb && cb(err);
     }
-
-    const instanceData = {
-      name: 'Download',
-      workflowId: rs.templateInfo.workflowId,
-      priority,
-      parms: {
-        objectId: objectid,
-        from: source,
-        fileTypeId: params.filetypeid,
-        fileName: params.filename,
-        // bucketId: rs.bucketInfo._id
-        bucketId: 'lastpath_source',
-        parts: 'null',
-      },
-    };
-
-    if (params.outpoint !== '0') {
-      instanceData.parms.parts = [params.inpoint, params.outpoint].join(',');
+    if (rs.bucketInfo && rs.bucketInfo._id) {
+      parms.bucketId = rs.bucketInfo._id;
     }
-    if (needMerge) {
-      instanceData.parms.needMerge = needMerge;
-    }
-
-    params.destination = rs.downloadPath;
-    const subtitleType = rs.templateInfo.subtitleType;
-    const subtitleParams = {};
-
+    delete info.userInfo;
+    delete info.isMultiDownload;
+    delete info.ownerName;
     // 需要进行使用转码模板
     if (rs.templateInfo && rs.templateInfo.transcodeTemplateDetail && rs.templateInfo.transcodeTemplateDetail.transcodeTemplates &&
         rs.templateInfo.transcodeTemplateDetail.transcodeTemplates.length > 0 && rs.templateInfo.transcodeTemplateDetail.transcodeTemplateSelector) {
+      let fileName = parms.fileName;
+      if (!fileName) {
+        if (parms.orgFiles && parms.orgFiles.length) {
+          fileName = parms.orgFiles[0].fileName;
+        }
+      }
       // 获取符合条件的转码模板ID
-      templateService.getTranscodeTemplate(downloadTemplateId, params.filename, (err, transcodeTemplateId) => {
+      templateService.getTranscodeTemplate(downloadTemplateId, fileName, (err, transcodeTemplateId) => {
         if (err) {
           return cb && cb(err);
         }
-
-        // 只有需要转码的才需要传字幕合成方式参数
-        if (subtitleType && subtitleType.length > 0) {
-          subtitleParams.subtitleTypes = subtitleType;
-        }
-
-        downloadRequest(false, false, transcodeTemplateId, instanceData, (err) => {
+        parms.transcodeTemplateId = transcodeTemplateId;
+        downloadRequest(false, false, transcodeTemplateId, info, (err) => {
           if (err) {
             return cb && cb(err);
           }
@@ -712,7 +677,7 @@ service.download = function download(info, cb) {
         });
       });
     } else {
-      downloadRequest(false, false, false, instanceData, (err) => {
+      downloadRequest(false, false, false, info, (err) => {
         if (err) {
           return cb && cb(err);
         }
@@ -766,9 +731,9 @@ service.updateJson = function updateJson(updateJsonParams, res) {
   });
 };
 
-service.list = function list(listParams, res) {
+service.list = function list(listParams, cb) {
   if (!listParams) {
-    return res.end(errorCall('jobListParamsIsNull'));
+    return cb && cb(i18n.t('jobListParamsIsNull'));
   }
 
   const params = utils.merge({
@@ -796,7 +761,12 @@ service.list = function list(listParams, res) {
     params.processType = listParams.processType;
   }
 
-  request.get('/JobService/list', params, res);
+  workflowService.instanceList(listParams.page, listParams.pageSize, listParams.status, listParams.userId, listParams.processType, (err, rs) => {
+    if (err) {
+      return cb && cb(i18n.t('jobListResponseError', { error: err }));
+    }
+    return cb && cb(null, rs);
+  });
 };
 
 service.query = function query(queryParams, res) {

@@ -237,11 +237,11 @@ service.getConfig = function getSearchConfig(query, cb) {
 };
 
 service.getConfigByGroupNameAndKey = (groupName, key, cb) => {
-  if(!groupName) {
+  if (!groupName) {
     return cb && cb(i18n.t('validateError', { param: 'groupName' }));
   }
 
-  if(!key) {
+  if (!key) {
     return cb && cb(i18n.t('validateError', { param: 'key' }));
   }
 
@@ -251,11 +251,11 @@ service.getConfigByGroupNameAndKey = (groupName, key, cb) => {
       return cb && cb(i18n.t('databaseError'));
     }
 
-    if(!doc) {
+    if (!doc) {
       return cb && cb(i18n.t('configurationGroupIsNotExist'));
     }
 
-    configurationInfo.collection.findOne({ genre: doc._id, key: key }, (err, info) => {
+    configurationInfo.collection.findOne({ genre: doc._id, key }, (err, info) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));

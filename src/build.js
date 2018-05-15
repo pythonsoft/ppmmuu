@@ -30,19 +30,19 @@ const deployPaths = {
   '/Users/steven/': {
     ump: '/Users/steven/Desktop/ump',
     fe: '/Users/steven/UMP-FE',
-  }
+  },
 };
 
 const getDeployPath = () => {
-  for(let k in deployPaths) {
-    if(fs.existsSync(k)) {
+  for (const k in deployPaths) {
+    if (fs.existsSync(k)) {
       UMP_DEPLOY_PATH = deployPaths[k].ump;
       FE_PROJECT_PATH = deployPaths[k].fe;
       break;
     }
   }
 
-  if(!UMP_DEPLOY_PATH) {
+  if (!UMP_DEPLOY_PATH) {
     throw new Error('deployPaths not exist.');
   }
 
@@ -130,7 +130,7 @@ const writeApiFuncFile = function (filePath, funcName, funcType, funcUrl) {
   fs.appendFileSync(filePath, tpl);
 };
 
-const writeUploadApiFuncFile = function(filePath, funcName, funcType, funcUrl) {
+const writeUploadApiFuncFile = function (filePath, funcName, funcType, funcUrl) {
   const tpl = `api.${funcName} = function ${funcName}(param, config) {
   return new Promise((resolve, reject) => {
     axios.${funcType}('${funcUrl}', param, config).then((response) => {
@@ -149,7 +149,7 @@ const writeUploadApiFuncFile = function(filePath, funcName, funcType, funcUrl) {
   fs.appendFileSync(filePath, tpl);
 };
 
-const writeGetIconApiFuncFile = function(filePath, funcName, funcType, funcUrl) {
+const writeGetIconApiFuncFile = function (filePath, funcName, funcType, funcUrl) {
   const tpl = `api.${funcName} = function ${funcName}(id, fromWhere) {
   return axios.defaults.baseURL + '${funcUrl}?objectid=' + id + '&fromWhere=' + fromWhere;
 };
