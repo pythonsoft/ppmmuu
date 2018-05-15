@@ -12,12 +12,10 @@ const workflow = {
 
 const service = {};
 
-const composeURL = (url) => {
-  return `${config.instance.protocol}://${config.instance.host}:${config.instance.port}${url}`;
-};
+const composeURL = url => `${config.instance.protocol}://${config.instance.host}:${config.instance.port}${url}`;
 
 const co = (err, res, body, cb) => {
-  if(err) {
+  if (err) {
     return cb && cb(typeof err === 'string' ? err : err.message);
   }
 
@@ -30,17 +28,16 @@ const co = (err, res, body, cb) => {
   try {
     let responseBody = {};
 
-    if(typeof body === 'string') {
+    if (typeof body === 'string') {
       responseBody = JSON.parse(body);
-    }else {
+    } else {
       responseBody = body;
     }
 
-    if(responseBody.status === 0 || responseBody.status === '0') {
+    if (responseBody.status === 0 || responseBody.status === '0') {
       return cb && cb(null, responseBody.result);
-    }else {
-      return cb && cb(responseBody.result);
     }
+    return cb && cb(responseBody.result);
   } catch (e) {
     return cb && cb(e.message);
   }
@@ -48,38 +45,38 @@ const co = (err, res, body, cb) => {
 
 /* instance */
 service.instanceCreate = (name, workflowId, parms, priority, cb) => {
-  if(!workflowId) {
+  if (!workflowId) {
     return cb && cb(i18n.t('instanceParamsError', { error: 'workflowId' }));
   }
 
-  if(!parms || utils.isEmptyObject(parms)) {
+  if (!parms || utils.isEmptyObject(parms)) {
     return cb && cb(i18n.t('instanceParamsError', { error: 'params' }));
   }
 
   const postData = {
     name: name || workflowId,
     workflowId,
-    parms: parms,
-    priority: priority || 0
+    parms,
+    priority: priority || 0,
   };
 
   const options = {
     method: 'POST',
     url: composeURL('/instance/create'),
     headers:
-      { 'cache-control': 'no-cache',
-        'content-type': 'application/json' },
+    { 'cache-control': 'no-cache',
+      'content-type': 'application/json' },
     body: postData,
-    json: true
+    json: true,
   };
 
-  request(options, function (err, res, body) {
+  request(options, (err, res, body) => {
     co(err, res, body, cb);
   });
 };
 
 service.instanceDetail = (id, cb) => {
-  if(!id) {
+  if (!id) {
     return cb && cb(i18n.t('instanceParamsError', { error: 'id' }));
   }
 
@@ -96,15 +93,15 @@ service.instanceList = (page = 1, pageSize = 20, status, userId, workflowKey, cb
   let params = `/instance/list?page=${page}&pageSize=${pageSize}`;
 
   if (status) {
-    params += ('&status=' + status);
+    params += (`&status=${status}`);
   }
 
   if (workflowId) {
-    params += ('&workflowId=' + workflowId);
+    params += (`&workflowId=${workflowId}`);
   }
 
   if (userId) {
-    params += ('&userId=' + userId);
+    params += (`&userId=${userId}`);
   }
 
   console.log(params);
@@ -132,15 +129,15 @@ service.definitionList = (page, pageSize, keyword, cb) => {
 };
 
 service.definitionCreate = (name, definition, description, cb) => {
-  if(!name) {
+  if (!name) {
     return cb && cb(i18n.t('instanceParamsError', { error: 'name' }));
   }
 
-  if(!definition) {
+  if (!definition) {
     return cb && cb(i18n.t('instanceParamsError', { error: 'definition' }));
   }
 
-  if(!description) {
+  if (!description) {
     return cb && cb(i18n.t('instanceParamsError', { error: 'description' }));
   }
 
@@ -154,55 +151,55 @@ service.definitionCreate = (name, definition, description, cb) => {
     method: 'POST',
     url: composeURL('/definition/create'),
     headers:
-      { 'cache-control': 'no-cache',
-        'content-type': 'application/json' },
+    { 'cache-control': 'no-cache',
+      'content-type': 'application/json' },
     body: postData,
-    json: true
+    json: true,
   };
 
-  request(options, function (err, res, body) {
+  request(options, (err, res, body) => {
     co(err, res, body, cb);
   });
 };
 
 service.definitionUpdate = (id, info, cb) => {
-  if(!id) {
+  if (!id) {
     return cb && cb(i18n.t('instanceParamsError', { error: 'id' }));
   }
 
   const postData = {
-    id
+    id,
   };
 
-  if(typeof info.name !== 'undefined') {
-    postData['name'] = info.name;
+  if (typeof info.name !== 'undefined') {
+    postData.name = info.name;
   }
 
-  if(typeof info.definition !== 'undefined') {
-    postData['definition'] = info.definition;
+  if (typeof info.definition !== 'undefined') {
+    postData.definition = info.definition;
   }
 
-  if(typeof info.description !== 'undefined') {
-    postData['description'] = info.description;
+  if (typeof info.description !== 'undefined') {
+    postData.description = info.description;
   }
 
   const options = {
     method: 'POST',
     url: composeURL('/definition/update'),
     headers:
-      { 'cache-control': 'no-cache',
-        'content-type': 'application/json' },
+    { 'cache-control': 'no-cache',
+      'content-type': 'application/json' },
     body: postData,
-    json: true
+    json: true,
   };
 
-  request(options, function (err, res, body) {
+  request(options, (err, res, body) => {
     co(err, res, body, cb);
   });
 };
 
 service.definitionDetail = (id, cb) => {
-  if(!id) {
+  if (!id) {
     return cb && cb(i18n.t('instanceParamsError', { error: 'id' }));
   }
 

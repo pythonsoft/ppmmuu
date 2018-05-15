@@ -7,6 +7,7 @@ const result = require('../../common/result');
 const service = require('./service');
 
 const isLogin = require('../../middleware/login');
+
 router.use(isLogin.middleware);
 
 /**
@@ -67,14 +68,14 @@ router.use(isLogin.middleware);
  *              properties:
  *                message:
  *                  type: string
- **/
+ * */
 router.post('/instance/create', (req, res) => {
   service.instanceCreate(
     req.body.name,
     req.body.workflowId,
     req.body.parms,
     req.body.priority,
-    (err, docs) => res.json(result.json(err, docs))
+    (err, docs) => res.json(result.json(err, docs)),
   );
 });
 
@@ -277,7 +278,7 @@ router.get('/definition/list', (req, res) => {
  *              properties:
  *                message:
  *                  type: string
- **/
+ * */
 router.post('/definition/create', (req, res) => {
   service.definitionCreate(req.body.name, req.body.definition, req.body.description, (err, doc) => res.json(result.json(err, 'ok')));
 });
@@ -337,7 +338,7 @@ router.post('/definition/create', (req, res) => {
  *              properties:
  *                message:
  *                  type: string
- **/
+ * */
 router.post('/definition/update', (req, res) => {
   service.definitionUpdate(req.body.id, req.body, (err, doc) => res.json(result.json(err, 'ok')));
 });

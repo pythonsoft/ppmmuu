@@ -464,81 +464,82 @@ service.copy = function copy(info, needDelete = false, cb) {
 
   srcIds = srcIds.split(',');
 
-  if (srcOwnerType === ItemInfo.OWNER_TYPE)
-  itemInfo.collection.findOne({ _id: destId }, (err, dest) => {
-    if (err) {
-      logger.error(err.message);
-      return cb && cb(i18n.t('databaseError'));
-    }
-
-    if (!dest) {
-      return cb && cb(i18n.t('ivideoProjectCopyDestinationNotFound'));
-    }
-
-    const copyInfos = [];
-    const newIds = {};
-    const allIds = [];
-    itemInfo.collection.find({ _id: { $in: srcIds } }).toArray((err, docs) => {
+  if (srcOwnerType === ItemInfo.OWNER_TYPE) {
+    itemInfo.collection.findOne({ _id: destId }, (err, dest) => {
       if (err) {
         logger.error(err.message);
         return cb && cb(i18n.t('databaseError'));
       }
-      if (!docs || !docs.length) {
-        return cb && cb(i18n.t('ivideoProjectCopySourceNotFound'));
+
+      if (!dest) {
+        return cb && cb(i18n.t('ivideoProjectCopyDestinationNotFound'));
       }
-      for (let i = 0, len = docs.length; i < len; i++) {
-        if (docs[i].type === ItemInfo.TYPE.DEFAULT_DIRECTORY || docs[i].canRemove === ItemInfo.CAN_REVMOE.NO) {
-          return cb && cb(i18n.t('ivideoProjectCannotCopyOrMove'));
+
+      const copyInfos = [];
+      const newIds = {};
+      const allIds = [];
+      itemInfo.collection.find({ _id: { $in: srcIds } }).toArray((err, docs) => {
+        if (err) {
+          logger.error(err.message);
+          return cb && cb(i18n.t('databaseError'));
         }
-        newIds[docs[i].parentId] = dest._id;
-      }
-      const loopGetChildren = function loopGetChildren(docs) {
         if (!docs || !docs.length) {
-          itemInfo.collection.insertMany(copyInfos, (err) => {
-            if (err) {
-              logger.error(err.message);
-              return cb && cb(i18n.t('databaseError'));
-            }
-            if (!needDelete) {
-              return cb && cb(null, 'ok');
-            }
-            itemInfo.collection.removeMany({ _id: { $in: allIds } }, (err) => {
+          return cb && cb(i18n.t('ivideoProjectCopySourceNotFound'));
+        }
+        for (let i = 0, len = docs.length; i < len; i++) {
+          if (docs[i].type === ItemInfo.TYPE.DEFAULT_DIRECTORY || docs[i].canRemove === ItemInfo.CAN_REVMOE.NO) {
+            return cb && cb(i18n.t('ivideoProjectCannotCopyOrMove'));
+          }
+          newIds[docs[i].parentId] = dest._id;
+        }
+        const loopGetChildren = function loopGetChildren(docs) {
+          if (!docs || !docs.length) {
+            itemInfo.collection.insertMany(copyInfos, (err) => {
               if (err) {
+             logger.error(err.message);
+             return cb && cb(i18n.t('databaseError'));
+           }
+              if (!needDelete) {
+             return cb && cb(null, 'ok');
+           }
+              itemInfo.collection.removeMany({ _id: { $in: allIds } }, (err) => {
+             if (err) {
                 logger.error(err.message);
                 return cb && cb(i18n.t('databaseError'));
               }
-              return cb && cb(null, 'ok');
+             return cb && cb(null, 'ok');
+           });
             });
-          });
-        } else {
-          const ids = [];
-          const cloneDocs = JSON.parse(JSON.stringify(docs));
-          for (let i = 0, len = docs.length; i < len; i++) {
-            allIds.push(docs[i]._id);
-            ids.push(docs[i]._id);
-            const newId = uuid.v1();
-            cloneDocs[i]._id = newId;
-            cloneDocs[i].parentId = newIds[cloneDocs[i].parentId];
-            cloneDocs[i].ownerType = dest.ownerType;
-            newIds[docs[i]._id] = newId;
-            cloneDocs[i].createdTime = new Date();
-            cloneDocs[i].modifyTime = new Date();
-            cloneDocs[i].creatorId = creatorId;
-            cloneDocs[i].creator = creator;
-            copyInfos.push(cloneDocs[i]);
-          }
-          itemInfo.collection.find({ parentId: { $in: ids } }).toArray((err, docs) => {
-            if (err) {
-              logger.error(err.message);
-              return cb && cb(i18n.t('databaseError'));
+          } else {
+            const ids = [];
+            const cloneDocs = JSON.parse(JSON.stringify(docs));
+            for (let i = 0, len = docs.length; i < len; i++) {
+              allIds.push(docs[i]._id);
+              ids.push(docs[i]._id);
+              const newId = uuid.v1();
+              cloneDocs[i]._id = newId;
+              cloneDocs[i].parentId = newIds[cloneDocs[i].parentId];
+              cloneDocs[i].ownerType = dest.ownerType;
+              newIds[docs[i]._id] = newId;
+              cloneDocs[i].createdTime = new Date();
+              cloneDocs[i].modifyTime = new Date();
+              cloneDocs[i].creatorId = creatorId;
+              cloneDocs[i].creator = creator;
+              copyInfos.push(cloneDocs[i]);
             }
-            loopGetChildren(docs);
-          });
-        }
-      };
-      loopGetChildren(docs);
+            itemInfo.collection.find({ parentId: { $in: ids } }).toArray((err, docs) => {
+              if (err) {
+             logger.error(err.message);
+             return cb && cb(i18n.t('databaseError'));
+           }
+              loopGetChildren(docs);
+            });
+          }
+        };
+        loopGetChildren(docs);
+      });
     });
-  });
+  }
 };
 
 

@@ -172,7 +172,7 @@ router.get('/listTask', (req, res) => {
  *              properties:
  *                message:
  *                  type: string
- **/
+ * */
 router.post('/deleteShelfTask', (req, res) => {
   shelfService.deleteShelfTask(req, (err, r) => res.json(result.json(err, r)));
 });
