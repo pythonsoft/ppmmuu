@@ -766,9 +766,9 @@ service.updateJson = function updateJson(updateJsonParams, res) {
   });
 };
 
-service.list = function list(listParams, res) {
+service.list = function list(listParams, cb) {
   if (!listParams) {
-    return res.end(errorCall('jobListParamsIsNull'));
+    return cb && cb(i18n.t('jobListParamsIsNull'));
   }
 
   const params = utils.merge({
@@ -796,7 +796,12 @@ service.list = function list(listParams, res) {
     params.processType = listParams.processType;
   }
 
-  request.get('/JobService/list', params, res);
+  workflowService.instanceList(listParams.page, listParams.pageSize, listParams.status, listParams.userId, listParams.processType, (err, rs) => {
+    if (err) {
+      return cb && cb(i18n.t('jobListResponseError', { error: err }));
+    }
+    return cb && cb(null, rs);
+  });
 };
 
 service.query = function query(queryParams, res) {

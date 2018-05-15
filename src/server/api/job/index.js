@@ -317,15 +317,13 @@ router.post('/updateTemplate', (req, res) => {
  *         description: taskList
  */
 router.get('/list', (req, res) => {
-  const page = req.query.page;
+  const page = req.query.page || 1;
   const pageSize = req.query.pageSize;
   const status = req.query.status || '';
   const currentStep = req.query.currentStep || '-1';
   const processType = req.query.processType || '';
   const userId = req.query.userId;
-
-  res.set('Content-Type', 'application/json');
-  service.list({ page: page * 1, pageSize: pageSize * 1, status, currentStep, userId, processType }, res);
+  service.list({ page: page * 1, pageSize: pageSize * 1, status, currentStep, userId, processType }, (err, rs) => res.json(result.json(err, rs)));
 });
 
 /**

@@ -144,7 +144,7 @@ router.get('/instance/detail', (req, res) => {
  *         description:
  * */
 router.get('/instance/list', (req, res) => {
-  service.instanceList(req.query.page || 1, req.query.pageSize || 20, req.query.status, (err, doc) => res.json(result.json(err, doc)));
+  service.instanceList(req.query.page || 1, req.query.pageSize || 20, req.query.status, '', '', (err, doc) => res.json(result.json(err, doc)));
 });
 
 /**

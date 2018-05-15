@@ -3,6 +3,13 @@ const config = require('../../config');
 const i18n = require('i18next');
 const utils = require('../../common/utils');
 
+const workflow = {
+  editImportShelve: '33c62d82-6ac1-4458-b665-f3c4b00b1278',  // 快编，入库，上架
+  download: '0dfa68fa-2f25-4d8c-a466-bc7c24b3b0d6',          // 下载
+  shelve: 'c73241d2-2c96-4cb1-a687-ad5db00573e9',            // 直接上架
+  import: 'd5d48b0b-ea1b-4a4d-baf7-0001f3a08b41',            // 入库
+};
+
 const service = {};
 
 const composeURL = (url) => {
@@ -81,12 +88,26 @@ service.instanceDetail = (id, cb) => {
   });
 };
 
-service.instanceList = (page=1, pageSize=20, status, cb) => {
+service.instanceList = (page = 1, pageSize = 20, status, userId, workflowKey, cb) => {
+  let workflowId = '';
+  if (workflowKey && workflow[workflowKey]) {
+    workflowId = workflow[workflowKey];
+  }
   let params = `/instance/list?page=${page}&pageSize=${pageSize}`;
 
-  if(status) {
-    params += ('&&status=' + status);
+  if (status) {
+    params += ('&status=' + status);
   }
+
+  if (workflowId) {
+    params += ('&workflowId=' + workflowId);
+  }
+
+  if (userId) {
+    params += ('&userId=' + userId);
+  }
+
+  console.log(params);
 
   request(composeURL(params), (err, res, body) => {
     co(err, res, body, cb);
@@ -94,7 +115,7 @@ service.instanceList = (page=1, pageSize=20, status, cb) => {
 };
 
 service.instanceLogList = (workflowInstanceId, cb) => {
-  if(!workflowInstanceId) {
+  if (!workflowInstanceId) {
     return cb && cb(i18n.t('instanceParamsError', { error: 'workflowInstanceId' }));
   }
 

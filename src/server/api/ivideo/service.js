@@ -463,6 +463,8 @@ service.copy = function copy(info, needDelete = false, cb) {
   }
 
   srcIds = srcIds.split(',');
+
+  if (srcOwnerType === ItemInfo.OWNER_TYPE)
   itemInfo.collection.findOne({ _id: destId }, (err, dest) => {
     if (err) {
       logger.error(err.message);

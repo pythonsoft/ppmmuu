@@ -1281,5 +1281,9 @@ module.exports = {
     code: '-300002',
     message: '流程结果返回出错: {{error}}',
   },
+  jobListResponseError: {
+    code: '-300003',
+    message: '流程列表接口返回出错: {{error}}',
+  },
 };
 
