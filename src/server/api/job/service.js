@@ -355,9 +355,10 @@ service.jugeTemplateAuditAndCreateAudit = function jugeTemplateAuditAndCreateAud
   let objectid = info.parms.objectId || '';
   let fromWhere = info.parms.from || CatalogInfo.FROM_WHERE.MAM;
   if (!objectid) {
-    if (info.parms.orgFiles && info.parms.orgFiles.length) {
-      objectid = info.parms.orgFiles[0].objectId;
-      fromWhere = info.parms.orgFiles[0].fromWhere || CatalogInfo.FROM_WHERE.MAM;
+    if (info.parms.orgFiles) {
+      const orgFiles = JSON.parse(info.parms.orgFiles);
+      objectid = orgFiles[0].objectId;
+      fromWhere = orgFiles[0].fromWhere || CatalogInfo.FROM_WHERE.MAM;
     }
   }
   objectid = objectid.split(',');
@@ -648,8 +649,8 @@ service.download = function download(info, cb) {
     if (err) {
       return cb && cb(err);
     }
-    if (rs.bucketInfo && rs.bucketInfo._id) {
-      parms.bucketId = rs.bucketInfo._id;
+    if (rs.downloadPath) {
+      parms.bucketId = rs.downloadPath;
     }
     delete info.userInfo;
     delete info.isMultiDownload;
@@ -659,8 +660,9 @@ service.download = function download(info, cb) {
         rs.templateInfo.transcodeTemplateDetail.transcodeTemplates.length > 0 && rs.templateInfo.transcodeTemplateDetail.transcodeTemplateSelector) {
       let fileName = parms.fileName;
       if (!fileName) {
-        if (parms.orgFiles && parms.orgFiles.length) {
-          fileName = parms.orgFiles[0].fileName;
+        if (parms.orgFiles) {
+          const orgFiles = JSON.parse(parms.orgFiles);
+          fileName = orgFiles[0].fileName;
         }
       }
       // 获取符合条件的转码模板ID
