@@ -44,7 +44,7 @@ const co = (err, res, body, cb) => {
 };
 
 /* instance */
-service.instanceCreate = (name, workflowId, parms, priority, cb) => {
+service.instanceCreate = (userInfo, name, workflowId, parms, priority, cb) => {
   if (!workflowId) {
     return cb && cb(i18n.t('instanceParamsError', { error: 'workflowId' }));
   }
@@ -58,6 +58,8 @@ service.instanceCreate = (name, workflowId, parms, priority, cb) => {
     workflowId,
     parms,
     priority: priority || 0,
+    userId: userInfo._id,
+    username: userInfo.name,
   };
 
   const options = {

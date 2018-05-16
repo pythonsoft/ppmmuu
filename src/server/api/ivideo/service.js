@@ -557,7 +557,7 @@ service.warehouse = function warehouse(info, cb) {
   info.name = 'Edit_Import_Shelve';
 
   console.log(JSON.stringify(info));
-  workflowService.instanceCreate(info.name, info.workflowId, info.parms, info.priority, (err, rs) => {
+  workflowService.instanceCreate(info.creator, info.name, info.workflowId, info.parms, info.priority, (err, rs) => {
     if (err) {
       return cb && cb(i18n.t('instanceResponseError', { error: err }));
     }

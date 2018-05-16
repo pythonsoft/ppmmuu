@@ -16,7 +16,7 @@ class CatalogInfo extends DB {
       _id: { type: 'string', default() { return uuid.v1(); }, allowUpdate: false },
       objectId: { type: 'string', validation: 'require' },
       name: { type: 'string' },
-      englishName: { type: 'string', validation: 'require' },
+      englishName: { type: 'string' },
       chineseName: { type: 'string', validation: 'require' },
       parentId: { type: 'string' },
       keyword: { type: 'string' },

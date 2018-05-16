@@ -23,6 +23,10 @@ let UMP_DEPLOY_PATH = '';
 let FE_PROJECT_PATH = '';
 
 const deployPaths = {
+  '/Users/luoting/': {
+    ump: '/Users/luoting/Desktop/ump',
+    fe: '/Users/luoting/phoenixtv/ump-fe',
+  },
   '/Users/chaoningx/': {
     ump: '/Users/chaoningx/Desktop/ump',              // 生成的打包文件目录
     fe: '/Users/chaoningx/WebstormProjects/ump-fe',   // ump-fe项目目录

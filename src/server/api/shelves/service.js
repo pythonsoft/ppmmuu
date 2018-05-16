@@ -1250,7 +1250,7 @@ service.warehouse = function warehouse(info, cb) {
       catalogName: info.catalogName || '',
     };
     console.log(JSON.stringify(params));
-    workflowService.instanceCreate(params.name, params.workflowId, params.parms, params.priority, (err, rs) => {
+    workflowService.instanceCreate(info.creator, params.name, params.workflowId, params.parms, params.priority, (err, rs) => {
       if (err) {
         return cb && cb(i18n.t('shelfProcessError', { error: err }));
       }
