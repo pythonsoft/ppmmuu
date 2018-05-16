@@ -628,6 +628,8 @@ service.download = function download(info, cb) {
   const downloadTemplateId = info.templateId; // 下载模板Id
   const parms = info.parms;
   const userInfo = info.userInfo;
+  info.userId = userInfo._id;
+  info.userName = userInfo.name;
 
   const struct = {
     workflowId: { type: 'string', validation: 'require' },
